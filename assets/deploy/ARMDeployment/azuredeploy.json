@@ -1,0 +1,145 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+  },
+  "variables": {
+    "iothubname": "[substring(toLower(concat('iotedgehub', uniqueString(resourceGroup().id))), 0, 20)]",
+    "iotedgestg": "[substring(toLower(concat('iotedgestg', uniqueString(resourceGroup().id))), 0, 20)]",
+    "storageApiVersion": "2017-06-01",
+    "iotHubStgCntrName": "iotdedge",
+    "iothubApiVersion": "2016-02-03",
+    "registryName": "[substring(toLower(concat('iotedgacr', uniqueString(resourceGroup().id))), 0, 20)]",
+    "registryLocation": "[resourceGroup().location]",
+    "registrySku": "Standard",
+    "registryApiVersion": "2017-10-01",
+    "adminUserEnabled": "true"
+  },
+  "resources": [
+    {
+      "kind": "Storage",
+      "type": "Microsoft.Storage/storageAccounts",
+      "location": "[resourceGroup().location]",
+      "name": "[variables('iotedgestg')]",
+      "apiVersion": "[variables('storageApiVersion')]",
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "dependsOn": [],
+      "tags": {
+        "displayName": "IoT Edge Storage"
+      }
+    },
+    {
+      "type": "Microsoft.Devices/IotHubs",
+      "sku": {
+        "name": "S1",
+        "tier": "Standard",
+        "capacity": 1
+      },
+      "name": "[variables('iothubname')]",
+      "apiVersion": "[variables('iotHubApiVersion')]",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "IoT Edge Hub"
+      },
+      "scale": null,
+      "properties": {
+        "operationsMonitoringProperties": {
+          "events": {
+            "None": "None",
+            "Connections": "None",
+            "DeviceTelemetry": "None",
+            "C2DCommands": "None",
+            "DeviceIdentityOperations": "None",
+            "FileUploadOperations": "None",
+            "Routes": "None"
+          }
+        },
+        "ipFilterRules": [],
+        "eventHubEndpoints": {
+          "events": {
+            "retentionTimeInDays": 1,
+            "partitionCount": 4
+          },
+          "operationsMonitoringEvents": {
+            "retentionTimeInDays": 1,
+            "partitionCount": 4
+          }
+        },
+        "routing": {
+          "endpoints": {
+            "serviceBusQueues": [],
+            "serviceBusTopics": [],
+            "eventHubs": []
+          },
+          "routes": [],
+          "fallbackRoute": {
+            "name": "$fallback",
+            "source": "DeviceMessages",
+            "condition": "true",
+            "endpointNames": [
+              "events"
+            ],
+            "isEnabled": true
+          }
+        },
+        "storageEndpoints": {
+          "$default": {
+            "sasTtlAsIso8601": "PT1H",
+            "connectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('iotedgestg'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts/', variables('iotedgestg')), '2017-06-01').keys[0].value)]",
+            "containerName": "[variables('iotHubStgCntrName')]"
+          }
+        },
+        "enableFileUploadNotifications": false,
+        "cloudToDevice": {
+          "maxDeliveryCount": 10,
+          "defaultTtlAsIso8601": "PT1H",
+          "feedback": {
+            "lockDurationAsIso8601": "PT1M",
+            "ttlAsIso8601": "PT1H",
+            "maxDeliveryCount": 10
+          }
+        },
+        "features": "None"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Storage/storageAccounts/', variables('iotedgestg'))]"
+      ]
+    },
+    {
+      "name": "[variables('registryName')]",
+      "type": "Microsoft.ContainerRegistry/registries",
+      "location": "[variables('registryLocation')]",
+      "apiVersion": "[variables('registryApiVersion')]",
+      "tags": {
+        "displayName": "ACR Registry"
+      },
+      "sku": {
+        "name": "[variables('registrySku')]"
+      },
+      "properties": {
+        "adminUserEnabled": "[variables('adminUserEnabled')]"
+      }
+    }
+  ],
+  "outputs": {
+    "IOTHUB_CONNECTIONSTRING": {
+      "type": "string",
+      "value": "[concat('HostName=', reference(concat('Microsoft.Devices/IotHubs/', variables('iothubname')), variables('iothubApiVersion')).hostName, ';SharedAccessKeyName=iothubowner;SharedAccessKey=', listKeys(variables('iothubname'), variables('iotHubApiversion')).value[0].primaryKey)]"
+    },
+    "CONTAINER_REGISTRY_NAME": {
+      "type": "string",
+      "value": "[reference(concat('Microsoft.ContainerRegistry/registries/', variables('registryName')), variables('registryApiVersion')).loginServer]"
+    },
+    "CONTAINER_REGISTRY_USERNAME": {
+      "type": "string",
+      "value": "[listCredentials(variables('registryName'), variables('registryApiVersion')).username]"
+    },
+    "CONTAINER_REGISTRY_PASSWORD": {
+      "type": "string",
+      "value": "[listCredentials(variables('registryName'), variables('registryApiVersion')).passwords[0].value]"
+    }
+  }
+}
