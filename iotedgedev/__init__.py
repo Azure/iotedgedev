@@ -4,4 +4,4 @@
 
 __author__ = 'Jon Gallant'
 __email__ = 'info@jongallant.com'
-__version__ = '0.49.0'
+__version__ = '0.50.0'
