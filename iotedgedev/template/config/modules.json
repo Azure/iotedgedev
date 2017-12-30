@@ -1,0 +1,74 @@
+{
+  "moduleContent": {
+    "$edgeAgent": {
+      "properties.desired": {
+        "schemaVersion": "1.0",
+        "runtime": {
+          "type": "docker",
+          "settings": {
+            "minDockerVersion": "v1.25",
+            "loggingOptions": ""
+          }
+        },
+        "systemModules": {
+          "edgeAgent": {
+            "type": "docker",
+            "settings": {
+              "image": "microsoft/azureiotedge-agent:${RUNTIME_TAG}",
+              "createOptions": ""
+            }
+          },
+          "edgeHub": {
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "microsoft/azureiotedge-hub:${RUNTIME_TAG}",
+              "createOptions": ""
+            }
+          }
+        },
+        "modules": {
+          "temp-sensor-module": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "microsoft/azureiotedge-simulated-temperature-sensor:${RUNTIME_TAG}",
+              "createOptions": ""
+            }
+          },
+          "filter-module": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "${CONTAINER_REGISTRY_SERVER}/filter-module:linux-x64-${CONTAINER_TAG}",
+              "createOptions": ""
+            }
+          }
+        }
+      }
+    },
+    "$edgeHub": {
+      "properties.desired": {
+        "schemaVersion": "1.0",
+        "routes": {
+          "sensorToFilter": "FROM /messages/modules/temp-sensor-module/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/filter-module/inputs/input1\")",
+          "filterToIoTHub": "FROM /messages/modules/filter-module/outputs/output1 INTO $upstream"
+        },
+        "storeAndForwardConfiguration": {
+          "timeToLiveSecs": 7200
+        }
+      }
+    },
+    "filter-module": {
+      "properties.desired": {
+        "schemaVersion": "1.0",
+        "TemperatureThreshold": 25
+      }
+    }
+  }
+}

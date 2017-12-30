@@ -1,0 +1,8 @@
+include HISTORY.rst
+include LICENSE
+include README.md
+include iotedgedev/template/template.zip
+
+recursive-include tests *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
