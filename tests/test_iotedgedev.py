@@ -41,7 +41,7 @@ class TestIotedgedev(unittest.TestCase):
     def tearDownClass(self):
         """TEARDOWN"""
         os.chdir("..")
-        #shutil.rmtree(os.path.join(root_dir, project), ignore_errors=True)
+        shutil.rmtree(os.path.join(root_dir, project), ignore_errors=True)
         
     def test_version(self):
         """VERSION"""

@@ -17,6 +17,7 @@ import fnmatch
 import inspect
 from hmac import HMAC
 from shutil import copyfile
+from enum import Enum
 from dotenv import load_dotenv
 
 dotenv_path = os.path.join(os.getcwd(), '.env')
@@ -150,6 +151,24 @@ class Utility:
     def get_active_modules(self):
         return [module.strip() for module in self.envvars.ACTIVE_MODULES.split(",") if module]
 
+    def get_modules_in_config(self, moduleType):
+        modules_config = json.load(open(self.envvars.MODULES_CONFIG_FILE))
+
+        props = modules_config["moduleContent"]["$edgeAgent"]["properties.desired"]
+
+        system_modules = props["systemModules"]
+        user_modules = props["modules"]
+
+        if moduleType == ModuleType.System:
+            return system_modules
+        elif moduleType == ModuleType.User:
+            return user_modules
+        else:
+            return_modules = {}
+            return_modules.update(system_modules)
+            return_modules.update(user_modules)
+            return return_modules
+
     def set_config(self):
         self.output.header("PROCESSING CONFIG FILES")
 
@@ -257,7 +276,7 @@ class Modules:
 
                 # 1. dotnet restore
                 # Removing restore as it will now be auto called by build.
-                #self.output.info("Step 1: Restore Module: " + module)
+                # self.output.info("Step 1: Restore Module: " + module)
                 # self.utility.exe_proc(["dotnet", "restore", module_dir,
                 #                       "-v", self.envvars.DOTNET_VERBOSITY])
 
@@ -271,7 +290,7 @@ class Modules:
                     self.output.info("No project file found for module.")
                     continue
 
-                #self.output.info("Building project file: " + project_files[0])
+                # self.output.info("Building project file: " + project_files[0])
 
                 self.utility.exe_proc(["dotnet", "build", project_files[0],
                                        "-v", self.envvars.DOTNET_VERBOSITY])
@@ -360,7 +379,7 @@ class Modules:
 
                         tag_result = self.dock.docker_api.tag(
                             image=image_source_name, repository=image_destination_name)
-                        #self.output.info("Docker Tag Result: {0}".format(tag_result))
+                        # self.output.info("Docker Tag Result: {0}".format(tag_result))
 
                         # push to container registry
                         self.output.info(
@@ -510,7 +529,7 @@ class Docker:
             tag_result = self.docker_api.tag(
                 image=microsoft_image_name, repository=container_registry_image_name)
 
-            #self.output.info("Tag Result: {0}".format(tag_result))
+            # self.output.info("Tag Result: {0}".format(tag_result))
 
             # push to container registry
             for line in self.docker_api.push(repository=container_registry_image_name, stream=True):
@@ -540,7 +559,9 @@ class Docker:
         self.output.info(
             "Removing Edge Modules Containers and Images from Docker")
 
-        for module in self.utility.get_active_modules():
+        modules_in_config = self.utility.get_modules_in_config(ModuleType.User)
+
+        for module in modules_in_config:
             self.output.info("Searching for {0} Containers".format(module))
             containers = self.docker_client.containers.list(
                 filters={"name": module})
@@ -551,7 +572,8 @@ class Docker:
             self.output.info("Searching for {0} Images".format(module))
             for image in self.docker_client.images.list():
                 if module in str(image):
-                    self.output.info("Removing Module Image: " + str(image))
+                    self.output.info(
+                        "Removing Module Image: " + str(image))
                     self.docker_client.images.remove(
                         image=image.id, force=True)
 
@@ -587,23 +609,13 @@ class Docker:
 
     def handle_logs_cmd(self, show, save):
 
-        # self.output.info(self.envvars.MODULES_CONFIG_FILE)
-        modules_config = json.load(open(self.envvars.MODULES_CONFIG_FILE))
-
-        props = modules_config["moduleContent"]["$edgeAgent"]["properties.desired"]
-
-        self.process_logs(show, save, props["systemModules"])
-        self.process_logs(show, save, props["modules"])
-
-        if save:
-            self.zip_logs()
-
-    def process_logs(self, show, save, modules):
         # Create LOGS_PATH dir if it doesn't exist
         if save and not os.path.exists(self.envvars.LOGS_PATH):
             os.makedirs(self.envvars.LOGS_PATH)
 
-        for module in modules:
+        modules_in_config = self.utility.get_modules_in_config(ModuleType.Both)
+
+        for module in modules_in_config:
             if show:
                 try:
                     command = self.envvars.LOGS_CMD.format(module)
@@ -616,10 +628,13 @@ class Docker:
                 try:
                     self.utility.exe_proc(["docker", "logs", module, ">",
                                            os.path.join(self.envvars.LOGS_PATH, module + ".log")], True)
-                except:
+                except Exception as e:
                     self.output.error(
                         "Error while trying to save module log file '{0}'".format(module))
                     self.output.error(e)
+
+        if save:
+            self.zip_logs()
 
     def zip_logs(self):
         log_files = [os.path.join(self.envvars.LOGS_PATH, f)
@@ -637,3 +652,9 @@ class Docker:
         zipf.close()
 
         self.output.info("Log files successfully saved to: " + zip_path)
+
+
+class ModuleType(Enum):
+    System = 1
+    User = 2
+    Both = 3

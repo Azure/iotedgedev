@@ -10,7 +10,7 @@ You will be able to do all of the following with simple one line commands.
 1. View and Save Docker log files: `iotedgedev docker --logs`
 1. Use a Custom Container Registry: `iotedgedev docker --setup-registry`
 
-The project was created by Microsofties that work with Edge customers, who have found it very helpful.  We hope to get a variation of this officially supported by the Azure IoT team in the near future. Your contributions and feedback to this project will help us build an amazing developer experience, so please do not hesitate to participate.
+The project was created by Microsofties that work with IoT Edge customers, who have found it very helpful.  We hope to get a variation of this officially supported by the Azure IoT team in the near future. Your contributions and feedback to this project will help us build an amazing developer experience, so please do not hesitate to participate.
 
 Please see [Azure IoT Edge Dev Resources](https://github.com/jonbgallant/azure-iot-edge-dev) for links to official docs and other Edge dev information.
 
@@ -193,7 +193,127 @@ The- `--setup` command will apply the `/build/runtime.json` file to your Edge de
    
 ### Step 5: Monitor Messages
 
+#### Device Explorer
+
 You can use the [Device Explorer](https://github.com/Azure/azure-iot-sdk-csharp/releases/download/2017-12-2/SetupDeviceExplorer.msi) to monitor the messages that are sent to your IoT Hub.
+
+#### iothub-explorer
+
+You can also use the [iothub-explorer](https://github.com/Azure/iothub-explorer) npm package:
+
+```bash
+npm i -g iothub-explorer
+iothub-explorer --login "iothubowner connection string" monitor-events "your device id"
+```
+
+### Step 6: Create a new Module
+
+After you have everything running from the Edge Tool project template, the next step is to develop all the custom modules you need for your scenario.  Here's how you do that:
+
+1. Install the .NET Core Module Template
+
+    This is the same template I used to create the filter-module.  It includes a sample C# project and Docker files.
+
+    ```bash
+    dotnet new -i Microsoft.Azure.IoT.Edge.Module
+    ```
+
+1. Create a new Module
+
+    From the root of your project:
+
+    ```bash
+    dotnet new  aziotedgemodule -o modules/mymodule
+    ```
+
+    Now, when you run `iotedgedev modules --build` you will see that `mymodule` is also built and pushed to your container registry.
+
+    > Without `iotedgedev` you would have had to do many more steps to get to this point.
+
+1. Add Message Property
+
+    We are going to add a new custom property to the message as it is flowing through the system so we can see that our module is working.
+
+    1. Open `/modules/mymodule/Program.cs`.
+    1. Add the following line right above the `SendEventAsync` call.
+
+    ```csharp
+    pipeMessage.Properties.Add("abc", "123");
+    await deviceClient.SendEventAsync("output1", pipeMessage);
+    ```
+    
+1. Add Module to Config
+
+    1. Open `/config/modules.json`. 
+    1. Copy and paste the filter-module section and change filter-module to mymodule.
+
+    ```javascript
+        "mymodule": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+                "image": "${CONTAINER_REGISTRY_SERVER}/mymodule:linux-x64-${CONTAINER_TAG}",
+                "createOptions": ""
+            }
+        }
+    ```
+    > Make sure you change it in two places, the name and the `settings.image` property.
+
+1. Add Route to Config
+
+    By default, your new module acts as a simple pass through. It receives messages and passes them to the output. We will add `mymodule` in between our existing `sensor` and `filter` modules. 
+
+    1. Open `/config/modules.json`
+    1. Replace `$edgeHub.properties.desired.routes` with the following:
+
+    ```javascript
+        "routes": {
+          "sensorToMyModule": "FROM /messages/modules/temp-sensor-module/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/mymodule/inputs/input1\")",
+          "myModuleToFilter": "FROM /messages/modules/mymodule/outputs/output1 INTO BrokeredEndpoint(\"/modules/filter-module/inputs/input1\")",
+          "filterToIoTHub": "FROM /messages/modules/filter-module/outputs/output1 INTO $upstream"
+        },
+    ```
+
+1. Build, Deploy and Restart the Edge Runtime
+
+    Now that we have the module created, code added, and config updated, we are going to rebuild, deploy our module.
+
+    > You will notice that the Edge Runtime automatically detects a new deployment, retrieves the new module, applies the new route and keeps sending messages.
+
+    `iotedgedev modules --build --deploy`
+
+1. Monitor Messages
+
+    Now when we view the messages flowing through the system, we'll see an additional 'abc' property:
+
+    Here's how with the [iothub-explorer](https://github.com/Azure/iothub-explorer) npm package:
+
+    ```bash
+        npm i -g iothub-explorer
+        iothub-explorer --login "iothubowner connection string" monitor-events "your device id"
+    ```
+
+    ```javascript
+        "machine": {
+            "temperature": 102.97201423520322,
+            "pressure": 10.338583900213024
+        },
+        "ambient": {
+            "temperature": 20.577302686906094,
+            "humidity": 26
+        },
+        "timeCreated": "2017-12-31T15:15:13.8580843Z"
+        }
+        ---- application properties ----
+        {
+            "abc": "123",
+            "MessageType": "Alert"
+        }
+    ```
+
+That's all there is to it.  You can now get started implementing your Edge scenario!
 
 ## Commands
 The `iotedgedev` module has the following commands:
@@ -274,6 +394,7 @@ Run the following to show and save logs with a single command
 ```
 iotedgedev docker --logs
 ```
+
 
 ### Local Docker Registry Setup
 

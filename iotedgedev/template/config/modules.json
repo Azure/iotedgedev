@@ -67,7 +67,7 @@
     "filter-module": {
       "properties.desired": {
         "schemaVersion": "1.0",
-        "TemperatureThreshold": 25
+        "TemperatureThreshold": 21
       }
     }
   }
