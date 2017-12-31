@@ -32,7 +32,7 @@ test_requirements = [
 
 setup(
     name='azure-iot-edge-dev-tool',
-    version='0.50.0',
+    version='0.51.0',
     description="The Azure IoT Edge Dev Tool module greatly simplifies your Edge development process by automating many of your routine manual tasks, such as building, deploying, pushing modules and configuring your Edge Runtime.",
     long_description="See https://github.com/jonbgallant/azure-iot-edge-dev-tool for usage instructions.",
     author="Jon Gallant",
