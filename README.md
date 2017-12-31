@@ -276,7 +276,7 @@ After you have everything running from the Edge Tool project template, the next 
         },
     ```
 
-1. Build, Deploy and Restart the Edge Runtime
+1. Build and Deploy Modules
 
     Now that we have the module created, code added, and config updated, we are going to rebuild, deploy our module.
 
