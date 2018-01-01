@@ -28,7 +28,7 @@ if sys.version_info.major >= 3:
 else:
     from urllib import quote, urlencode
 
-# self.output.info("Python Version: " + sys.version)
+# print("Python Version: " + sys.version)
 
 
 class Output:
@@ -385,7 +385,7 @@ class Modules:
                         self.output.info(
                             "PUSHING DOCKER IMAGE TO: " + image_destination_name)
 
-                        for line in self.dock.docker_client.images.push(repository=image_destination_name, stream=True):
+                        for line in self.dock.docker_client.images.push(repository=image_destination_name, stream=True, auth_config={"username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
                             self.output.procout(self.utility.decode(line))
 
                 self.output.footer("BUILD COMPLETE")
@@ -532,7 +532,7 @@ class Docker:
             # self.output.info("Tag Result: {0}".format(tag_result))
 
             # push to container registry
-            for line in self.docker_api.push(repository=container_registry_image_name, stream=True):
+            for line in self.docker_api.push(repository=container_registry_image_name, stream=True, auth_config={"username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
                 self.output.procout(self.utility.decode(line))
 
         self.setup_registry_in_config(image_names)
