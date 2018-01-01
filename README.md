@@ -1,6 +1,6 @@
 # Azure IoT Edge Dev Tool
 
-The Azure IoT Edge Dev Tool **greatly simplifies** your Azure IoT Edge development process. It has everything you need to get started and helps with your day-to-day Edge development.
+The Azure IoT Edge Dev Tool **greatly simplifies** your Azure IoT Edge development process. It has everything you need to get started and helps with your day-to-day IoT Edge development.
 
 You will be able to do all of the following with simple one line commands.
 
@@ -12,7 +12,7 @@ You will be able to do all of the following with simple one line commands.
 
 The project was created by Microsofties that work with IoT Edge customers, who have found it very helpful.  We hope to get a variation of this officially supported by the Azure IoT team in the near future. Your contributions and feedback to this project will help us build an amazing developer experience, so please do not hesitate to participate.
 
-Please see [Azure IoT Edge Dev Resources](https://github.com/jonbgallant/azure-iot-edge-dev) for links to official docs and other Edge dev information.
+Please see [Azure IoT Edge Dev Resources](https://github.com/jonbgallant/azure-iot-edge-dev) for links to official docs and other IoT Edge dev information.
 
 ## Setup
 ### Azure Setup
@@ -20,6 +20,7 @@ Please see [Azure IoT Edge Dev Resources](https://github.com/jonbgallant/azure-i
 1. [Create Azure Container Registry](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-get-started-portal)
     - Make sure you enable Admin Access when you create the Azure Container Registry
 1. Create Edge Device using the Azure Portal
+    - In your IoT Hub, click "IoT Edge", then click "Add IoT Edge Device"
 
 You can also deploy the IoT Hub and Container Registry with this **Deploy to Azure** template:
 
@@ -27,7 +28,7 @@ You can also deploy the IoT Hub and Container Registry with this **Deploy to Azu
 
 ### Dev Machine Setup
 
-Here's what you need to do to get `iotedgedev` running on your dev machine. If you are using a seperate Edge device, like a Raspberry Pi, you do not need to run all of these steps on your Edge device, you can just use `iotedgectl` directly .  See the [Edge Device Setup](#edge-device-setup) section below for more information on setting up your Edge device.
+Here's what you need to do to get `iotedgedev` running on your dev machine. If you are using a separate Edge device, like a Raspberry Pi, you do not need to run all of these steps on your Edge device, you can just use `iotedgectl` directly .  See the [Edge Device Setup](#edge-device-setup) section below for more information on setting up your Edge device.
 
 > Note: See the ["Test Coverage"](#test-coverage) section below to see what this module has been tested with.
 
