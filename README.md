@@ -4,6 +4,7 @@ The Azure IoT Edge Dev Tool **greatly simplifies** your Azure IoT Edge developme
 
 You will be able to do all of the following with simple one line commands.
 
+1. Install the Azure IoT Edge Dev Tool: `pip install azure-iot-edge-dev-tool`
 1. Create a new Edge project: `iotedgedev project --create`
 1. Build, Push and Deploy modules: `iotedgedev modules --build --deploy`
 1. Setup and Start the Edge Runtime: `iotedgedev runtime --setup --start`
