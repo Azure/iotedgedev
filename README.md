@@ -15,7 +15,12 @@ The project was created by Microsofties that work with IoT Edge customers, who h
 
 Please see [Azure IoT Edge Dev Resources](https://github.com/jonbgallant/azure-iot-edge-dev) for links to official docs and other IoT Edge dev information.
 
-[![Azure IoT Edge Dev Tool: Introduction](https://img.youtube.com/vi/lcDFX8PXqUQ/0.jpg)](https://www.youtube.com/watch?v=lcDFX8PXqUQ)
+## Video Introduction
+The following video provides step-by-step instructions for installing and using the Azure IoT Edge Dev Tool.
+
+[![Azure IoT Edge Dev Tool: Introduction](assets/edgedevtoolintro.png)](https://www.youtube.com/watch?v=lcDFX8PXqUQ)
+
+https://www.youtube.com/watch?v=lcDFX8PXqUQ
 
 ## Setup
 ### Azure Setup
