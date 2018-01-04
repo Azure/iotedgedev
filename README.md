@@ -75,7 +75,7 @@ Here's what you need to do to get `iotedgedev` running on your dev machine. If y
 
     1. Via Pip - Use this if you want to use the tool as is.
         ```
-        pip install -U azure-iot-edge-dev-tool
+        pip install azure-iot-edge-dev-tool
         ```  
 
     1. Via GitHub - Use this if you want to make changes to this tool.

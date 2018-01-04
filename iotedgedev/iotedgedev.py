@@ -18,6 +18,7 @@ import inspect
 from hmac import HMAC
 from shutil import copyfile
 from enum import Enum
+from distutils.util import strtobool
 from dotenv import load_dotenv
 
 dotenv_path = os.path.join(os.getcwd(), '.env')
@@ -56,42 +57,54 @@ class Output:
 class EnvVars:
     def __init__(self, output):
         self.output = output
+        self.checked = False
 
     def check(self):
-        try:
-            self.IOTHUB_NAME = os.environ["IOTHUB_NAME"]
-            self.IOTHUB_KEY = os.environ["IOTHUB_KEY"]
-            self.DEVICE_CONNECTION_STRING = os.environ["DEVICE_CONNECTION_STRING"]
-            self.EDGE_DEVICE_ID = os.environ["EDGE_DEVICE_ID"]
-            self.RUNTIME_HOST_NAME = os.environ["RUNTIME_HOST_NAME"]
-            self.ACTIVE_MODULES = os.environ["ACTIVE_MODULES"]
-            self.ACTIVE_DOCKER_DIRS = os.environ["ACTIVE_DOCKER_DIRS"]
-            self.CONTAINER_REGISTRY_SERVER = os.environ["CONTAINER_REGISTRY_SERVER"]
-            self.CONTAINER_REGISTRY_USERNAME = os.environ["CONTAINER_REGISTRY_USERNAME"]
-            self.CONTAINER_REGISTRY_PASSWORD = os.environ["CONTAINER_REGISTRY_PASSWORD"]
-            self.IOTHUB_POLICY_NAME = os.environ["IOTHUB_POLICY_NAME"]
-            self.CONTAINER_TAG = os.environ["CONTAINER_TAG"]
-            self.RUNTIME_TAG = os.environ["RUNTIME_TAG"]
-            self.RUNTIME_VERBOSITY = os.environ["RUNTIME_VERBOSITY"]
-            self.RUNTIME_HOME_DIR = os.environ["RUNTIME_HOME_DIR"]
-            self.MODULES_CONFIG_FILE = os.environ["MODULES_CONFIG_FILE"]
-            self.RUNTIME_CONFIG_FILE = os.environ["RUNTIME_CONFIG_FILE"]
-            self.LOGS_PATH = os.environ["LOGS_PATH"]
-            self.MODULES_PATH = os.environ["MODULES_PATH"]
-            self.IOT_REST_API_VERSION = os.environ["IOT_REST_API_VERSION"]
-            self.DOTNET_VERBOSITY = os.environ["DOTNET_VERBOSITY"]
-            self.LOGS_CMD = os.environ["LOGS_CMD"]
-        except Exception as e:
-            self.output.error(
-                "Environment variables not configured correctly. Run `iotedgedev project --create [name]` to create a new project with sample .env file. Please see README for variable configuration options.")
-            self.output.error("Variable that caused exception: " + str(e))
-            sys.exit()
+        if not self.checked:
+            try:
+                self.IOTHUB_NAME = os.environ["IOTHUB_NAME"]
+                self.IOTHUB_KEY = os.environ["IOTHUB_KEY"]
+                self.DEVICE_CONNECTION_STRING = os.environ["DEVICE_CONNECTION_STRING"]
+                self.EDGE_DEVICE_ID = os.environ["EDGE_DEVICE_ID"]
+                self.RUNTIME_HOST_NAME = os.environ["RUNTIME_HOST_NAME"]
+                self.ACTIVE_MODULES = os.environ["ACTIVE_MODULES"]
+                self.ACTIVE_DOCKER_DIRS = os.environ["ACTIVE_DOCKER_DIRS"]
+                self.CONTAINER_REGISTRY_SERVER = os.environ["CONTAINER_REGISTRY_SERVER"]
+                self.CONTAINER_REGISTRY_USERNAME = os.environ["CONTAINER_REGISTRY_USERNAME"]
+                self.CONTAINER_REGISTRY_PASSWORD = os.environ["CONTAINER_REGISTRY_PASSWORD"]
+                self.IOTHUB_POLICY_NAME = os.environ["IOTHUB_POLICY_NAME"]
+                self.CONTAINER_TAG = os.environ["CONTAINER_TAG"]
+                self.RUNTIME_TAG = os.environ["RUNTIME_TAG"]
+                self.RUNTIME_VERBOSITY = os.environ["RUNTIME_VERBOSITY"]
+                self.RUNTIME_HOME_DIR = os.environ["RUNTIME_HOME_DIR"]
+                self.MODULES_CONFIG_FILE = os.environ["MODULES_CONFIG_FILE"]
+                self.RUNTIME_CONFIG_FILE = os.environ["RUNTIME_CONFIG_FILE"]
+                self.LOGS_PATH = os.environ["LOGS_PATH"]
+                self.MODULES_PATH = os.environ["MODULES_PATH"]
+                self.IOT_REST_API_VERSION = os.environ["IOT_REST_API_VERSION"]
+                self.DOTNET_VERBOSITY = os.environ["DOTNET_VERBOSITY"]
+                self.LOGS_CMD = os.environ["LOGS_CMD"]
+                self.DOCKER_BASE_URL = os.environ["DOCKER_BASE_URL"]
+                self.DOCKER_TLS = os.environ["DOCKER_TLS"]
+                if self.DOCKER_TLS:
+                    self.DOCKER_TLS = strtobool(self.DOCKER_TLS)
+                else:
+                    self.DOCKER_TLS = False
+            except Exception as e:
+                self.output.error(
+                    "Environment variables not configured correctly. Run `iotedgedev project --create [name]` to create a new project with sample .env file. Please see README for variable configuration options. Tip: You might just need to restart your command prompt to refresh your Environment Variables.")
+                self.output.error("Variable that caused exception: " + str(e))
+                sys.exit(-1)
+
+        self.checked = True
 
 
 class Utility:
     def __init__(self, envvars, output):
         self.envvars = envvars
+        self.envvars.check()
         self.output = output
+        self.config_set = False
 
     def exe_proc(self, params, shell=False):
         proc = subprocess.Popen(
@@ -120,7 +133,7 @@ class Utility:
             HMAC(b64decode(key), sign_key.encode("utf-8"), sha256).digest())
 
         rawtoken = {
-            "sr":  uri,
+            "sr": uri,
             "sig": signature,
             "se": str(int(ttl))
         }
@@ -149,7 +162,8 @@ class Utility:
             config_dir) if f.endswith(".json")]
 
     def get_active_modules(self):
-        return [module.strip() for module in self.envvars.ACTIVE_MODULES.split(",") if module]
+        return [module.strip()
+                             for module in self.envvars.ACTIVE_MODULES.split(",") if module]
 
     def get_modules_in_config(self, moduleType):
         modules_config = json.load(open(self.envvars.MODULES_CONFIG_FILE))
@@ -169,37 +183,43 @@ class Utility:
             return_modules.update(user_modules)
             return return_modules
 
-    def set_config(self):
-        self.output.header("PROCESSING CONFIG FILES")
+    def set_config(self, force=False):
 
-        build_config_dir = os.path.join("build", "config")
+        if not self.config_set or force:
+            self.envvars.check()
+            self.output.header("PROCESSING CONFIG FILES")
 
-        # Create config dir if it doesn't exist
-        if not os.path.exists(build_config_dir):
-            os.makedirs(build_config_dir)
+            build_config_dir = os.path.join("build", "config")
 
-        config_files = self.get_config_files()
+            # Create config dir if it doesn't exist
+            if not os.path.exists(build_config_dir):
+                os.makedirs(build_config_dir)
 
-        if len(config_files) == 0:
-            self.output.info("Unable to find config files in config directory")
-            sys.exit()
+            config_files = self.get_config_files()
 
-        # Expand envars and rewrite to \build\config
-        for config_file in config_files:
+            if len(config_files) == 0:
+                self.output.info(
+                    "Unable to find config files in config directory")
+                sys.exit()
 
-            build_config_file = os.path.join(
-                build_config_dir, os.path.basename(config_file))
+            # Expand envars and rewrite to \build\config
+            for config_file in config_files:
 
-            self.output.info("Expanding '{0}' to '{1}'".format(
-                config_file, build_config_file))
+                build_config_file = os.path.join(
+                    build_config_dir, os.path.basename(config_file))
 
-            config_file_expanded = os.path.expandvars(
-                self.get_file_contents(config_file))
+                self.output.info("Expanding '{0}' to '{1}'".format(
+                    config_file, build_config_file))
 
-            with open(build_config_file, "w") as config_file_build:
-                config_file_build.write(config_file_expanded)
+                config_file_expanded = os.path.expandvars(
+                    self.get_file_contents(config_file))
 
-        self.output.line()
+                with open(build_config_file, "w") as config_file_build:
+                    config_file_build.write(config_file_expanded)
+
+            self.output.line()
+
+        self.config_set = True
 
 
 class Project:
@@ -228,7 +248,9 @@ class Project:
 class Runtime:
     def __init__(self, envvars, utility, output, dock):
         self.envvars = envvars
+        self.envvars.check()
         self.utility = utility
+        self.utility.set_config()
         self.dock = dock
         self.output = output
 
@@ -252,13 +274,22 @@ class Runtime:
         self.utility.exe_proc(["iotedgectl", "--verbose", self.envvars.RUNTIME_VERBOSITY,
                                "status"])
 
+    def restart(self):
+        self.stop()
+        self.dock.remove_modules()
+        self.setup()
+        self.start()
+
 
 class Modules:
     def __init__(self, envvars, utility, output, dock):
         self.envvars = envvars
+        self.envvars.check()
         self.utility = utility
+        self.utility.set_config()
         self.output = output
         self.dock = dock
+        self.dock.init_registry()
 
     def build(self):
         self.output.header("BUILDING MODULES")
@@ -268,47 +299,40 @@ class Modules:
 
         for module in os.listdir(self.envvars.MODULES_PATH):
 
-            if len(modules_to_process) == 0 or modules_to_process[0] == "*" or module in modules_to_process:
+            if len(
+                modules_to_process) == 0 or modules_to_process[0] == "*" or module in modules_to_process:
 
                 module_dir = os.path.join(self.envvars.MODULES_PATH, module)
 
                 self.output.info("BUILDING MODULE: {0}".format(module_dir))
-
-                # 1. dotnet restore
-                # Removing restore as it will now be auto called by build.
-                # self.output.info("Step 1: Restore Module: " + module)
-                # self.utility.exe_proc(["dotnet", "restore", module_dir,
-                #                       "-v", self.envvars.DOTNET_VERBOSITY])
-
-                # 2. dotnet build
 
                 # Find first proj file in module dir and use it.
                 project_files = [os.path.join(module_dir, f) for f in os.listdir(
                     module_dir) if f.endswith("proj")]
 
                 if len(project_files) == 0:
-                    self.output.info("No project file found for module.")
+                    self.output.error("No project file found for module.")
                     continue
-
-                # self.output.info("Building project file: " + project_files[0])
 
                 self.utility.exe_proc(["dotnet", "build", project_files[0],
                                        "-v", self.envvars.DOTNET_VERBOSITY])
 
-                # 3. Get all docker files in project
+                # Get all docker files in project
                 docker_files = self.utility.find_files(
                     module_dir, "Dockerfile*")
 
+                # Filter by Docker Dirs in envvars
                 docker_dirs_process = [docker_dir.strip()
                                        for docker_dir in self.envvars.ACTIVE_DOCKER_DIRS.split(",") if docker_dir]
 
-                # 4. Process each Dockerfile found
+                # Process each Dockerfile found
                 for docker_file in docker_files:
 
                     docker_file_parent_folder = os.path.basename(
                         os.path.dirname(docker_file))
 
-                    if len(docker_dirs_process) == 0 or docker_dirs_process[0] == "*" or docker_file_parent_folder in docker_dirs_process:
+                    if len(
+                        docker_dirs_process) == 0 or docker_dirs_process[0] == "*" or docker_file_parent_folder in docker_dirs_process:
 
                         self.output.info(
                             "PROCESSING DOCKER FILE: " + docker_file)
@@ -340,8 +364,6 @@ class Modules:
                         if not os.path.exists(build_path):
                             os.makedirs(build_path)
 
-                        # self.output.info(build_path)
-
                         # dotnet publish
                         self.output.info(
                             "PUBLISHING PROJECT: " + project_files[0])
@@ -355,37 +377,31 @@ class Modules:
 
                         copyfile(docker_file, build_dockerfile)
 
-                        image_source_name = "{0}:{1}".format(
-                            module, tag_name).lower()
                         image_destination_name = "{0}/{1}:{2}".format(
                             self.envvars.CONTAINER_REGISTRY_SERVER, module, tag_name).lower()
 
-                        # cd to the build output to build the docker image
                         self.output.info(
-                            "BUILDING DOCKER IMAGE: " + image_source_name)
+                            "BUILDING DOCKER IMAGE: " + image_destination_name)
 
+                        # cd to the build output to build the docker image
                         project_dir = os.getcwd()
                         os.chdir(build_path)
+
+                        # BUILD DOCKER IMAGE
                         build_result = self.dock.docker_client.images.build(
-                            tag=image_source_name, path=".", dockerfile=docker_file_name)
+                            tag=image_destination_name, path=".", dockerfile=docker_file_name)
                         self.output.info(
                             "DOCKER IMAGE DETAILS: {0}".format(build_result))
 
+                        # CD BACK UP
                         os.chdir(project_dir)
 
-                        # tag the image
-                        self.output.info("TAGGING DOCKER IMAGE WITH: {0}, {1}".format(
-                            image_source_name, image_destination_name))
-
-                        tag_result = self.dock.docker_api.tag(
-                            image=image_source_name, repository=image_destination_name)
-                        # self.output.info("Docker Tag Result: {0}".format(tag_result))
-
-                        # push to container registry
+                        # PUSH TO CONTAINER REGISTRY
                         self.output.info(
                             "PUSHING DOCKER IMAGE TO: " + image_destination_name)
 
-                        for line in self.dock.docker_client.images.push(repository=image_destination_name, stream=True, auth_config={"username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
+                        for line in self.dock.docker_client.images.push(repository=image_destination_name, tag=tag_name, stream=True, auth_config={
+                                                                        "username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
                             self.output.procout(self.utility.decode(line))
 
                 self.output.footer("BUILD COMPLETE")
@@ -398,7 +414,8 @@ class Modules:
             self.envvars.IOTHUB_POLICY_NAME, self.envvars.IOT_REST_API_VERSION)
         self.output.footer("DEPLOY COMPLETE")
 
-    def deploy_device_configuration(self, iothub_name, iothub_key, device_id, config_file, iothub_policy_name, api_version):
+    def deploy_device_configuration(
+        self, iothub_name, iothub_key, device_id, config_file, iothub_policy_name, api_version):
         resource_uri = iothub_name + ".azure-devices.net"
         token_expiration_period = 60
         deploy_uri = "https://{0}/devices/{1}/applyConfigurationContent?api-version={2}".format(
@@ -431,11 +448,19 @@ class Docker:
 
     def __init__(self, envvars, utility, output):
         self.envvars = envvars
+        self.envvars.check()
         self.utility = utility
+        self.utility.set_config()
         self.output = output
 
-        self.docker_client = docker.from_env()
-        self.docker_api = docker.APIClient()
+        if self.envvars.DOCKER_BASE_URL:
+            self.docker_client = docker.DockerClient(
+                base_url=self.envvars.DOCKER_BASE_URL, tls=self.envvars.DOCKER_TLS)
+            self.docker_api = docker.APIClient(
+                base_url=self.envvars.DOCKER_BASE_URL, tls=self.envvars.DOCKER_TLS)
+        else:
+            self.docker_client = docker.from_env()
+            self.docker_api = docker.APIClient()
 
     def init_registry(self):
 
@@ -458,7 +483,7 @@ class Docker:
             sys.exit()
 
         port = parts[1]
-        ports = {'{0}/tcp'.format(port):  int(port)}
+        ports = {'{0}/tcp'.format(port): int(port)}
 
         try:
             self.output.info("Looking for local 'registry' container")
@@ -498,20 +523,21 @@ class Docker:
                                                          username=self.envvars.CONTAINER_REGISTRY_USERNAME, password=self.envvars.CONTAINER_REGISTRY_PASSWORD)
 
             if api_login_status["Status"] == 'Login Succeeded' and client_login_status["Status"] == "Login Succeeded":
-                self.output.info(
+                 self.output.info(
                     "Successfully logged into container registry: " + self.envvars.CONTAINER_REGISTRY_SERVER)
             else:
-                raise ValueError(str(client_login_status) +
-                                 str(api_login_status))
+                raise ValueError(str(client_login_status))
+
         except Exception as ex:
             self.output.error(
-                "ERROR: Could not login to Container Registry. Please verify your credentials in CONTAINER_REGISTRY_ environment variables.")
+                "ERROR: Could not login to Container Registry. Please verify your credentials in CONTAINER_REGISTRY_ environment variables. If you are using WSL, then please set DOCKER_BASE_URL to the value returned by `echo $DOCKER_host`, such as `tcp://0.0.0.0:2375` and DOCKER_TLS to False.")
             self.output.error(str(ex))
+            sys.exit(-1)
 
     def setup_registry(self):
-        self.output.header("Setting up Container Registry")
+        self.output.header("SETTING UP CONTAINER REGISTRY")
         self.init_registry()
-        self.output.info("Pushing Edge Runtime to Container Registry")
+        self.output.info("PUSHING EDGE IMAGES TO CONTAINER REGISTRY")
         image_names = ["azureiotedge-agent", "azureiotedge-hub",
                        "azureiotedge-simulated-temperature-sensor"]
 
@@ -523,21 +549,46 @@ class Docker:
             container_registry_image_name = "{0}/{1}:{2}".format(
                 self.envvars.CONTAINER_REGISTRY_SERVER, image_name, self.envvars.RUNTIME_TAG)
 
-            for line in self.docker_api.pull(microsoft_image_name, stream=True):
-                self.output.procout(self.utility.decode(line))
+            # Pull image from Microsoft Docker Hub
+            try:
+                self.output.info(
+                    "PULLING IMAGE: '{0}'".format(microsoft_image_name))
+                image_pull = self.docker_client.images.pull(
+                    microsoft_image_name)
+                self.output.info(
+                    "SUCCESSFULLY PULLED IMAGE: '{0}'".format(microsoft_image_name))
+                self.output.info(str(image_pull))
+            except docker.errors.APIError as e:
+                self.output.error(
+                    "ERROR WHILE PULLING IMAGE: '{0}'".format(microsoft_image_name))
+                self.output.error(e)
 
-            tag_result = self.docker_api.tag(
-                image=microsoft_image_name, repository=container_registry_image_name)
+            # Tagging Image with Container Registry Name
+            try:
+                tag_result = self.docker_api.tag(image=microsoft_image_name, repository=container_registry_image_name)
+            except docker.errors.APIError as e:
+                self.output.error(
+                    "ERROR WHILE TAGGING IMAGE: '{0}'".format(microsoft_image_name))
+                self.output.error(e)
+                
+            # Push Image to Container Registry
+            try:
+                self.output.info("PUSHING IMAGE: '{0}'".format(
+                    container_registry_image_name))
 
-            # self.output.info("Tag Result: {0}".format(tag_result))
+                for line in self.docker_client.images.push(repository=container_registry_image_name, tag=self.envvars.RUNTIME_TAG, stream=True, auth_config={"username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
+                    self.output.procout(self.utility.decode(line))
 
-            # push to container registry
-            for line in self.docker_api.push(repository=container_registry_image_name, stream=True, auth_config={"username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
-                self.output.procout(self.utility.decode(line))
+                self.output.info("SUCCESSFULLY PUSHED IMAGE: '{0}'".format(
+                    container_registry_image_name))
+            except docker.errors.APIError as e:
+                self.output.error("ERROR WHILE PUSHING IMAGE: '{0}'".format(
+                    container_registry_image_name))
+                self.output.error(e)
 
         self.setup_registry_in_config(image_names)
 
-        self.utility.set_config()
+        self.utility.set_config(force=True)
 
         self.output.footer("Container Registry Setup Complete")
 

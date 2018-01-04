@@ -77,10 +77,10 @@ class TestIotedgedev(unittest.TestCase):
     #     assert result.exit_code == 0
     #     assert 'Runtime setup successfully.' in result.output
 
-    def test_docker_logs(self):
-        runner = CliRunner()
-        result = runner.invoke(cli.main, ['docker', '--save-logs'])
-        print(result.output)
-        assert result.exit_code == 0
-        assert 'Log files successfully saved' in result.output
+    #def test_docker_logs(self):
+    #    runner = CliRunner()
+    #    result = runner.invoke(cli.main, ['docker', '--save-logs'])
+    #    print(result.output)
+    #    assert result.exit_code == 0
+    #    assert 'Log files successfully saved' in result.output
     
