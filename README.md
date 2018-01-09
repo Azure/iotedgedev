@@ -547,3 +547,12 @@ Please use the [GitHub issues page](https://github.com/jonbgallant/azure-iot-edg
 ## Contributing
 
 Please fork, branch and pull-request any changes you'd like to make.
+
+Run the following command to install all the dependencies needed to build iotedgedev and run the tests.
+
+`pip install -r requirements_dev.txt`
+
+Run the following to run tests.
+
+`tox`
+
