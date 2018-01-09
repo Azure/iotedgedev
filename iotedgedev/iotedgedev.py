@@ -29,7 +29,7 @@ if sys.version_info.major >= 3:
 else:
     from urllib import quote, urlencode
 
-# print("Python Version: " + sys.version)
+#print("Python Version: " + sys.version)
 
 
 class Output:
@@ -84,12 +84,10 @@ class EnvVars:
                 self.IOT_REST_API_VERSION = os.environ["IOT_REST_API_VERSION"]
                 self.DOTNET_VERBOSITY = os.environ["DOTNET_VERBOSITY"]
                 self.LOGS_CMD = os.environ["LOGS_CMD"]
-                self.DOCKER_BASE_URL = os.environ["DOCKER_BASE_URL"]
-                self.DOCKER_TLS = os.environ["DOCKER_TLS"]
-                if self.DOCKER_TLS:
-                    self.DOCKER_TLS = strtobool(self.DOCKER_TLS)
+                if "DOCKER_HOST" in os.environ:
+                    self.DOCKER_HOST = os.environ["DOCKER_HOST"]
                 else:
-                    self.DOCKER_TLS = False
+                    self.DOCKER_HOST = None
             except Exception as e:
                 self.output.error(
                     "Environment variables not configured correctly. Run `iotedgedev project --create [name]` to create a new project with sample .env file. Please see README for variable configuration options. Tip: You might just need to restart your command prompt to refresh your Environment Variables.")
@@ -453,11 +451,9 @@ class Docker:
         self.utility.set_config()
         self.output = output
 
-        if self.envvars.DOCKER_BASE_URL:
-            self.docker_client = docker.DockerClient(
-                base_url=self.envvars.DOCKER_BASE_URL, tls=self.envvars.DOCKER_TLS)
-            self.docker_api = docker.APIClient(
-                base_url=self.envvars.DOCKER_BASE_URL, tls=self.envvars.DOCKER_TLS)
+        if self.envvars.DOCKER_HOST:
+            self.docker_client = docker.DockerClient(base_url=self.envvars.DOCKER_HOST)
+            self.docker_api = docker.APIClient(base_url=self.envvars.DOCKER_HOST)
         else:
             self.docker_client = docker.from_env()
             self.docker_api = docker.APIClient()
@@ -517,20 +513,18 @@ class Docker:
             else:
 
                 client_login_status = self.docker_client.login(registry=self.envvars.CONTAINER_REGISTRY_SERVER,
-                                                               username=self.envvars.CONTAINER_REGISTRY_USERNAME, password=self.envvars.CONTAINER_REGISTRY_PASSWORD)
+                                                               username=self.envvars.CONTAINER_REGISTRY_USERNAME, 
+                                                               password=self.envvars.CONTAINER_REGISTRY_PASSWORD)
 
                 api_login_status = self.docker_api.login(registry=self.envvars.CONTAINER_REGISTRY_SERVER,
-                                                         username=self.envvars.CONTAINER_REGISTRY_USERNAME, password=self.envvars.CONTAINER_REGISTRY_PASSWORD)
-
-            if api_login_status["Status"] == 'Login Succeeded' and client_login_status["Status"] == "Login Succeeded":
-                 self.output.info(
-                    "Successfully logged into container registry: " + self.envvars.CONTAINER_REGISTRY_SERVER)
-            else:
-                raise ValueError(str(client_login_status))
-
+                                                         username=self.envvars.CONTAINER_REGISTRY_USERNAME, 
+                                                         password=self.envvars.CONTAINER_REGISTRY_PASSWORD)
+           
+            self.output.info("Successfully logged into container registry: " + self.envvars.CONTAINER_REGISTRY_SERVER)
+           
         except Exception as ex:
             self.output.error(
-                "ERROR: Could not login to Container Registry. Please verify your credentials in CONTAINER_REGISTRY_ environment variables. If you are using WSL, then please set DOCKER_BASE_URL to the value returned by `echo $DOCKER_host`, such as `tcp://0.0.0.0:2375` and DOCKER_TLS to False.")
+                "ERROR: Could not login to Container Registry. Please verify your credentials in CONTAINER_REGISTRY_ environment variables. If you are using WSL, then please set DOCKER_HOST Enivronment Variable (see readme) to the value returned by `echo $DOCKER_HOST`, such as `tcp://0.0.0.0:2375` and DOCKER_TLS_VERIFY to '' (must be an empty string).")
             self.output.error(str(ex))
             sys.exit(-1)
 

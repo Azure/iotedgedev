@@ -18,8 +18,10 @@ Please see [Azure IoT Edge Dev Resources](https://github.com/jonbgallant/azure-i
 ## Video Introduction
 The following video provides step-by-step instructions for installing and using the Azure IoT Edge Dev Tool.
 
-[![Azure IoT Edge Dev Tool: Introduction](assets/edgedevtoolintro.png)](https://www.youtube.com/watch?v=lcDFX8PXqUQ)
+[![Azure IoT Edge Dev Tool in 2 Minutes](assets/edgedevtool2mins.png)](https://www.youtube.com/watch?v=NsnxMshMhmA)
+https://www.youtube.com/watch?v=NsnxMshMhmA
 
+[![Azure IoT Edge Dev Tool: Introduction](assets/edgedevtoolintro.png)](https://www.youtube.com/watch?v=lcDFX8PXqUQ)
 https://www.youtube.com/watch?v=lcDFX8PXqUQ
 
 ## Setup
@@ -41,14 +43,33 @@ Here's what you need to do to get `iotedgedev` running on your dev machine. If y
 > Note: See the ["Test Coverage"](#test-coverage) section below to see what this module has been tested with.
 
 1. Install **[Docker](https://docs.docker.com/engine/installation/)**
-    - Switch to Linux Containers if you are running Windows.
+    - Windows    
+        - Switch to Linux Containers if you are running Windows.
 
-    **Do not** install via `sudo apt install docker.io`. Use the proper steps for [CE here](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce), or use the [convenience script](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-using-the-convenience-script).
+    - Windows Subsystem for Linux
+
+        1. **Do not** install Docker in WSL, you can use Docker on your Windows machine by modifying the path.
+        1. In Docker Settings/General, Check "Expose Daemon on tcp:// without TLS"
+        1. Execute the following in a Bash terminal. This will make `docker` available in your Bash terminal.
+            
+            ```
+            echo "PATH=\"$PATH:$HOME/bin:$HOME/.local/bin:/mnt/c/Program\ Files/Docker/Docker/resources/bin\"" >> ~/.bashrc
+            echo "alias docker=docker.exe" >> ~/.bashrc
+            echo "alias docker-machine=docker-machine.exe" >> ~/.bashrc
+            echo "alias docker-compose=docker-compose.exe" >> ~/.bashrc
+            echo "export DOCKER_HOST='tcp://localhost:2375'" >> ~/.bashrc
+            source ~/.bashrc
+
+            sudo sh -c "echo Defaults  env_keep += \"DOCKER_HOST\" >> /etc/sudoers.d/docker"
+            ```
+    - Linux
+        1. **Do not** install via `sudo apt install docker.io`. Use the proper steps for [CE here](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce), or use the [convenience script](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-using-the-convenience-script).
+    
+    
 
 1. Install **Python 2.7 or Python 3**
-    
-    - **Linux** - `sudo apt install python-pip` or `sudo apt install python3-pip`
-    - **Windows** - [Install from Python's website](https://www.python.org/downloads/)
+    - Windows - [Install from Python's website](https://www.python.org/downloads/)
+    - Linux - `sudo apt install python-pip` or `sudo apt install python3-pip`
     
 1. Install **[.NET Core SDK](https://www.microsoft.com/net/core#windowscmd)**
     - The .NET Core SDK does not run on ARM, so you do not need to install this on Raspberry Pi.
@@ -162,8 +183,6 @@ The settings used for this module are stored in a .env file in the root of your 
         DEVICE_CONNECTION_STRING="edge device connection string"
         EDGE_DEVICE_ID="edge device id" 
         RUNTIME_HOST_NAME="the computer name that your edge will run on"
-        ACTIVE_MODULES="filter-module" 
-        ACTIVE_DOCKER_DIRS="arm32v7,linux-x64"
         CONTAINER_REGISTRY_SERVER="" 
         CONTAINER_REGISTRY_USERNAME=""
         CONTAINER_REGISTRY_PASSWORD=""
@@ -473,6 +492,7 @@ You can run `iotedgedev` inside a Python Vritual Environment.
 
 This module has been tested with the following:
 - Windows 10 Fall Creators Update
+- Windows Subsystem for Linux, Ubuntu 16.04
 - Ubuntu 16.04
 - Mac Sierra 10.12.6
 - Raspberry Pi with Raspbian Stretch (**.NET Core Runtime Only**, .NET Core SDK not supported on ARM.) - You cannot use Raspberry Pi as a Edge dev machine, but it can host the Edge runtime.
@@ -510,6 +530,11 @@ This module has been tested with the following:
 1. 404 Client Error: Not Found ("No such container: edgeAgent")
 
     I occasionally see this when running `iotedgedev runtime --restart`, but I have never seen it cause any issues.  LMK if you see any issues because of it.
+
+1. ('Connection aborted.', error(2, 'No such file or directory'))
+
+    This means that you have likely do not have DOCKER\_HOST Environment Variable set.  If you are running WSL, then please see the Dev Machine Setup steps above. You have to write DOCKER_HOST to your ~/.bashrc file.
+
     
 ## Backlog
 
