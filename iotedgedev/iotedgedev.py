@@ -524,7 +524,7 @@ class Docker:
            
         except Exception as ex:
             self.output.error(
-                "ERROR: Could not login to Container Registry. Please verify your credentials in CONTAINER_REGISTRY_ environment variables. If you are using WSL, then please set DOCKER_HOST Enivronment Variable (see readme) to the value returned by `echo $DOCKER_HOST`, such as `tcp://0.0.0.0:2375` and DOCKER_TLS_VERIFY to '' (must be an empty string).")
+                "ERROR: Could not login to Container Registry. Please verify your credentials in CONTAINER_REGISTRY_ environment variables. If you are using WSL, then please set DOCKER_HOST Environment Variable. See the projects readme for full instructions.")
             self.output.error(str(ex))
             sys.exit(-1)
 
