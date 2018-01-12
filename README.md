@@ -15,11 +15,12 @@ The project was created by Microsofties that work with IoT Edge customers, who h
 
 Please see [Azure IoT Edge Dev Resources](https://github.com/jonbgallant/azure-iot-edge-dev) for links to official docs and other IoT Edge dev information.
 
-## Video Introduction
-The following video provides step-by-step instructions for installing and using the Azure IoT Edge Dev Tool.
-
+## Videos
 [![Azure IoT Edge Dev Tool in 2 Minutes](assets/edgedevtool2mins.png)](https://www.youtube.com/watch?v=NsnxMshMhmA)
 https://www.youtube.com/watch?v=NsnxMshMhmA
+
+[![Azure IoT Edge Dev Tool with Windows Subsystem for Linux (WSL)](assets/edgedevtoolwsl.png)](https://www.youtube.com/watch?v=k5ZtTmHgs_8)
+https://www.youtube.com/watch?v=k5ZtTmHgs_8
 
 [![Azure IoT Edge Dev Tool: Introduction](assets/edgedevtoolintro.png)](https://www.youtube.com/watch?v=lcDFX8PXqUQ)
 https://www.youtube.com/watch?v=lcDFX8PXqUQ
@@ -46,7 +47,9 @@ Here's what you need to do to get `iotedgedev` running on your dev machine. If y
     - Windows    
         - Switch to Linux Containers if you are running Windows.
 
-    - Windows Subsystem for Linux
+    - Windows Subsystem for Linux (WSL)
+
+        > Here's a video that shows you how to setup WSL: https://www.youtube.com/watch?v=k5ZtTmHgs_8
 
         1. **Do not** install Docker in WSL, you can use Docker on your Windows machine by modifying the path.
         1. In Docker Settings/General, Check "Expose Daemon on tcp:// without TLS"
@@ -535,7 +538,18 @@ This module has been tested with the following:
 
     This means that you have likely do not have DOCKER\_HOST Environment Variable set.  If you are running WSL, then please see the Dev Machine Setup steps above. You have to write DOCKER_HOST to your ~/.bashrc file.
 
-    
+    ```
+    ERROR: Could not login to Container Registry. Please verify your credentials in CONTAINER_REGISTRY_ environment variables. 
+    If you are using WSL, then please set DOCKER_HOST Environment Variable. See the projects readme for full instructions.
+    ```
+
+    ```
+    ('Connection aborted.', error(2, 'No such file or directory'))
+    ERROR: Could not connect to docker daemon.
+    ERROR: Docker is unavailable
+    CRITICAL: IoT Edge dependency not available: docker
+    ```
+
 ## Backlog
 
 Please see the [GitHub project page](https://github.com/jonbgallant/azure-iot-edge-dev-tool/projects) for backlog tasks.
