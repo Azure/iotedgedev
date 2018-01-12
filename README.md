@@ -17,12 +17,15 @@ Please see [Azure IoT Edge Dev Resources](https://github.com/jonbgallant/azure-i
 
 ## Videos
 [![Azure IoT Edge Dev Tool in 2 Minutes](assets/edgedevtool2mins.png)](https://www.youtube.com/watch?v=NsnxMshMhmA)
+
 https://www.youtube.com/watch?v=NsnxMshMhmA
 
 [![Azure IoT Edge Dev Tool with Windows Subsystem for Linux (WSL)](assets/edgedevtoolwsl.png)](https://www.youtube.com/watch?v=k5ZtTmHgs_8)
+
 https://www.youtube.com/watch?v=k5ZtTmHgs_8
 
 [![Azure IoT Edge Dev Tool: Introduction](assets/edgedevtoolintro.png)](https://www.youtube.com/watch?v=lcDFX8PXqUQ)
+
 https://www.youtube.com/watch?v=lcDFX8PXqUQ
 
 ## Setup
