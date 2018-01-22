@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+	# -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
 import requests
@@ -146,7 +146,7 @@ class Utility:
             return file.read()
 
     def decode(self, val):
-        return val.decode("utf-8").strip()
+        return val.decode('unicode_escape')
 
     def get_config_files(self):
         config_dir = "config"
@@ -400,7 +400,7 @@ class Modules:
 
                         for line in self.dock.docker_client.images.push(repository=image_destination_name, tag=tag_name, stream=True, auth_config={
                                                                         "username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
-                            self.output.procout(self.utility.decode(line).replace("\\u003e",""))
+                            self.output.procout(self.utility.decode(line))
 
                 self.output.footer("BUILD COMPLETE")
 
