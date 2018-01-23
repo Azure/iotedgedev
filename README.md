@@ -73,18 +73,12 @@ Here's what you need to do to get `iotedgedev` running on your dev machine. If y
     
     
 
-1. Install **Python 2.7 and Python 3**
+1. Install **Python 2.7 or Python 3**
     - Windows - [Install from Python's website, use Win64 installer](https://www.python.org/downloads/)
     - Linux - `sudo apt install python-pip` or `sudo apt install python3-pip`
     
 1. Install **[.NET Core SDK](https://www.microsoft.com/net/core#windowscmd)**
     - The .NET Core SDK does not run on ARM, so you do not need to install this on Raspberry Pi.
-
-1. Install **[Microsoft Visual C++ 14.0](http://landinghub.visualstudio.com/visual-cpp-build-tools)**
-
-1. Install **OpenSSL**
-    - Windows - [Install from OpenSSL's website](https://www.openssl.org/source/)
-        > after download, Save it in>C:\OpenSSL-Win64\ 
 
 1. Install **Dependencies**
 
@@ -571,11 +565,22 @@ Please use the [GitHub issues page](https://github.com/jonbgallant/azure-iot-edg
 
 Please fork, branch and pull-request any changes you'd like to make.
 
-Run the following command to install all the dependencies needed to build iotedgedev and run the tests.
+#### Contributor dev setup
+1. Install **[Microsoft Visual C++ 14.0](http://landinghub.visualstudio.com/visual-cpp-build-tools)**
 
-`pip install -r requirements_dev.txt`
+1. Install **OpenSSL**
+    - Windows - [Install from OpenSSL's website](https://www.openssl.org/source/)
+        > after download, Save it in>C:\OpenSSL-Win64\ 
 
-Run the following to run tests.
+1. Make sure both **Python 2.7 and Python 3** are installed
 
-`tox`
+1. Install dependencies
+    Run the following command to install all the dependencies needed to build iotedgedev and run the tests.
+    
+    `pip install -r requirements_dev.txt`
+    
+#### Run the tests 
+    Run the following command to run tests.
+
+    `tox`
 
