@@ -565,7 +565,7 @@ Please use the [GitHub issues page](https://github.com/jonbgallant/azure-iot-edg
 
 Please fork, branch and pull-request any changes you'd like to make.
 
-#### Contributors Dev Machine Setup
+#### Contributor Dev Machine Setup
 1. Install **[Microsoft Visual C++ 14.0](http://landinghub.visualstudio.com/visual-cpp-build-tools)**
 
 1. Install **OpenSSL 1.1.0g**
