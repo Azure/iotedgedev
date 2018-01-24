@@ -156,19 +156,15 @@ When you create a new project, it will have the following contents:
 
 1. **logs folder** - Contains all the Docker log files for the Runtime and your modules.
 
-1. **.env.tmp** - Contains all the required Environment Variables for Edge Project. Rename to .env and add your settings.
+1. **.env** - Contains all the required Environment Variables for Edge Project. Rename to .env and add your settings.
 
-1. **.gitigore.tmp** - A suggested .gitignore file for your Edge projects. Rename to .gitignore if you'd like to use it.
+1. **.gitignore** - A suggested .gitignore file for your Edge projects.
 
 ### Step 2: Update Environment Variables
 
 The settings used for this module are stored in a .env file in the root of your project. System or User Environment Variables take precedence over values in .env file.
 
-1. Rename `.env.tmp` to `.env` or run the following command:
-
-    `cp .env.tmp .env`
-
-2. Open `.env` and set variables
+1. Open `.env` and set variables
 
     1. Runtime Home Directory
 
@@ -411,7 +407,7 @@ The iotedgedev module also include a "Show Logs" command that will open a new co
 iotedgedev docker --show-logs
 ```
 
-You can configure the logs command in the `.env` file with the `LOGS_CMD` setting.  The `.env.tmp` file provides two options, one for [ConEmu](https://conemu.github.io/) and one for Cmd.exe.
+You can configure the logs command in the `.env` file with the `LOGS_CMD` setting.  The `.env` file provides two options, one for [ConEmu](https://conemu.github.io/) and one for Cmd.exe.
 
 #### Save Logs
 
