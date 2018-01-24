@@ -74,7 +74,7 @@ Here's what you need to do to get `iotedgedev` running on your dev machine. If y
     
 
 1. Install **Python 2.7 or Python 3**
-    - Windows - [Install from Python's website, use Win64 installer](https://www.python.org/downloads/)
+    - Windows - [Install from Python's website](https://www.python.org/downloads/)
     - Linux - `sudo apt install python-pip` or `sudo apt install python3-pip`
     
 1. Install **[.NET Core SDK](https://www.microsoft.com/net/core#windowscmd)**
@@ -562,11 +562,12 @@ Please use the [GitHub issues page](https://github.com/jonbgallant/azure-iot-edg
 Please fork, branch and pull-request any changes you'd like to make.
 
 #### Contributor Dev Machine Setup
-1. Install **[Microsoft Visual C++ 14.0](http://landinghub.visualstudio.com/visual-cpp-build-tools)**
+1. Install **[Microsoft Visual C++ Build Tools](http://landinghub.visualstudio.com/visual-cpp-build-tools)**
 
 1. Install **OpenSSL 1.1.0g**
-    - Windows - [Install from OpenSSL's website](https://www.openssl.org/source/)
-        > after download, Save it in>C:\OpenSSL-Win64\ 
+    - Windows
+        >  [Download from OpenSSL's website](https://www.openssl.org/source/openssl-1.1.0g.tar.gz)
+        >  Extract the dowaloaded .tar.gz to C:\OpenSSL\ 
 
 1. Make sure both **Python 2.7 and Python 3** are installed
 
