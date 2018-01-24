@@ -240,6 +240,8 @@ class Project:
         zipf = zipfile.ZipFile(template_zip)
         zipf.extractall(name)
 
+        os.rename(os.path.join(name, ".env.tmp"), os.path.join(name, ".env"))
+        
         self.output.footer("Azure IoT Edge project created")
 
 
