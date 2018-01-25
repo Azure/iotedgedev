@@ -567,17 +567,23 @@ Please fork, branch and pull-request any changes you'd like to make.
 1. Install **OpenSSL 1.1.0g**
     - Windows
         1. [Download from OpenSSL's website](https://www.openssl.org/source/openssl-1.1.0g.tar.gz)
-        1. Extract the dowaloaded .tar.gz to C:\OpenSSL\ 
+        1. Extract the downloaded .tar.gz to C:\OpenSSL\ 
 
 1. Make sure both **Python 2.7 and Python 3** are installed
 
 1. Install dependencies
-    Run the following command to install all the dependencies needed to build iotedgedev and run the tests.
-    
-    `pip install -r requirements_dev.txt`
-    
-#### Run the tests 
-    Run the following command to run tests.
 
-    `tox`
+    Run the following command to install all the dependencies needed to build iotedgedev and run the tests.
+
+    ```
+    pip install -r requirements_dev.txt
+    ```
+
+#### Run the tests 
+
+Run the following command to run tests.
+    
+    tox
+    
+    
 
