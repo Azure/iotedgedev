@@ -566,8 +566,8 @@ Please fork, branch and pull-request any changes you'd like to make.
 
 1. Install **OpenSSL 1.1.0g**
     - Windows
-        >  [Download from OpenSSL's website](https://www.openssl.org/source/openssl-1.1.0g.tar.gz)
-        >  Extract the dowaloaded .tar.gz to C:\OpenSSL\ 
+        1. [Download from OpenSSL's website](https://www.openssl.org/source/openssl-1.1.0g.tar.gz)
+        1. Extract the dowaloaded .tar.gz to C:\OpenSSL\ 
 
 1. Make sure both **Python 2.7 and Python 3** are installed
 
