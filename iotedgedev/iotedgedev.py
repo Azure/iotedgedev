@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+	# -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
 import requests
@@ -146,7 +146,7 @@ class Utility:
             return file.read()
 
     def decode(self, val):
-        return val.decode("utf-8").strip()
+        return val.decode('unicode_escape').strip()
 
     def get_config_files(self):
         config_dir = "config"
