@@ -1,1 +1,0 @@
-docker build -t jongallant/iotedgedev:0.0.1-deps-ubuntu .

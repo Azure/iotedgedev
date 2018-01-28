@@ -1,0 +1,2 @@
+FROM jongallant/iotedgedev:0.0.12-deps-linux
+RUN pip install azure-iot-edge-dev-tool
