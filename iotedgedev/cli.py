@@ -4,6 +4,7 @@
 from __future__ import absolute_import
 
 import click
+import sys
 from .iotedgedev import Docker
 from .iotedgedev import Modules
 from .iotedgedev import Runtime
@@ -35,6 +36,7 @@ def main(set_config):
         ctx = click.get_current_context()
         if ctx.invoked_subcommand is None:
             click.echo(ctx.get_help())
+            sys.exit()
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)

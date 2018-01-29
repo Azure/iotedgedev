@@ -1,4 +1,4 @@
-	# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
 import requests
@@ -20,10 +20,6 @@ from shutil import copyfile
 from enum import Enum
 from distutils.util import strtobool
 from dotenv import load_dotenv
-
-dotenv_path = os.path.join(os.getcwd(), '.env')
-load_dotenv(dotenv_path)
-
 if sys.version_info.major >= 3:
     from urllib.parse import quote, urlencode
 else:
@@ -59,8 +55,37 @@ class EnvVars:
         self.output = output
         self.checked = False
 
+    def load_dotenv(self):
+        dotenv_file = self.get_dotenv_file()
+        dotenv_path = os.path.join(os.getcwd(), dotenv_file)
+
+        try:
+            if os.path.exists(dotenv_path):
+                load_dotenv(dotenv_path)
+                self.output.info(
+                    "Environment Variables loaded from: {0} ({1})".format(dotenv_file, dotenv_path))
+            else:
+                self.output.info(
+                    "{0} file not found on disk. Without a file on disk, you must specify all Environment Variables at the system level. ({1})".format(dotenv_file, dotenv_path))
+        except Exception as e:
+            self.output.error("ERROR: Error while trying to load .env file: {0}. {1}".format(dotenv_path, str(e)))
+
+    def get_dotenv_file(self):
+        default_dotenv_file = ".env"
+
+        if not "DOTENV_FILE" in os.environ:
+            return default_dotenv_file
+        else:
+            dotenv_file_from_environ = os.environ["DOTENV_FILE"].strip("\"").strip("'")
+            if dotenv_file_from_environ:
+                return dotenv_file_from_environ
+            
+        return default_dotenv_file
+
     def check(self):
         if not self.checked:
+            self.load_dotenv()
+
             try:
                 self.IOTHUB_NAME = os.environ["IOTHUB_NAME"]
                 self.IOTHUB_KEY = os.environ["IOTHUB_KEY"]
@@ -161,7 +186,7 @@ class Utility:
 
     def get_active_modules(self):
         return [module.strip()
-                             for module in self.envvars.ACTIVE_MODULES.split(",") if module]
+                for module in self.envvars.ACTIVE_MODULES.split(",") if module]
 
     def get_modules_in_config(self, moduleType):
         modules_config = json.load(open(self.envvars.MODULES_CONFIG_FILE))
@@ -241,7 +266,7 @@ class Project:
         zipf.extractall(name)
 
         os.rename(os.path.join(name, ".env.tmp"), os.path.join(name, ".env"))
-        
+
         self.output.footer("Azure IoT Edge project created")
 
 
@@ -300,7 +325,7 @@ class Modules:
         for module in os.listdir(self.envvars.MODULES_PATH):
 
             if len(
-                modules_to_process) == 0 or modules_to_process[0] == "*" or module in modules_to_process:
+                    modules_to_process) == 0 or modules_to_process[0] == "*" or module in modules_to_process:
 
                 module_dir = os.path.join(self.envvars.MODULES_PATH, module)
 
@@ -332,7 +357,7 @@ class Modules:
                         os.path.dirname(docker_file))
 
                     if len(
-                        docker_dirs_process) == 0 or docker_dirs_process[0] == "*" or docker_file_parent_folder in docker_dirs_process:
+                            docker_dirs_process) == 0 or docker_dirs_process[0] == "*" or docker_file_parent_folder in docker_dirs_process:
 
                         self.output.info(
                             "PROCESSING DOCKER FILE: " + docker_file)
@@ -415,7 +440,7 @@ class Modules:
         self.output.footer("DEPLOY COMPLETE")
 
     def deploy_device_configuration(
-        self, iothub_name, iothub_key, device_id, config_file, iothub_policy_name, api_version):
+            self, iothub_name, iothub_key, device_id, config_file, iothub_policy_name, api_version):
         resource_uri = iothub_name + ".azure-devices.net"
         token_expiration_period = 60
         deploy_uri = "https://{0}/devices/{1}/applyConfigurationContent?api-version={2}".format(
@@ -454,8 +479,10 @@ class Docker:
         self.output = output
 
         if self.envvars.DOCKER_HOST:
-            self.docker_client = docker.DockerClient(base_url=self.envvars.DOCKER_HOST)
-            self.docker_api = docker.APIClient(base_url=self.envvars.DOCKER_HOST)
+            self.docker_client = docker.DockerClient(
+                base_url=self.envvars.DOCKER_HOST)
+            self.docker_api = docker.APIClient(
+                base_url=self.envvars.DOCKER_HOST)
         else:
             self.docker_client = docker.from_env()
             self.docker_api = docker.APIClient()
@@ -515,15 +542,16 @@ class Docker:
             else:
 
                 client_login_status = self.docker_client.login(registry=self.envvars.CONTAINER_REGISTRY_SERVER,
-                                                               username=self.envvars.CONTAINER_REGISTRY_USERNAME, 
+                                                               username=self.envvars.CONTAINER_REGISTRY_USERNAME,
                                                                password=self.envvars.CONTAINER_REGISTRY_PASSWORD)
 
                 api_login_status = self.docker_api.login(registry=self.envvars.CONTAINER_REGISTRY_SERVER,
-                                                         username=self.envvars.CONTAINER_REGISTRY_USERNAME, 
+                                                         username=self.envvars.CONTAINER_REGISTRY_USERNAME,
                                                          password=self.envvars.CONTAINER_REGISTRY_PASSWORD)
-           
-            self.output.info("Successfully logged into container registry: " + self.envvars.CONTAINER_REGISTRY_SERVER)
-           
+
+            self.output.info("Successfully logged into container registry: " +
+                             self.envvars.CONTAINER_REGISTRY_SERVER)
+
         except Exception as ex:
             self.output.error(
                 "ERROR: Could not login to Container Registry. 1. Make sure Docker is running locally. 2. Verify your credentials in CONTAINER_REGISTRY_ environment variables. 2. If you are using WSL, then please set DOCKER_HOST Environment Variable. See the projects readme for full instructions.")
@@ -561,12 +589,13 @@ class Docker:
 
             # Tagging Image with Container Registry Name
             try:
-                tag_result = self.docker_api.tag(image=microsoft_image_name, repository=container_registry_image_name)
+                tag_result = self.docker_api.tag(
+                    image=microsoft_image_name, repository=container_registry_image_name)
             except docker.errors.APIError as e:
                 self.output.error(
                     "ERROR WHILE TAGGING IMAGE: '{0}'".format(microsoft_image_name))
                 self.output.error(e)
-                
+
             # Push Image to Container Registry
             try:
                 self.output.info("PUSHING IMAGE: '{0}'".format(

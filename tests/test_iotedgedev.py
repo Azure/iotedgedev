@@ -68,19 +68,46 @@ class TestIotedgedev(unittest.TestCase):
          print(result.output)
          assert result.exit_code == 0
          assert 'Edge Device configuration successfully deployed' in result.output
-
-    # TODO: Figure out why tox messes with the paths.
-    #def test_runtime_setup(self):
-    #     runner = CliRunner()
-    #     result = runner.invoke(cli.main, ['runtime', '--setup'])
-    #     print(result.output)
-    #     assert result.exit_code == 0
-    #     assert 'Runtime setup successfully.' in result.output
-
-    #def test_docker_logs(self):
-    #    runner = CliRunner()
-    #    result = runner.invoke(cli.main, ['docker', '--save-logs'])
-    #    print(result.output)
-    #    assert result.exit_code == 0
-    #    assert 'Log files successfully saved' in result.output
     
+    def test_alternate_dotenv_file(self):
+        dotenv_file = ".env.test"
+        shutil.copyfile('../.env', dotenv_file)
+        os.environ["DOTENV_FILE"] = dotenv_file
+
+        runner = CliRunner()
+        result = runner.invoke(cli.main, ['--set-config'])
+        print(result.output)
+        assert result.exit_code == 0
+        test_string = "Environment Variables loaded from: " + dotenv_file
+        assert test_string in result.output
+               
+    # TODO: Figure out why tox messes with the paths.
+    '''
+    def test_runtime_setup(self):
+         runner = CliRunner()
+         result = runner.invoke(cli.main, ['runtime', '--setup'])
+         print(result.output)
+         assert result.exit_code == 0
+         assert 'Runtime setup successfully.' in result.output
+
+    def test_docker_logs(self):
+        runner = CliRunner()
+        result = runner.invoke(cli.main, ['docker', '--save-logs'])
+        print(result.output)
+        assert result.exit_code == 0
+        assert 'Log files successfully saved' in result.output
+    '''
+
+    # TODO: Figure out why tox doesn't work in this case. Manually test it for now.
+    '''
+    def test_no_dotenv_file(self):
+        dotenv_file = ".env.nofile"
+        os.environ["DOTENV_FILE"] = dotenv_file
+
+        runner = CliRunner()
+        result = runner.invoke(cli.main, ['--set-config'])
+        print(result.output)
+        assert result.exit_code == 0
+        test_string = "{0} file not found on disk".format(dotenv_file)
+        assert test_string in result.output
+    '''

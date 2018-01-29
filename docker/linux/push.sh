@@ -1,6 +1,10 @@
 #!/bin/bash
 winpty docker login
-docker push jongallant/iotedgedev:$1-deps-linux
-docker push jongallant/iotedgedev:latest-deps-linux
+docker push jongallant/iotedgedev-deps:$1
+docker push jongallant/iotedgedev-deps:$1-linux
+docker push jongallant/iotedgedev-deps:latest
+docker push jongallant/iotedgedev-deps:latest-linux
+docker push jongallant/iotedgedev:$1
 docker push jongallant/iotedgedev:$1-linux
+docker push jongallant/iotedgedev:latest
 docker push jongallant/iotedgedev:latest-linux
