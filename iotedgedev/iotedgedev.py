@@ -20,6 +20,7 @@ from shutil import copyfile
 from enum import Enum
 from distutils.util import strtobool
 from dotenv import load_dotenv
+from distutils.dir_util import copy_tree
 if sys.version_info.major >= 3:
     from urllib.parse import quote, urlencode
 else:
@@ -325,22 +326,25 @@ class Modules:
         for module in os.listdir(self.envvars.MODULES_PATH):
 
             if len(
-                    modules_to_process) == 0 or modules_to_process[0] == "*" or module in modules_to_process:
+                modules_to_process) == 0 or modules_to_process[0] == "*" or module in modules_to_process:
 
                 module_dir = os.path.join(self.envvars.MODULES_PATH, module)
 
                 self.output.info("BUILDING MODULE: {0}".format(module_dir))
-
-                # Find first proj file in module dir and use it.
-                project_files = [os.path.join(module_dir, f) for f in os.listdir(
-                    module_dir) if f.endswith("proj")]
-
-                if len(project_files) == 0:
-                    self.output.error("No project file found for module.")
-                    continue
-
-                self.utility.exe_proc(["dotnet", "build", project_files[0],
-                                       "-v", self.envvars.DOTNET_VERBOSITY])
+                
+                # if no module.json found ? default to .net
+                json_file_path = os.path.join(os.getcwd(), "modules", module,"module.json")
+                if os.path.exists(json_file_path) :
+                    file_json_content = json.loads (self.utility.get_file_contents(json_file_path))
+                    module_lang = file_json_content.get("language").lower()
+                else :
+                    module_lang = "csharp"
+                
+                mod_proc_facroty = ModulesProcessorFactory(self.envvars, self.utility, self.output, self.dock)
+                mod_proc = mod_proc_facroty.factory(module_lang)
+                
+                # build module               
+                mod_proc.build(module_dir)
 
                 # Get all docker files in project
                 docker_files = self.utility.find_files(
@@ -357,7 +361,7 @@ class Modules:
                         os.path.dirname(docker_file))
 
                     if len(
-                            docker_dirs_process) == 0 or docker_dirs_process[0] == "*" or docker_file_parent_folder in docker_dirs_process:
+                        docker_dirs_process) == 0 or docker_dirs_process[0] == "*" or docker_file_parent_folder in docker_dirs_process:
 
                         self.output.info(
                             "PROCESSING DOCKER FILE: " + docker_file)
@@ -389,13 +393,11 @@ class Modules:
                         if not os.path.exists(build_path):
                             os.makedirs(build_path)
 
-                        # dotnet publish
+                        # publish module
                         self.output.info(
-                            "PUBLISHING PROJECT: " + project_files[0])
-
-                        self.utility.exe_proc(["dotnet", "publish", project_files[0], "-f", "netcoreapp2.0",
-                                               "-o", build_path, "-v", self.envvars.DOTNET_VERBOSITY])
-
+                            "PUBLISHING PROJECT: " + module_dir)
+                        mod_proc.publish(module_dir, build_path)
+                        
                         # copy Dockerfile to publish dir
                         build_dockerfile = os.path.join(
                             build_path, docker_file_name)
@@ -440,7 +442,7 @@ class Modules:
         self.output.footer("DEPLOY COMPLETE")
 
     def deploy_device_configuration(
-            self, iothub_name, iothub_key, device_id, config_file, iothub_policy_name, api_version):
+        self, iothub_name, iothub_key, device_id, config_file, iothub_policy_name, api_version):
         resource_uri = iothub_name + ".azure-devices.net"
         token_expiration_period = 60
         deploy_uri = "https://{0}/devices/{1}/applyConfigurationContent?api-version={2}".format(
@@ -468,6 +470,34 @@ class Modules:
             self.output.error(
                 "There was an error applying the configuration. You should see an error message above that indicates the issue.")
 
+class ModulesProcessorFactory(Modules):
+    
+    def factory(self, module_language):
+        if module_language == "csharp" or  module_language == "fsharp" or module_language == "vbasic":
+            return DotNetModuleProcessor(self.envvars, self.utility, self.output, self.dock)
+
+        else :
+            return OtherModuleProcessor(self.envvars, self.utility, self.output, self.dock)
+            
+class DotNetModuleProcessor(ModulesProcessorFactory):
+    def build(self, module_dir):
+        project_file = [os.path.join(module_dir, f) for f in os.listdir(
+                    module_dir) if f.endswith("proj")][0]
+        self.utility.exe_proc(["dotnet", "build", project_file,
+                                       "-v", self.envvars.DOTNET_VERBOSITY])
+
+    def publish(self, module_dir, build_path):
+        project_file = [os.path.join(module_dir, f) for f in os.listdir(
+                    module_dir) if f.endswith("proj")][0]
+        self.utility.exe_proc(["dotnet", "publish", project_file, "-f", "netcoreapp2.0",
+                                               "-o", build_path, "-v", self.envvars.DOTNET_VERBOSITY])
+        
+class OtherModuleProcessor (ModulesProcessorFactory):
+    def build(self, module_dir):
+        pass
+
+    def publish(self, module_dir, build_path):
+        copy_tree(module_dir, os.path.join("build", module_dir) )
 
 class Docker:
 
