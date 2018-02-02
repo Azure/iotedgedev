@@ -1,0 +1,40 @@
+{
+  "deployment": {
+    "docker": {
+      "edgeRuntimeImage": "microsoft/azureiotedge-agent:${RUNTIME_TAG}", 
+      "loggingOptions": {
+        "log-driver": "json-file", 
+        "log-opts": {
+          "max-size": "10m"
+        }
+      }, 
+      "registries": [
+        {
+          "address": "${CONTAINER_REGISTRY_SERVER}", 
+          "password": "${CONTAINER_REGISTRY_PASSWORD}", 
+          "username": "${CONTAINER_REGISTRY_USERNAME}"
+        }
+      ], 
+      "uri": "unix:///var/run/docker.sock"
+    }, 
+    "type": "docker"
+  }, 
+  "deviceConnectionString": "${DEVICE_CONNECTION_STRING}", 
+  "homeDir": "${RUNTIME_HOME_DIR}", 
+  "hostName": "${RUNTIME_HOST_NAME}", 
+  "logLevel": "info", 
+  "schemaVersion": "1", 
+  "security": {
+    "certificates": {
+      "option": "selfSigned", 
+      "preInstalled": {
+        "deviceCACertificateFilePath": "", 
+        "serverCertificateFilePath": ""
+      }, 
+      "selfSigned": {
+        "forceNoPasswords": true, 
+        "forceRegenerate": false
+      }
+    }
+  }
+}

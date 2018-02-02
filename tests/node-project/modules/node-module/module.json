@@ -1,0 +1,12 @@
+{
+    "$schema-version": "0.0.1",
+    "description": "",
+    "image": {
+        "repository": "test.azurecr.io/node-module",
+        "tag": {
+            "version": "0.0.1",
+            "platforms": ["arm32v7", "linux-64", "windows-nano"]
+        }
+    },
+    "language": "node"
+}
