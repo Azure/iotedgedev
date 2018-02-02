@@ -21,6 +21,7 @@
   }, 
   "deviceConnectionString": "${DEVICE_CONNECTION_STRING}", 
   "homeDir": "${RUNTIME_HOME_DIR}", 
+  "configDir": "${RUNTIME_CONFIG_DIR}", 
   "hostName": "${RUNTIME_HOST_NAME}", 
   "logLevel": "info", 
   "schemaVersion": "1", 
