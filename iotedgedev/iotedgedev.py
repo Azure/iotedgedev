@@ -10,6 +10,8 @@ import sys
 import json
 import click
 import zipfile
+import socket
+import platform
 from base64 import b64encode, b64decode
 from hashlib import sha256
 from time import time
@@ -20,6 +22,7 @@ from shutil import copyfile
 from enum import Enum
 from distutils.util import strtobool
 from dotenv import load_dotenv
+from .connectionstring import IoTHubConnectionString, DeviceConnectionString
 if sys.version_info.major >= 3:
     from urllib.parse import quote, urlencode
 else:
@@ -68,7 +71,8 @@ class EnvVars:
                 self.output.info(
                     "{0} file not found on disk. Without a file on disk, you must specify all Environment Variables at the system level. ({1})".format(dotenv_file, dotenv_path))
         except Exception as e:
-            self.output.error("ERROR: Error while trying to load .env file: {0}. {1}".format(dotenv_path, str(e)))
+            self.output.error("ERROR: Error while trying to load .env file: {0}. {1}".format(
+                dotenv_path, str(e)))
 
     def get_dotenv_file(self):
         default_dotenv_file = ".env"
@@ -76,10 +80,11 @@ class EnvVars:
         if not "DOTENV_FILE" in os.environ:
             return default_dotenv_file
         else:
-            dotenv_file_from_environ = os.environ["DOTENV_FILE"].strip("\"").strip("'")
+            dotenv_file_from_environ = os.environ["DOTENV_FILE"].strip(
+                "\"").strip("'")
             if dotenv_file_from_environ:
                 return dotenv_file_from_environ
-            
+
         return default_dotenv_file
 
     def check(self):
@@ -87,30 +92,61 @@ class EnvVars:
             self.load_dotenv()
 
             try:
-                self.IOTHUB_NAME = os.environ["IOTHUB_NAME"]
-                self.IOTHUB_KEY = os.environ["IOTHUB_KEY"]
-                self.DEVICE_CONNECTION_STRING = os.environ["DEVICE_CONNECTION_STRING"]
-                self.EDGE_DEVICE_ID = os.environ["EDGE_DEVICE_ID"]
-                self.RUNTIME_HOST_NAME = os.environ["RUNTIME_HOST_NAME"]
-                self.ACTIVE_MODULES = os.environ["ACTIVE_MODULES"]
-                self.ACTIVE_DOCKER_DIRS = os.environ["ACTIVE_DOCKER_DIRS"]
-                self.CONTAINER_REGISTRY_SERVER = os.environ["CONTAINER_REGISTRY_SERVER"]
-                self.CONTAINER_REGISTRY_USERNAME = os.environ["CONTAINER_REGISTRY_USERNAME"]
-                self.CONTAINER_REGISTRY_PASSWORD = os.environ["CONTAINER_REGISTRY_PASSWORD"]
-                self.IOTHUB_POLICY_NAME = os.environ["IOTHUB_POLICY_NAME"]
-                self.CONTAINER_TAG = os.environ["CONTAINER_TAG"]
-                self.RUNTIME_TAG = os.environ["RUNTIME_TAG"]
-                self.RUNTIME_VERBOSITY = os.environ["RUNTIME_VERBOSITY"]
-                self.RUNTIME_HOME_DIR = os.environ["RUNTIME_HOME_DIR"]
-                self.MODULES_CONFIG_FILE = os.environ["MODULES_CONFIG_FILE"]
-                self.RUNTIME_CONFIG_FILE = os.environ["RUNTIME_CONFIG_FILE"]
-                self.LOGS_PATH = os.environ["LOGS_PATH"]
-                self.MODULES_PATH = os.environ["MODULES_PATH"]
-                self.IOT_REST_API_VERSION = os.environ["IOT_REST_API_VERSION"]
-                self.DOTNET_VERBOSITY = os.environ["DOTNET_VERBOSITY"]
-                self.LOGS_CMD = os.environ["LOGS_CMD"]
+                try:
+                    self.IOTHUB_CONNECTION_STRING = self.get_envvar(
+                        "IOTHUB_CONNECTION_STRING")
+                    self.IOTHUB_CONNECTION_INFO = IoTHubConnectionString(
+                        self.IOTHUB_CONNECTION_STRING)
+                except:
+                    self.output.error("ERROR: Unable to parse IOTHUB_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set.")
+                    sys.exit(-1)
+
+                try:
+                    self.DEVICE_CONNECTION_STRING = self.get_envvar(
+                        "DEVICE_CONNECTION_STRING")
+                    self.DEVICE_CONNECTION_INFO = DeviceConnectionString(
+                        self.DEVICE_CONNECTION_STRING)
+                except:
+                    self.output.error("ERROR: Unable to parse DEVICE_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set.")
+                    sys.exit(-1)
+
+                
+                self.RUNTIME_HOST_NAME = self.get_envvar("RUNTIME_HOST_NAME")
+                if self.RUNTIME_HOST_NAME == ".":
+                    self.set_envvar("RUNTIME_HOST_NAME", socket.gethostname())
+
+                self.RUNTIME_HOME_DIR = self.get_envvar("RUNTIME_HOME_DIR")
+                if self.RUNTIME_HOME_DIR == ".":
+                    self.set_envvar("RUNTIME_HOME_DIR", self.get_runtime_home_dir())
+
+
+                self.RUNTIME_CONFIG_DIR = self.get_envvar("RUNTIME_CONFIG_DIR")
+                if self.RUNTIME_CONFIG_DIR == ".":
+                    self.set_envvar("RUNTIME_CONFIG_DIR", self.get_runtime_config_dir())
+
+                self.ACTIVE_MODULES = self.get_envvar("ACTIVE_MODULES")
+                self.ACTIVE_DOCKER_DIRS = self.get_envvar("ACTIVE_DOCKER_DIRS")
+                self.CONTAINER_REGISTRY_SERVER = self.get_envvar(
+                    "CONTAINER_REGISTRY_SERVER")
+                self.CONTAINER_REGISTRY_USERNAME = self.get_envvar(
+                    "CONTAINER_REGISTRY_USERNAME")
+                self.CONTAINER_REGISTRY_PASSWORD = self.get_envvar(
+                    "CONTAINER_REGISTRY_PASSWORD")
+                self.CONTAINER_TAG = self.get_envvar("CONTAINER_TAG")
+                self.RUNTIME_TAG = self.get_envvar("RUNTIME_TAG")
+                self.RUNTIME_VERBOSITY = self.get_envvar("RUNTIME_VERBOSITY")
+                self.MODULES_CONFIG_FILE = self.get_envvar(
+                    "MODULES_CONFIG_FILE")
+                self.RUNTIME_CONFIG_FILE = self.get_envvar(
+                    "RUNTIME_CONFIG_FILE")
+                self.LOGS_PATH = self.get_envvar("LOGS_PATH")
+                self.MODULES_PATH = self.get_envvar("MODULES_PATH")
+                self.IOT_REST_API_VERSION = self.get_envvar(
+                    "IOT_REST_API_VERSION")
+                self.DOTNET_VERBOSITY = self.get_envvar("DOTNET_VERBOSITY")
+                self.LOGS_CMD = self.get_envvar("LOGS_CMD")
                 if "DOCKER_HOST" in os.environ:
-                    self.DOCKER_HOST = os.environ["DOCKER_HOST"]
+                    self.DOCKER_HOST = self.get_envvar("DOCKER_HOST")
                 else:
                     self.DOCKER_HOST = None
             except Exception as e:
@@ -120,6 +156,27 @@ class EnvVars:
                 sys.exit(-1)
 
         self.checked = True
+
+    def get_envvar(self, key):
+        return os.environ[key].strip()
+    
+    def set_envvar(self, key, value):
+        os.environ[key] = value
+
+    def get_runtime_home_dir(self):
+        plat = platform.system().lower()
+        if plat == "linux" or plat == "darwin":
+            return "/var/lib/azure-iot-edge"
+        else:
+            return os.environ["PROGRAMDATA"].replace("\\", "\\\\") + "\\\\azure-iot-edge\\\data"
+
+    def get_runtime_config_dir(self):
+        plat = platform.system().lower()
+
+        if plat == "linux" or plat == "darwin":
+            return "/etc/azure-iot-edge"
+        else:
+            return os.environ["PROGRAMDATA"].replace("\\", "\\\\") + "\\\\azure-iot-edge\\\\config"
 
 
 class Utility:
@@ -174,15 +231,9 @@ class Utility:
         return val.decode("utf-8").strip()
 
     def get_config_files(self):
-        config_dir = "config"
+        # config files are in root of project
 
-        # Create config dir if it doesn't exist
-        if not os.path.exists(config_dir):
-            os.makedirs(config_dir)
-
-        # Get all config files in \config dir.
-        return [os.path.join(config_dir, f) for f in os.listdir(
-            config_dir) if f.endswith(".json")]
+        return [os.path.join(os.getcwd(), f) for f in os.listdir(os.getcwd()) if f.endswith("template.json")]
 
     def get_active_modules(self):
         return [module.strip()
@@ -212,27 +263,27 @@ class Utility:
             self.envvars.check()
             self.output.header("PROCESSING CONFIG FILES")
 
-            build_config_dir = os.path.join("build", "config")
+            config_output_dir = ".config"
 
             # Create config dir if it doesn't exist
-            if not os.path.exists(build_config_dir):
-                os.makedirs(build_config_dir)
+            if not os.path.exists(config_output_dir):
+                os.makedirs(config_output_dir)
 
             config_files = self.get_config_files()
 
             if len(config_files) == 0:
                 self.output.info(
-                    "Unable to find config files in config directory")
+                    "Unable to find config files in project root directory")
                 sys.exit()
 
-            # Expand envars and rewrite to \build\config
+            # Expand envars and rewrite to .config/
             for config_file in config_files:
 
                 build_config_file = os.path.join(
-                    build_config_dir, os.path.basename(config_file))
+                    config_output_dir, os.path.basename(config_file).replace(".template", ""))
 
                 self.output.info("Expanding '{0}' to '{1}'".format(
-                    config_file, build_config_file))
+                    os.path.basename(config_file), build_config_file))
 
                 config_file_expanded = os.path.expandvars(
                     self.get_file_contents(config_file))
@@ -266,7 +317,6 @@ class Project:
         zipf.extractall(name)
 
         os.rename(os.path.join(name, ".env.tmp"), os.path.join(name, ".env"))
-
         self.output.footer("Azure IoT Edge project created")
 
 
@@ -434,14 +484,14 @@ class Modules:
     def deploy(self):
         self.output.header("DEPLOYING MODULES")
         self.deploy_device_configuration(
-            self.envvars.IOTHUB_NAME, self.envvars.IOTHUB_KEY,
-            self.envvars.EDGE_DEVICE_ID, self.envvars.MODULES_CONFIG_FILE,
-            self.envvars.IOTHUB_POLICY_NAME, self.envvars.IOT_REST_API_VERSION)
+            self.envvars.IOTHUB_CONNECTION_INFO.HostName, self.envvars.IOTHUB_CONNECTION_INFO.SharedAccessKey,
+            self.envvars.DEVICE_CONNECTION_INFO.DeviceId, self.envvars.MODULES_CONFIG_FILE,
+            self.envvars.IOTHUB_CONNECTION_INFO.SharedAccessKeyName, self.envvars.IOT_REST_API_VERSION)
         self.output.footer("DEPLOY COMPLETE")
 
     def deploy_device_configuration(
-            self, iothub_name, iothub_key, device_id, config_file, iothub_policy_name, api_version):
-        resource_uri = iothub_name + ".azure-devices.net"
+            self, host_name, iothub_key, device_id, config_file, iothub_policy_name, api_version):
+        resource_uri = host_name
         token_expiration_period = 60
         deploy_uri = "https://{0}/devices/{1}/applyConfigurationContent?api-version={2}".format(
             resource_uri, device_id, api_version)
@@ -457,16 +507,15 @@ class Modules:
                                             config_file)
                                         )
 
-        # self.output.info(deploy_uri)
-        # self.output.info(deploy_response.status_code)
-        # self.output.info(deploy_response.text)
-
         if deploy_response.status_code == 204:
             self.output.info(
                 "Edge Device configuration successfully deployed to '{0}'.".format(device_id))
         else:
+            self.output.info(deploy_uri)
+            self.output.info(deploy_response.status_code)
+            self.output.info(deploy_response.text)
             self.output.error(
-                "There was an error applying the configuration. You should see an error message above that indicates the issue.")
+                "There was an error deploying the configuration. Please make sure your IOTHUB_CONNECTION_STRING and DEVICE_CONNECTION_STRING Environment Variables are correct.")
 
 
 class Docker:
