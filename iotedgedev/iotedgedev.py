@@ -12,6 +12,8 @@ import click
 import zipfile
 import socket
 import platform
+from io import StringIO
+from azure.cli.core import get_default_cli
 from base64 import b64encode, b64decode
 from hashlib import sha256
 from time import time
@@ -21,7 +23,7 @@ from hmac import HMAC
 from shutil import copyfile
 from enum import Enum
 from distutils.util import strtobool
-from dotenv import load_dotenv
+from dotenv import load_dotenv, set_key
 from .connectionstring import IoTHubConnectionString, DeviceConnectionString
 if sys.version_info.major >= 3:
     from urllib.parse import quote, urlencode
@@ -29,7 +31,6 @@ else:
     from urllib import quote, urlencode
 
 #print("Python Version: " + sys.version)
-
 
 class Output:
 
@@ -85,11 +86,10 @@ class EnvVars:
             if dotenv_file_from_environ:
                 return dotenv_file_from_environ
 
-        return default_dotenv_file
+        return default_dotenv_file   
 
     def check(self):
         if not self.checked:
-            self.load_dotenv()
 
             try:
                 try:
@@ -156,6 +156,25 @@ class EnvVars:
                 sys.exit(-1)
 
         self.checked = True
+
+    def __getattribute__(self, name):
+        try:
+            return object.__getattribute__(self, name)
+        except AttributeError as e:
+            if name in os.environ:
+                return self.get_envvar(name)
+            else:
+                raise e
+
+    def save_envvar(self, key, value):
+        try:
+            dotenv_file = self.get_dotenv_file()
+            dotenv_path = os.path.join(os.getcwd(), dotenv_file)
+            set_key(dotenv_path, key, value)
+        except Exception:
+            self.output.error(
+                f"Could not update the environment variable {key} in file {dotenv_path}")
+            sys.exit(-1)
 
     def get_envvar(self, key):
         return os.environ[key].strip()
@@ -308,7 +327,7 @@ class Project:
                 __file__)[0], "template", "template.zip")
         except Exception as e:
             self.output.error("Error while trying to load template.zip")
-            self.output.error(e)
+            self.output.error(str(e))
 
         if name == ".":
             name = ""
@@ -634,7 +653,7 @@ class Docker:
             except docker.errors.APIError as e:
                 self.output.error(
                     "ERROR WHILE PULLING IMAGE: '{0}'".format(microsoft_image_name))
-                self.output.error(e)
+                self.output.error(str(e))
 
             # Tagging Image with Container Registry Name
             try:
@@ -643,7 +662,7 @@ class Docker:
             except docker.errors.APIError as e:
                 self.output.error(
                     "ERROR WHILE TAGGING IMAGE: '{0}'".format(microsoft_image_name))
-                self.output.error(e)
+                self.output.error(str(e))
 
             # Push Image to Container Registry
             try:
@@ -658,7 +677,7 @@ class Docker:
             except docker.errors.APIError as e:
                 self.output.error("ERROR WHILE PUSHING IMAGE: '{0}'".format(
                     container_registry_image_name))
-                self.output.error(e)
+                self.output.error(str(e))
 
         self.setup_registry_in_config(image_names)
 
@@ -748,7 +767,7 @@ class Docker:
                 except Exception as e:
                     self.output.error(
                         "Error while trying to open module log '{0}' with command '{1}'. Try iotedgedev docker --save-logs instead.".format(module, command))
-                    self.output.error(e)
+                    self.output.error(str(e))
             if save:
                 try:
                     self.utility.exe_proc(["docker", "logs", module, ">",
@@ -756,7 +775,7 @@ class Docker:
                 except Exception as e:
                     self.output.error(
                         "Error while trying to save module log file '{0}'".format(module))
-                    self.output.error(e)
+                    self.output.error(str(e))
 
         if save:
             self.zip_logs()
@@ -783,3 +802,151 @@ class ModuleType(Enum):
     System = 1
     User = 2
     Both = 3
+
+
+
+class AzureCli:
+    def __init__(self, envvars, output):
+        self.envvars = envvars
+        self.output = output
+        self.az_cli = get_default_cli()
+
+    def invoke_az_cli(self, args, error_message, io=None):
+        try:
+            exit_code = self.az_cli.invoke(args, out_file=io)
+            if exit_code and exit_code != 0:
+                self.output.error(error_message)
+                return False
+        except Exception as e:
+            self.output.error(error_message)
+            self.output.error(str(e))
+            return False
+
+        self.output.footer("Success")
+
+        return True
+
+    def add_extension(self, name):
+        self.output.header(f"Adding extension {name}")
+
+        return self.invoke_az_cli(["extension", "add", "--name",name,
+                                   "--yes"],
+                                  f"Error while adding extension {name}")
+
+    def extension_exists(self, name):
+        self.output.header(f"Checking for extension {name}")
+
+        return self.invoke_az_cli(["extension", "show", "--name", name, "--output", "table"],
+                                  f"Error while checking for extension {name}")
+
+    def login(self, username, password):
+        self.output.header("Loging in to Azure")
+
+        return self.invoke_az_cli(["login", "-u", username,
+                                   "-p",  password, "--query", "\"[].[name, resourceGroup]\"", "-o", "table"],
+                                  "Error while trying to login to Azure")
+
+    def login_interactive(self):
+        self.output.header("Interactive login to Azure")
+
+        return self.invoke_az_cli(["login", "--query", "\"[].[name, resourceGroup]\"", "--o", "table"],
+                                  "Error while trying to login to Azure")[0]
+
+    def list_subscriptions(self):
+        self.output.header("Listing Subscriptions")
+
+        return self.invoke_az_cli(["account", "list", "--out", "table"],
+                                  "Error while trying to list Azure subscriptions")
+
+    def set_subscription(self, subscription):
+        self.output.header("Setting Subscription")
+
+        return self.invoke_az_cli(["account", "set", "--subscription", subscription],
+                                  "Error while trying to set Azure subscription")
+
+    def resource_group_exists(self, name):
+        self.output.header("Checking for Resource Group")
+
+        return self.invoke_az_cli(["group", "exists", "-n", name],
+                                  "Resource Group does not exist.")
+
+    def list_resource_groups(self):
+        self.output.header("Listing Resource Groups")
+
+        return self.invoke_az_cli(["group", "list", "--out", "table"],
+                                  "Could not list the Resource Groups.")
+
+    def list_iot_hubs(self, resource_group):
+        self.output.header(
+            f"Listing IoT Hubs in {resource_group}")
+
+        return self.invoke_az_cli(["iot", "hub", "list", "--resource-group", resource_group, "--out", "table"],
+                                  f"Could not list the IoT Hubs in {resource_group}.")
+
+    def iothub_exists(self, value, resource_group):
+        self.output.header(
+            f"Checking if {value} IoT Hub exists in {resource_group}")
+
+        return self.invoke_az_cli(["iot", "hub", "show", "--name", value, "--resource-group",
+                                   resource_group, "--out", "table"],
+                                  f"Could not locate the {value} in {resource_group}.")
+
+    def create_iothub_free(self, value, resource_group):
+        self.output.header(
+            f"Creating free (F1 sku) {value} in {resource_group} ")
+
+        return self.invoke_az_cli(["iot", "hub", "create", "--name", value, "--resource-group",
+                                   resource_group, "--out", "table"],
+                                  f"Could not create free (F1 sku) IoT Hub {value} in {resource_group}.")
+
+    def create_iothub(self, value, resource_group, sku):
+        self.output.header(
+            f"Creating {value} in {resource_group} with sku {sku}")
+
+        return self.invoke_az_cli(["iot", "hub", "create", "--name", value, "--resource-group",
+                                   resource_group, "--sku", sku, "--out", "table"],
+                                  f"Could not create the IoT Hub {value} in {resource_group}.")
+
+    def get_iothub_connection_string(self, value, resource_group):
+        self.output.header(
+            f"Getting connection string for {value} in {resource_group} ")
+
+        io = StringIO()
+        result = self.invoke_az_cli(["iot", "hub", "show-connection-string", "--hub-name", value,
+                                     "--resource-group", resource_group],
+                                    f"Could not create the IoT Hub {value} in {resource_group}.", io)
+        if result:
+            data = json.loads(io.getvalue())
+            return data["cs"]
+        return ''
+
+    def edge_device_exists(self, value, iothub, resource_group):
+        self.output.header(
+            f"Checking if {value} device exists in {iothub} IoT Hub in {resource_group}")
+
+        return self.invoke_az_cli(["iot", "hub", "device-identity", "show", "--device-id", value, "--hub-name", iothub,
+                                   "--resource-group", resource_group, "--out", "table"],
+                                  f"Could not locate the {value} device in {iothub} IoT Hub in {resource_group}")
+
+    def create_edge_device(self, value, iothub, resource_group):
+        self.output.header(
+            f"Creating {value} edge device in {iothub} IoT Hub in {resource_group}")
+
+        return self.invoke_az_cli(["iot", "hub", "device-identity", "create", "--device-id", value, "--hub-name", iothub,
+                                   "--resource-group", resource_group, "--edge-enabled", "--output", "table"],
+                                  f"Could not locate the {value} device in {iothub} IoT Hub in {resource_group}")
+
+    def get_device_connection_string(self, value, iothub, resource_group):
+        self.output.header(
+            f"Getting the connection string for {value} edge device in {iothub} IoT Hub in {resource_group}")
+
+        io = StringIO()
+
+        result = self.invoke_az_cli(["iot", "hub", "device-identity", "show-connection-string", "--device-id", value, "--hub-name", iothub,
+                                     "--resource-group", resource_group],
+                                    f"Could not locate the {value} device in {iothub} IoT Hub in {resource_group}", io)
+        if result:
+            data = json.loads(io.getvalue())
+            return data["cs"]
+
+        return ''
