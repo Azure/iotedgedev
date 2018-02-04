@@ -9,7 +9,6 @@ import os
 import shutil
 from click.testing import CliRunner
 
-from iotedgedev import iotedgedev
 from iotedgedev import cli
 
 from dotenv import load_dotenv, find_dotenv
@@ -34,8 +33,8 @@ class TestIotedgedev(unittest.TestCase):
             shutil.copyfile('.env', os.path.join(os.getcwd(), project, '.env'))
             os.chdir(project)
             
-        except Exception as e:
-            print(e)
+        except Exception as ex:
+            print(str(ex))
 
     @classmethod
     def tearDownClass(self):
