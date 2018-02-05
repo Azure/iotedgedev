@@ -24,7 +24,8 @@ requirements = [
     'azure-cli-container', 
     'azure-cli-extension', 
     'azure-cli-resource', 
-    'azure-cli-iot'
+    'azure-cli-iot', 
+    'fstrings'
 ]
 
 setup_requirements = [

@@ -1,4 +1,5 @@
 import json
+from fstrings import f
 from io import StringIO
 from azure.cli.core import get_default_cli
 
@@ -24,17 +25,17 @@ class AzureCli:
         return True
 
     def add_extension(self, name):
-        self.output.header(f"Adding extension {name}")
+        self.output.header(f("Adding extension {name}"))
 
         return self.invoke_az_cli(["extension", "add", "--name",name,
                                    "--yes"],
-                                  f"Error while adding extension {name}")
+                                  f("Error while adding extension {name}"))
 
     def extension_exists(self, name):
-        self.output.header(f"Checking for extension {name}")
+        self.output.header(f("Checking for extension {name}"))
 
         return self.invoke_az_cli(["extension", "show", "--name", name, "--output", "table"],
-                                  f"Error while checking for extension {name}")
+                                  f("Error while checking for extension {name}"))
 
     def login(self, username, password):
         self.output.header("Loging in to Azure")
@@ -75,43 +76,43 @@ class AzureCli:
 
     def list_iot_hubs(self, resource_group):
         self.output.header(
-            f"Listing IoT Hubs in {resource_group}")
+            f("Listing IoT Hubs in {resource_group}"))
 
         return self.invoke_az_cli(["iot", "hub", "list", "--resource-group", resource_group, "--out", "table"],
-                                  f"Could not list the IoT Hubs in {resource_group}.")
+                                  f("Could not list the IoT Hubs in {resource_group}."))
 
     def iothub_exists(self, value, resource_group):
         self.output.header(
-            f"Checking if {value} IoT Hub exists in {resource_group}")
+            f("Checking if {value} IoT Hub exists in {resource_group}"))
 
         return self.invoke_az_cli(["iot", "hub", "show", "--name", value, "--resource-group",
                                    resource_group, "--out", "table"],
-                                  f"Could not locate the {value} in {resource_group}.")
+                                  f("Could not locate the {value} in {resource_group}."))
 
     def create_iothub_free(self, value, resource_group):
         self.output.header(
-            f"Creating free (F1 sku) {value} in {resource_group} ")
+            f("Creating free (F1 sku) {value} in {resource_group} "))
 
         return self.invoke_az_cli(["iot", "hub", "create", "--name", value, "--resource-group",
                                    resource_group, "--out", "table"],
-                                  f"Could not create free (F1 sku) IoT Hub {value} in {resource_group}.")
+                                  f("Could not create free (F1 sku) IoT Hub {value} in {resource_group}."))
 
     def create_iothub(self, value, resource_group, sku):
         self.output.header(
-            f"Creating {value} in {resource_group} with sku {sku}")
+            f("Creating {value} in {resource_group} with sku {sku}"))
 
         return self.invoke_az_cli(["iot", "hub", "create", "--name", value, "--resource-group",
                                    resource_group, "--sku", sku, "--out", "table"],
-                                  f"Could not create the IoT Hub {value} in {resource_group}.")
+                                  f("Could not create the IoT Hub {value} in {resource_group}."))
 
     def get_iothub_connection_string(self, value, resource_group):
         self.output.header(
-            f"Getting connection string for {value} in {resource_group} ")
+            f("Getting connection string for {value} in {resource_group} "))
 
         io = StringIO()
         result = self.invoke_az_cli(["iot", "hub", "show-connection-string", "--hub-name", value,
                                      "--resource-group", resource_group],
-                                    f"Could not create the IoT Hub {value} in {resource_group}.", io)
+                                    f("Could not create the IoT Hub {value} in {resource_group}."), io)
         if result:
             data = json.loads(io.getvalue())
             return data["cs"]
@@ -119,29 +120,29 @@ class AzureCli:
 
     def edge_device_exists(self, value, iothub, resource_group):
         self.output.header(
-            f"Checking if {value} device exists in {iothub} IoT Hub in {resource_group}")
+            f("Checking if {value} device exists in {iothub} IoT Hub in {resource_group}"))
 
         return self.invoke_az_cli(["iot", "hub", "device-identity", "show", "--device-id", value, "--hub-name", iothub,
                                    "--resource-group", resource_group, "--out", "table"],
-                                  f"Could not locate the {value} device in {iothub} IoT Hub in {resource_group}")
+                                  f("Could not locate the {value} device in {iothub} IoT Hub in {resource_group}"))
 
     def create_edge_device(self, value, iothub, resource_group):
         self.output.header(
-            f"Creating {value} edge device in {iothub} IoT Hub in {resource_group}")
+            f("Creating {value} edge device in {iothub} IoT Hub in {resource_group}"))
 
         return self.invoke_az_cli(["iot", "hub", "device-identity", "create", "--device-id", value, "--hub-name", iothub,
                                    "--resource-group", resource_group, "--edge-enabled", "--output", "table"],
-                                  f"Could not locate the {value} device in {iothub} IoT Hub in {resource_group}")
+                                  f("Could not locate the {value} device in {iothub} IoT Hub in {resource_group}"))
 
     def get_device_connection_string(self, value, iothub, resource_group):
         self.output.header(
-            f"Getting the connection string for {value} edge device in {iothub} IoT Hub in {resource_group}")
+            f("Getting the connection string for {value} edge device in {iothub} IoT Hub in {resource_group}"))
 
         io = StringIO()
 
         result = self.invoke_az_cli(["iot", "hub", "device-identity", "show-connection-string", "--device-id", value, "--hub-name", iothub,
                                      "--resource-group", resource_group],
-                                    f"Could not locate the {value} device in {iothub} IoT Hub in {resource_group}", io)
+                                    f("Could not locate the {value} device in {iothub} IoT Hub in {resource_group}"), io)
         if result:
             data = json.loads(io.getvalue())
             return data["cs"]

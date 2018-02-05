@@ -5,6 +5,7 @@ from __future__ import absolute_import
 
 import click
 import sys
+from fstrings import f
 from .dockercls import Docker
 from .modules import Modules
 from .runtime import Runtime
@@ -180,8 +181,8 @@ def azure(setup, azure_credentials, interactive_login, subscription, resource_gr
         edge_device_id, iothub_name, resource_group_name)
 
     if iothub_connection_string and device_connection_string:
-        output.info(f"IOTHUB_CONNECTION_STRING=\"{iothub_connection_string}\"")
-        output.info(f"DEVICE_CONNECTION_STRING=\"{device_connection_string}\"")
+        output.info(f("IOTHUB_CONNECTION_STRING=\"{iothub_connection_string}\""))
+        output.info(f("DEVICE_CONNECTION_STRING=\"{device_connection_string}\""))
 
     if click.confirm('Update current .env file?'):
         envvars.save_envvar("IOTHUB_CONNECTION_STRING",

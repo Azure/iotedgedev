@@ -3,6 +3,7 @@ import os
 import platform
 import socket
 import sys
+from fstrings import f
 from .connectionstring import IoTHubConnectionString, DeviceConnectionString
 
 class EnvVars:
@@ -138,7 +139,7 @@ class EnvVars:
             set_key(dotenv_path, key, value)
         except Exception:
             self.output.error(
-                f"Could not update the environment variable {key} in file {dotenv_path}")
+                f("Could not update the environment variable {key} in file {dotenv_path}"))
             sys.exit(-1)
 
     def get_runtime_home_dir(self):

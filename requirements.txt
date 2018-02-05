@@ -8,6 +8,7 @@ azure-cli-container
 azure-cli-extension
 azure-cli-resource
 azure-cli-iot
+fstrings
 
 
 
