@@ -5,14 +5,17 @@ from __future__ import absolute_import
 
 import click
 import sys
-from .iotedgedev import Docker
-from .iotedgedev import Modules
-from .iotedgedev import Runtime
-from .iotedgedev import Project
-from .iotedgedev import Utility
-from .iotedgedev import EnvVars
-from .iotedgedev import Output
-from .iotedgedev import AzureCli
+from .dockercls import Docker
+from .modules import Modules
+from .runtime import Runtime
+from .project import Project
+from .utility import Utility
+from .envvars import EnvVars
+from .output import Output
+from .iothub import IoTHub
+from .azurecli import AzureCli
+
+
 output = Output()
 envvars = EnvVars(output)
 azure_cli = AzureCli(envvars, output)
@@ -51,11 +54,20 @@ def project(create):
         proj = Project(output)
         proj.create(create)
 
+@click.command(context_settings=CONTEXT_SETTINGS)
+@click.option(
+    '--monitor-events',
+    default=False,
+    required=False,
+    is_flag=True,
+    help="Displays events that are sent from IoT Hub device to IoT Hub.")
+def iothub(monitor_events):
+    if monitor_events:
+        utility = Utility(envvars, output)
+        ih = IoTHub(envvars, output, utility)
+        ih.monitor_events()
 
 def validate_option(ctx, param, value):
-
-   
-
     if param.name == "azure_credentials":
         if not azure_cli.login(*value):
             sys.exit()
@@ -184,7 +196,7 @@ def azure(setup, azure_credentials, interactive_login, subscription, resource_gr
     default=False,
     required=False,
     is_flag=True,
-    help="Deploys modules to Edge device using modules.json in build/config directory.")
+    help="Deploys modules to Edge device using deployment.json in the /.config directory.")
 def modules(build, deploy):
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
@@ -336,7 +348,9 @@ main.add_command(runtime)
 main.add_command(modules)
 main.add_command(docker)
 main.add_command(project)
+main.add_command(iothub)
 main.add_command(azure)
+
 
 if __name__ == "__main__":
     main()

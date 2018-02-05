@@ -1,50 +1,106 @@
 # Azure IoT Edge Dev Tool
 
-The Azure IoT Edge Dev Tool **greatly simplifies** your Azure IoT Edge development process. It has everything you need to get started and helps with your day-to-day IoT Edge development.
+The **Azure IoT Edge Dev Tool** greatly simplifies [Azure IoT Edge](https://azure.microsoft.com/en-us/services/iot-edge/) development down to simple CLI commands driven by Environment Variables. This tool will:
 
-You will be able to do all of the following with simple one line commands.
+ - Get you started with IoT Edge development with the [IoT Edge Dev Container](#dev-machine-setup) and IoT Edge Project Scaffolding that contains a sample module and all the required configuration files.
+ - Speed up your inner-loop dev (dev, debug, test) by reducing multi-step build & deploy processes into one-line CLI commands and well as drive your outer-loop CI/CD pipeline. You can use all the same commands in both stages of your development life-cycle.
+ 
 
-1. Install the Azure IoT Edge Dev Tool: `pip install azure-iot-edge-dev-tool`
-1. Create a new Edge project: `iotedgedev project --create`
-1. Build, Push and Deploy modules: `iotedgedev modules --build --deploy`
-1. Setup and Start the Edge Runtime: `iotedgedev runtime --setup --start`
-1. View and Save Docker log files: `iotedgedev docker --logs`
-1. Use a Custom Container Registry: `iotedgedev docker --setup-registry`
+The **Azure IoT Edge Dev Tool** enables you to do all of the following with simple one-line CLI commands.
+
+1. **Install**: Install the Azure IoT Edge Dev Tool: 
+
+    `pip install azure-iot-edge-dev-tool`
+    
+1. **Project**: Create a new IoT Edge project that includes a sample module and all the the required configuration files.
+
+    `iotedgedev project --create edgeproject1`
+
+1. **Build & Deploy**: Build, Push and Deploy modules: 
+
+    `iotedgedev modules --build --deploy`
+    
+    > This will `build`, `publish`, `docker build, tag and push` and `deploy modules` to your IoT Edge device.
+1. **Setup & Start**: Setup and Start the IoT Edge Runtime: 
+
+    `iotedgedev runtime --setup --start`
+
+1. **View Messages**: View Messages Sent from IoT Edge to IoT Hub: 
+
+    `iotedgedev iothub --monitor-events`
+
+1. **View Logs**: View and Save Docker log files: 
+
+    `iotedgedev docker --logs`
+
+1. **Setup Custom Registry**: Use a Custom Container Registry: 
+
+    `iotedgedev docker --setup-registry`
 
 The project was created by Microsofties that work with IoT Edge customers, who have found it very helpful.  We hope to get a variation of this officially supported by the Azure IoT team in the near future. Your contributions and feedback to this project will help us build an amazing developer experience, so please do not hesitate to participate.
 
 Please see [Azure IoT Edge Dev Resources](https://github.com/jonbgallant/azure-iot-edge-dev) for links to official docs and other IoT Edge dev information.
 
 ## Videos
+
+### [Azure IoT Edge Dev Tool in 2 Minutes](https://www.youtube.com/watch?v=NsnxMshMhmA)
 [![Azure IoT Edge Dev Tool in 2 Minutes](assets/edgedevtool2mins.png)](https://www.youtube.com/watch?v=NsnxMshMhmA)
 
-https://www.youtube.com/watch?v=NsnxMshMhmA
-
-[![Azure IoT Edge Dev Tool with Windows Subsystem for Linux (WSL)](assets/edgedevtoolwsl.png)](https://www.youtube.com/watch?v=k5ZtTmHgs_8)
-
-https://www.youtube.com/watch?v=k5ZtTmHgs_8
-
+### [Azure IoT Edge Dev Tool: Introduction](https://www.youtube.com/watch?v=lcDFX8PXqUQ)
 [![Azure IoT Edge Dev Tool: Introduction](assets/edgedevtoolintro.png)](https://www.youtube.com/watch?v=lcDFX8PXqUQ)
 
-https://www.youtube.com/watch?v=lcDFX8PXqUQ
+### [Azure IoT Edge Dev Tool with Windows Subsystem for Linux (WSL)](https://www.youtube.com/watch?v=k5ZtTmHgs_8)
+[![Azure IoT Edge Dev Tool with Windows Subsystem for Linux (WSL)](assets/edgedevtoolwsl.png)](https://www.youtube.com/watch?v=k5ZtTmHgs_8)
+
 
 ## Setup
 ### Azure Setup
-1. [Create Azure IoT Hub](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-csharp-csharp-getstarted#create-an-iot-hub)
-1. [Create Azure Container Registry](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-get-started-portal)
-    - Make sure you enable Admin Access when you create the Azure Container Registry
-1. Create Edge Device using the Azure Portal
-    - In your IoT Hub, click "IoT Edge", then click "Add IoT Edge Device"
 
+#### Manual Setup
+1. [**Create Azure IoT Hub**](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-csharp-csharp-getstarted#create-an-iot-hub)
+1. **Create Edge Device** using the Azure Portal
+    - In your IoT Hub, click "IoT Edge", then click "Add IoT Edge Device"
+1. [**Create Azure Container Registry**](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-get-started-portal)
+    > Only needed when you want to push your modules to a central registry. You can run a local registry by setting the .env/CONTAINER_REGISTRY_SERVER setting to `localhost:5000`.
+
+    - Make sure you enable Admin Access when you create the Azure Container Registry
+
+#### Automated Setup
+    
 You can also deploy the IoT Hub and Container Registry with this **Deploy to Azure** template:
 
 [![Azure Deployment](https://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjonbgallant%2Fazure-iot-edge-dev-tool%2Fmaster%2Fassets%2Fdeploy%2FARMDeployment%2Fazuredeploy.json)
 
 ### Dev Machine Setup
 
-Here's what you need to do to get `iotedgedev` running on your dev machine. If you are using a separate Edge device, like a Raspberry Pi, you do not need to run all of these steps on your Edge device, you can just use `iotedgectl` directly .  See the [Edge Device Setup](#edge-device-setup) section below for more information on setting up your Edge device.
+Here's what you need to do to get Azure IoT Edge Dev Tool (aka `iotedgedev`) running on your dev machine. If you are using a separate Edge device, like a Raspberry Pi, you do not need to run all of these steps on your IoT Edge device, you can just use `iotedgectl` directly on the device. See the [IoT Edge Device Setup](#iot-edge-device-setup) section below for more information on setting up your Edge device.
 
-> Note: See the ["Test Coverage"](#test-coverage) section below to see what this module has been tested with.
+> Note: See the ["Test Coverage"](#test-coverage) section below to see what the Edge Dev Tool has been tested with.
+
+#### IoT Edge Dev Tool Container
+You can use the IoT Edge Dev Tool container to avoid having to install all the dependencies on your local dev machine.  
+
+> (Only runs on Linux Containers at this time. Windows Container support coming soon.)
+
+1. Install Docker
+
+1. Create Local Folder on Host to contain your projects.
+
+    `c:/temp/edgeprojects`
+
+1. Start Container:
+
+    `docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v c:/temp/edgeprojects:/home jongallant/iotedgedev`
+
+1. Change to the `/home` directory:
+
+    `cd /home`
+
+1. Skip all the install steps below and jump to the [Usage](#usage) section below.
+
+#### Local Dev Machine Setup
+
+> You don't need to do this if you are running the container as described in the previous step.
 
 1. Install **[Docker](https://docs.docker.com/engine/installation/)**
     - Windows    
@@ -69,18 +125,16 @@ Here's what you need to do to get `iotedgedev` running on your dev machine. If y
             sudo sh -c "echo Defaults  env_keep += \"DOCKER_HOST\" >> /etc/sudoers.d/docker"
             ```
     - Linux
-        1. **Do not** install via `sudo apt install docker.io`. Use the proper steps for [CE here](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce), or use the [convenience script](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-using-the-convenience-script).
-    
-    
-
-1. Install **Python 2.7 or Python 3**
+        - We've seen some issues with docker.io. If Edge doesn't run for you, then try installing Docker CE directly instead of via docker.io. Use the [CE install steps](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce), or use the [convenience script](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-using-the-convenience-script).
+        
+1. Install **Python 2.7+ or Python 3.6+**
     - Windows - [Install from Python's website](https://www.python.org/downloads/)
     - Linux - `sudo apt install python-pip` or `sudo apt install python3-pip`
     
 1. Install **[.NET Core SDK](https://www.microsoft.com/net/core#windowscmd)**
     - The .NET Core SDK does not run on ARM, so you do not need to install this on Raspberry Pi.
 
-1. Install **Dependencies**
+1. Install **System Dependencies**
 
     > You can also run under a Python Virtual Environment.  See the [Python Virtual Environment Setup](#python-virtual-environment-setup) instructions below for details on how to set that up.
 
@@ -96,69 +150,61 @@ Here's what you need to do to get `iotedgedev` running on your dev machine. If y
             sudo pip install --upgrade setuptools pip
             sudo apt install python2.7-dev libffi-dev libssl-dev -y
             ```
+1. Install **IoTHub-Explorer**
+
+    Currently, the only way to view IoT Hub Messages via CLI is with the iothub-explorer npm package.  You need to install that with the following command.
+
+    ```
+    npm i -g iothub-explorer
+    ```
+
+    You can also use [Device Explorer](https://github.com/Azure/azure-iot-sdk-csharp/releases) as well, but it is Windows only.  The Azure IoT team is working on porting the monitor-events functionality to the official az iot CLI - but for now we'll use the npm package.
+
 1. Install **`azure-iot-edge-dev-tool`**
 
-    > You do not need to run this on the Raspberry Pi Edge device. See the [Edge Device Setup](#edge-device-setup) section below for more information on setting up your Edge device.
+    > You do not need to run this on the Raspberry Pi Edge device. See the [IoT Edge Device Setup](#iot-edge-device-setup) section below for more information on setting up your Edge device.
 
-    1. Via Pip - Use this if you want to use the tool as is.
-        ```
-        pip install azure-iot-edge-dev-tool
-        ```  
-
-    1. Via GitHub - Use this if you want to make changes to this tool.
-
-        1. Clone or Fork this Repository
-
-            > Replace `project-name` with the name of your project.
-
-            `git clone https://github.com/jonbgallant/azure-iot-edge-dev-tool.git project-name`
-
-        1. Install Dependencies
-
-            > Use 'sudo' for Mac/Linux/RaspberryPi. 
-            
-            `pip install -U -r requirements.txt`
-
-        1. Install iotedgedev Module
-
-            The following command will make `iotedgedev` available in your terminal.
-
-            From the root of repo:
-
-            `pip install -e .`
+    ```
+    pip install azure-iot-edge-dev-tool
+    ```  
 
 ## Usage
 
-Here's how you create a project, build and deploy our modules, and then setup and start the Edge runtime. 
+Here's how you create a project, build and deploy modules, and then setup and start the Edge runtime. 
 
 ### Step 1: Create Azure IoT Edge Project
 
 The following command will setup the folder structure required for this module
 
-> Replace `edge-project` with the name of your project.  Use `.` to create in the current folder.
+> Replace `edgeproject1` with the name of your project.  Use `.` to create in the current folder.
 
 ```
-iotedgedev project --create edge-project
+iotedgedev project --create edgeproject1
 ```
 
 #### Folder Structure
 
 When you create a new project, it will have the following contents:
 
-1. **config folder** - Contains sample config files for both modules and runtime.
-
-1. **build folder** - Contains the files outputted by the .NET Core SDK.
-
-1. **modules folders** - Contains all of the modules for your Edge project.
+1. **modules folders** - Contains all of the modules for your IoT Edge project.
     - The iotedgedev module assumes that you'll structure your Dockerfiles exactly like the filter-module sample.  Have a Docker folder in the root of the project, then subfolders within that to support multiple Docker files.
         
     > It is important that you follow this structure or the module will not work.  Please make suggestions or fork this project if you would like a different behavior.
 
+1. **.env** - Contains all the required Environment Variables for your IoT Edge Project.
+
+1. **.gitignore** - A .gitignore file for your IoT Edge projects.
+
+1. **Configuration File Templates** - There are two files in the root of the project:
+
+    - `deployment.template.json` - Contains the config that is deployed to your IoT Edge device. It contains references to your modules, module routes and desired property information.
+    - `runtime.template.json` - Contains the config used by your IoT Edge runtime.  It contains your device connection string, your container registry settings and is used when you call the `runtime --setup` command.
+
+1. **.config folder** - All expanded config files are copied to this folder and these files are used at runtime.
+
+1. **build folder** - Contains the files outputted by the .NET Core SDK.
+
 1. **logs folder** - Contains all the Docker log files for the Runtime and your modules.
-
-1. **.env** - Contains all the required Environment Variables for Edge Project. Rename to .env and add your settings.
-
-1. **.gitignore** - A suggested .gitignore file for your Edge projects.
 
 ### Step 2: Update Environment Variables
 
@@ -166,38 +212,14 @@ The settings used for this module are stored in a .env file in the root of your 
 
 1. Open `.env` and set variables
 
-    1. Runtime Home Directory
+    You only need to set the `IOTHUB_CONNECTION_STRING` AND `DEVICE_CONNNECTION_STRING` settings, which you can get from the Azure Portal.
 
-        - For Linux/Raspberry Pi, change: `RUNTIME_HOME_DIR="/etc/azure-iot-edge"`
+    ```
+    IOTHUB_CONNECTION_STRING=""
+    DEVICE_CONNECTION_STRING=""
+    ```
 
-    1. Active Modules
-
-        - You can tell `iotedgedev` which modules you want to build by including them in the `ACTIVE_MODULES` setting.  Comma separated. 
-
-    1. Active Docker Directories
-    
-        - You can tell `iotedgedev` which Docker files to build and push by including the Dockerfile's parent folder in the `ACTIVE_DOCKER_DIRS` setting.
-
-    1. At a minimum, you need to set the following values, which you you can get from your Azure account:
-        ```
-        IOTHUB_NAME="iot hub name"
-        IOTHUB_KEY="iot hub key" 
-        DEVICE_CONNECTION_STRING="edge device connection string"
-        EDGE_DEVICE_ID="edge device id" 
-        RUNTIME_HOST_NAME="the computer name that your edge will run on"
-        CONTAINER_REGISTRY_SERVER="" 
-        CONTAINER_REGISTRY_USERNAME=""
-        CONTAINER_REGISTRY_PASSWORD=""
-        ```
-1. Update Config
-
-    If you are running on Raspberry Pi you need to use the arm32v7 Dockerfile. Open `config/modules.json`, find the `filter-module` line and replace `linux-x64` with `arm32v7`. 
-
-    Replace this:
-    `"image": "${CONTAINER_REGISTRY_SERVER}/filter-module:linux-x64-${CONTAINER_TAG}",`
-
-    With this:
-    `"image": "${CONTAINER_REGISTRY_SERVER}/filter-module:arm32v7-${CONTAINER_TAG}",`
+    > You can use the `DOTENV_FILE` Environment Variable to point to a different .env file, such as .env.integration or .env.test. This is helpful in CI/CD pipeline scenarios where you'll want to target different environments and devices to ensure all scenarios are tested.
 
 ### Step 3: Build and Deploy Modules
 
@@ -207,11 +229,11 @@ The settings used for this module are stored in a .env file in the root of your 
 iotedgedev modules --build --deploy
 ```
 
-The- `--build` command will build each module in the `modules` folder and push it to your container registry.  The- `--deploy` command will apply the `build/modules.json` configuration file to your Edge device.
+The- `--build` command will build each module in the `modules` folder and push it to your container registry.  The- `--deploy` command will apply the generated `.config/deployment.json` configuration file to your IoT Edge device.
 
-You can configure what modules will be built and deployed using the `ACTIVE_MODULES` env var in the `.env` file.
+You can configure what modules will be built and deployed by using the `ACTIVE_MODULES` env var in the `.env` file. You can configure which Dockerfiles get built and deployed by using the `ACTIVE_DOCKER_DIRS` env var.
 
-### Step 4: Setup and Start the Edge Runtime
+### Step 4: Setup and Start the IoT Edge Runtime
 
 > Use 'sudo' for Linux/RaspberryPi
 
@@ -219,26 +241,25 @@ You can configure what modules will be built and deployed using the `ACTIVE_MODU
 iotedgedev runtime --setup --start
 ```
 
-The- `--setup` command will apply the `/build/runtime.json` file to your Edge device.  The- `--start` command will start the Edge runtime.
+The- `--setup` command will apply the `/.config/runtime.json` file to your IoT Edge device.  The- `--start` command will start the IoT Edge runtime.
    
 ### Step 5: Monitor Messages
 
-#### Device Explorer
+```
+iotedgedev iothub --monitor-events
+```
 
-You can use the [Device Explorer](https://github.com/Azure/azure-iot-sdk-csharp/releases/download/2017-12-2/SetupDeviceExplorer.msi) to monitor the messages that are sent to your IoT Hub.
-
-#### iothub-explorer
-
-You can also use the [iothub-explorer](https://github.com/Azure/iothub-explorer) npm package:
+This will print messages sent from the device specified in DEVICE_CONNECTION_STRING. To use this command, you first need to install the [iothub-explorer](https://github.com/Azure/iothub-explorer) npm package with the following command:
 
 ```bash
 npm i -g iothub-explorer
-iothub-explorer --login "iothubowner connection string" monitor-events "your device id"
 ```
+
+> NOTE: iothub-explorer is included in the [IoT Edge Dev Tool Container](#iot-edge-dev-tool-container)
 
 ### Step 6: Create a new Module
 
-After you have everything running from the Edge Tool project template, the next step is to develop all the custom modules you need for your scenario.  Here's how you do that:
+After you have everything running from the IoT Edge Tool project template, the next step is to develop all the custom modules you need for your scenario.  Here's how you do that:
 
 1. Install the .NET Core Module Template
 
@@ -258,8 +279,6 @@ After you have everything running from the Edge Tool project template, the next 
 
     Now, when you run `iotedgedev modules --build` you will see that `mymodule` is also built and pushed to your container registry.
 
-    > Without `iotedgedev` you would have had to do many more steps to get to this point.
-
 1. Add Message Property
 
     We are going to add a new custom property to the message as it is flowing through the system so we can see that our module is working.
@@ -274,7 +293,7 @@ After you have everything running from the Edge Tool project template, the next 
     
 1. Add Module to Config
 
-    1. Open `/config/modules.json`. 
+    1. Open `deployment.template.json`. 
     1. Copy and paste the filter-module section and change filter-module to mymodule.
 
     ```javascript
@@ -295,7 +314,7 @@ After you have everything running from the Edge Tool project template, the next 
 
     By default, your new module acts as a simple pass through. It receives messages and passes them to the output. We will add `mymodule` in between our existing `sensor` and `filter` modules. 
 
-    1. Open `/config/modules.json`
+    1. Open `deployment.template.json`
     1. Replace `$edgeHub.properties.desired.routes` with the following:
 
     ```javascript
@@ -310,7 +329,7 @@ After you have everything running from the Edge Tool project template, the next 
 
     Now that we have the module created, code added, and config updated, we are going to rebuild, deploy our module.
 
-    > You will notice that the Edge Runtime automatically detects a new deployment, retrieves the new module, applies the new route and keeps sending messages.
+    > You will notice that the IoT Edge Runtime automatically detects a new deployment, retrieves the new module, applies the new route and keeps sending messages.
 
     `iotedgedev modules --build --deploy`
 
@@ -318,11 +337,8 @@ After you have everything running from the Edge Tool project template, the next 
 
     Now when we view the messages flowing through the system, we'll see an additional 'abc' property:
 
-    Here's how with the [iothub-explorer](https://github.com/Azure/iothub-explorer) npm package:
-
     ```bash
-        npm i -g iothub-explorer
-        iothub-explorer --login "iothubowner connection string" monitor-events "your device id"
+    iotedgedev iothub --monitor-events
     ```
 
     ```javascript
@@ -343,7 +359,7 @@ After you have everything running from the Edge Tool project template, the next 
         }
     ```
 
-That's all there is to it.  You can now get started implementing your Edge scenario!
+That's all there is to it.  You can now get started implementing your IoT Edge scenario!
 
 ## Commands
 The `iotedgedev` module has the following commands:
@@ -352,6 +368,11 @@ The `iotedgedev` module has the following commands:
 
 `iotedgedev project --help`
 - `--create TEXT`  Creates a new Azure IoT Edge project. Use `--create .` to create in current folder. Use `--create TEXT` to create in a subfolder.
+
+**iothub**
+
+`iotedgedev iothub --help`
+- `--monitor-events`    Displays events that are sent from IoT Hub device to IoT Hub.
 
 **runtime**
 
@@ -366,7 +387,7 @@ The `iotedgedev` module has the following commands:
 
 `iotedgedev modules --help`
 - `--build`     Builds and pushes modules specified in ACTIVE_MODULES Environment Variable to specified container registry.
-- `--deploy`    Deploys modules to Edge device using modules.json in  build/config directory.
+- `--deploy`    Deploys modules to Edge device using deployment.json in the  /.config directory.
 
 **docker**
 
@@ -387,7 +408,7 @@ The `iotedgedev` module has the following commands:
 
 ### Setup Container Registry
 
-You can also use `iotedgedev` to host the Edge runtime from your own Azure Container Registry or a Local Container Registry.  Set the `.env` values for your Container Registry and run the following command. It will pull all the Edge containers from Dockerhub, tag them and upload them to the container registry you have specified in `.env`. 
+You can also use `iotedgedev` to host the IoT Edge runtime from your own Azure Container Registry or a Local Container Registry.  Set the `.env` values for your Container Registry and run the following command. It will pull all the IoT Edge containers from Dockerhub, tag them and upload them to the container registry you have specified in `.env`. 
 
 > Use 'sudo' for Linux/RaspberryPi
 
@@ -399,7 +420,7 @@ iotedgedev docker --setup-registry
 ### View Docker Logs
 
 #### Show Logs
-The iotedgedev module also include a "Show Logs" command that will open a new command prompt for each module it finds in your Edge config.  Just run the following command:
+The iotedgedev module also include a "Show Logs" command that will open a new command prompt for each module it finds in your IoT Edge config.  Just run the following command:
 
 > Note: I haven't figured out how to launch new SSH windows in a reliable way.  It's in the backlog.  For now, you must be on the desktop of the machine to run this command.
 
@@ -435,28 +456,37 @@ Instead of using a cloud based container registry, you can use a local Docker re
 
 `iotedgedev` will look for `localhost` in your setting and take care of the rest for you.
 
-## Edge Device Setup
+## IoT Edge Device Setup
 
-The `iotedgedev` module is intended to help with Edge development and doesn't necessarily need to be taken on as a dependency in production or integration environments, where you'll likely want to use the `iotedgectl` module directly. You can use `iotedgedev` to generate your runtime.json file on your dev machine, copy that to your Edge device and then use the following command to setup and start your Edge Runtime. 
+The `iotedgedev` module is intended to help with IoT Edge development and doesn't necessarily need to be taken on as a dependency in production or integration environments, where you'll likely want to use the `iotedgectl` module directly. You can use `iotedgedev` to generate your runtime.json file on your dev machine, copy that to your IoT Edge device and then use the following command to setup and start your IoT Edge Runtime. 
 
 ```
 iotedgectl setup --config-file runtime.json
 iotedgectl start
 ```
 
-Having said that, there's nothing stopping you from deploying `iotedgedev` to your Edge device. It may be helpful if you want to run the `iotedgedev docker --clean` command to clean up Docker containers and images. Or if you want to run `iotedgedev docker --show-logs` to see all the log files on the device or `iotedgedev docker --save-logs` to output to the LOGS_PATH directory.
+Having said that, there's nothing stopping you from deploying `iotedgedev` to your IoT Edge device. It may be helpful if you want to run the `iotedgedev docker --clean` command to clean up Docker containers and images. Or if you want to run `iotedgedev docker --show-logs` to see all the log files on the device or `iotedgedev docker --save-logs` to output to the LOGS_PATH directory.
 
 > Please note that the .NET Core SDK does not support ARM, so you will not be able to run `modules --build` or `modules --deploy` directly on a Raspberry Pi.
 
 ### Raspberry Pi
 
-Whether you use `iotedgedev` or directly use `iotedgecgtl` on the Raspberry Pi, you will still need to run the following commands before you run the Edge Runtime.
+Whether you use `iotedgedev` or directly use `iotedgecgtl` on the Raspberry Pi, you will still need to run the following commands before you run the IoT Edge Runtime.
 
     ```
     sudo pip install --upgrade setuptools pip
     sudo apt install python2.7-dev libffi-dev libssl-dev -y
     sudo pip install -U azure-iot-edge-dev-tool
     ```
+
+##### Config Changes
+    If you are running on Raspberry Pi you need to use the arm32v7 Dockerfile. Open `deployment.template.json`, find the `filter-module` line and replace `linux-x64` with `arm32v7`. 
+
+    Replace this:
+    `"image": "${CONTAINER_REGISTRY_SERVER}/filter-module:linux-x64-${CONTAINER_TAG}",`
+
+    With this:
+    `"image": "${CONTAINER_REGISTRY_SERVER}/filter-module:arm32v7-${CONTAINER_TAG}",`
 
 ## Python Virtual Environment Setup
 
@@ -497,7 +527,7 @@ This module has been tested with the following:
 - Windows Subsystem for Linux, Ubuntu 16.04
 - Ubuntu 16.04
 - Mac Sierra 10.12.6
-- Raspberry Pi with Raspbian Stretch (**.NET Core Runtime Only**, .NET Core SDK not supported on ARM.) - You cannot use Raspberry Pi as a Edge dev machine, but it can host the Edge runtime.
+- Raspberry Pi with Raspbian Stretch (**.NET Core Runtime Only**, .NET Core SDK not supported on ARM.) - You cannot use Raspberry Pi as a IoT Edge dev machine, but it can host the IoT Edge runtime.
 - Python 2.7.13 and Python 3.6.3
 - Docker Version 17.09.1-ce-win42 (14687), Channel: stable, 3176a6a
 
@@ -521,7 +551,7 @@ This module has been tested with the following:
 
 1. Latest Docker Image Not Pulled from Registry
 
-    By design, Docker only pulls images that have been changed.  When you are developing you tend to push new images on a frequent basis, which Docker will not pull unless it has a unique tag.  You could assign every push a new tag, or you can simply run the following command on the Edge device.
+    By design, Docker only pulls images that have been changed.  When you are developing you tend to push new images on a frequent basis, which Docker will not pull unless it has a unique tag.  You could assign every push a new tag, or you can simply run the following command on the IoT Edge device.
 
     ```
     iotedgedev runtime --restart
@@ -562,6 +592,11 @@ Please use the [GitHub issues page](https://github.com/jonbgallant/azure-iot-edg
 Please fork, branch and pull-request any changes you'd like to make.
 
 #### Contributor Dev Machine Setup
+
+1. Clone or Fork this Repository
+
+    `git clone https://github.com/jonbgallant/azure-iot-edge-dev-tool.git`
+
 1. Install **[Microsoft Visual C++ Build Tools](http://landinghub.visualstudio.com/visual-cpp-build-tools)**
 
 1. Install **OpenSSL 1.1.0g**
@@ -569,7 +604,7 @@ Please fork, branch and pull-request any changes you'd like to make.
         1. [Download from OpenSSL's website](https://www.openssl.org/source/openssl-1.1.0g.tar.gz)
         1. Extract the downloaded .tar.gz to C:\OpenSSL\ 
 
-1. Make sure both **Python 2.7 and Python 3** are installed
+1. Make sure both **Python 2.7 and Python 3.6** are installed
 
 1. Install dependencies
 
@@ -579,11 +614,19 @@ Please fork, branch and pull-request any changes you'd like to make.
     pip install -r requirements_dev.txt
     ```
 
-#### Run the tests 
+1. Editable Mode
+
+    Run the following command from the root of the project to see changes to iotedgedev commands as you change code.
+
+    ```
+    pip install -e .
+    ```
+
+#### Run Tests
 
 Run the following command to run tests.
     
-    tox
+    `tox`
     
     
 
