@@ -54,6 +54,7 @@ def project(create):
         proj = Project(output)
         proj.create(create)
 
+
 @click.command(context_settings=CONTEXT_SETTINGS)
 @click.option(
     '--monitor-events',
@@ -67,11 +68,12 @@ def iothub(monitor_events):
         ih = IoTHub(envvars, output, utility)
         ih.monitor_events()
 
+
 def validate_option(ctx, param, value):
-    if param.name == "azure_credentials":
+    if param.name == "azure_credentials" and value:
         if not azure_cli.login(*value):
             sys.exit()
-    if param.name == "login_interactive":
+    if param.name == "interactive_login":
         if not azure_cli.login_interactive():
             sys.exit()
 
@@ -93,11 +95,10 @@ def validate_option(ctx, param, value):
                 if not azure_cli.create_iothub(value, envvars.RESOURCE_GROUP_NAME, "S1"):
                     raise click.BadParameter(
                         f'Could not create IoT Hub {value} in {envvars.RESOURCE_GROUP_NAME}')
-                
 
     if param.name == "edge_device_id":
         if not azure_cli.extension_exists("azure-cli-iot-ext"):
-                azure_cli.add_extension("azure-cli-iot-ext")
+            azure_cli.add_extension("azure-cli-iot-ext")
         if not azure_cli.edge_device_exists(value, envvars.IOTHUB_NAME, envvars.RESOURCE_GROUP_NAME):
             if not azure_cli.create_edge_device(value, envvars.IOTHUB_NAME, envvars.RESOURCE_GROUP_NAME):
                 raise click.BadParameter(
@@ -134,7 +135,7 @@ def list_subscriptions_and_set_default():
     '--azure-credentials',
     required=False,
     hide_input=True,
-    type=(str, str),
+    nargs=2,
     callback=validate_option,
     help="The credentials (username password) to use to login to Azure")
 @click.option(
@@ -148,40 +149,46 @@ def list_subscriptions_and_set_default():
     default=lambda: list_subscriptions_and_set_default(),
     required=False,
     callback=validate_option,
-    prompt='The Azure subscription name or id to use. Leave empty to use the default or specify the name or id of the subscription to use.')
+    prompt='The Azure subscription name or id to use. Leave empty to use the default or specify the name or id of the subscription to use',
+    help='The Azure subscription name or id to use. Leave empty to use the default or specify the name or id of the subscription to use')
 @click.option(
     '--resource-group-name',
     default=lambda: list_resource_groups_and_set_default(),
     callback=validate_option,
     required=True,
-    prompt='The name of the new Resource Group to use')
+    prompt='The name of the new Resource Group to use',
+    help='The name of the new Resource Group to use')
 @click.option(
     '--iothub-name',
     required=True,
     default=lambda: list_iot_hubs_and_set_default(),
     callback=validate_option,
-    prompt='The IoT Hub name to be used. Creates a new IoT Hub if not found')
+    prompt='The IoT Hub name to be used. Creates a new IoT Hub if not found',
+    help='The IoT Hub name to be used. Creates a new IoT Hub if not found')
 @click.option(
     '--edge-device-id',
     required=True,
     default=lambda: "iotedgedev-edgedevice-dev",
     callback=validate_option,
-    prompt='The IoT Edge Device Id to use or create')
+    prompt='The IoT Edge Device Id to use or create',
+    help='The IoT Edge Device Id to use or create')
 def azure(setup, azure_credentials, interactive_login, subscription, resource_group_name, iothub_name, edge_device_id):
 
-    iothub_connection_string = azure_cli.get_iothub_connection_string(iothub_name, resource_group_name)
-    device_connection_string = azure_cli.get_device_connection_string(edge_device_id, iothub_name, resource_group_name) 
+    iothub_connection_string = azure_cli.get_iothub_connection_string(
+        iothub_name, resource_group_name)
+    device_connection_string = azure_cli.get_device_connection_string(
+        edge_device_id, iothub_name, resource_group_name)
 
     if iothub_connection_string and device_connection_string:
         output.info(f"IOTHUB_CONNECTION_STRING=\"{iothub_connection_string}\"")
         output.info(f"DEVICE_CONNECTION_STRING=\"{device_connection_string}\"")
 
-    update = input('Update current .env file? (Y/N):')
-    if update and update.upper() == "Y":
-        envvars.save_envvar("IOTHUB_CONNECTION_STRING", iothub_connection_string)
-        envvars.save_envvar("DEVICE_CONNECTION_STRING", device_connection_string)
+    if click.confirm('Update current .env file?'):
+        envvars.save_envvar("IOTHUB_CONNECTION_STRING",
+                            iothub_connection_string)
+        envvars.save_envvar("DEVICE_CONNECTION_STRING",
+                            device_connection_string)
         output.info("Updated current .env file")
-
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)

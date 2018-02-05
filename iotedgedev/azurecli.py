@@ -47,7 +47,7 @@ class AzureCli:
         self.output.header("Interactive login to Azure")
 
         return self.invoke_az_cli(["login", "--query", "\"[].[name, resourceGroup]\"", "--o", "table"],
-                                  "Error while trying to login to Azure")[0]
+                                  "Error while trying to login to Azure")
 
     def list_subscriptions(self):
         self.output.header("Listing Subscriptions")
