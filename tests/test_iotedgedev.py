@@ -87,7 +87,7 @@ class TestIotedgedev(unittest.TestCase):
         assert test_string in result.output
 
     #TODO implement the mock AzureCli class
-'''
+    '''
     def test_azure_setup_command(self):
         dotenv_file = ".env.test"
         shutil.copyfile('../.env', dotenv_file)
@@ -107,7 +107,7 @@ class TestIotedgedev(unittest.TestCase):
         assert result.exit_code == 0
         test_string = "Environment Variables loaded from: " + dotenv_file
         assert test_string in result.output
-'''
+    '''
     # TODO: Figure out why tox messes with the paths.
     '''
     def test_runtime_setup(self):
