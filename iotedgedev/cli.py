@@ -19,8 +19,8 @@ from .azurecli import AzureCli
 
 output = Output()
 envvars = EnvVars(output)
-azure_cli = AzureCli(envvars, output)
-
+azure_cli = AzureCli(output)
+default_subscriptionId = None
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -33,7 +33,11 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
     required=False,
     is_flag=True,
     help="Expands Environment Variables in /config/*.json and copies to /build/config.")
-def main(set_config):
+def main(set_config, az_cli=None):
+    global azure_cli
+    if(az_cli):
+        azure_cli = az_cli
+
     if(set_config):
         utility = Utility(envvars, output)
         utility.set_config()
@@ -71,39 +75,47 @@ def iothub(monitor_events):
 
 
 def validate_option(ctx, param, value):
-    if param.name == "azure_credentials" and value:
-        if not azure_cli.login(*value):
-            sys.exit()
-    if param.name == "interactive_login":
-        if not azure_cli.login_interactive():
-            sys.exit()
+    global default_subscriptionId
+
+    if param.name == "azure_credentials":
+        if value:
+            if not azure_cli.login(*value):
+                sys.exit()
 
     if param.name == "subscription":
-        if value and not azure_cli.set_subscription(value):
-            raise click.BadParameter(
-                f'Could not switch to subscription {value}')
+        # first verify that we have an existing auth token in cache, otherwise login using interactive
+        if not default_subscriptionId:
+            default_subscriptionId = azure_cli.user_has_logged_in()
+            if not default_subscriptionId and not azure_cli.login_interactive():
+                sys.exit()
+
+        if default_subscriptionId != value:
+            if not azure_cli.set_subscription(value):
+                raise click.BadParameter(
+                    f('Could not switch to subscription {value}'))
 
     if param.name == "resource_group_name":
         if not azure_cli.resource_group_exists(value):
-            raise click.BadParameter(f'Could not find Resource Group {value}')
+            raise click.BadParameter(
+                f('Could not find Resource Group {value}'))
         else:
             envvars.RESOURCE_GROUP_NAME = value
 
     if param.name == "iothub_name":
+        if not azure_cli.extension_exists("azure-cli-iot-ext"):
+            azure_cli.add_extension("azure-cli-iot-ext")
         envvars.IOTHUB_NAME = value
         if not azure_cli.iothub_exists(value, envvars.RESOURCE_GROUP_NAME):
             if not azure_cli.create_iothub_free(value, envvars.RESOURCE_GROUP_NAME):
                 if not azure_cli.create_iothub(value, envvars.RESOURCE_GROUP_NAME, "S1"):
                     raise click.BadParameter(
-                        f'Could not create IoT Hub {value} in {envvars.RESOURCE_GROUP_NAME}')
+                        f('Could not create IoT Hub {value} in {envvars.RESOURCE_GROUP_NAME}'))
 
     if param.name == "edge_device_id":
-        if not azure_cli.extension_exists("azure-cli-iot-ext"):
-            azure_cli.add_extension("azure-cli-iot-ext")
         if not azure_cli.edge_device_exists(value, envvars.IOTHUB_NAME, envvars.RESOURCE_GROUP_NAME):
             if not azure_cli.create_edge_device(value, envvars.IOTHUB_NAME, envvars.RESOURCE_GROUP_NAME):
                 raise click.BadParameter(
-                    f'Could not create IoT Edge Device {value} in {envvars.IOTHUB_NAME} in {envvars.RESOURCE_GROUP_NAME}')
+                    f('Could not create IoT Edge Device {value} in {envvars.IOTHUB_NAME} in {envvars.RESOURCE_GROUP_NAME}'))
 
     return value
 
@@ -121,9 +133,17 @@ def list_resource_groups_and_set_default():
 
 
 def list_subscriptions_and_set_default():
+    global default_subscriptionId
+    # first verify that we have an existing auth token in cache, otherwise login using interactive
+    if not default_subscriptionId:
+        default_subscriptionId = azure_cli.user_has_logged_in()
+        if not default_subscriptionId and not azure_cli.login_interactive():
+            sys.exit()
+
     if not azure_cli.list_subscriptions():
         sys.exit()
-    return ''
+    default_subscriptionId = azure_cli.get_default_subscription()
+    return default_subscriptionId
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)
@@ -138,42 +158,44 @@ def list_subscriptions_and_set_default():
     hide_input=True,
     nargs=2,
     callback=validate_option,
-    help="The credentials (username password) to use to login to Azure")
-@click.option(
-    '--interactive-login',
-    required=False,
-    is_flag=True,
-    callback=validate_option,
-    help="Logs in to Azure in interactive mode")
+    help="The credentials (username password) to use to login to Azure. Leave empty to login in interactive mode.")
 @click.option(
     '--subscription',
     default=lambda: list_subscriptions_and_set_default(),
-    required=False,
+    required=True,
     callback=validate_option,
-    prompt='The Azure subscription name or id to use. Leave empty to use the default or specify the name or id of the subscription to use',
-    help='The Azure subscription name or id to use. Leave empty to use the default or specify the name or id of the subscription to use')
+    prompt='The Azure subscription name or id to use',
+    help='The Azure subscription name or id to use.')
 @click.option(
     '--resource-group-name',
-    default=lambda: list_resource_groups_and_set_default(),
-    callback=validate_option,
     required=True,
+    default=lambda: list_resource_groups_and_set_default(),
+    type=str,
+    callback=validate_option,
     prompt='The name of the new Resource Group to use',
-    help='The name of the new Resource Group to use')
+    help='The name of the new Resource Group to use.')
 @click.option(
     '--iothub-name',
     required=True,
     default=lambda: list_iot_hubs_and_set_default(),
+    type=str,
     callback=validate_option,
     prompt='The IoT Hub name to be used. Creates a new IoT Hub if not found',
-    help='The IoT Hub name to be used. Creates a new IoT Hub if not found')
+    help='The IoT Hub name to be used. Creates a new IoT Hub if not found.')
 @click.option(
     '--edge-device-id',
     required=True,
     default=lambda: "iotedgedev-edgedevice-dev",
+    type=str,
     callback=validate_option,
     prompt='The IoT Edge Device Id to use or create',
-    help='The IoT Edge Device Id to use or create')
-def azure(setup, azure_credentials, interactive_login, subscription, resource_group_name, iothub_name, edge_device_id):
+    help='The IoT Edge Device Id to use or create.')
+@click.option(
+    '--update-dotenv',
+    required=False,
+    is_flag=True,
+    help='If set, the current .env will be updated with the corresponding connection strings.')
+def azure(setup, azure_credentials, subscription, resource_group_name, iothub_name, edge_device_id, update_dotenv):
 
     iothub_connection_string = azure_cli.get_iothub_connection_string(
         iothub_name, resource_group_name)
@@ -181,15 +203,19 @@ def azure(setup, azure_credentials, interactive_login, subscription, resource_gr
         edge_device_id, iothub_name, resource_group_name)
 
     if iothub_connection_string and device_connection_string:
-        output.info(f("IOTHUB_CONNECTION_STRING=\"{iothub_connection_string}\""))
-        output.info(f("DEVICE_CONNECTION_STRING=\"{device_connection_string}\""))
+        output.info(
+            f("IOTHUB_CONNECTION_STRING=\"{iothub_connection_string}\""))
+        output.info(
+            f("DEVICE_CONNECTION_STRING=\"{device_connection_string}\""))
 
-    if click.confirm('Update current .env file?'):
+    if update_dotenv:
         envvars.save_envvar("IOTHUB_CONNECTION_STRING",
                             iothub_connection_string)
         envvars.save_envvar("DEVICE_CONNECTION_STRING",
                             device_connection_string)
         output.info("Updated current .env file")
+
+    # azure_cli.logout()
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)
