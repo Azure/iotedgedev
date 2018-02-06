@@ -92,24 +92,30 @@ def validate_option(ctx, param, value):
         if default_subscriptionId != value:
             if not azure_cli.set_subscription(value):
                 raise click.BadParameter(
-                    f('Could not switch to subscription {value}'))
+                    f('Please verify that your subscription Id or Name is correct'))
+
+
+    if param.name == "resource_group_location":
+        envvars.RESOURCE_GROUP_LOCATION = value
 
     if param.name == "resource_group_name":
+        envvars.RESOURCE_GROUP_NAME = value
         if not azure_cli.resource_group_exists(value):
-            raise click.BadParameter(
-                f('Could not find Resource Group {value}'))
-        else:
-            envvars.RESOURCE_GROUP_NAME = value
+            if not azure_cli.create_resource_group(value, envvars.RESOURCE_GROUP_LOCATION):
+                raise click.BadParameter(
+                    f('Could not find Resource Group {value}'))
+
+    if param.name == "iothub_sku":
+        envvars.IOTHUB_SKU = value
 
     if param.name == "iothub_name":
+        envvars.IOTHUB_NAME = value
         if not azure_cli.extension_exists("azure-cli-iot-ext"):
             azure_cli.add_extension("azure-cli-iot-ext")
-        envvars.IOTHUB_NAME = value
         if not azure_cli.iothub_exists(value, envvars.RESOURCE_GROUP_NAME):
-            if not azure_cli.create_iothub_free(value, envvars.RESOURCE_GROUP_NAME):
-                if not azure_cli.create_iothub(value, envvars.RESOURCE_GROUP_NAME, "S1"):
-                    raise click.BadParameter(
-                        f('Could not create IoT Hub {value} in {envvars.RESOURCE_GROUP_NAME}'))
+            if not azure_cli.create_iothub(value, envvars.RESOURCE_GROUP_NAME, envvars.IOTHUB_SKU):
+                raise click.BadParameter(
+                    f('Could not create IoT Hub {value} in {envvars.RESOURCE_GROUP_NAME}'))
 
     if param.name == "edge_device_id":
         if not azure_cli.edge_device_exists(value, envvars.IOTHUB_NAME, envvars.RESOURCE_GROUP_NAME):
@@ -151,29 +157,43 @@ def list_subscriptions_and_set_default():
     '--setup',
     required=True,
     is_flag=True,
-    help="Reads the required Azure components configuration from your subscription. Creates new Azure resources or uses existing ones.")
+    help="Reads the required Azure resources configuration from your subscription. Creates new Azure resources or uses existing ones.")
 @click.option(
     '--azure-credentials',
     required=False,
     hide_input=True,
     nargs=2,
     callback=validate_option,
-    help="The credentials (username password) to use to login to Azure. Leave empty to login in interactive mode.")
+    help="The credentials (username password) to use to login to Azure. If --credentials not specified, you will login in the interactive mode.")
 @click.option(
     '--subscription',
     default=lambda: list_subscriptions_and_set_default(),
     required=True,
     callback=validate_option,
-    prompt='The Azure subscription name or id to use',
-    help='The Azure subscription name or id to use.')
+    prompt="The Azure subscription name or id to use",
+    help="The Azure subscription name or id to use.")
+@click.option(
+    '--resource-group-location',
+    required=False,
+    default='westus',
+    type=click.Choice(['australiaeast','australiasoutheast','brazilsouth','canadacentral','canadaeast','centralindia','centralus','eastasia','eastus','eastus2','japanwest','japaneast','northeurope','northcentralus','southindia','uksouth','ukwest','westus','westeurope','southcentralus','westcentralus','westus2']),
+    callback=validate_option,
+    help="The location of the new Resource Group. If --resource-group-location not specified, the default will be West US.")
 @click.option(
     '--resource-group-name',
     required=True,
     default=lambda: list_resource_groups_and_set_default(),
     type=str,
     callback=validate_option,
-    prompt='The name of the new Resource Group to use',
-    help='The name of the new Resource Group to use.')
+    prompt="The name of the Resource Group to use or create. Creates a new Resource Group if not found",
+    help="The name of the Resource Group to use or create. Creates a new Resource Group if not found.")
+@click.option(
+    '--iothub-sku',
+    required=False,
+    default='F1',
+    type=click.Choice(['F1', 'S1', 'S2', 'S3']),
+    callback=validate_option,
+    help="The SKU of the new IoT Hub. If --iothub-sku not specified, the default will be F1 (free).")
 @click.option(
     '--iothub-name',
     required=True,
@@ -188,8 +208,8 @@ def list_subscriptions_and_set_default():
     default=lambda: "iotedgedev-edgedevice-dev",
     type=str,
     callback=validate_option,
-    prompt='The IoT Edge Device Id to use or create',
-    help='The IoT Edge Device Id to use or create.')
+    prompt='The IoT Edge Device Id to be used. Creates an new Edge Device if not found',
+    help='The IoT Edge Device Id to be used. Creates an new Edge Device if not found.')
 @click.option(
     '--update-dotenv',
     required=False,

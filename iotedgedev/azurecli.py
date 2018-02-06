@@ -107,6 +107,13 @@ class AzureCli:
             return out_string == "true\n"
         return False
 
+    def create_resource_group(self, name, location):
+        self.output.header(f("Creating Resource Group {name} at location:{location}"))
+
+        return self.invoke_az_cli(["group", "create", "--name", name, "--location", location],
+                                  f("Could not create the new Resource Group {name} at location:{location}."))
+
+
     def list_resource_groups(self):
         self.output.header("Listing Resource Groups")
 
@@ -128,21 +135,13 @@ class AzureCli:
                                    resource_group, "--out", "table"],
                                   f("Could not locate the {value} in {resource_group}."))
 
-    def create_iothub_free(self, value, resource_group):
-        self.output.header(
-            f("Creating free (F1 sku) {value} in {resource_group} "))
-
-        return self.invoke_az_cli(["iot", "hub", "create", "--name", value, "--resource-group",
-                                   resource_group, "--out", "table"],
-                                  f("Could not create free (F1 sku) IoT Hub {value} in {resource_group}."))
-
     def create_iothub(self, value, resource_group, sku):
         self.output.header(
             f("Creating {value} in {resource_group} with sku {sku}"))
 
         return self.invoke_az_cli(["iot", "hub", "create", "--name", value, "--resource-group",
                                    resource_group, "--sku", sku, "--out", "table"],
-                                  f("Could not create the IoT Hub {value} in {resource_group}."))
+                                  f("Could not create the IoT Hub {value} in {resource_group} with sku {sku}."))
 
     def get_iothub_connection_string(self, value, resource_group):
         self.output.header(

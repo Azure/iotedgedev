@@ -16,12 +16,10 @@ The **Azure IoT Edge Dev Tool** enables you to do all of the following with simp
 
     `iotedgedev project --create edgeproject1`
 
-1. **Azure**: Setup your new IoT Edge project configuration. This will guide you to select or create the needed Azure resources and will populate the required Environment Variables.
+1. **Azure**: Creates or selects your Azure IoT Hub and Edge Device and updates your Environment Variables.
 
-    `iotedgedev azure --setup --subscription THE_SUBSCRIPTION_ID --resource-group-name THE_RG_NAME --iothub-name THE_IOT_NAME --edge-device-id THE_EDGE_DEVICE_NAME`
+    `iotedgedev azure --setup`
 
-    > Note: Running just `iotedgedev azure --setup` will save you time from looking up the required parameter values. The tool will help you choose the parameters in an interactive way 
-                
 1. **Build & Deploy**: Build, Push and Deploy modules: 
 
     `iotedgedev modules --build --deploy`
@@ -75,14 +73,23 @@ Please see [Azure IoT Edge Dev Resources](https://github.com/jonbgallant/azure-i
 
 You can use the **Azure IoT Edge Dev Tool** to create a new IoT Hub and a new Edge device. This command will also print the corresponding connection strings 
 ```
-iotedgedev azure --setup
+iotedgedev azure --setup 
+    --subscription THE_SUBSCRIPTION_ID 
+    --resource-group-location THE_RG_LOCATION
+    --resource-group-name THE_RG_NAME 
+    --iothub-sku THE_IOT_SKU 
+    --iothub-name THE_IOT_NAME 
+    --edge-device-id THE_EDGE_DEVICE_NAME
 ```
-    
+
+
+> Note: Running `iotedgedev azure --setup` without the rest parameters will save you time from looking up the required parameter values. The command will help you choose the parameters in an interactive way 
+
 Alternatively, you can deploy the IoT Hub **and** Container Registry with this **Deploy to Azure** template:
 
 [![Azure Deployment](https://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjonbgallant%2Fazure-iot-edge-dev-tool%2Fmaster%2Fassets%2Fdeploy%2FARMDeployment%2Fazuredeploy.json)
 
-> Note: If you do not need a Container Registry, or planning to use your local registry, running the **iotedgedev azure --setup** command will provision all required Azure compontents
+> Note: If you do not need a Container Registry, or are planning to use a local registry, then you should run the **iotedgedev azure --setup** command instead of running this **Deploy to Azure** template, because the template includes a Container Registry.
 
 ### Dev Machine Setup
 
@@ -393,21 +400,26 @@ The `iotedgedev` module has the following commands:
 
 `iotedgedev azure --help`
 
-- `--setup`                    Reads the required Azure components
+- `--setup`                    Reads the required Azure resources
                                configuration from your subscription. Creates
                                new Azure resources or uses existing ones.
                                [required]
 - `--azure-credentials TEXT TEXT`  The credentials (username password) to use to
-                               login to Azure. Leave empty to login in
-                               interactive mode.
+                               login to Azure. If --credentials not specified, 
+                               you will login in the interactive mode
 - `--subscription TEXT`        The Azure subscription name or id to use.
                                [required]
-- `--resource-group-name TEXT` The name of the new Resource Group to use.
+- `--resource-group-location`  The location of the new Resource Group. If 
+                               --resource-group-location not specified, the default will be West US.
                                [required]
+- `--resource-group-name TEXT` The location of the new Resource Group.
+- `--iothub-sku`               The SKU of the new IoT Hub. If --iothub-sku not 
+                               specified, the default will be F1 (free).
+                               [F1|S1|S2|S3] 
 - `--iothub-name TEXT`         The IoT Hub name to be used. Creates a new IoT
                                Hub if not found.  
                                [required]
-- `--edge-device-id TEXT`      The IoT Edge Device Id to use or create.
+- `--edge-device-id TEXT`      The IoT Edge Device Id to be used. Creates an new Edge Device if not found. 
                                [required]
 - `--update-dotenv`            If set, the current .env will be updated with
                                the corresponding connection strings.  
@@ -444,7 +456,7 @@ The `iotedgedev` module has the following commands:
 - `--show-logs`          Opens a new terminal window for edgeAgent, edgeHub and each edge module. You can configure the terminal command with LOGS_CMD.
 - `--save-logs`          Saves edgeAgent, edgeHub and each edge module logs to LOGS_PATH.
 
-iotedgedev azure**iotedgedev commands**
+**iotedgedev commands**
 
 - `--version`     Show the version and exit.
 - `--set-config`  Expands Environment Variables in /config/*.json and copies to  /build/config.
