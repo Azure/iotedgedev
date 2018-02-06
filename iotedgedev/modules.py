@@ -1,6 +1,8 @@
 import os
 import requests
 from shutil import copyfile
+import json
+from distutils.dir_util import copy_tree
 
 class Modules:
     def __init__(self, envvars, utility, output, dock):
@@ -27,16 +29,20 @@ class Modules:
 
                 self.output.info("BUILDING MODULE: {0}".format(module_dir))
 
-                # Find first proj file in module dir and use it.
-                project_files = [os.path.join(module_dir, f) for f in os.listdir(
-                    module_dir) if f.endswith("proj")]
+                # if no module.json found ? default to .net
+                json_file_path = os.path.join(os.getcwd(), "modules", module,"module.json")
+                if os.path.exists(json_file_path) :
+                    file_json_content = json.loads (self.utility.get_file_contents(json_file_path))
+                    module_lang = file_json_content.get("language").lower()
 
-                if len(project_files) == 0:
-                    self.output.error("No project file found for module.")
-                    continue
+                else :
+                    module_lang = "csharp"
+                
+                mod_proc_facroty = ModulesProcessorFactory(self.envvars, self.utility, self.output, self.dock)
+                mod_proc = mod_proc_facroty.factory(module_lang)              
 
-                self.utility.exe_proc(["dotnet", "build", project_files[0],
-                                       "-v", self.envvars.DOTNET_VERBOSITY])
+                # build module               
+                mod_proc.build(module_dir)
 
                 # Get all docker files in project
                 docker_files = self.utility.find_files(
@@ -46,12 +52,12 @@ class Modules:
                 docker_dirs_process = [docker_dir.strip()
                                        for docker_dir in self.envvars.ACTIVE_DOCKER_DIRS.split(",") if docker_dir]
 
-                # Process each Dockerfile found
+                # Process each Dockerfile found                               
                 for docker_file in docker_files:
 
                     docker_file_parent_folder = os.path.basename(
                         os.path.dirname(docker_file))
-
+                   
                     if len(
                             docker_dirs_process) == 0 or docker_dirs_process[0] == "*" or docker_file_parent_folder in docker_dirs_process:
 
@@ -85,12 +91,11 @@ class Modules:
                         if not os.path.exists(build_path):
                             os.makedirs(build_path)
 
-                        # dotnet publish
+                        # publish module
                         self.output.info(
-                            "PUBLISHING PROJECT: " + project_files[0])
+                            "PUBLISHING PROJECT: " + module_dir)
+                        mod_proc.publish(module_dir, build_path)
 
-                        self.utility.exe_proc(["dotnet", "publish", project_files[0], "-f", "netcoreapp2.0",
-                                               "-o", build_path, "-v", self.envvars.DOTNET_VERBOSITY])
 
                         # copy Dockerfile to publish dir
                         build_dockerfile = os.path.join(
@@ -163,3 +168,31 @@ class Modules:
             self.output.error(
                 "There was an error deploying the configuration. Please make sure your IOTHUB_CONNECTION_STRING and DEVICE_CONNECTION_STRING Environment Variables are correct.")
 
+class ModulesProcessorFactory(Modules):
+    
+    def factory(self, module_language):
+        if module_language == "csharp" or  module_language == "fsharp" or module_language == "vbasic":
+            return DotNetModuleProcessor(self.envvars, self.utility, self.output, self.dock)
+
+        else :
+            return OtherModuleProcessor(self.envvars, self.utility, self.output, self.dock)
+
+class DotNetModuleProcessor(ModulesProcessorFactory):
+    def build(self, module_dir):
+        project_file = [os.path.join(module_dir, f) for f in os.listdir(
+                    module_dir) if f.endswith("proj")][0]
+        self.utility.exe_proc(["dotnet", "build", project_file,
+                                       "-v", self.envvars.DOTNET_VERBOSITY])
+
+    def publish(self, module_dir, build_path):
+        project_file = [os.path.join(module_dir, f) for f in os.listdir(
+                    module_dir) if f.endswith("proj")][0]
+        self.utility.exe_proc(["dotnet", "publish", project_file, "-f", "netcoreapp2.0",
+                                               "-o", build_path, "-v", self.envvars.DOTNET_VERBOSITY])
+
+class OtherModuleProcessor (ModulesProcessorFactory):
+    def build(self, module_dir):
+        pass
+
+    def publish(self, module_dir, build_path):
+        copy_tree(module_dir, os.path.join("build", module_dir))
