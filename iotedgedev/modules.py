@@ -173,15 +173,20 @@ class ModulesProcessorFactory(object):
         if os.path.exists(self.module_json_file):
             file_json_content = json.loads(
                 self.utility.get_file_contents(self.module_json_file))
-            return file_json_content.get("language")
+            return file_json_content
 
         else:
             self.output.info(
                 "No module.json file found. Default to dotnet module")
-            return "csharp"
+            return None
 
     def get(self):
-        module_language = self.load_module_json().lower()
+        module_json_content = self.load_module_json()       
+        if module_json_content is not None:
+            module_language = module_json_content.get("language").lower()
+        else:
+            module_language = "csharp"
+        
         if module_language == "csharp" or module_language == "fsharp" or module_language == "vbasic":
             return DotNetModuleProcessor(self.envvars, self.utility, self.output, "")
 
@@ -203,9 +208,13 @@ class DotNetModuleProcessor(ModulesProcessorFactory):
             return True
 
     def publish(self, module_dir, build_path):
-        project_file = [os.path.join(module_dir, f) for f in os.listdir(
-            module_dir) if f.endswith("proj")][0]
-        self.utility.exe_proc(["dotnet", "publish", project_file, "-f", "netcoreapp2.0",
+        project_files = [os.path.join(module_dir, f) for f in os.listdir(
+            module_dir) if f.endswith("proj")]
+
+        if len(project_files) == 0:
+            self.output.error("No project file found for module.")
+        else :
+            self.utility.exe_proc(["dotnet", "publish", project_files[0], "-f", "netcoreapp2.0",
                                "-o", build_path, "-v", self.envvars.DOTNET_VERBOSITY])
 
 
