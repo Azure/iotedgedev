@@ -19,12 +19,7 @@ requirements = [
     'python-dotenv',
     'requests',
     'azure-iot-edge-runtime-ctl', 
-    'azure-cli-core', 
-    'azure-cli-profile', 
-    'azure-cli-container', 
-    'azure-cli-extension', 
-    'azure-cli-resource', 
-    'azure-cli-iot', 
+    'azure-cli', 
     'fstrings'
 ]
 

@@ -3,6 +3,7 @@ import os
 import platform
 import socket
 import sys
+from shutil import copyfile
 from fstrings import f
 from .connectionstring import IoTHubConnectionString, DeviceConnectionString
 
@@ -11,6 +12,19 @@ class EnvVars:
         self.output = output
         self.checked = False
 
+    def backup_dotenv(self):
+        dotenv_file = self.get_dotenv_file()
+        dotenv_path = os.path.join(os.getcwd(), dotenv_file)
+        dotenv_backup_path= dotenv_path+".backup"
+        try:
+            copyfile(dotenv_path, dotenv_backup_path)
+            self.output.info(f("Successfully backed up {dotenv_path} to {dotenv_backup_path}"))
+            return True
+        except Exception as e:
+            self.output.error(f("Could not backup {dotenv_path} to {dotenv_backup_path}"))
+            self.output.error(str(e))
+        return False
+        
     def load_dotenv(self):
         dotenv_file = self.get_dotenv_file()
         dotenv_path = os.path.join(os.getcwd(), dotenv_file)

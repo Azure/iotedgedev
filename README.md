@@ -73,13 +73,15 @@ Please see [Azure IoT Edge Dev Resources](https://github.com/jonbgallant/azure-i
 
 You can use the **Azure IoT Edge Dev Tool** to create a new IoT Hub and a new Edge device. This command will also print the corresponding connection strings 
 ```
-iotedgedev azure --setup 
+iotedgedev azure --setup
+    --credentials USERNAME PASSWORD
     --subscription THE_SUBSCRIPTION_ID 
     --resource-group-location THE_RG_LOCATION
     --resource-group-name THE_RG_NAME 
     --iothub-sku THE_IOT_SKU 
     --iothub-name THE_IOT_NAME 
     --edge-device-id THE_EDGE_DEVICE_NAME
+    --update-dotenv
 ```
 
 
@@ -400,29 +402,32 @@ The `iotedgedev` module has the following commands:
 
 `iotedgedev azure --help`
 
-- `--setup`                    Reads the required Azure resources
-                               configuration from your subscription. Creates
-                               new Azure resources or uses existing ones.
-                               [required]
-- `--azure-credentials TEXT TEXT`  The credentials (username password) to use to
-                               login to Azure. If --credentials not specified, 
-                               you will login in the interactive mode
-- `--subscription TEXT`        The Azure subscription name or id to use.
-                               [required]
-- `--resource-group-location`  The location of the new Resource Group. If 
-                               --resource-group-location not specified, the default will be West US.
-                               [required]
-- `--resource-group-name TEXT` The location of the new Resource Group.
-- `--iothub-sku`               The SKU of the new IoT Hub. If --iothub-sku not 
-                               specified, the default will be F1 (free).
-                               [F1|S1|S2|S3] 
-- `--iothub-name TEXT`         The IoT Hub name to be used. Creates a new IoT
-                               Hub if not found.  
-                               [required]
-- `--edge-device-id TEXT`      The IoT Edge Device Id to be used. Creates an new Edge Device if not found. 
-                               [required]
-- `--update-dotenv`            If set, the current .env will be updated with
-                               the corresponding connection strings.  
+- `--setup`                         Reads the required Azure resources
+                                  configuration from your subscription.
+                                  Creates new Azure resources or uses existing
+                                  ones.  [required]
+- `--credentials <TEXT TEXT>`    The credentials (username password) to use
+                                  to login to Azure. If --credentials not
+                                  specified, you will login in the interactive
+                                  mode.
+- `--subscription TEXT`             The Azure subscription name or id to use.
+                                  [required]
+- `--resource-group-location`       The location of the new Resource Group. If
+                                  --resource-group-location not specified, the
+                                  default will be West US.
+- `--resource-group-name TEXT`      The name of the Resource Group to use or
+                                  create. Creates a new Resource Group if not
+                                  found.  [required]
+- `--iothub-sku [F1|S1|S2|S3]`      The SKU of the new IoT Hub. If --iothub-sku
+                                  not specified, the default will be F1
+                                  (free).
+- `--iothub-name TEXT`              The IoT Hub name to be used. Creates a new
+                                  IoT Hub if not found.  [required]
+- `--edge-device-id TEXT`           The IoT Edge Device Id to be used. Creates a
+                                  new Edge Device if not found.  [required]
+- `--update-dotenv`                 If set, the current .env will be updated
+                                  with the corresponding connection strings.
+                                  [required]
 
 **iothub**
 

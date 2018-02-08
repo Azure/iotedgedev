@@ -77,8 +77,8 @@ def iothub(monitor_events):
 def validate_option(ctx, param, value):
     global default_subscriptionId
 
-    if param.name == "azure_credentials":
-        if value:
+    if param.name == "credentials":
+        if value and value[0] and value[1]:
             if not azure_cli.login(*value):
                 sys.exit()
 
@@ -118,14 +118,30 @@ def validate_option(ctx, param, value):
                     f('Could not create IoT Hub {value} in {envvars.RESOURCE_GROUP_NAME}'))
 
     if param.name == "edge_device_id":
+        envvars.EDGE_DEVICE_ID = value
         if not azure_cli.edge_device_exists(value, envvars.IOTHUB_NAME, envvars.RESOURCE_GROUP_NAME):
             if not azure_cli.create_edge_device(value, envvars.IOTHUB_NAME, envvars.RESOURCE_GROUP_NAME):
                 raise click.BadParameter(
                     f('Could not create IoT Edge Device {value} in {envvars.IOTHUB_NAME} in {envvars.RESOURCE_GROUP_NAME}'))
 
+        envvars.IOTHUB_CONNECTION_STRING = azure_cli.get_iothub_connection_string(
+            envvars.IOTHUB_NAME, envvars.RESOURCE_GROUP_NAME)
+        envvars.DEVICE_CONNECTION_STRING = azure_cli.get_device_connection_string(
+            envvars.EDGE_DEVICE_ID, envvars.IOTHUB_NAME, envvars.RESOURCE_GROUP_NAME)
+
+        if envvars.IOTHUB_CONNECTION_STRING and envvars.DEVICE_CONNECTION_STRING:
+            output.info(
+                f("IOTHUB_CONNECTION_STRING=\"{envvars.IOTHUB_CONNECTION_STRING}\""))
+            output.info(
+                f("DEVICE_CONNECTION_STRING=\"{envvars.DEVICE_CONNECTION_STRING}\""))
+
     return value
 
-
+def list_edge_devices_and_set_default():
+    if not azure_cli.list_edge_devices(envvars.IOTHUB_NAME):
+        sys.exit()
+    return "iotedgedev-edgedevice-dev"
+    
 def list_iot_hubs_and_set_default():
     if not azure_cli.list_iot_hubs(envvars.RESOURCE_GROUP_NAME):
         sys.exit()
@@ -136,7 +152,6 @@ def list_resource_groups_and_set_default():
     if not azure_cli.list_resource_groups():
         sys.exit()
     return "iotedgedev-rg-dev"
-
 
 def list_subscriptions_and_set_default():
     global default_subscriptionId
@@ -159,10 +174,11 @@ def list_subscriptions_and_set_default():
     is_flag=True,
     help="Reads the required Azure resources configuration from your subscription. Creates new Azure resources or uses existing ones.")
 @click.option(
-    '--azure-credentials',
+    '--credentials',
     required=False,
     hide_input=True,
-    nargs=2,
+    default=(None, None),
+    type=(str, str),
     callback=validate_option,
     help="The credentials (username password) to use to login to Azure. If --credentials not specified, you will login in the interactive mode.")
 @click.option(
@@ -205,35 +221,36 @@ def list_subscriptions_and_set_default():
 @click.option(
     '--edge-device-id',
     required=True,
-    default=lambda: "iotedgedev-edgedevice-dev",
+    default=lambda: list_edge_devices_and_set_default(),
     type=str,
     callback=validate_option,
-    prompt='The IoT Edge Device Id to be used. Creates an new Edge Device if not found',
-    help='The IoT Edge Device Id to be used. Creates an new Edge Device if not found.')
+    prompt='The IoT Edge Device Id to be used. Creates a new Edge Device if not found',
+    help='The IoT Edge Device Id to be used. Creates a new Edge Device if not found.')
 @click.option(
     '--update-dotenv',
-    required=False,
+    required=True,
+    default=False,
     is_flag=True,
+    prompt='Update the current .env with these connection strings?',    
     help='If set, the current .env will be updated with the corresponding connection strings.')
-def azure(setup, azure_credentials, subscription, resource_group_name, iothub_name, edge_device_id, update_dotenv):
-
-    iothub_connection_string = azure_cli.get_iothub_connection_string(
-        iothub_name, resource_group_name)
-    device_connection_string = azure_cli.get_device_connection_string(
-        edge_device_id, iothub_name, resource_group_name)
-
-    if iothub_connection_string and device_connection_string:
-        output.info(
-            f("IOTHUB_CONNECTION_STRING=\"{iothub_connection_string}\""))
-        output.info(
-            f("DEVICE_CONNECTION_STRING=\"{device_connection_string}\""))
-
+def azure(setup, 
+    credentials, 
+    subscription, 
+    resource_group_location, 
+    resource_group_name, 
+    iothub_sku, 
+    iothub_name, 
+    edge_device_id, 
+    update_dotenv):
+    
     if update_dotenv:
-        envvars.save_envvar("IOTHUB_CONNECTION_STRING",
-                            iothub_connection_string)
-        envvars.save_envvar("DEVICE_CONNECTION_STRING",
-                            device_connection_string)
-        output.info("Updated current .env file")
+        if envvars.backup_dotenv():
+
+            envvars.save_envvar("IOTHUB_CONNECTION_STRING",
+                                envvars.IOTHUB_CONNECTION_STRING)
+            envvars.save_envvar("DEVICE_CONNECTION_STRING",
+                                envvars.DEVICE_CONNECTION_STRING)
+            output.info("Updated current .env file")
 
     # azure_cli.logout()
 

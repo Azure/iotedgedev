@@ -96,7 +96,7 @@ class TestIotedgedev(unittest.TestCase):
         runner = CliRunner()
         result = runner.invoke(cli.main, [
                                'azure', '--setup',
-                               '--azure-credentials', 'username', 'password',
+                               '--credentials', 'username', 'password',
                                '--subscription', '12341234-1234-1234-1234-123412341234',
                                '--resource-group-name', 'iotedgedev-rg-dev',
                                '--iothub-name', 'iotedgedev-iothub-dev',
