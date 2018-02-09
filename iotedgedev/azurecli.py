@@ -1,4 +1,5 @@
 import sys
+import platform
 import subprocess
 import json
 from fstrings import f
@@ -17,11 +18,15 @@ class AzureCli:
     def decode(self, val):
         return val.decode("utf-8").strip()
 
+    def is_posix(self):
+        plat = platform.system().lower()
+        return plat == "linux" or plat == "darwin"
+
     def prepare_az_cli_args(self, args):
         az_args = ["az"]+args
-        if sys.platform == "win32" or sys.platform == "darwin":  # non linux
-            return az_args
-        return [" ".join(az_args)]
+        if self.is_posix():
+            return [" ".join(az_args)]
+        return az_args
 
     def invoke_az_cli_outproc(self, args, error_message=None, stdout_io=None, stderr_io=None):
         try:
