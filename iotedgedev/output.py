@@ -5,6 +5,9 @@ class Output:
     def info(self, text):
         click.secho(text, fg='yellow')
 
+    def prompt(self, text):
+        click.secho(text, fg='white')
+
     def error(self, text):
         click.secho("ERROR: " + text, fg='red')
 

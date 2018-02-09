@@ -46,7 +46,7 @@ class AzureCli:
             self.output.error(str(e))
             return False
 
-        self.output.footer("Success")
+        self.output.line()
 
         return True
 
@@ -63,7 +63,7 @@ class AzureCli:
             self.output.error(str(e))
             return False
 
-        self.output.footer("Success")
+        self.output.line()
 
         return True
 
@@ -81,7 +81,7 @@ class AzureCli:
                                   f("Error while checking for extension {name}."))
 
     def user_has_logged_in(self):
-        self.output.header("Checking for cached credentials.")
+        self.output.header("Checking for cached credentials")
 
         
         with output_io_cls() as io:
@@ -94,7 +94,7 @@ class AzureCli:
                     return data["id"]
                 except Exception:
                     pass
-        self.output.info("No credentials in cache.")
+        self.output.prompt("Azure CLI credentials not found. Please follow instructions below to login to the Azure CLI.")
         return None
 
     def login(self, username, password):
@@ -151,7 +151,7 @@ class AzureCli:
                 if out_string == "true":
                     return True
         
-        self.output.info(f("Resource Group {name} does not exist."))
+        self.output.prompt(f("Resource Group {name} does not exist."))
         return False
 
     def create_resource_group(self, name, location):
@@ -187,7 +187,7 @@ class AzureCli:
             result = self.invoke_az_cli_outproc(["iot", "hub", "show", "--name", value, "--resource-group",
                                    resource_group, "--out", "table"], stderr_io =io)
         if not result:
-            self.output.info(f("Could not locate the {value} in {resource_group}."))
+            self.output.prompt(f("Could not locate the {value} in {resource_group}."))
         return result
 
     def create_iothub(self, value, resource_group, sku):
@@ -196,7 +196,7 @@ class AzureCli:
 
         with output_io_cls() as io:
             with output_io_cls() as error_io:
-                self.output.info("running..") 
+                self.output.prompt("Creating IoT Hub please wait...") 
                 
                 result =  self.invoke_az_cli_outproc(["iot", "hub", "create", "--name", value, "--resource-group",
                                     resource_group, "--sku", sku, "--out", "table"],
@@ -205,7 +205,7 @@ class AzureCli:
                 if not result and error_io.getvalue():
                     self.output.error(error_io.getvalue()) 
                 elif io.getvalue():
-                    self.output.info(io.getvalue()) 
+                    self.output.prompt(io.getvalue()) 
         return result
 
     def get_iothub_connection_string(self, value, resource_group):
@@ -230,7 +230,7 @@ class AzureCli:
             result = self.invoke_az_cli_outproc(["iot", "hub", "device-identity", "show", "--device-id", value, "--hub-name", iothub,
                                    "--resource-group", resource_group, "--out", "table"], stderr_io =io)
         if not result:
-            self.output.info(f("Could not locate the {value} device in {iothub} IoT Hub in {resource_group}."))
+            self.output.prompt(f("Could not locate the {value} device in {iothub} IoT Hub in {resource_group}."))
         return result
 
     def list_edge_devices(self, iothub):
