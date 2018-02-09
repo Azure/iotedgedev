@@ -1,9 +1,12 @@
-from dotenv import load_dotenv
 import os
 import platform
 import socket
 import sys
-from .connectionstring import IoTHubConnectionString, DeviceConnectionString
+
+from dotenv import load_dotenv
+
+from .connectionstring import DeviceConnectionString, IoTHubConnectionString
+
 
 class EnvVars:
     def __init__(self, output):
@@ -50,7 +53,8 @@ class EnvVars:
                     self.IOTHUB_CONNECTION_INFO = IoTHubConnectionString(
                         self.IOTHUB_CONNECTION_STRING)
                 except Exception as ex:
-                    self.output.error("Unable to parse IOTHUB_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set.")
+                    self.output.error(
+                        "Unable to parse IOTHUB_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set.")
                     self.output.error(str(ex))
                     sys.exit(-1)
 
@@ -60,23 +64,24 @@ class EnvVars:
                     self.DEVICE_CONNECTION_INFO = DeviceConnectionString(
                         self.DEVICE_CONNECTION_STRING)
                 except Exception as ex:
-                    self.output.error("Unable to parse DEVICE_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set.")
+                    self.output.error(
+                        "Unable to parse DEVICE_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set.")
                     self.output.error(str(ex))
                     sys.exit(-1)
 
-                
                 self.RUNTIME_HOST_NAME = self.get_envvar("RUNTIME_HOST_NAME")
                 if self.RUNTIME_HOST_NAME == ".":
                     self.set_envvar("RUNTIME_HOST_NAME", socket.gethostname())
 
                 self.RUNTIME_HOME_DIR = self.get_envvar("RUNTIME_HOME_DIR")
                 if self.RUNTIME_HOME_DIR == ".":
-                    self.set_envvar("RUNTIME_HOME_DIR", self.get_runtime_home_dir())
-
+                    self.set_envvar("RUNTIME_HOME_DIR",
+                                    self.get_runtime_home_dir())
 
                 self.RUNTIME_CONFIG_DIR = self.get_envvar("RUNTIME_CONFIG_DIR")
                 if self.RUNTIME_CONFIG_DIR == ".":
-                    self.set_envvar("RUNTIME_CONFIG_DIR", self.get_runtime_config_dir())
+                    self.set_envvar("RUNTIME_CONFIG_DIR",
+                                    self.get_runtime_config_dir())
 
                 self.ACTIVE_MODULES = self.get_envvar("ACTIVE_MODULES")
                 self.ACTIVE_DOCKER_DIRS = self.get_envvar("ACTIVE_DOCKER_DIRS")
@@ -114,25 +119,27 @@ class EnvVars:
     def get_envvar(self, key, required=True):
         val = os.environ[key].strip()
         if not val and required:
-            self.output.error("Environment Variable {0} not set. Either add to .env file or to your system's Environment Variables".format(key))
+            self.output.error(
+                "Environment Variable {0} not set. Either add to .env file or to your system's Environment Variables".format(key))
             sys.exit(-1)
-            
+
         return val
-    
+
     def set_envvar(self, key, value):
         os.environ[key] = value
 
     def get_runtime_home_dir(self):
-        plat = platform.system().lower()
-        if plat == "linux" or plat == "darwin":
+        if self.is_posix():
             return "/var/lib/azure-iot-edge"
         else:
             return os.environ["PROGRAMDATA"].replace("\\", "\\\\") + "\\\\azure-iot-edge\\\data"
 
     def get_runtime_config_dir(self):
-        plat = platform.system().lower()
-
-        if plat == "linux" or plat == "darwin":
+        if self.is_posix():
             return "/etc/azure-iot-edge"
         else:
             return os.environ["PROGRAMDATA"].replace("\\", "\\\\") + "\\\\azure-iot-edge\\\\config"
+
+    def is_posix(self):
+        plat = platform.system().lower()
+        return plat == "linux" or plat == "darwin"
