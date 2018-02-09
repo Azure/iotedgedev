@@ -16,6 +16,10 @@ The **Azure IoT Edge Dev Tool** enables you to do all of the following with simp
 
     `iotedgedev project --create edgeproject1`
 
+1. **Azure**: Creates or selects your Azure IoT Hub and Edge Device and updates your Environment Variables.
+
+    `iotedgedev azure --setup`
+
 1. **Build & Deploy**: Build, Push and Deploy modules: 
 
     `iotedgedev modules --build --deploy`
@@ -66,10 +70,28 @@ Please see [Azure IoT Edge Dev Resources](https://github.com/jonbgallant/azure-i
     - Make sure you enable Admin Access when you create the Azure Container Registry
 
 #### Automated Setup
-    
-You can also deploy the IoT Hub and Container Registry with this **Deploy to Azure** template:
+
+You can use the **Azure IoT Edge Dev Tool** to create a new IoT Hub and a new Edge device. This command will also print the corresponding connection strings 
+```
+iotedgedev azure --setup
+    --credentials USERNAME PASSWORD
+    --subscription THE_SUBSCRIPTION_ID 
+    --resource-group-location THE_RG_LOCATION
+    --resource-group-name THE_RG_NAME 
+    --iothub-sku THE_IOT_SKU 
+    --iothub-name THE_IOT_NAME 
+    --edge-device-id THE_EDGE_DEVICE_NAME
+    --update-dotenv
+```
+
+
+> Note: Running `iotedgedev azure --setup` without the rest parameters will save you time from looking up the required parameter values. The command will help you choose the parameters in an interactive way 
+
+Alternatively, you can deploy the IoT Hub **and** Container Registry with this **Deploy to Azure** template:
 
 [![Azure Deployment](https://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjonbgallant%2Fazure-iot-edge-dev-tool%2Fmaster%2Fassets%2Fdeploy%2FARMDeployment%2Fazuredeploy.json)
+
+> Note: If you do not need a Container Registry, or are planning to use a local registry, then you should run the **iotedgedev azure --setup** command instead of running this **Deploy to Azure** template, because the template includes a Container Registry.
 
 ### Dev Machine Setup
 
@@ -221,6 +243,12 @@ The settings used for this module are stored in a .env file in the root of your 
 
     > You can use the `DOTENV_FILE` Environment Variable to point to a different .env file, such as .env.integration or .env.test. This is helpful in CI/CD pipeline scenarios where you'll want to target different environments and devices to ensure all scenarios are tested.
 
+    This tool offers a wizard-like command to guide you through setting up Azure and also setting up the Environment Variables properly.
+
+    ```
+    iotedgedev azure --setup
+    ```
+
 ### Step 3: Build and Deploy Modules
 
 > Use `sudo` for Linux.  You __will not__ be able to build on the Raspberry Pi, because the .NET Core SDK does not support ARM. You can build on an x86 based machine and deploy to Pi.
@@ -368,6 +396,38 @@ The `iotedgedev` module has the following commands:
 
 `iotedgedev project --help`
 - `--create TEXT`  Creates a new Azure IoT Edge project. Use `--create .` to create in current folder. Use `--create TEXT` to create in a subfolder.
+
+
+**azure**
+
+`iotedgedev azure --help`
+
+- `--setup`                         Reads the required Azure resources
+                                  configuration from your subscription.
+                                  Creates new Azure resources or uses existing
+                                  ones.  [required]
+- `--credentials <TEXT TEXT>`    The credentials (username password) to use
+                                  to login to Azure. If --credentials not
+                                  specified, you will login in the interactive
+                                  mode.
+- `--subscription TEXT`             The Azure subscription name or id to use.
+                                  [required]
+- `--resource-group-location`       The location of the new Resource Group. If
+                                  --resource-group-location not specified, the
+                                  default will be West US.
+- `--resource-group-name TEXT`      The name of the Resource Group to use or
+                                  create. Creates a new Resource Group if not
+                                  found.  [required]
+- `--iothub-sku [F1|S1|S2|S3]`      The SKU of the new IoT Hub. If --iothub-sku
+                                  not specified, the default will be F1
+                                  (free).
+- `--iothub-name TEXT`              The IoT Hub name to be used. Creates a new
+                                  IoT Hub if not found.  [required]
+- `--edge-device-id TEXT`           The IoT Edge Device Id to be used. Creates a
+                                  new Edge Device if not found.  [required]
+- `--update-dotenv`                 If set, the current .env will be updated
+                                  with the corresponding connection strings.
+                                  [required]
 
 **iothub**
 

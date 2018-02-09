@@ -67,6 +67,7 @@ target/
 **/obj
 **/out
 .env
+.backup
 venv
 /logs
 /config
