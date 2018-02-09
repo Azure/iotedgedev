@@ -184,17 +184,29 @@ class AzureCli:
 
         with output_io_cls() as io:
 
-            return self.invoke_az_cli_outproc(["iot", "hub", "show", "--name", value, "--resource-group",
-                                   resource_group, "--out", "table"],
-                                  f("Could not locate the {value} in {resource_group}."), stderr_io =io)
+            result = self.invoke_az_cli_outproc(["iot", "hub", "show", "--name", value, "--resource-group",
+                                   resource_group, "--out", "table"], stderr_io =io)
+        if not result:
+            self.output.info(f("Could not locate the {value} in {resource_group}."))
+        return result
 
     def create_iothub(self, value, resource_group, sku):
         self.output.header(
             f("Creating {value} in {resource_group} with sku {sku}"))
 
-        return self.invoke_az_cli_outproc(["iot", "hub", "create", "--name", value, "--resource-group",
-                                   resource_group, "--sku", sku, "--out", "table"],
-                                  f("Could not create the IoT Hub {value} in {resource_group} with sku {sku}."))
+        with output_io_cls() as io:
+            with output_io_cls() as error_io:
+                self.output.info("running..") 
+                
+                result =  self.invoke_az_cli_outproc(["iot", "hub", "create", "--name", value, "--resource-group",
+                                    resource_group, "--sku", sku, "--out", "table"],
+                                    f("Could not create the IoT Hub {value} in {resource_group} with sku {sku}.")
+                                    , stdout_io=io, stderr_io =error_io)
+                if not result and error_io.getvalue():
+                    self.output.error(error_io.getvalue()) 
+                elif io.getvalue():
+                    self.output.info(io.getvalue()) 
+        return result
 
     def get_iothub_connection_string(self, value, resource_group):
         self.output.header(
@@ -215,9 +227,11 @@ class AzureCli:
             f("Checking if {value} device exists in {iothub} IoT Hub in {resource_group}"))
 
         with output_io_cls() as io:
-            return self.invoke_az_cli_outproc(["iot", "hub", "device-identity", "show", "--device-id", value, "--hub-name", iothub,
-                                   "--resource-group", resource_group, "--out", "table"],
-                                  f("Could not locate the {value} device in {iothub} IoT Hub in {resource_group}."), stderr_io =io)
+            result = self.invoke_az_cli_outproc(["iot", "hub", "device-identity", "show", "--device-id", value, "--hub-name", iothub,
+                                   "--resource-group", resource_group, "--out", "table"], stderr_io =io)
+        if not result:
+            self.output.info(f("Could not locate the {value} device in {iothub} IoT Hub in {resource_group}."))
+        return result
 
     def list_edge_devices(self, iothub):
         self.output.header(
