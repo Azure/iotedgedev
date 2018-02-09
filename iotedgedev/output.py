@@ -12,6 +12,7 @@ class Output:
         click.secho("ERROR: " + text, fg='red')
 
     def header(self, text):
+        self.line()
         click.secho("======== {0} ========".format(text).upper(), fg='white')
 
     def footer(self, text):

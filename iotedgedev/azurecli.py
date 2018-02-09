@@ -41,12 +41,14 @@ class AzureCli:
             if process.returncode != 0:
                 if error_message:
                     self.output.error(error_message)
+                    self.output.line()
                 return False
 
         except Exception as e:
             if error_message:
                 self.output.error(error_message)
             self.output.error(str(e))
+            self.output.line()
             return False
 
         self.output.line()
@@ -99,6 +101,7 @@ class AzureCli:
                     pass
         self.output.prompt(
             "Azure CLI credentials not found. Please follow instructions below to login to the Azure CLI.")
+        self.output.line()
         return None
 
     def login(self, username, password):
@@ -156,6 +159,7 @@ class AzureCli:
                     return True
 
         self.output.prompt(f("Resource Group {name} does not exist."))
+        self.output.line()
         return False
 
     def create_resource_group(self, name, location):
@@ -174,21 +178,21 @@ class AzureCli:
         return self.invoke_az_cli_outproc(["group", "list", "--out", "table"],
                                           "Could not list the Resource Groups.")
 
-    def subscription_contains_free_iothub(self):
+    def get_free_iothub(self):
         self.output.header(
             f("Checking if an F1 (free) IoT Hub exists in the subscription"))
 
         with output_io_cls() as io:
 
             result = self.invoke_az_cli_outproc(["iot", "hub", "list"],
-                                                f("Could list IoT Hubs in subscription."), stdout_io=io)
+                                                f("Could not list IoT Hubs in subscription."), stdout_io=io)
             if result:
                 out_string = io.getvalue()
                 data = json.loads(out_string)
                 for iot in data:
                     if iot["sku"]["name"] == "F1":
-                        return True
-        return False
+                        return (iot["name"], iot["resourceGroup"])
+        return None
 
     def list_iot_hubs(self, resource_group):
         self.output.header(
@@ -208,6 +212,7 @@ class AzureCli:
         if not result:
             self.output.prompt(
                 f("Could not locate the {value} in {resource_group}."))
+            self.output.line()
         return result
 
     def create_iothub(self, value, resource_group, sku):
@@ -223,8 +228,10 @@ class AzureCli:
                                                     f("Could not create the IoT Hub {value} in {resource_group} with sku {sku}."), stdout_io=io, stderr_io=error_io)
                 if not result and error_io.getvalue():
                     self.output.error(error_io.getvalue())
+                    self.output.line()
                 elif io.getvalue():
                     self.output.prompt(io.getvalue())
+                    self.output.line()
         return result
 
     def get_iothub_connection_string(self, value, resource_group):
@@ -251,6 +258,7 @@ class AzureCli:
         if not result:
             self.output.prompt(
                 f("Could not locate the {value} device in {iothub} IoT Hub in {resource_group}."))
+            self.output.line()
         return result
 
     def list_edge_devices(self, iothub):
