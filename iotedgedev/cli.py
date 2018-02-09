@@ -19,7 +19,7 @@ from .azurecli import AzureCli
 
 output = Output()
 envvars = EnvVars(output)
-azure_cli = AzureCli(output)
+azure_cli = AzureCli(output, envvars)
 default_subscriptionId = None
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])

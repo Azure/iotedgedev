@@ -11,15 +11,16 @@ from azure.cli.core import get_default_cli
 from .envvars import EnvVars
 
 class AzureCli:
-    def __init__(self,  output, cli=get_default_cli()):
+    def __init__(self,  output, envvars, cli=get_default_cli()):
         self.output = output
+        self.envvars = envvars
         self.az_cli = cli
 
     def decode(self, val):
         return val.decode("utf-8").strip()
 
     def is_posix(self):
-        return EnvVars(self.output).is_posix()
+        self.envvars.is_posix()
 
     def prepare_az_cli_args(self, args):
         az_args = ["az"]+args
