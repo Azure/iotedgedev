@@ -8,7 +8,7 @@ from io import StringIO
 output_io_cls = StringIO
 
 from azure.cli.core import get_default_cli
-
+from .envvars import EnvVars
 
 class AzureCli:
     def __init__(self,  output, cli=get_default_cli()):
@@ -19,8 +19,7 @@ class AzureCli:
         return val.decode("utf-8").strip()
 
     def is_posix(self):
-        plat = platform.system().lower()
-        return plat == "linux" or plat == "darwin"
+        return EnvVars(self.output).is_posix()
 
     def prepare_az_cli_args(self, args):
         az_args = ["az"]+args
