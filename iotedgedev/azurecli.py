@@ -16,18 +16,23 @@ class AzureCli:
     def decode(self, val):
         return val.decode("utf-8").strip()
 
+    def prepare_az_cli_args(self, args):
+        az_args = ["az"]+args
+        if sys.platform == "win32" or sys.platform == "darwin": #non linux
+            return az_args
+        return [" ".join(az_args)] 
+
     def invoke_az_cli_outproc(self, args, error_message=None, stdout_io = None, stderr_io = None):
         try:
-            az_args = ["az"]+args
             if stdout_io or stderr_io:
-                process = subprocess.Popen(az_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+                process = subprocess.Popen(self.prepare_az_cli_args(args), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
                 stdout_data, stderr_data = process.communicate()
                 if stdout_io and stdout_data != "":
                     stdout_io.writelines(self.decode(stdout_data))
                 if stderr_io and stderr_data != "":
                     stderr_io.writelines(self.decode(stderr_data))
             else:
-                process = subprocess.Popen(az_args, shell=True)
+                process = subprocess.Popen(self.prepare_az_cli_args(args), shell=True)
                 process.communicate()
             
             if process.returncode != 0:
