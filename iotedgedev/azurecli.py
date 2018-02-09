@@ -3,12 +3,8 @@ import subprocess
 import json
 from fstrings import f
 
-if sys.version_info.major < 3:
-    from io import BytesIO
-    output_io_cls = BytesIO
-else:
-    from io import StringIO
-    output_io_cls = StringIO
+from io import StringIO
+output_io_cls = StringIO
 
 from azure.cli.core import get_default_cli
 
