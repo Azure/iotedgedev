@@ -6,8 +6,11 @@ class IoTHub:
         self.utility = utility
 
     def monitor_events(self):
+
         try:
-            self.utility.call_proc(['iothub-explorer', '--login', self.envvars.IOTHUB_CONNECTION_STRING, 'monitor-events', self.envvars.DEVICE_CONNECTION_INFO.DeviceId], shell=True)
+            self.utility.call_proc(['iothub-explorer', '--login', self.envvars.IOTHUB_CONNECTION_STRING,
+                                    'monitor-events', self.envvars.DEVICE_CONNECTION_INFO.DeviceId], shell=not self.envvars.is_posix())
         except Exception as ex:
-            self.output.error("Problem while trying to call iothub-explorer. Please ensure that you have installed the iothub-explorer npm package with: npm i -g iothub-explorer.")
+            self.output.error(
+                "Problem while trying to call iothub-explorer. Please ensure that you have installed the iothub-explorer npm package with: npm i -g iothub-explorer.")
             self.output.error(str(ex))
