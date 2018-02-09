@@ -113,6 +113,13 @@ def validate_option(ctx, param, value):
         if not azure_cli.extension_exists("azure-cli-iot-ext"):
             azure_cli.add_extension("azure-cli-iot-ext")
         if not azure_cli.iothub_exists(value, envvars.RESOURCE_GROUP_NAME):
+            #check if the active subscription already contains a free IoT Hub
+            # if yes ask if the user wants to create an S1
+            # otherwise exit 
+            if envvars.IOTHUB_SKU == "F1" \
+                and azure_cli.subscription_contains_free_iothub() \
+                and click.confirm("Your subscription already contains an F1 SKU (free) IoT Hub. Would you like your new IoT Edge to be S1 SKU?"): 
+                envvars.IOTHUB_SKU = "S1"
             if not azure_cli.create_iothub(value, envvars.RESOURCE_GROUP_NAME, envvars.IOTHUB_SKU):
                 raise click.BadParameter(
                     f('Could not create IoT Hub {value} in {envvars.RESOURCE_GROUP_NAME}'))

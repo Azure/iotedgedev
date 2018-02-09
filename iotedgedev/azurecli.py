@@ -8,33 +8,36 @@ output_io_cls = StringIO
 
 from azure.cli.core import get_default_cli
 
+
 class AzureCli:
     def __init__(self,  output, cli=get_default_cli()):
         self.output = output
-        self.az_cli = cli        
-        
+        self.az_cli = cli
+
     def decode(self, val):
         return val.decode("utf-8").strip()
 
     def prepare_az_cli_args(self, args):
         az_args = ["az"]+args
-        if sys.platform == "win32" or sys.platform == "darwin": #non linux
+        if sys.platform == "win32" or sys.platform == "darwin":  # non linux
             return az_args
-        return [" ".join(az_args)] 
+        return [" ".join(az_args)]
 
-    def invoke_az_cli_outproc(self, args, error_message=None, stdout_io = None, stderr_io = None):
+    def invoke_az_cli_outproc(self, args, error_message=None, stdout_io=None, stderr_io=None):
         try:
             if stdout_io or stderr_io:
-                process = subprocess.Popen(self.prepare_az_cli_args(args), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+                process = subprocess.Popen(self.prepare_az_cli_args(
+                    args), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
                 stdout_data, stderr_data = process.communicate()
                 if stdout_io and stdout_data != "":
                     stdout_io.writelines(self.decode(stdout_data))
                 if stderr_io and stderr_data != "":
                     stderr_io.writelines(self.decode(stderr_data))
             else:
-                process = subprocess.Popen(self.prepare_az_cli_args(args), shell=True)
+                process = subprocess.Popen(
+                    self.prepare_az_cli_args(args), shell=True)
                 process.communicate()
-            
+
             if process.returncode != 0:
                 if error_message:
                     self.output.error(error_message)
@@ -71,21 +74,21 @@ class AzureCli:
         self.output.header(f("Adding extension {name}"))
 
         return self.invoke_az_cli_outproc(["extension", "add", "--name", name,
-                                   "--yes"],
-                                  f("Error while adding extension {name}."))
+                                           "--yes"],
+                                          f("Error while adding extension {name}."))
 
     def extension_exists(self, name):
         self.output.header(f("Checking for extension {name}"))
 
         return self.invoke_az_cli_outproc(["extension", "show", "--name", name, "--output", "table"],
-                                  f("Error while checking for extension {name}."))
+                                          f("Error while checking for extension {name}."))
 
     def user_has_logged_in(self):
         self.output.header("Checking for cached credentials")
 
-        
         with output_io_cls() as io:
-            result = self.invoke_az_cli_outproc(["account", "show"], stdout_io =io)
+            result = self.invoke_az_cli_outproc(
+                ["account", "show"], stdout_io=io)
 
             if result:
                 try:
@@ -94,21 +97,22 @@ class AzureCli:
                     return data["id"]
                 except Exception:
                     pass
-        self.output.prompt("Azure CLI credentials not found. Please follow instructions below to login to the Azure CLI.")
+        self.output.prompt(
+            "Azure CLI credentials not found. Please follow instructions below to login to the Azure CLI.")
         return None
 
     def login(self, username, password):
         self.output.header("Logging in to Azure")
 
         return self.invoke_az_cli_outproc(["login", "-u", username,
-                                   "-p",  password, "-o", "table"],
-                                  "Error while trying to login to Azure. Try logging in with the interactive login mode (do not use the --credentials).")
+                                           "-p",  password, "-o", "table"],
+                                          "Error while trying to login to Azure. Try logging in with the interactive login mode (do not use the --credentials).")
 
     def login_interactive(self):
         self.output.header("Interactive login to Azure")
 
         return self.invoke_az_cli_outproc(["login", "--o", "table"],
-                                  "Error while trying to login to Azure.")
+                                          "Error while trying to login to Azure.")
 
     def logout(self):
         self.output.header("Logout from Azure")
@@ -119,14 +123,14 @@ class AzureCli:
         self.output.header("Listing Subscriptions")
 
         return self.invoke_az_cli_outproc(["account", "list", "--out", "table"],
-                                  "Error while trying to list Azure subscriptions.")
+                                          "Error while trying to list Azure subscriptions.")
 
     def get_default_subscription(self):
         self.output.header("Getting default subscription id")
 
         with output_io_cls() as io:
             result = self.invoke_az_cli_outproc(["account", "show"],
-                                        "Error while trying to get the default Azure subscription id.", io)
+                                                "Error while trying to get the default Azure subscription id.", io)
             if result:
                 out_string = io.getvalue()
                 data = json.loads(out_string)
@@ -137,20 +141,20 @@ class AzureCli:
         self.output.header("Setting Subscription")
 
         return self.invoke_az_cli_outproc(["account", "set", "--subscription", subscription],
-                                  "Error while trying to set Azure subscription.")
+                                          "Error while trying to set Azure subscription.")
 
     def resource_group_exists(self, name):
         self.output.header(f("Checking if Resource Group {name} exists"))
 
         with output_io_cls() as io:
             result = self.invoke_az_cli_outproc(["group", "exists", "-n", name, "--debug"],
-                                        f("Resource Group {name} does not exist."), io)
+                                                f("Resource Group {name} does not exist."), io)
 
             if result:
                 out_string = io.getvalue()
                 if out_string == "true":
                     return True
-        
+
         self.output.prompt(f("Resource Group {name} does not exist."))
         return False
 
@@ -159,24 +163,39 @@ class AzureCli:
             f("Creating Resource Group {name} at location:{location}"))
 
         with output_io_cls() as io:
-        
-            result = self.invoke_az_cli_outproc(["group", "create", "--name", name, "--location", location],
-                                  f("Could not create the new Resource Group {name} at location:{location}."), io)
-        return result
 
+            result = self.invoke_az_cli_outproc(["group", "create", "--name", name, "--location", location],
+                                                f("Could not create the new Resource Group {name} at location:{location}."), io)
+        return result
 
     def list_resource_groups(self):
         self.output.header("Listing Resource Groups")
 
         return self.invoke_az_cli_outproc(["group", "list", "--out", "table"],
-                                  "Could not list the Resource Groups.")
+                                          "Could not list the Resource Groups.")
+
+    def subscription_contains_free_iothub(self):
+        self.output.header(
+            f("Checking if an F1 (free) IoT Hub exists in the subscription"))
+
+        with output_io_cls() as io:
+
+            result = self.invoke_az_cli_outproc(["iot", "hub", "list"],
+                                                f("Could list IoT Hubs in subscription."), stdout_io=io)
+            if result:
+                out_string = io.getvalue()
+                data = json.loads(out_string)
+                for iot in data:
+                    if iot["sku"]["name"] == "F1":
+                        return True
+        return False
 
     def list_iot_hubs(self, resource_group):
         self.output.header(
             f("Listing IoT Hubs in {resource_group}"))
 
         return self.invoke_az_cli_outproc(["iot", "hub", "list", "--resource-group", resource_group, "--out", "table"],
-                                  f("Could not list the IoT Hubs in {resource_group}."))
+                                          f("Could not list the IoT Hubs in {resource_group}."))
 
     def iothub_exists(self, value, resource_group):
         self.output.header(
@@ -185,9 +204,10 @@ class AzureCli:
         with output_io_cls() as io:
 
             result = self.invoke_az_cli_outproc(["iot", "hub", "show", "--name", value, "--resource-group",
-                                   resource_group, "--out", "table"], stderr_io =io)
+                                                 resource_group, "--out", "table"], stderr_io=io)
         if not result:
-            self.output.prompt(f("Could not locate the {value} in {resource_group}."))
+            self.output.prompt(
+                f("Could not locate the {value} in {resource_group}."))
         return result
 
     def create_iothub(self, value, resource_group, sku):
@@ -196,16 +216,15 @@ class AzureCli:
 
         with output_io_cls() as io:
             with output_io_cls() as error_io:
-                self.output.prompt("Creating IoT Hub please wait...") 
-                
-                result =  self.invoke_az_cli_outproc(["iot", "hub", "create", "--name", value, "--resource-group",
-                                    resource_group, "--sku", sku, "--out", "table"],
-                                    f("Could not create the IoT Hub {value} in {resource_group} with sku {sku}.")
-                                    , stdout_io=io, stderr_io =error_io)
+                self.output.prompt("Creating IoT Hub please wait...")
+
+                result = self.invoke_az_cli_outproc(["iot", "hub", "create", "--name", value, "--resource-group",
+                                                     resource_group, "--sku", sku, "--out", "table"],
+                                                    f("Could not create the IoT Hub {value} in {resource_group} with sku {sku}."), stdout_io=io, stderr_io=error_io)
                 if not result and error_io.getvalue():
-                    self.output.error(error_io.getvalue()) 
+                    self.output.error(error_io.getvalue())
                 elif io.getvalue():
-                    self.output.prompt(io.getvalue()) 
+                    self.output.prompt(io.getvalue())
         return result
 
     def get_iothub_connection_string(self, value, resource_group):
@@ -214,8 +233,8 @@ class AzureCli:
 
         with output_io_cls() as io:
             result = self.invoke_az_cli_outproc(["iot", "hub", "show-connection-string", "--hub-name", value,
-                                        "--resource-group", resource_group],
-                                        f("Could not create the IoT Hub {value} in {resource_group}."), stdout_io  =io)
+                                                 "--resource-group", resource_group],
+                                                f("Could not create the IoT Hub {value} in {resource_group}."), stdout_io=io)
             if result:
                 out_string = io.getvalue()
                 data = json.loads(out_string)
@@ -228,9 +247,10 @@ class AzureCli:
 
         with output_io_cls() as io:
             result = self.invoke_az_cli_outproc(["iot", "hub", "device-identity", "show", "--device-id", value, "--hub-name", iothub,
-                                   "--resource-group", resource_group, "--out", "table"], stderr_io =io)
+                                                 "--resource-group", resource_group, "--out", "table"], stderr_io=io)
         if not result:
-            self.output.prompt(f("Could not locate the {value} device in {iothub} IoT Hub in {resource_group}."))
+            self.output.prompt(
+                f("Could not locate the {value} device in {iothub} IoT Hub in {resource_group}."))
         return result
 
     def list_edge_devices(self, iothub):
@@ -238,16 +258,16 @@ class AzureCli:
             f("Listing edge devices in {iothub} IoT Hub"))
 
         return self.invoke_az_cli_outproc(["iot", "hub", "device-identity", "list", "--hub-name", iothub,
-                                    "--edge-enabled","--output", "table"],
-                                  f("Could not list the edge devices  in {iothub} IoT Hub."))
+                                           "--edge-enabled", "--output", "table"],
+                                          f("Could not list the edge devices  in {iothub} IoT Hub."))
 
     def create_edge_device(self, value, iothub, resource_group):
         self.output.header(
             f("Creating {value} edge device in {iothub} IoT Hub in {resource_group}"))
 
         return self.invoke_az_cli_outproc(["iot", "hub", "device-identity", "create", "--device-id", value, "--hub-name", iothub,
-                                   "--resource-group", resource_group, "--edge-enabled", "--output", "table"],
-                                  f("Could not locate the {value} device in {iothub} IoT Hub in {resource_group}."))
+                                           "--resource-group", resource_group, "--edge-enabled", "--output", "table"],
+                                          f("Could not locate the {value} device in {iothub} IoT Hub in {resource_group}."))
 
     def get_device_connection_string(self, value, iothub, resource_group):
         self.output.header(
@@ -255,8 +275,8 @@ class AzureCli:
 
         with output_io_cls() as io:
             result = self.invoke_az_cli_outproc(["iot", "hub", "device-identity", "show-connection-string", "--device-id", value, "--hub-name", iothub,
-                                        "--resource-group", resource_group],
-                                        f("Could not locate the {value} device in {iothub} IoT Hub in {resource_group}."), stdout_io =io)
+                                                 "--resource-group", resource_group],
+                                                f("Could not locate the {value} device in {iothub} IoT Hub in {resource_group}."), stdout_io=io)
             if result:
                 out_string = io.getvalue()
                 data = json.loads(out_string)
