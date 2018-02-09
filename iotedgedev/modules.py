@@ -2,7 +2,9 @@ import os
 import requests
 from shutil import copyfile
 import json
-from distutils.dir_util import copy_tree
+
+from .module import Module
+from .modulesprocessorfactory import ModulesProcessorFactory
 
 
 class Modules:
@@ -29,29 +31,42 @@ class Modules:
                 module_dir = os.path.join(self.envvars.MODULES_PATH, module)
 
                 self.output.info("BUILDING MODULE: {0}".format(module_dir))
+
+                module_json = Module(
+                    self.output, self.utility, os.path.join(module_dir, "module.json"))
                 mod_proc = ModulesProcessorFactory(
-                    self.envvars, self.utility, self.output, os.path.join(module_dir, "module.json")).get()
-                    
+                    self.envvars, self.utility, self.output).get(module_json.language)
+
                 # build module
                 if (mod_proc.build(module_dir) == False):
                     continue
 
                 # Get all docker files in project
-                docker_files = self.utility.find_files(
-                    module_dir, "Dockerfile*")
+                # docker_files = self.utility.find_files(
+                #    module_dir, "Dockerfile*")
 
+                # new: get all arch:docker entries in module.json
+                # mod_proc.platforms[]
+
+                # new: get arch to process from env var
+                docker_arch_process = [docker_arch.strip()
+                                       for docker_arch in self.envvars.ACTIVE_DOCKER_ARCH.split(",")if docker_arch]
+
+                # new: loop through each arch:docker
+                # for entry in module_json.platforms:
+                #    is arch in docker_arch_process
                 # Filter by Docker Dirs in envvars
-                docker_dirs_process = [docker_dir.strip()
-                                       for docker_dir in self.envvars.ACTIVE_DOCKER_DIRS.split(",") if docker_dir]
 
-                # Process each Dockerfile found
-                for docker_file in docker_files:
+                # change to ACTIVE_DOCKER_ARCH ==> Done
+                # Also update .env template, change from _DIRS to _ARCH
 
-                    docker_file_parent_folder = os.path.basename(
-                        os.path.dirname(docker_file))
-
+                for arch in module_json.platforms:
                     if len(
-                            docker_dirs_process) == 0 or docker_dirs_process[0] == "*" or docker_file_parent_folder in docker_dirs_process:
+                            docker_arch_process) == 0 or docker_arch_process[0] == "*" or arch in docker_arch_process:
+
+                        # get the docker file from the module.json
+                        arch_key = module_json.get_Platform_file(arch)
+                        docker_file = arch_key
 
                         self.output.info(
                             "PROCESSING DOCKER FILE: " + docker_file)
@@ -68,18 +83,15 @@ class Modules:
                         # i.e. when found: filter-module/Docker/linux-x64/Dockerfile.debug and CONTAINER_TAG = jong
                         # we'll get: filtermodule:linux-x64-debug-jong
 
-                        runtime = os.path.basename(
-                            os.path.dirname(docker_file))
-                        ext = "" if os.path.splitext(docker_file)[
-                            1] == "" else "-" + os.path.splitext(docker_file)[1][1:]
                         container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + \
                             self.envvars.CONTAINER_TAG
 
-                        tag_name = runtime + ext + container_tag
+                        #tag_name = runtime + ext + container_tag
+                        tag_name = module_json.tag_version + container_tag
 
                         # construct the build output path
                         build_path = os.path.join(
-                            os.getcwd(), "build", "modules", module, runtime)
+                            os.getcwd(), "build", "modules", module)  # , runtime)
                         if not os.path.exists(build_path):
                             os.makedirs(build_path)
 
@@ -88,15 +100,14 @@ class Modules:
                             "PUBLISHING PROJECT: " + module_dir)
                         mod_proc.publish(module_dir, build_path)
 
-
                         # copy Dockerfile to publish dir
                         build_dockerfile = os.path.join(
                             build_path, docker_file_name)
-
-                        copyfile(docker_file, build_dockerfile)
+                        copyfile(os.path.join(
+                            module_dir, docker_file_name), build_dockerfile)
 
                         image_destination_name = "{0}/{1}:{2}".format(
-                            self.envvars.CONTAINER_REGISTRY_SERVER, module, tag_name).lower()
+                            self.envvars.CONTAINER_REGISTRY_SERVER, module, module_json.tag_version, "-", arch_key, tag_name).lower()
 
                         self.output.info(
                             "BUILDING DOCKER IMAGE: " + image_destination_name)
@@ -104,7 +115,7 @@ class Modules:
                         # cd to the build output to build the docker image
                         project_dir = os.getcwd()
                         os.chdir(build_path)
-
+               
                         # BUILD DOCKER IMAGE
                         build_result = self.dock.docker_client.images.build(
                             tag=image_destination_name, path=".", dockerfile=docker_file_name)
@@ -118,7 +129,7 @@ class Modules:
                         self.output.info(
                             "PUSHING DOCKER IMAGE TO: " + image_destination_name)
 
-                        for line in self.dock.docker_client.images.push(repository=image_destination_name, tag=tag_name, stream=True, auth_config={
+                        for line in self.dock.docker_client.images.push(repository=image_destination_name, stream=True, auth_config={
                                                                         "username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
                             self.output.procout(self.utility.decode(line))
 
@@ -159,68 +170,3 @@ class Modules:
             self.output.info(deploy_response.text)
             self.output.error(
                 "There was an error deploying the configuration. Please make sure your IOTHUB_CONNECTION_STRING and DEVICE_CONNECTION_STRING Environment Variables are correct.")
-
-
-class ModulesProcessorFactory(object):
-
-    def __init__(self, envvars, utility, output, module_json_file):
-        self.envvars = envvars
-        self.utility = utility
-        self.output = output
-        self.module_json_file = module_json_file
-
-    def load_module_json(self):
-        if os.path.exists(self.module_json_file):
-            file_json_content = json.loads(
-                self.utility.get_file_contents(self.module_json_file))
-            return file_json_content
-
-        else:
-            self.output.info(
-                "No module.json file found. Default to dotnet module")
-            return None
-
-    def get(self):
-        module_json_content = self.load_module_json()       
-        if module_json_content is not None:
-            module_language = module_json_content.get("language").lower()
-        else:
-            module_language = "csharp"
-        
-        if module_language == "csharp" or module_language == "fsharp" or module_language == "vbasic":
-            return DotNetModuleProcessor(self.envvars, self.utility, self.output, "")
-
-        else:
-            return OtherModuleProcessor(self.envvars, self.utility, self.output, "")
-
-
-class DotNetModuleProcessor(ModulesProcessorFactory):
-    def build(self, module_dir):
-        project_files = [os.path.join(module_dir, f) for f in os.listdir(
-            module_dir) if f.endswith("proj")]
-
-        if len(project_files) == 0:
-            self.output.error("No project file found for module.")
-            return False
-        else:
-            self.utility.exe_proc(["dotnet", "build", project_files[0],
-                                   "-v", self.envvars.DOTNET_VERBOSITY])
-            return True
-
-    def publish(self, module_dir, build_path):
-        project_files = [os.path.join(module_dir, f) for f in os.listdir(
-            module_dir) if f.endswith("proj")]
-
-        if len(project_files) == 0:
-            self.output.error("No project file found for module.")
-        else :
-            self.utility.exe_proc(["dotnet", "publish", project_files[0], "-f", "netcoreapp2.0",
-                               "-o", build_path, "-v", self.envvars.DOTNET_VERBOSITY])
-
-
-class OtherModuleProcessor (ModulesProcessorFactory):
-    def build(self, module_dir):
-        return True
-
-    def publish(self, module_dir, build_path):
-        copy_tree(module_dir, os.path.join("build", module_dir))
