@@ -45,7 +45,7 @@
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "${CONTAINER_REGISTRY_SERVER}/node-module:linux-x64-${CONTAINER_TAG}",
+              "image": "${CONTAINER_REGISTRY_SERVER}/nodemodule:amd64${CONTAINER_TAG}",
               "createOptions": ""
             }
           }
@@ -56,7 +56,7 @@
       "properties.desired": {
         "schemaVersion": "1.0",
         "routes": {
-          "sensorToFilter": "FROM /messages/modules/temp-sensor-module/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/node-module/inputs/input1\")",
+          "sensorToFilter": "FROM /messages/modules/temp-sensor-module/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/nodemodule/inputs/input1\")",
           "filterToIoTHub": "FROM /messages/modules/node-module/outputs/output1 INTO $upstream"
         },
         "storeAndForwardConfiguration": {
@@ -64,7 +64,7 @@
         }
       }
     },
-    "node-module": {
+    "nodemodule": {
       "properties.desired": {
         "schemaVersion": "1.0",
         "TemperatureThreshold": 21

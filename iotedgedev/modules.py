@@ -1,7 +1,6 @@
 import os
 import requests
 from shutil import copyfile
-import json
 
 from .module import Module
 from .modulesprocessorfactory import ModulesProcessorFactory
@@ -41,81 +40,40 @@ class Modules:
                 if (mod_proc.build(module_dir) == False):
                     continue
 
-                # Get all docker files in project
-                # docker_files = self.utility.find_files(
-                #    module_dir, "Dockerfile*")
-
-                # new: get all arch:docker entries in module.json
-                # mod_proc.platforms[]
-
-                # new: get arch to process from env var
                 docker_arch_process = [docker_arch.strip()
                                        for docker_arch in self.envvars.ACTIVE_DOCKER_ARCH.split(",")if docker_arch]
-
-                # new: loop through each arch:docker
-                # for entry in module_json.platforms:
-                #    is arch in docker_arch_process
-                # Filter by Docker Dirs in envvars
-
-                # change to ACTIVE_DOCKER_ARCH ==> Done
-                # Also update .env template, change from _DIRS to _ARCH
 
                 for arch in module_json.platforms:
                     if len(
                             docker_arch_process) == 0 or docker_arch_process[0] == "*" or arch in docker_arch_process:
 
-                        # get the docker file from the module.json
-                        arch_key = module_json.get_Platform_file(arch)
-                        docker_file = arch_key
+                        # get the docker file from module.json
+                        docker_file = module_json.get_platform_by_key(arch)
 
                         self.output.info(
                             "PROCESSING DOCKER FILE: " + docker_file)
 
                         docker_file_name = os.path.basename(docker_file)
-
-                        # assume /Docker/{runtime}/Dockerfile folder structure
-                        # image name will be the same as the module folder name, filter-module
-                        # tag will be {runtime}{ext}{container_tag}, i.e. linux-x64-debug-jong
-                        # runtime is the Dockerfile immediate parent folder name
-                        # ext is Dockerfile extension for example with Dockerfile.debug, debug is the mod
-                        # CONTAINER_TAG is env var
-
-                        # i.e. when found: filter-module/Docker/linux-x64/Dockerfile.debug and CONTAINER_TAG = jong
-                        # we'll get: filtermodule:linux-x64-debug-jong
-
                         container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + \
                             self.envvars.CONTAINER_TAG
 
-                        #tag_name = runtime + ext + container_tag
                         tag_name = module_json.tag_version + container_tag
-
-                        # construct the build output path
-                        build_path = os.path.join(
-                            os.getcwd(), "build", "modules", module)  # , runtime)
-                        if not os.path.exists(build_path):
-                            os.makedirs(build_path)
 
                         # publish module
                         self.output.info(
                             "PUBLISHING PROJECT: " + module_dir)
-                        mod_proc.publish(module_dir, build_path)
 
-                        # copy Dockerfile to publish dir
-                        build_dockerfile = os.path.join(
-                            build_path, docker_file_name)
-                        copyfile(os.path.join(
-                            module_dir, docker_file_name), build_dockerfile)
-
-                        image_destination_name = "{0}/{1}:{2}".format(
-                            self.envvars.CONTAINER_REGISTRY_SERVER, module, module_json.tag_version, "-", arch_key, tag_name).lower()
+                        mod_proc.publish(module_dir)
+                        image_destination_name = "{0}/{1}:{2}-{3}".format(
+                            self.envvars.CONTAINER_REGISTRY_SERVER, module, tag_name, docker_file_name).lower()
 
                         self.output.info(
                             "BUILDING DOCKER IMAGE: " + image_destination_name)
 
-                        # cd to the build output to build the docker image
+                        # cd to the module folder to build the docker image
                         project_dir = os.getcwd()
-                        os.chdir(build_path)
-               
+                        os.chdir(os.path.join(project_dir, module_dir))
+
                         # BUILD DOCKER IMAGE
                         build_result = self.dock.docker_client.images.build(
                             tag=image_destination_name, path=".", dockerfile=docker_file_name)
@@ -129,7 +87,7 @@ class Modules:
                         self.output.info(
                             "PUSHING DOCKER IMAGE TO: " + image_destination_name)
 
-                        for line in self.dock.docker_client.images.push(repository=image_destination_name, stream=True, auth_config={
+                        for line in self.dock.docker_client.images.push(repository=image_destination_name, tag=tag_name, stream=True, auth_config={
                                                                         "username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
                             self.output.procout(self.utility.decode(line))
 

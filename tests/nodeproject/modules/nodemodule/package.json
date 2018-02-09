@@ -1,7 +1,7 @@
 {
-  "name": "node-module",
+  "name": "nodemodule",
   "version": "0.0.0",
-  "description": "node-module",
+  "description": "nodemodule",
   "main": "app.js",
   "author": {
     "name": "v-hadabd"

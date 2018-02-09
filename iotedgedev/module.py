@@ -2,6 +2,7 @@
 import os
 import json
 
+
 class Module(object):
     def __init__(self, output, utility, module_json_file):
         self.output = output
@@ -14,15 +15,19 @@ class Module(object):
 
     def load_module_json(self):
         if os.path.exists(self.module_json_file):
-            self.file_json_content = json.loads(
-                self.utility.get_file_contents(self.module_json_file))
+            try:
+                self.file_json_content = json.loads(
+                    self.utility.get_file_contents(self.module_json_file))
 
-            self.module_language = self.file_json_content.get("language").lower()
-            
+                self.module_language = self.file_json_content.get(
+                    "language").lower()
+            except:
+                self.output.error(
+                    "Error while loading module.json file : {0}".format(self.module_json_file))
+
         else:
-            self.output.info(
-                "No module.json file found. Default to dotnet module")
-            
+            self.output.error(
+                "No module.json file found. module.json file is required in the root of your module folder")
 
     @property
     def language(self):
@@ -31,10 +36,14 @@ class Module(object):
     @property
     def platforms(self):
         return self.file_json_content.get("image").get("tag").get("platforms")
-    
+
     @property
     def tag_version(self):
-        return self.file_json_content.get("image").get("tag").get("version")
+        tag = self.file_json_content.get("image").get("tag").get("version")
+        if tag == "":
+            tag = "0.0.0"
 
-    def get_Platform_file(self,platform):
+        return tag
+
+    def get_platform_by_key(self, platform):
         return self.file_json_content.get("image").get("tag").get("platforms").get(platform)

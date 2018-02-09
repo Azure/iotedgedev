@@ -39,13 +39,13 @@
               "createOptions": ""
             }
           },
-          "filter-module": {
+          "filtermodule": {
             "version": "1.0",
             "type": "docker",
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "${CONTAINER_REGISTRY_SERVER}/filtermodule:amd64-${CONTAINER_TAG}",
+              "image": "${CONTAINER_REGISTRY_SERVER}/filtermodule:amd64",
               "createOptions": ""
             }
           }
