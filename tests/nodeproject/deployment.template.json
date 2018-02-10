@@ -39,13 +39,13 @@
               "createOptions": ""
             }
           },
-          "filtermodule": {
+          "nodemodule": {
             "version": "1.0",
             "type": "docker",
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "${CONTAINER_REGISTRY_SERVER}/filtermodule:0.0.1-amd64",
+              "image": "${CONTAINER_REGISTRY_SERVER}/nodemodule:0.0.1-amd64",
               "createOptions": ""
             }
           }
@@ -56,15 +56,15 @@
       "properties.desired": {
         "schemaVersion": "1.0",
         "routes": {
-          "sensorToFilter": "FROM /messages/modules/temp-sensor-module/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/filtermodule/inputs/input1\")",
-          "filterToIoTHub": "FROM /messages/modules/filtermodule/outputs/output1 INTO $upstream"
+          "sensorToFilter": "FROM /messages/modules/temp-sensor-module/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/nodemodule/inputs/input1\")",
+          "filterToIoTHub": "FROM /messages/modules/node-module/outputs/output1 INTO $upstream"
         },
         "storeAndForwardConfiguration": {
           "timeToLiveSecs": 7200
         }
       }
     },
-    "filtermodule": {
+    "nodemodule": {
       "properties.desired": {
         "schemaVersion": "1.0",
         "TemperatureThreshold": 21

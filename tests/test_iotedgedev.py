@@ -10,14 +10,19 @@ import sys
 import shutil
 from click.testing import CliRunner
 
+from distutils.dir_util import copy_tree
+from filecmp import dircmp
 from iotedgedev import cli
 from iotedgedev.azurecli import AzureCli
 
 from dotenv import load_dotenv, find_dotenv
+
 load_dotenv(find_dotenv())
 
 project = "test_project"
 root_dir = os.getcwd()
+node_project = "node-project"
+
 
 class TestAzureCli(AzureCli):
     def invoke_az_cli(self, args, error_message=None, io=None):
@@ -32,7 +37,7 @@ class TestIotedgedev(unittest.TestCase):
         try:
             runner = CliRunner()
             result = runner.invoke(cli.main, ['project', '--create', project])
-            #print(result.output)
+            # print(result.output)
             #assert result.exit_code == 0
             #assert 'Azure IoT Edge project created' in result.output
 
@@ -86,6 +91,7 @@ class TestIotedgedev(unittest.TestCase):
         test_string = "Environment Variables loaded from: " + dotenv_file
         assert test_string in result.output
 
+
     #TODO implement the mock AzureCli class
     '''
     def test_azure_setup_command(self):
@@ -108,6 +114,7 @@ class TestIotedgedev(unittest.TestCase):
         test_string = "Environment Variables loaded from: " + dotenv_file
         assert test_string in result.output
     '''
+
     # TODO: Figure out why tox messes with the paths.
     '''
     def test_runtime_setup(self):
@@ -138,4 +145,3 @@ class TestIotedgedev(unittest.TestCase):
         test_string = "{0} file not found on disk".format(dotenv_file)
         assert test_string in result.output
     '''
-

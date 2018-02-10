@@ -95,8 +95,9 @@ class EnvVars:
                     self.set_envvar("RUNTIME_CONFIG_DIR",
                                     self.get_runtime_config_dir())
 
-                self.ACTIVE_MODULES = self.get_envvar("ACTIVE_MODULES")
-                self.ACTIVE_DOCKER_DIRS = self.get_envvar("ACTIVE_DOCKER_DIRS")
+                self.ACTIVE_MODULES = self.get_envvar("ACTIVE_MODULES")             
+                self.ACTIVE_DOCKER_ARCH = self.get_envvar("ACTIVE_DOCKER_ARCH")
+                
                 self.CONTAINER_REGISTRY_SERVER = self.get_envvar(
                     "CONTAINER_REGISTRY_SERVER", False)
                 self.CONTAINER_REGISTRY_USERNAME = self.get_envvar(

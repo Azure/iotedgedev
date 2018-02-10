@@ -1,0 +1,9 @@
+**/.vs
+**/.vscode
+**/bin
+**/obj
+**/out
+build
+.env
+venv
+logs

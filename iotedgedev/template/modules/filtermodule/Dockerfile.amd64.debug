@@ -1,0 +1,18 @@
+FROM microsoft/dotnet:2.0-sdk AS build-env
+WORKDIR /app
+
+COPY *.csproj ./
+RUN dotnet restore
+
+COPY . ./
+RUN dotnet publish -c Debug -o out
+
+FROM microsoft/dotnet:2.0-runtime-stretch
+WORKDIR /app
+COPY --from=build-env /app/out ./
+
+RUN apt-get update
+RUN apt-get install -y unzip procps
+RUN curl -sSL https://aka.ms/getvsdbgsh | bash /dev/stdin -v latest -l ~/vsdbg
+
+ENTRYPOINT ["dotnet", "filtermodule.dll"]

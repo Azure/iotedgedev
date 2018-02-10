@@ -2,6 +2,10 @@ import os
 import requests
 from shutil import copyfile
 
+from .module import Module
+from .modulesprocessorfactory import ModulesProcessorFactory
+
+
 class Modules:
     def __init__(self, envvars, utility, output, dock):
         self.envvars = envvars
@@ -27,86 +31,49 @@ class Modules:
 
                 self.output.info("BUILDING MODULE: {0}".format(module_dir))
 
-                # Find first proj file in module dir and use it.
-                project_files = [os.path.join(module_dir, f) for f in os.listdir(
-                    module_dir) if f.endswith("proj")]
+                module_json = Module(
+                    self.output, self.utility, os.path.join(module_dir, "module.json"))
+                mod_proc = ModulesProcessorFactory(
+                    self.envvars, self.utility, self.output, module_dir).get(module_json.language)
 
-                if len(project_files) == 0:
-                    self.output.error("No project file found for module.")
+                # build module
+                if (mod_proc.build() == False):
                     continue
 
-                self.utility.exe_proc(["dotnet", "build", project_files[0],
-                                       "-v", self.envvars.DOTNET_VERBOSITY])
+                docker_arch_process = [docker_arch.strip()
+                                       for docker_arch in self.envvars.ACTIVE_DOCKER_ARCH.split(",")if docker_arch]
 
-                # Get all docker files in project
-                docker_files = self.utility.find_files(
-                    module_dir, "Dockerfile*")
-
-                # Filter by Docker Dirs in envvars
-                docker_dirs_process = [docker_dir.strip()
-                                       for docker_dir in self.envvars.ACTIVE_DOCKER_DIRS.split(",") if docker_dir]
-
-                # Process each Dockerfile found
-                for docker_file in docker_files:
-
-                    docker_file_parent_folder = os.path.basename(
-                        os.path.dirname(docker_file))
-
+                for arch in module_json.platforms:
                     if len(
-                            docker_dirs_process) == 0 or docker_dirs_process[0] == "*" or docker_file_parent_folder in docker_dirs_process:
+                            docker_arch_process) == 0 or docker_arch_process[0] == "*" or arch in docker_arch_process:
+
+                        # get the docker file from module.json
+                        docker_file = module_json.get_platform_by_key(arch)
 
                         self.output.info(
                             "PROCESSING DOCKER FILE: " + docker_file)
 
                         docker_file_name = os.path.basename(docker_file)
-
-                        # assume /Docker/{runtime}/Dockerfile folder structure
-                        # image name will be the same as the module folder name, filter-module
-                        # tag will be {runtime}{ext}{container_tag}, i.e. linux-x64-debug-jong
-                        # runtime is the Dockerfile immediate parent folder name
-                        # ext is Dockerfile extension for example with Dockerfile.debug, debug is the mod
-                        # CONTAINER_TAG is env var
-
-                        # i.e. when found: filter-module/Docker/linux-x64/Dockerfile.debug and CONTAINER_TAG = jong
-                        # we'll get: filtermodule:linux-x64-debug-jong
-
-                        runtime = os.path.basename(
-                            os.path.dirname(docker_file))
-                        ext = "" if os.path.splitext(docker_file)[
-                            1] == "" else "-" + os.path.splitext(docker_file)[1][1:]
                         container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + \
                             self.envvars.CONTAINER_TAG
 
-                        tag_name = runtime + ext + container_tag
+                        tag_name = module_json.tag_version + container_tag
 
-                        # construct the build output path
-                        build_path = os.path.join(
-                            os.getcwd(), "build", "modules", module, runtime)
-                        if not os.path.exists(build_path):
-                            os.makedirs(build_path)
-
-                        # dotnet publish
+                        # publish module
                         self.output.info(
-                            "PUBLISHING PROJECT: " + project_files[0])
+                            "PUBLISHING PROJECT: " + module_dir)
 
-                        self.utility.exe_proc(["dotnet", "publish", project_files[0], "-f", "netcoreapp2.0",
-                                               "-o", build_path, "-v", self.envvars.DOTNET_VERBOSITY])
+                        mod_proc.publish()
 
-                        # copy Dockerfile to publish dir
-                        build_dockerfile = os.path.join(
-                            build_path, docker_file_name)
-
-                        copyfile(docker_file, build_dockerfile)
-
-                        image_destination_name = "{0}/{1}:{2}".format(
-                            self.envvars.CONTAINER_REGISTRY_SERVER, module, tag_name).lower()
+                        image_destination_name = "{0}/{1}:{2}-{3}".format(
+                            self.envvars.CONTAINER_REGISTRY_SERVER, module, tag_name, arch).lower()
 
                         self.output.info(
                             "BUILDING DOCKER IMAGE: " + image_destination_name)
 
-                        # cd to the build output to build the docker image
+                        # cd to the module folder to build the docker image
                         project_dir = os.getcwd()
-                        os.chdir(build_path)
+                        os.chdir(os.path.join(project_dir, module_dir))
 
                         # BUILD DOCKER IMAGE
                         build_result = self.dock.docker_client.images.build(
@@ -121,7 +88,7 @@ class Modules:
                         self.output.info(
                             "PUSHING DOCKER IMAGE TO: " + image_destination_name)
 
-                        for line in self.dock.docker_client.images.push(repository=image_destination_name, tag=tag_name, stream=True, auth_config={
+                        for line in self.dock.docker_client.images.push(repository=image_destination_name, stream=True, auth_config={
                                                                         "username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
                             self.output.procout(self.utility.decode(line))
 
@@ -162,4 +129,3 @@ class Modules:
             self.output.info(deploy_response.text)
             self.output.error(
                 "There was an error deploying the configuration. Please make sure your IOTHUB_CONNECTION_STRING and DEVICE_CONNECTION_STRING Environment Variables are correct.")
-
