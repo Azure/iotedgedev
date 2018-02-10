@@ -428,7 +428,7 @@ The `iotedgedev` module has the following commands:
 **runtime**
 
 `iotedgedev runtime --help`
-- `--setup`     Setup Edge Runtime using runtime.json in build/config directory.
+- `--setup`     Setup Edge Runtime using runtime.json in /.config directory.
 - `--start`     Starts Edge Runtime. Calls iotedgectl start.
 - `--stop`      Stops Edge Runtime. Calls iotedgectl stop.
 - `--restart`   Restarts Edge Runtime. Calls iotedgectl stop, removes module containers and images, calls iotedgectl setup (with --config-file) and then calls iotedgectl start.
@@ -455,7 +455,7 @@ The `iotedgedev` module has the following commands:
 **iotedgedev commands**
 
 - `--version`     Show the version and exit.
-- `--set-config`  Expands Environment Variables in /config/*.json and copies to  /build/config.
+- `--set-config`  Expands Environment Variables in *.template.json and copies to /.config.
 
 ### Setup Container Registry
 

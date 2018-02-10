@@ -71,6 +71,7 @@ target/
 venv
 /logs
 /config
+.config
 /build
 
 

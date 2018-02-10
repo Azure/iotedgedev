@@ -32,7 +32,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
     default=False,
     required=False,
     is_flag=True,
-    help="Expands Environment Variables in /config/*.json and copies to /build/config.")
+    help="Expands Environment Variables in *.template.json and copies to /.config.")
 def main(set_config, az_cli=None):
     global azure_cli
     if(az_cli):
@@ -303,7 +303,7 @@ def modules(build, deploy):
     default=False,
     required=False,
     is_flag=True,
-    help="Setup Edge Runtime using runtime.json in build/config directory.")
+    help="Setup Edge Runtime using runtime.json in /.config directory.")
 @click.option(
     '--start',
     default=False,
