@@ -1,4 +1,4 @@
-FROM jongallant/iotedgedev:0.61.0-linux
+FROM jongallant/iotedgedev:0.62.0-linux
 RUN apt-get update && apt-get install -y python-dev build-essential libssl-dev libffi-dev libxml2-dev libxslt1-dev zlib1g-dev python-pip
 COPY install-dev.sh /scripts/install-dev.sh
 RUN chmod +x /scripts/install-dev.sh
