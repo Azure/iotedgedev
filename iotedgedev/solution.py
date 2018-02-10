@@ -1,12 +1,12 @@
 import os
 import zipfile
 
-class Project:
+class Solution:
     def __init__(self, output):
         self.output = output
 
     def create(self, name):
-        self.output.header("CREATING AZURE IOT EDGE PROJECT")
+        self.output.header("CREATING AZURE IOT EDGE SOLUTION: {0}".format(name))
 
         try:
             template_zip = os.path.join(os.path.split(
@@ -22,4 +22,4 @@ class Project:
         zipf.extractall(name)
 
         os.rename(os.path.join(name, ".env.tmp"), os.path.join(name, ".env"))
-        self.output.footer("Azure IoT Edge project created")
+        self.output.footer("Azure IoT Edge Solution created")

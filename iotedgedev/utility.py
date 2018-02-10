@@ -69,7 +69,7 @@ class Utility:
         return val.decode("utf-8").strip()
 
     def get_config_files(self):
-        # config files are in root of project
+        # config files are in root of solution
 
         return [os.path.join(os.getcwd(), f) for f in os.listdir(os.getcwd()) if f.endswith("template.json")]
 
@@ -111,7 +111,7 @@ class Utility:
 
             if len(config_files) == 0:
                 self.output.info(
-                    "Unable to find config files in project root directory")
+                    "Unable to find config files in solution root directory")
                 sys.exit()
 
             # Expand envars and rewrite to .config/
