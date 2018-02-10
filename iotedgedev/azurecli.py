@@ -10,6 +10,7 @@ output_io_cls = StringIO
 from azure.cli.core import get_default_cli
 from .envvars import EnvVars
 
+
 class AzureCli:
     def __init__(self,  output, envvars, cli=get_default_cli()):
         self.output = output
@@ -32,7 +33,7 @@ class AzureCli:
         try:
             if stdout_io or stderr_io:
                 process = subprocess.Popen(self.prepare_az_cli_args(
-                    args), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+                    args), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=not self.envvars.is_posix())
                 stdout_data, stderr_data = process.communicate()
                 if stdout_io and stdout_data != "":
                     stdout_io.writelines(self.decode(stdout_data))
@@ -40,7 +41,7 @@ class AzureCli:
                     stderr_io.writelines(self.decode(stderr_data))
             else:
                 process = subprocess.Popen(
-                    self.prepare_az_cli_args(args), shell=True)
+                    self.prepare_az_cli_args(args), shell=not self.envvars.is_posix())
                 process.communicate()
 
             if process.returncode != 0:
@@ -197,7 +198,7 @@ class AzureCli:
                 for iot in data:
                     if iot["sku"]["name"] == "F1":
                         return (iot["name"], iot["resourceGroup"])
-        return None
+        return (None, None)
 
     def list_iot_hubs(self, resource_group):
         self.output.header(
@@ -226,7 +227,8 @@ class AzureCli:
 
         with output_io_cls() as io:
             with output_io_cls() as error_io:
-                self.output.prompt("Creating IoT Hub please wait...")
+                self.output.prompt(
+                    "Creating IoT Hub. Please wait as this could take a few minutes to complete...")
 
                 result = self.invoke_az_cli_outproc(["iot", "hub", "create", "--name", value, "--resource-group",
                                                      resource_group, "--sku", sku, "--out", "table"],

@@ -119,11 +119,11 @@ def validate_option(ctx, param, value):
             if envvars.IOTHUB_SKU == "F1":
                 free_iot_name, free_iot_rg = azure_cli.get_free_iothub()
                 if free_iot_name:
-                    output.info("You already have a Free IoT Hub SKU in your subscription, so you must either use that existing IoT Hub or create an S1. Enter (1) to use the existing Free IoT Hub, Enter (S1) to create a new S1 IoT Hub")
+                    output.info("You already have a Free IoT Hub SKU in your subscription, so you must either use that existing IoT Hub or create a new S1 IoT Hub. Enter (F) to use the existing Free IoT Hub or enter (S) to create a new S1 IoT Hub")
                     user_response = sys.stdin.readline().strip().upper()
-                    if user_response == "S1":
+                    if user_response == "S":
                         envvars.IOTHUB_SKU = "S1"
-                    elif user_response == "1":
+                    elif user_response == "F":
                         envvars.IOTHUB_NAME = free_iot_name
                         envvars.RESOURCE_GROUP_NAME = free_iot_rg
                         return free_iot_name
@@ -174,6 +174,7 @@ def list_subscriptions_and_set_default():
     # first verify that we have an existing auth token in cache, otherwise login using interactive
     if not default_subscriptionId:
         default_subscriptionId = azure_cli.user_has_logged_in()
+
         if not default_subscriptionId and not azure_cli.login_interactive():
             sys.exit()
 
@@ -188,7 +189,7 @@ def list_subscriptions_and_set_default():
     '--setup',
     required=True,
     is_flag=True,
-    help="Reads the required Azure resources configuration from your subscription. Creates new Azure resources or uses existing ones.")
+    help="Reads the required Azure resources configuration from your subscription. Creates new Azure resources or uses an existing one.")
 @click.option(
     '--credentials',
     required=False,
