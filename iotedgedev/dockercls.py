@@ -120,7 +120,7 @@ class Docker:
             except docker.errors.APIError as e:
                 self.output.error(
                     "ERROR WHILE PULLING IMAGE: '{0}'".format(microsoft_image_name))
-                self.output.error(e)
+                self.output.error(str(e))
 
             # Tagging Image with Container Registry Name
             try:
@@ -129,7 +129,7 @@ class Docker:
             except docker.errors.APIError as e:
                 self.output.error(
                     "ERROR WHILE TAGGING IMAGE: '{0}'".format(microsoft_image_name))
-                self.output.error(e)
+                self.output.error(str(e))
 
             # Push Image to Container Registry
             try:
@@ -144,7 +144,7 @@ class Docker:
             except docker.errors.APIError as e:
                 self.output.error("ERROR WHILE PUSHING IMAGE: '{0}'".format(
                     container_registry_image_name))
-                self.output.error(e)
+                self.output.error(str(e))
 
         self.setup_registry_in_config(image_names)
 

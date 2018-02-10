@@ -34,10 +34,10 @@ class Modules:
                 module_json = Module(
                     self.output, self.utility, os.path.join(module_dir, "module.json"))
                 mod_proc = ModulesProcessorFactory(
-                    self.envvars, self.utility, self.output).get(module_json.language)
+                    self.envvars, self.utility, self.output, module_dir).get(module_json.language)
 
                 # build module
-                if (mod_proc.build(module_dir) == False):
+                if (mod_proc.build() == False):
                     continue
 
                 docker_arch_process = [docker_arch.strip()
@@ -63,9 +63,10 @@ class Modules:
                         self.output.info(
                             "PUBLISHING PROJECT: " + module_dir)
 
-                        mod_proc.publish(module_dir)
+                        mod_proc.publish()
+
                         image_destination_name = "{0}/{1}:{2}-{3}".format(
-                            self.envvars.CONTAINER_REGISTRY_SERVER, module, tag_name, docker_file_name).lower()
+                            self.envvars.CONTAINER_REGISTRY_SERVER, module, tag_name, arch).lower()
 
                         self.output.info(
                             "BUILDING DOCKER IMAGE: " + image_destination_name)
@@ -87,7 +88,7 @@ class Modules:
                         self.output.info(
                             "PUSHING DOCKER IMAGE TO: " + image_destination_name)
 
-                        for line in self.dock.docker_client.images.push(repository=image_destination_name, tag=tag_name, stream=True, auth_config={
+                        for line in self.dock.docker_client.images.push(repository=image_destination_name, stream=True, auth_config={
                                                                         "username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
                             self.output.procout(self.utility.decode(line))
 

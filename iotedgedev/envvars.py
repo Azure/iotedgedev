@@ -1,18 +1,30 @@
+from dotenv import load_dotenv, set_key
 import os
 import platform
 import socket
 import sys
-
-from dotenv import load_dotenv
-
-from .connectionstring import DeviceConnectionString, IoTHubConnectionString
-
+from shutil import copyfile
+from fstrings import f
+from .connectionstring import IoTHubConnectionString, DeviceConnectionString
 
 class EnvVars:
     def __init__(self, output):
         self.output = output
         self.checked = False
 
+    def backup_dotenv(self):
+        dotenv_file = self.get_dotenv_file()
+        dotenv_path = os.path.join(os.getcwd(), dotenv_file)
+        dotenv_backup_path= dotenv_path+".backup"
+        try:
+            copyfile(dotenv_path, dotenv_backup_path)
+            self.output.info(f("Successfully backed up {dotenv_path} to {dotenv_backup_path}"))
+            return True
+        except Exception as e:
+            self.output.error(f("Could not backup {dotenv_path} to {dotenv_backup_path}"))
+            self.output.error(str(e))
+        return False
+        
     def load_dotenv(self):
         dotenv_file = self.get_dotenv_file()
         dotenv_path = os.path.join(os.getcwd(), dotenv_file)
@@ -117,6 +129,15 @@ class EnvVars:
 
         self.checked = True
 
+    def __getattribute__(self, name):
+        try:
+            return object.__getattribute__(self, name)
+        except AttributeError as e:
+            if name in os.environ:
+                return self.get_envvar(name)
+            else:
+                raise e    
+
     def get_envvar(self, key, required=True):
         val = os.environ[key].strip()
         if not val and required:
@@ -128,6 +149,16 @@ class EnvVars:
 
     def set_envvar(self, key, value):
         os.environ[key] = value
+
+    def save_envvar(self, key, value):
+        try:
+            dotenv_file = self.get_dotenv_file()
+            dotenv_path = os.path.join(os.getcwd(), dotenv_file)
+            set_key(dotenv_path, key, value)
+        except Exception:
+            self.output.error(
+                f("Could not update the environment variable {key} in file {dotenv_path}"))
+            sys.exit(-1)
 
     def get_runtime_home_dir(self):
         if self.is_posix():

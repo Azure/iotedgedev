@@ -45,7 +45,7 @@
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "${CONTAINER_REGISTRY_SERVER}/filtermodule:amd64",
+              "image": "${CONTAINER_REGISTRY_SERVER}/filtermodule:0.0.1-amd64",
               "createOptions": ""
             }
           }

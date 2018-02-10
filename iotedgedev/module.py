@@ -1,6 +1,7 @@
 
 import os
 import json
+import sys
 
 
 class Module(object):
@@ -28,6 +29,7 @@ class Module(object):
         else:
             self.output.error(
                 "No module.json file found. module.json file is required in the root of your module folder")
+            sys.exit()
 
     @property
     def language(self):

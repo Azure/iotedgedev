@@ -39,13 +39,13 @@
               "createOptions": ""
             }
           },
-          "node-module": {
+          "nodemodule": {
             "version": "1.0",
             "type": "docker",
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "${CONTAINER_REGISTRY_SERVER}/nodemodule:amd64${CONTAINER_TAG}",
+              "image": "${CONTAINER_REGISTRY_SERVER}/nodemodule:0.0.1-amd64",
               "createOptions": ""
             }
           }

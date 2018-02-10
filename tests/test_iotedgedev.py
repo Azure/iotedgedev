@@ -6,12 +6,14 @@
 
 import unittest
 import os
+import sys
 import shutil
 from click.testing import CliRunner
 
 from distutils.dir_util import copy_tree
 from filecmp import dircmp
 from iotedgedev import cli
+from iotedgedev.azurecli import AzureCli
 
 from dotenv import load_dotenv, find_dotenv
 
@@ -21,6 +23,10 @@ project = "test_project"
 root_dir = os.getcwd()
 node_project = "node-project"
 
+
+class TestAzureCli(AzureCli):
+    def invoke_az_cli(self, args, error_message=None, io=None):
+        return True
 
 class TestIotedgedev(unittest.TestCase):
 
@@ -55,7 +61,7 @@ class TestIotedgedev(unittest.TestCase):
         assert result.exit_code == 0
         assert 'version' in result.output
 
-    def test_version(self):
+    def test_help(self):
         """HELP"""
         runner = CliRunner()
         help_result = runner.invoke(cli.main, ['--help'])
@@ -84,6 +90,30 @@ class TestIotedgedev(unittest.TestCase):
         assert result.exit_code == 0
         test_string = "Environment Variables loaded from: " + dotenv_file
         assert test_string in result.output
+
+
+    #TODO implement the mock AzureCli class
+    '''
+    def test_azure_setup_command(self):
+        dotenv_file = ".env.test"
+        shutil.copyfile('../.env', dotenv_file)
+        os.environ["DOTENV_FILE"] = dotenv_file
+
+        runner = CliRunner()
+        result = runner.invoke(cli.main, [
+                               'azure', '--setup',
+                               '--credentials', 'username', 'password',
+                               '--subscription', '12341234-1234-1234-1234-123412341234',
+                               '--resource-group-name', 'iotedgedev-rg-dev',
+                               '--iothub-name', 'iotedgedev-iothub-dev',
+                               '--edge-device-id', 'iotedgedev-edgedevice-dev',
+                               '--update-dotenv'
+                               ], az_cli = TestAzureCli(sys.stdout) )
+        print(result.output)
+        assert result.exit_code == 0
+        test_string = "Environment Variables loaded from: " + dotenv_file
+        assert test_string in result.output
+    '''
 
     # TODO: Figure out why tox messes with the paths.
     '''
