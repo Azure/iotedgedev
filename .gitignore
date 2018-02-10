@@ -76,7 +76,7 @@ venv
 
 py36
 .pypirc
-test_project
+test_solution
 README
 
 node_modules

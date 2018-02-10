@@ -8,6 +8,7 @@
             "platforms": {
                 "amd64": "./Dockerfile", 
                 "amd64.debug": "./Dockerfile.amd64.debug",
+                "arm32v7": "./Dockerfile.debug",
                 "windows-amd64": "./Dockerfile"
             }
         }

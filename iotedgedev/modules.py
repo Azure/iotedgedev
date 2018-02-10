@@ -61,7 +61,7 @@ class Modules:
 
                         # publish module
                         self.output.info(
-                            "PUBLISHING PROJECT: " + module_dir)
+                            "PUBLISHING MODULE: " + module_dir)
 
                         mod_proc.publish()
 
@@ -90,7 +90,7 @@ class Modules:
 
                         for line in self.dock.docker_client.images.push(repository=image_destination_name, stream=True, auth_config={
                                                                         "username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
-                            self.output.procout(self.utility.decode(line))
+                            self.output.procout(self.utility.decode(line).replace("\\u003e",">"))
 
                 self.output.footer("BUILD COMPLETE")
 

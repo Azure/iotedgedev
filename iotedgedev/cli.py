@@ -9,7 +9,7 @@ from fstrings import f
 from .dockercls import Docker
 from .modules import Modules
 from .runtime import Runtime
-from .project import Project
+from .solution import Solution
 from .utility import Utility
 from .envvars import EnvVars
 from .output import Output
@@ -53,11 +53,11 @@ def main(set_config, az_cli=None):
     '--create',
     default=".",
     required=False,
-    help="Creates a new Azure IoT Edge project. Use `--create .` to create in current folder. Use `--create TEXT` to create in a subfolder.")
-def project(create):
+    help="Creates a new Azure IoT Edge Solution. Use `--create .` to create in current folder. Use `--create TEXT` to create in a subfolder.")
+def solution(create):
     if create:
-        proj = Project(output)
-        proj.create(create)
+        sol = Solution(output)
+        sol.create(create)
 
 
 @click.command(context_settings=CONTEXT_SETTINGS)
@@ -435,7 +435,7 @@ def docker(
 main.add_command(runtime)
 main.add_command(modules)
 main.add_command(docker)
-main.add_command(project)
+main.add_command(solution)
 main.add_command(iothub)
 main.add_command(azure)
 

@@ -19,9 +19,9 @@ from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
 
-project = "test_project"
+solution = "test_solution"
 root_dir = os.getcwd()
-node_project = "node-project"
+node_project = "nodeproject"
 
 
 class TestAzureCli(AzureCli):
@@ -33,16 +33,16 @@ class TestIotedgedev(unittest.TestCase):
     @classmethod
     def setUpClass(self):
         """SETUP"""
-        print("SETTING UP TEST PROJECT")
+        print("SETTING UP TEST SOLUTION")
         try:
             runner = CliRunner()
-            result = runner.invoke(cli.main, ['project', '--create', project])
+            result = runner.invoke(cli.main, ['solution', '--create', solution])
             # print(result.output)
             #assert result.exit_code == 0
-            #assert 'Azure IoT Edge project created' in result.output
+            #assert 'Azure IoT Edge solution created' in result.output
 
-            shutil.copyfile('.env', os.path.join(os.getcwd(), project, '.env'))
-            os.chdir(project)
+            shutil.copyfile('.env', os.path.join(os.getcwd(), solution, '.env'))
+            os.chdir(solution)
 
         except Exception as ex:
             print(str(ex))
@@ -51,7 +51,7 @@ class TestIotedgedev(unittest.TestCase):
     def tearDownClass(self):
         """TEARDOWN"""
         os.chdir("..")
-        shutil.rmtree(os.path.join(root_dir, project), ignore_errors=True)
+        shutil.rmtree(os.path.join(root_dir, solution), ignore_errors=True)
 
     def test_version(self):
         """VERSION"""
