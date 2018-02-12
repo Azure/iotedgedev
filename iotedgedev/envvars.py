@@ -116,6 +116,7 @@ class EnvVars:
                 self.IOT_REST_API_VERSION = self.get_envvar(
                     "IOT_REST_API_VERSION")
                 self.DOTNET_VERBOSITY = self.get_envvar("DOTNET_VERBOSITY")
+                self.DOTNET_EXE_DIR = self.get_envvar("DOTNET_EXE_DIR", False)
                 self.LOGS_CMD = self.get_envvar("LOGS_CMD")
                 if "DOCKER_HOST" in os.environ:
                     self.DOCKER_HOST = self.get_envvar("DOCKER_HOST", False)
@@ -139,10 +140,14 @@ class EnvVars:
                 raise e    
 
     def get_envvar(self, key, required=True):
-        val = os.environ[key].strip()
-        if not val and required:
+        val = ""
+        
+        if key in os.environ:
+            val = os.environ[key].strip()
+        
+        if required and not val:
             self.output.error(
-                "Environment Variable {0} not set. Either add to .env file or to your system's Environment Variables".format(key))
+                    "Environment Variable {0} not set. Either add to .env file or to your system's Environment Variables".format(key))
             sys.exit(-1)
 
         return val

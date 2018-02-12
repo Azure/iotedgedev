@@ -10,6 +10,7 @@ class ModulesProcessorFactory(object):
         self.utility = utility
         self.output = output
         self.module_dir = module_dir
+        self.exe_dir = "."
 
     def get(self, module_language):
         module_language = module_language.lower()

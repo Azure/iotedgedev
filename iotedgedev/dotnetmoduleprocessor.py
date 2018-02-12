@@ -7,6 +7,7 @@ class DotNetModuleProcessor(object):
         self.utility = utility
         self.output = output
         self.module_dir = module_dir
+        self.exe_dir = self.envvars.DOTNET_EXE_DIR
 
     def build(self):
         project_file = self.get_project_file()
