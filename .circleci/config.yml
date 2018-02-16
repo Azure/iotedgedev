@@ -4,21 +4,17 @@ variables:
     /tmp/circleci
   - &branchignore
     ignore: [noci, gh-pages]
-  - &buildimage
+  - &buildtest
       - image: dtzar/iotedgedev:tmp
+  - &builddocker
+      - image: docker:18
   - &run-dockerbuild
-    name: Build Docker Image
-    command: |
-      tar -cvf $CIRCLE_WORKING_DIRECTORY/docker/linux/files.tar.gz -C . requirements_dev.txt setup.py HISTORY.rst
-      ls $CIRCLE_WORKING_DIRECTORY/docker/linux
-      docker build -f $CIRCLE_WORKING_DIRECTORY/docker/linux/Dockerfile --build-arg VCS_REF=$CIRCLE_SHA1 --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:circle -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest $CIRCLE_WORKING_DIRECTORY/docker/linux
-  - &run-dockerbuildpush
     name: Build and push Docker Image
     command: |
       tar -cvf $CIRCLE_WORKING_DIRECTORY/docker/linux/files.tar.gz -C . requirements_dev.txt setup.py HISTORY.rst
       docker build -f $CIRCLE_WORKING_DIRECTORY/docker/linux/Dockerfile --build-arg VCS_REF=$CIRCLE_SHA1 --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:circle -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest $CIRCLE_WORKING_DIRECTORY/docker/linux
-      if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
-        echo "Push to registry since it's the master branch."
+      if [[ ((`echo $CIRCLE_JOB | grep -c "dockerimagebuildpublish"` > 0))]]; then 
+        echo "Push to registry since it's the docker build and push job."
         docker login $REGISTRY_NAME -u $DOCKER_USER -p $DOCKER_PASS
         docker push $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG
         docker push $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest
@@ -26,25 +22,38 @@ variables:
       else
         echo "Skip Docker push image since it is not the master branch."
       fi
+
 jobs:
   toxci:
     working_directory: *workdir
     docker: *buildimage
     steps:
       - checkout
-      - run: echo -e 'IOTHUB_CONNECTION_STRING="'$IOTHUB_CONNECTION_STRING'"\nDEVICE_CONNECTION_STRING="'$DEVICE_CONNECTION_STRING'"'> .env && tox
+      - run: |
+          echo -e 'IOTHUB_CONNECTION_STRING="'$IOTHUB_CONNECTION_STRING'"\nDEVICE_CONNECTION_STRING="'$DEVICE_CONNECTION_STRING'"'> .env
+          mkdir $CIRCLE_WORKING_DIRECTORY/tmp
+          cp $CIRCLE_WORKING_DIRECTORY/docker/linux/Dockerfile $CIRCLE_WORKING_DIRECTORY/tmp/Dockerfile
+          tar -cvf $CIRCLE_WORKING_DIRECTORY/tmp/files.tar.gz -C . requirements_dev.txt setup.py HISTORY.rst
+          tox
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - /*
   dockerimagebuild:
     working_directory: *workdir
-    docker: *buildimage
+    docker: *builddocker
     steps:
       - setup_remote_docker
-      - checkout
+      - attach_workspace:
+          at: /tmp
       - run: *run-dockerbuild
   dockerimagebuildpublish:
     working_directory: *workdir
-    docker: *buildimage
+    docker: *builddocker
     steps:
       - setup_remote_docker
+      - attach_workspace:
+          at: /
       - run: *run-dockerbuild
 
 workflows:
@@ -63,8 +72,8 @@ workflows:
             - holddocker
       - holdpublish:
           type: approval
-          requires: 
-            - toxci
-      - dockerimagepublish:
+          # requires: 
+          #   - toxci
+      - dockerimagebuildpublish:
           requires:
             - holdpublish
