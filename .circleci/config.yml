@@ -7,13 +7,11 @@ variables:
   - &buildtest
       - image: dtzar/iotedgedev:tmp
   - &builddocker
-      - image: docker:18
+      - image: circleci/python
   - &run-dockerbuild
     name: Build and push Docker Image
     command: |
-      #tar -cvf $CIRCLE_WORKING_DIRECTORY/docker/linux/files.tar.gz -C . requirements_dev.txt setup.py HISTORY.rst
-      ls /tmp/circleci/docker/docker
-      docker build -f $CIRCLE_WORKING_DIRECTORY/docker/docker/linux/Dockerfile --build-arg VCS_REF=$CIRCLE_SHA1 --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:circle -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest $CIRCLE_WORKING_DIRECTORY/docker/docker
+      docker build -f $CIRCLE_WORKING_DIRECTORY/circlework/docker/linux/Dockerfile --build-arg VCS_REF=$CIRCLE_SHA1 --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:circle -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest $CIRCLE_WORKING_DIRECTORY/circlework/docker
       if [[ ((`echo $CIRCLE_JOB | grep -c "dockerimagebuildpublish"` > 0))]]; then 
         echo "Push to registry since it's the docker build and push job."
         docker login $REGISTRY_NAME -u $DOCKER_USER -p $DOCKER_PASS
@@ -46,7 +44,7 @@ jobs:
     steps:
       - setup_remote_docker
       - attach_workspace:
-          at: docker
+          at: circlework
       - run: *run-dockerbuild
   dockerimagebuildpublish:
     working_directory: *workdir
@@ -54,7 +52,7 @@ jobs:
     steps:
       - setup_remote_docker
       - attach_workspace:
-          at: docker
+          at: circlework
       - run: *run-dockerbuild
 
 workflows:
