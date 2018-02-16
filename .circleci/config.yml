@@ -1,0 +1,68 @@
+version: 2
+variables: 
+  - &workdir
+    /tmp/circleci
+  - &branchignore
+    ignore: [noci, gh-pages]
+  - &buildimage
+      - image: dtzar/iotedgedev:tmp
+  - &run-dockerbuild
+    name: Build Docker Image
+    command: |
+      tar -cvf files.tar.gz -C ../.. requirements_dev.txt setup.py HISTORY.rst
+      docker build -f $CIRCLE_WORKING_DIRECTORY/docker/linux/Dockerfile --build-arg VCS_REF=$CIRCLE_SHA1 --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:circle -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest $CIRCLE_WORKING_DIRECTORY/docker/linux
+  - &run-dockerbuildpush
+    name: Build and push Docker Image
+    command: |
+      tar -cvf files.tar.gz -C ../.. requirements_dev.txt setup.py HISTORY.rst
+      docker build -f $CIRCLE_WORKING_DIRECTORY/docker/linux/Dockerfile --build-arg VCS_REF=$CIRCLE_SHA1 --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:circle -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest $CIRCLE_WORKING_DIRECTORY/docker/linux
+      if [[ ((`echo $CIRCLE_BRANCH | grep -c "master"` > 0))]]; then 
+        echo "Push to registry since it's the master branch."
+        docker login $REGISTRY_NAME -u $DOCKER_USER -p $DOCKER_PASS
+        docker push $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG
+        docker push $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest
+        echo "Pushed image: " $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG " and :latest tag"
+      else
+        echo "Skip Docker push image since it is not the master branch."
+      fi
+jobs:
+  toxci:
+    working_directory: *workdir
+    docker: *buildimage
+    steps:
+      - checkout
+      - run: tox
+  dockerimagebuild:
+    working_directory: *workdir
+    docker: *dockerbuild
+    steps:
+      - setup_remote_docker
+      - run: *run-dockerbuild
+  dockerimagebuildpublish:
+    working_directory: *workdir
+    docker: *dockerbuildpublish
+    steps:
+      - setup_remote_docker
+      - run: *run-dockerbuild
+
+workflows:
+  version: 2
+  azure-iot-edge-dev-tool:
+    jobs:
+      - toxci:
+          filters:
+            branches: *branchignore
+      - holddocker:
+          type: approval
+          # requires: 
+          #   - toxci
+      - dockerimagebuild:
+          requires:
+            - holddocker
+      - holdpublish:
+          type: approval
+          requires: 
+            - toxci
+      - dockerimagepublish:
+          requires:
+            - holdpublish
