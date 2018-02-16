@@ -29,8 +29,9 @@ jobs:
     docker: *buildtest
     steps:
       - checkout
+      - setup_remote_docker
       - run: |
-          iotedgedev --setup tempiot
+          iotedgedev solution --create tempiot
           mv ./tempiot/.env .env
           cat .env
           sed -i "s|IOTHUB_CONNECTION_STRING=\"\"|IOTHUB_CONNECTION_STRING=\"$IOTHUB_CONNECTION_STRING\"|g" .env
