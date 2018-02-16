@@ -31,21 +31,21 @@ jobs:
       - checkout
       - run: |
           echo -e 'IOTHUB_CONNECTION_STRING="'$IOTHUB_CONNECTION_STRING'"\nDEVICE_CONNECTION_STRING="'$DEVICE_CONNECTION_STRING'"'> .env
-          mkdir $CIRCLE_WORKING_DIRECTORY/tmp
-          cp $CIRCLE_WORKING_DIRECTORY/docker/linux/Dockerfile $CIRCLE_WORKING_DIRECTORY/tmp/Dockerfile
-          tar -cvf $CIRCLE_WORKING_DIRECTORY/tmp/files.tar.gz -C . requirements_dev.txt setup.py HISTORY.rst
+          mkdir -p $CIRCLE_WORKING_DIRECTORY/tmp/docker
+          cp $CIRCLE_WORKING_DIRECTORY/docker/linux/Dockerfile $CIRCLE_WORKING_DIRECTORY/tmp/docker/
+          tar -cvf $CIRCLE_WORKING_DIRECTORY/tmp/docker/files.tar.gz -C . requirements_dev.txt setup.py HISTORY.rst
           tox
       - persist_to_workspace:
           root: /tmp
           paths:
-            - /*
+            - docker/*
   dockerimagebuild:
     working_directory: *workdir
     docker: *builddocker
     steps:
       - setup_remote_docker
       - attach_workspace:
-          at: /tmp
+          at: /docker
       - run: *run-dockerbuild
   dockerimagebuildpublish:
     working_directory: *workdir
@@ -53,7 +53,7 @@ jobs:
     steps:
       - setup_remote_docker
       - attach_workspace:
-          at: /
+          at: /docker
       - run: *run-dockerbuild
 
 workflows:
