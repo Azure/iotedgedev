@@ -12,7 +12,9 @@ variables:
     name: Build and push Docker Image
     command: |
       #tar -cvf $CIRCLE_WORKING_DIRECTORY/docker/linux/files.tar.gz -C . requirements_dev.txt setup.py HISTORY.rst
-      ls $CIRCLE_WORKING_DIRECTORY && ls $CIRCLE_WORKING_DIRECTORY/docker && ls $CIRCLE_WORKING_DIRECTORY/docker/linux && ls $CIRCLE_JOB && ls /tmp/circleci/docker
+      ls $CIRCLE_JOB
+      ls $CIRCLE_WORKING_DIRECTORY
+      ls /tmp/circleci/docker
       docker build -f $CIRCLE_WORKING_DIRECTORY/docker/linux/Dockerfile --build-arg VCS_REF=$CIRCLE_SHA1 --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:circle -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest $CIRCLE_WORKING_DIRECTORY/docker/linux
       if [[ ((`echo $CIRCLE_JOB | grep -c "dockerimagebuildpublish"` > 0))]]; then 
         echo "Push to registry since it's the docker build and push job."
@@ -54,7 +56,7 @@ jobs:
     steps:
       - setup_remote_docker
       - attach_workspace:
-          at: $CIRCLE_WORKING_DIRECTORY/docker
+          at: docker
       - run: *run-dockerbuild
 
 workflows:
