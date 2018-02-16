@@ -31,5 +31,5 @@ RUN apt-get update && \
     mkdir /iotedgedev
 ADD files.tar.gz /iotedgedev
 WORKDIR /iotedgedev
-RUN pip install -r requirements_dev.txt && pip install -e .
+RUN pip install -r requirements_dev.txt && pip install -e . && pip --no-cache-dir install -U azure-iot-edge-dev-tool
 ENV DEBIAN_FRONTEND teletype
