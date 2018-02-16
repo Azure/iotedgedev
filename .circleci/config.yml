@@ -30,16 +30,16 @@ jobs:
     steps:
       - checkout
       - run: |
-          #iotedgedev --setup tempiot
-          #mv ./tempiot/.env .env
-          #cat .env
-          #sed -i "s|IOTHUB_CONNECTION_STRING=\"\"|IOTHUB_CONNECTION_STRING=\"$IOTHUB_CONNECTION_STRING\"|g" .env
-          #sed -i "s|$DEVICE_CONNECTION_STRING=\"\"|$DEVICE_CONNECTION_STRING=\"$DEVICE_CONNECTION_STRING\"|g" .env
-          #sed -i "s|CONTAINER_REGISTRY_SERVER=\"\"|CONTAINER_REGISTRY_SERVER=\"$CONTAINER_REGISTRY_SERVER\"|g" .env
-          #sed -i "s|CONTAINER_REGISTRY_USERNAME=\"\"|CONTAINER_REGISTRY_USERNAME=\"$CONTAINER_REGISTRY_USERNAME\"|g" .env
-          #sed -i "s|CONTAINER_REGISTRY_PASSWORD=\"\"|CONTAINER_REGISTRY_PASSWORD=\"$CONTAINER_REGISTRY_PASSWORD\"|g" .env
+          iotedgedev --setup tempiot
+          mv ./tempiot/.env .env
+          cat .env
+          sed -i "s|IOTHUB_CONNECTION_STRING=\"\"|IOTHUB_CONNECTION_STRING=\"$IOTHUB_CONNECTION_STRING\"|g" .env
+          sed -i "s|$DEVICE_CONNECTION_STRING=\"\"|$DEVICE_CONNECTION_STRING=\"$DEVICE_CONNECTION_STRING\"|g" .env
+          sed -i "s|CONTAINER_REGISTRY_SERVER=\"\"|CONTAINER_REGISTRY_SERVER=\"$CONTAINER_REGISTRY_SERVER\"|g" .env
+          sed -i "s|CONTAINER_REGISTRY_USERNAME=\"\"|CONTAINER_REGISTRY_USERNAME=\"$CONTAINER_REGISTRY_USERNAME\"|g" .env
+          sed -i "s|CONTAINER_REGISTRY_PASSWORD=\"\"|CONTAINER_REGISTRY_PASSWORD=\"$CONTAINER_REGISTRY_PASSWORD\"|g" .env
           #echo -e 'IOTHUB_CONNECTION_STRING="'$IOTHUB_CONNECTION_STRING'"\nDEVICE_CONNECTION_STRING="'$DEVICE_CONNECTION_STRING'"''\nCONTAINER_REGISTRY_SERVER="'$CONTAINER_REGISTRY_SERVER'"''\nCONTAINER_REGISTRY_USERNAME="'$CONTAINER_REGISTRY_USERNAME'"''\nCONTAINER_REGISTRY_PASSWORD="'$CONTAINER_REGISTRY_PASSWORD'"'> .env
-          #tox
+          tox
           mkdir -p $CIRCLE_WORKING_DIRECTORY/tmp/docker/linux
           cp $CIRCLE_WORKING_DIRECTORY/docker/linux/Dockerfile $CIRCLE_WORKING_DIRECTORY/tmp/docker/linux
           tar -cvf $CIRCLE_WORKING_DIRECTORY/tmp/docker/files.tar.gz -C . requirements_dev.txt setup.py HISTORY.rst
