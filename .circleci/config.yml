@@ -34,13 +34,13 @@ jobs:
       - run: tox
   dockerimagebuild:
     working_directory: *workdir
-    docker: *dockerbuild
+    docker: *buildimage
     steps:
       - setup_remote_docker
       - run: *run-dockerbuild
   dockerimagebuildpublish:
     working_directory: *workdir
-    docker: *dockerbuildpublish
+    docker: *buildimage
     steps:
       - setup_remote_docker
       - run: *run-dockerbuild
