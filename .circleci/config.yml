@@ -37,7 +37,7 @@ jobs:
           tar -cvf $CIRCLE_WORKING_DIRECTORY/tmp/docker/files.tar.gz -C . requirements_dev.txt setup.py HISTORY.rst
           #tox
       - persist_to_workspace:
-          root: /tmp
+          root: $CIRCLE_WORKING_DIRECTORY/tmp
           paths:
             - docker/*
   dockerimagebuild:
@@ -46,7 +46,7 @@ jobs:
     steps:
       - setup_remote_docker
       - attach_workspace:
-          at: /docker
+          at: $CIRCLE_WORKING_DIRECTORY/docker
       - run: *run-dockerbuild
   dockerimagebuildpublish:
     working_directory: *workdir
@@ -54,7 +54,7 @@ jobs:
     steps:
       - setup_remote_docker
       - attach_workspace:
-          at: /docker
+          at: $CIRCLE_WORKING_DIRECTORY/docker
       - run: *run-dockerbuild
 
 workflows:
