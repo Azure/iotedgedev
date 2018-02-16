@@ -9,10 +9,10 @@ variables:
   - &run-dockerbuild
     name: Build Docker Image
     command: |
-      tar -cvf $CIRCLE_WORKING_DIRECTORY/docker/linux/files.tar.gz -C . requirements_dev.txt setup.py HISTORY.rst
       ls $CIRCLE_WORKING_DIRECTORY/docker/linux
       ls $$CIRCLE_WORKING_DIRECTORY
       pwd
+      tar -cvf $CIRCLE_WORKING_DIRECTORY/docker/linux/files.tar.gz -C . requirements_dev.txt setup.py HISTORY.rst
       docker build -f $CIRCLE_WORKING_DIRECTORY/docker/linux/Dockerfile --build-arg VCS_REF=$CIRCLE_SHA1 --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:circle -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest $CIRCLE_WORKING_DIRECTORY/docker/linux
   - &run-dockerbuildpush
     name: Build and push Docker Image
@@ -40,6 +40,7 @@ jobs:
     docker: *buildimage
     steps:
       - setup_remote_docker
+      - checkout
       - run: *run-dockerbuild
   dockerimagebuildpublish:
     working_directory: *workdir
