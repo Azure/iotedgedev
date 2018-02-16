@@ -2,6 +2,12 @@ FROM ubuntu:16.04
 ARG VCS_REF
 ARG BUILD_DATE
 ENV DEBIAN_FRONTEND noninteractive
+LABEL org.label-schema.vcs-ref=$VCS_REF \
+      org.label-schema.vendor="Microsoft" \
+      org.label-schema.name="iotedgedev" \
+      org.label-schema.url="https://github.com/jonbgallant/azure-iot-edge-dev-tool" \
+      org.label-schema.vcs-url="https://github.com/jonbgallant/azure-iot-edge-dev-tool/tree/master/docker/linux" \
+      org.label-schema.build-date=$BUILD_DATE
 RUN apt-get update && \
     apt-get install -y --no-install-recommends dialog apt-utils curl apt-transport-https python-pip libltdl-dev docker.io && \ 
     curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
