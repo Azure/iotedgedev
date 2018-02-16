@@ -31,6 +31,8 @@ jobs:
       - checkout
       - setup_remote_docker
       - run: |
+          env
+          docker images
           iotedgedev solution --create tempiot
           mv ./tempiot/.env .env
           sed -i "s|IOTHUB_CONNECTION_STRING=\"\"|IOTHUB_CONNECTION_STRING=\"$IOTHUB_CONNECTION_STRING\"|g" .env
