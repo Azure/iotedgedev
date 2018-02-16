@@ -5,17 +5,18 @@ variables:
   - &branchignore
     ignore: [noci, gh-pages]
   - &buildtest
-      - image: dtzar/iotedgedev:tmp
+      - image: dtzar/iotedgedev
   - &builddocker
       - image: circleci/python
   - &run-dockerbuild
     name: Build and push Docker Image
     command: |
-      docker build -f $CIRCLE_WORKING_DIRECTORY/circlework/docker/linux/Dockerfile --build-arg VCS_REF=$CIRCLE_SHA1 --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:circle -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest $CIRCLE_WORKING_DIRECTORY/circlework/docker
+      docker build -f $CIRCLE_WORKING_DIRECTORY/circlework/docker/linux/Dockerfile --build-arg VCS_REF=$CIRCLE_SHA1 --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG-linux -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest $CIRCLE_WORKING_DIRECTORY/circlework/docker
       if [[ ((`echo $CIRCLE_JOB | grep -c "dockerimagebuildpublish"` > 0))]]; then 
         echo "Push to registry since it's the docker build and push job."
         docker login $REGISTRY_NAME -u $DOCKER_USER -p $DOCKER_PASS
         docker push $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG
+        docker push $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG-linux
         docker push $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest
         echo "Pushed image: " $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG " and :latest tag"
       else
@@ -29,11 +30,11 @@ jobs:
     steps:
       - checkout
       - run: |
-          echo -e 'IOTHUB_CONNECTION_STRING="'$IOTHUB_CONNECTION_STRING'"\nDEVICE_CONNECTION_STRING="'$DEVICE_CONNECTION_STRING'"'> .env
+          echo -e 'IOTHUB_CONNECTION_STRING="'$IOTHUB_CONNECTION_STRING'"\nDEVICE_CONNECTION_STRING="'$DEVICE_CONNECTION_STRING'"'\nCONTAINER_REGISTRY_SERVER="'$CONTAINER_REGISTRY_SERVER'"''\nCONTAINER_REGISTRY_USERNAME="'$CONTAINER_REGISTRY_USERNAME'"''\nCONTAINER_REGISTRY_PASSWORD="'$CONTAINER_REGISTRY_PASSWORD'"'> .env
+          tox
           mkdir -p $CIRCLE_WORKING_DIRECTORY/tmp/docker/linux
           cp $CIRCLE_WORKING_DIRECTORY/docker/linux/Dockerfile $CIRCLE_WORKING_DIRECTORY/tmp/docker/linux
           tar -cvf $CIRCLE_WORKING_DIRECTORY/tmp/docker/files.tar.gz -C . requirements_dev.txt setup.py HISTORY.rst
-          #tox
       - persist_to_workspace:
           root: tmp
           paths:
