@@ -32,10 +32,10 @@ jobs:
       - setup_remote_docker
       - run: |
           docker pull microsoft/azureiotedge-simulated-temperature-sensor:1.0-preview
-          docker tag microsoft/azureiotedge-simulated-temperature-sensor:1.0-preview $REGISTRY_NAME/tmp/azureiotedge-simulated-temperature-sensor:1.0-preview
-          docker login $REGISTRY_NAME -u $CONTAINER_REGISTRY_USERNAME -p $CONTAINER_REGISTRY_PASSWORD
+          docker tag microsoft/azureiotedge-simulated-temperature-sensor:1.0-preview $CONTAINER_REGISTRY_SERVER/tmp/azureiotedge-simulated-temperature-sensor:1.0-preview
+          docker login $CONTAINER_REGISTRY_SERVER -u $CONTAINER_REGISTRY_USERNAME -p $CONTAINER_REGISTRY_PASSWORD
           docker images
-          docker push $REGISTRY_NAME/tmp/azureiotedge-simulated-temperature-sensor:1.0-preview
+          docker push $CONTAINER_REGISTRY_SERVER/tmp/azureiotedge-simulated-temperature-sensor:1.0-preview
           iotedgedev solution --create tempiot
           mv ./tempiot/.env .env
           sed -i "s|IOTHUB_CONNECTION_STRING=\"\"|IOTHUB_CONNECTION_STRING=\"$IOTHUB_CONNECTION_STRING\"|g" .env
