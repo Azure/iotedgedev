@@ -31,8 +31,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - run: |
-          docker pull microsoft/azureiotedge-simulated-temperature-sensor:1.0-preview
-          docker tag microsoft/azureiotedge-simulated-temperature-sensor:1.0-preview $CONTAINER_REGISTRY_SERVER/tmp/azureiotedge-simulated-temperature-sensor:1.0-preview
+          docker build -f ./iotedgedev/template/modules/filtermodule/Dockerfile -t $CONTAINER_REGISTRY_SERVER/filtermodule:0.0.1-amd64 ./iotedgedev/template/modules/filtermodule
           docker login $CONTAINER_REGISTRY_SERVER -u $CONTAINER_REGISTRY_USERNAME -p $CONTAINER_REGISTRY_PASSWORD
           docker images
           docker push $CONTAINER_REGISTRY_SERVER/tmp/azureiotedge-simulated-temperature-sensor:1.0-preview
@@ -75,13 +74,13 @@ workflows:
       - toxci:
           filters:
             branches: *branchignore
-      - holddocker:
+      - holdbuild:
           type: approval
           requires: 
             - toxci
       - dockerimagebuild:
           requires:
-            - holddocker
+            - holdbuild
       - holdpublish:
           type: approval
           requires: 
