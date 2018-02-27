@@ -1,0 +1,90 @@
+version: 2
+variables: 
+  - &workdir
+    /tmp/circleci
+  - &branchignore
+    ignore: [noci, gh-pages]
+  - &buildtest
+      - image: dtzar/iotedgedev
+  - &builddocker
+      - image: circleci/python
+  - &run-dockerbuild
+    name: Build and push Docker Image
+    command: |
+      docker build -f $CIRCLE_WORKING_DIRECTORY/circlework/docker/linux/Dockerfile --build-arg VCS_REF=$CIRCLE_SHA1 --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG-linux -t $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest $CIRCLE_WORKING_DIRECTORY/circlework/docker
+      if [[ ((`echo $CIRCLE_JOB | grep -c "dockerimagebuildpublish"` > 0))]]; then 
+        echo "Push to registry since it's the docker build and push job."
+        docker login $REGISTRY_NAME -u $DOCKER_USER -p $DOCKER_PASS
+        docker push $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG
+        docker push $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG-linux
+        docker push $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:latest
+        echo "Pushed image: " $REGISTRY_NAMEIMAGE/$DOCKER_IMAGE:$TAG " and :latest tag"
+      else
+        echo "Skip Docker push image since it is not the docker build and publish job."
+      fi
+
+jobs:
+  toxci:
+    working_directory: *workdir
+    docker: *buildtest
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: |
+          docker build -f ./iotedgedev/template/modules/filtermodule/Dockerfile -t $CONTAINER_REGISTRY_SERVER/filtermodule:0.0.1-amd64 ./iotedgedev/template/modules/filtermodule
+          docker login $CONTAINER_REGISTRY_SERVER -u $CONTAINER_REGISTRY_USERNAME -p $CONTAINER_REGISTRY_PASSWORD
+          docker images
+          docker push $CONTAINER_REGISTRY_SERVER/tmp/azureiotedge-simulated-temperature-sensor:1.0-preview
+          iotedgedev solution --create tempiot
+          mv ./tempiot/.env .env
+          sed -i "s|IOTHUB_CONNECTION_STRING=\"\"|IOTHUB_CONNECTION_STRING=\"$IOTHUB_CONNECTION_STRING\"|g" .env
+          sed -i "s|DEVICE_CONNECTION_STRING=\"\"|DEVICE_CONNECTION_STRING=\"$DEVICE_CONNECTION_STRING\"|g" .env
+          sed -i "s|CONTAINER_REGISTRY_SERVER=\"localhost\:5000\"|CONTAINER_REGISTRY_SERVER=\"$CONTAINER_REGISTRY_SERVER\"|g" .env
+          sed -i "s|CONTAINER_REGISTRY_USERNAME=\"\"|CONTAINER_REGISTRY_USERNAME=\"$CONTAINER_REGISTRY_USERNAME\"|g" .env
+          sed -i "s|CONTAINER_REGISTRY_PASSWORD=\"\"|CONTAINER_REGISTRY_PASSWORD=\"$CONTAINER_REGISTRY_PASSWORD\"|g" .env
+          tox
+          mkdir -p $CIRCLE_WORKING_DIRECTORY/tmp/docker/linux
+          cp $CIRCLE_WORKING_DIRECTORY/docker/linux/Dockerfile $CIRCLE_WORKING_DIRECTORY/tmp/docker/linux
+          tar -cvf $CIRCLE_WORKING_DIRECTORY/tmp/docker/files.tar.gz -C . requirements_dev.txt setup.py HISTORY.rst
+      - persist_to_workspace:
+          root: tmp
+          paths:
+            - docker/*
+  dockerimagebuild:
+    working_directory: *workdir
+    docker: *builddocker
+    steps:
+      - setup_remote_docker
+      - attach_workspace:
+          at: circlework
+      - run: *run-dockerbuild
+  dockerimagebuildpublish:
+    working_directory: *workdir
+    docker: *builddocker
+    steps:
+      - setup_remote_docker
+      - attach_workspace:
+          at: circlework
+      - run: *run-dockerbuild
+
+workflows:
+  version: 2
+  azure-iot-edge-dev-tool:
+    jobs:
+      - toxci:
+          filters:
+            branches: *branchignore
+      - holdbuild:
+          type: approval
+          requires: 
+            - toxci
+      - dockerimagebuild:
+          requires:
+            - holdbuild
+      - holdpublish:
+          type: approval
+          requires: 
+            - toxci
+      - dockerimagebuildpublish:
+          requires:
+            - holdpublish

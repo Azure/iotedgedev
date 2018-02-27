@@ -681,9 +681,10 @@ Please fork, branch and pull-request any changes you'd like to make.
 
 #### Run Tests
 
-Run the following command to run tests.
-    
-    `tox`
-    
-    
+Prerequisites:
+- Follow all the steps in the Contributor Dev Machine Setup
+- Ensure the .env file is present with secrets in the root of this source code directory 
 
+Run the following command to run tests:
+
+    `tox`
