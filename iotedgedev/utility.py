@@ -66,7 +66,7 @@ class Utility:
         with open(file, "r") as file:
             return file.read()
 
-      def decode(self, val):
+    def decode(self, val):
         return val.decode("utf-8").strip()
 
     def get_config_files(self):
