@@ -18,8 +18,10 @@ requirements = [
     'docker==2.6.0',
     'python-dotenv',
     'requests',
-    'azure-iot-edge-runtime-ctl', 
-    'azure-cli', 
+    'azure-iot-edge-runtime-ctl',
+    'azure-cli-iot',
+    'azure-cli-profile',
+    'azure-cli-extension',
     'fstrings'
 ]
 
