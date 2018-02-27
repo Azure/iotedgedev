@@ -162,8 +162,8 @@ def list_edge_devices_and_set_default():
 def list_iot_hubs_and_set_default():
     if not azure_cli.list_iot_hubs(envvars.RESOURCE_GROUP_NAME):
         sys.exit()
-    subscription_hash = hashlib.sha1(default_subscriptionId.encode('utf-8')).hexdigest()[:6]
-    return "iotedgedev-iothub-dev-" + subscription_hash
+    subscription_rg_hash = hashlib.sha1((default_subscriptionId + envvars.RESOURCE_GROUP_NAME).encode('utf-8')).hexdigest()[:6]
+    return "iotedgedev-iothub-dev-" + subscription_rg_hash
 
 
 def list_resource_groups_and_set_default():
