@@ -15,9 +15,10 @@ else:
 from .moduletype import ModuleType
 
 class Utility:
-    def __init__(self, envvars, output):
+    def __init__(self, envvars, output, envvars_check=True):
         self.envvars = envvars
-        self.envvars.check()
+        if envvars_check:
+            self.envvars.check()
         self.output = output
         self.config_set = False
 
@@ -65,7 +66,7 @@ class Utility:
         with open(file, "r") as file:
             return file.read()
 
-    def decode(self, val):
+      def decode(self, val):
         return val.decode("utf-8").strip()
 
     def get_config_files(self):

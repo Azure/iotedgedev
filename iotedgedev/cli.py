@@ -22,6 +22,7 @@ output = Output()
 envvars = EnvVars(output)
 azure_cli = AzureCli(output, envvars)
 default_subscriptionId = None
+azure_cli_processing_complete = False
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -77,13 +78,18 @@ def iothub(monitor_events):
 
 def validate_option(ctx, param, value):
     global default_subscriptionId
+    global azure_cli_processing_complete
 
     if param.name == "credentials":
         if value and value[0] and value[1]:
+            output.param("CREDENTIALS", value, "Setting Credentials...", azure_cli_processing_complete)
+
             if not azure_cli.login(*value):
                 sys.exit()
 
     if param.name == "subscription":
+        output.param("SUBSCRIPTION", value, f("Setting Subscription to '{value}'..."), azure_cli_processing_complete)
+
         # first verify that we have an existing auth token in cache, otherwise login using interactive
         if not default_subscriptionId:
             default_subscriptionId = azure_cli.user_has_logged_in()
@@ -97,9 +103,14 @@ def validate_option(ctx, param, value):
 
 
     if param.name == "resource_group_location":
+        
+        output.param("RESOURCE GROUP LOCATION", value, f("Setting Resource Group Location to '{value}'..."), azure_cli_processing_complete)
+
         envvars.RESOURCE_GROUP_LOCATION = value
 
     if param.name == "resource_group_name":
+        output.param("RESOURCE GROUP NAME", value, f("Setting Resource Group Name to '{value}'..."), azure_cli_processing_complete)
+
         envvars.RESOURCE_GROUP_NAME = value
         if not azure_cli.resource_group_exists(value):
             if not azure_cli.create_resource_group(value, envvars.RESOURCE_GROUP_LOCATION):
@@ -107,9 +118,12 @@ def validate_option(ctx, param, value):
                     f('Could not find Resource Group {value}'))
 
     if param.name == "iothub_sku":
+
+        output.param("IOT HUB SKU", value, f("Setting IoT Hub SKU to '{value}'..."), azure_cli_processing_complete)
         envvars.IOTHUB_SKU = value
 
     if param.name == "iothub_name":
+        output.param("IOT HUB", value, f("Setting IoT Hub to '{value}'..."), azure_cli_processing_complete)
         envvars.IOTHUB_NAME = value
         if not azure_cli.extension_exists("azure-cli-iot-ext"):
             azure_cli.add_extension("azure-cli-iot-ext")
@@ -135,12 +149,15 @@ def validate_option(ctx, param, value):
                     f('Could not create IoT Hub {value} in {envvars.RESOURCE_GROUP_NAME}'))
 
     if param.name == "edge_device_id":
+        output.param("EDGE DEVICE", value, f("Setting Edge Device to '{value}'..."), azure_cli_processing_complete)
+
         envvars.EDGE_DEVICE_ID = value
         if not azure_cli.edge_device_exists(value, envvars.IOTHUB_NAME, envvars.RESOURCE_GROUP_NAME):
             if not azure_cli.create_edge_device(value, envvars.IOTHUB_NAME, envvars.RESOURCE_GROUP_NAME):
                 raise click.BadParameter(
                     f('Could not create IoT Edge Device {value} in {envvars.IOTHUB_NAME} in {envvars.RESOURCE_GROUP_NAME}'))
 
+        output.header("CONNECTION STRINGS")
         envvars.IOTHUB_CONNECTION_STRING = azure_cli.get_iothub_connection_string(
             envvars.IOTHUB_NAME, envvars.RESOURCE_GROUP_NAME)
         envvars.DEVICE_CONNECTION_STRING = azure_cli.get_device_connection_string(
@@ -152,24 +169,33 @@ def validate_option(ctx, param, value):
             output.info(
                 f("DEVICE_CONNECTION_STRING=\"{envvars.DEVICE_CONNECTION_STRING}\""))
 
+        azure_cli_processing_complete = True
+
+        output.line()
+
     return value
 
 def list_edge_devices_and_set_default():
     if not azure_cli.list_edge_devices(envvars.IOTHUB_NAME):
         sys.exit()
-    return "iotedgedev-edgedevice-dev"
+    return "iotedgedev-edgedevice"
     
 def list_iot_hubs_and_set_default():
     if not azure_cli.list_iot_hubs(envvars.RESOURCE_GROUP_NAME):
         sys.exit()
-    subscription_rg_hash = hashlib.sha1((default_subscriptionId + envvars.RESOURCE_GROUP_NAME).encode('utf-8')).hexdigest()[:6]
-    return "iotedgedev-iothub-dev-" + subscription_rg_hash
+
+    first_iothub = azure_cli.get_first_iothub(envvars.RESOURCE_GROUP_NAME)
+    if first_iothub:
+        return first_iothub
+    else:
+        subscription_rg_hash = hashlib.sha1((default_subscriptionId + envvars.RESOURCE_GROUP_NAME).encode('utf-8')).hexdigest()[:6]
+        return "iotedgedev-iothub-" + subscription_rg_hash
 
 
 def list_resource_groups_and_set_default():
     if not azure_cli.list_resource_groups():
         sys.exit()
-    return "iotedgedev-rg-dev"
+    return "iotedgedev-rg"
 
 def list_subscriptions_and_set_default():
     global default_subscriptionId
@@ -179,6 +205,8 @@ def list_subscriptions_and_set_default():
 
         if not default_subscriptionId and not azure_cli.login_interactive():
             sys.exit()
+
+    output.header("SUBSCRIPTION")
 
     if not azure_cli.list_subscriptions():
         sys.exit()
@@ -205,7 +233,7 @@ def list_subscriptions_and_set_default():
     default=lambda: list_subscriptions_and_set_default(),
     required=True,
     callback=validate_option,
-    prompt="The Azure subscription name or id to use",
+    prompt="Enter the first 3 characters of the Azure subscription name or id to use. Hit Enter to use the default subscription.",
     help="The Azure subscription name or id to use.")
 @click.option(
     '--resource-group-location',
@@ -220,7 +248,7 @@ def list_subscriptions_and_set_default():
     default=lambda: list_resource_groups_and_set_default(),
     type=str,
     callback=validate_option,
-    prompt="The name of the Resource Group to use or create. Creates a new Resource Group if not found",
+    prompt="Enter the name of the Resource Group to use or create. Creates a new Resource Group if not found",
     help="The name of the Resource Group to use or create. Creates a new Resource Group if not found.")
 @click.option(
     '--iothub-sku',
@@ -235,7 +263,7 @@ def list_subscriptions_and_set_default():
     default=lambda: list_iot_hubs_and_set_default(),
     type=str,
     callback=validate_option,
-    prompt='The IoT Hub name to be used. Creates a new IoT Hub if not found',
+    prompt='Enter the IoT Hub name to be used. Creates a new IoT Hub if not found',
     help='The IoT Hub name to be used. Creates a new IoT Hub if not found.')
 @click.option(
     '--edge-device-id',
@@ -243,7 +271,7 @@ def list_subscriptions_and_set_default():
     default=lambda: list_edge_devices_and_set_default(),
     type=str,
     callback=validate_option,
-    prompt='The IoT Edge Device Id to be used. Creates a new Edge Device if not found',
+    prompt='Enter the IoT Edge Device Id to be used. Creates a new Edge Device if not found',
     help='The IoT Edge Device Id to be used. Creates a new Edge Device if not found.')
 @click.option(
     '--update-dotenv',

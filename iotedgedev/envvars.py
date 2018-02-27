@@ -56,6 +56,9 @@ class EnvVars:
 
     def check(self):
         if not self.checked:
+            
+            self.output.header("ENVIRONMENT VARIABLES")
+            
             self.load_dotenv()
 
             try:

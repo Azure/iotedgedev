@@ -104,9 +104,9 @@ class TestIotedgedev(unittest.TestCase):
                                'azure', '--setup',
                                '--credentials', 'username', 'password',
                                '--subscription', '12341234-1234-1234-1234-123412341234',
-                               '--resource-group-name', 'iotedgedev-rg-dev',
-                               '--iothub-name', 'iotedgedev-iothub-dev',
-                               '--edge-device-id', 'iotedgedev-edgedevice-dev',
+                               '--resource-group-name', 'iotedgedev-rg',
+                               '--iothub-name', 'iotedgedev-iothub',
+                               '--edge-device-id', 'iotedgedev-edgedevice',
                                '--update-dotenv'
                                ], az_cli = TestAzureCli(sys.stdout) )
         print(result.output)
