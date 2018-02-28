@@ -604,7 +604,7 @@ This module has been tested with the following:
     The directory '/home/user/.cache/pip/http' or its parent directory is not owned by the current user and the cache has been disabled. Please check the permissions and owner of that directory. If executing pip with sudo, you may want sudo's -H flag.
     ```
     
-    Solution: Run pip install with -H `sudo -H pip install -U -r requirements.txt`
+    Solution: Run pip install with -H `sudo -H pip install -U -r requirements.txt` then `sudo -H pip install -U -r requirements_nodeps.txt --no-deps`
 
 1. Latest Docker Image Not Pulled from Registry
 
