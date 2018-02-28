@@ -1,11 +1,38 @@
 # Azure IoT Edge Dev Tool
 
-The **Azure IoT Edge Dev Tool** greatly simplifies [Azure IoT Edge](https://azure.microsoft.com/en-us/services/iot-edge/) development down to simple CLI commands driven by Environment Variables. This tool will:
+The **Azure IoT Edge Dev Tool** greatly simplifies [Azure IoT Edge](https://azure.microsoft.com/en-us/services/iot-edge/) development down to simple CLI commands driven by Environment Variables. 
 
- - Get you started with IoT Edge development with the [IoT Edge Dev Container](#dev-machine-setup) and IoT Edge Solution Scaffolding that contains a sample module and all the required configuration files.
- - Speed up your inner-loop dev (dev, debug, test) by reducing multi-step build & deploy processes into one-line CLI commands and well as drive your outer-loop CI/CD pipeline. You can use all the same commands in both stages of your development life-cycle.
+ - It gets you started with IoT Edge development with the [IoT Edge Dev Container](#dev-machine-setup) and IoT Edge Solution Scaffolding that contains a sample module and all the required configuration files.
+ - It speed up your inner-loop dev (dev, debug, test) by reducing multi-step build & deploy processes into one-line CLI commands and well as drive your outer-loop CI/CD pipeline. _You can use all the same commands in both stages of your development life-cycle._
  
+## Quickstart
+Here is the absolute fastest way to get started with IoT Edge Dev. This quickstart will run a container, create a solution, setup Azure resources, build and deploy modules to your device, setup and start the Edge Runtime and then monitor messages flowing into IoT Hub.
 
+The only thing you need to install is Docker. All of the other dev dependencies are included in the container. 
+
+1. Install **[Docker](https://docs.docker.com/engine/installation/)**
+
+1. Run the Azure IoT Edge Dev Container
+
+    `docker run -ti -v /var/run/docker.sock:/var/run/docker.sock jongallant/iotedgedev`
+
+1. Initialize Edge Solution and Setup Azure Resources
+
+    `iotedgedev init`
+
+1. Build and Deploy Modules
+
+    `iotedgedev modules --build --deploy`
+
+1. Setup and Start the IoT Edge Runtime
+
+    `iotedgedev runtime --setup --start`
+
+1. Monitor Messages sent from IoT Edge to IoT Hub
+
+    `iotedgedev iothub --monitor-events`
+
+## Overview
 The **Azure IoT Edge Dev Tool** enables you to do all of the following with simple one-line CLI commands.
 
 1. **Install**: Install the Azure IoT Edge Dev Tool: 
@@ -40,8 +67,6 @@ The **Azure IoT Edge Dev Tool** enables you to do all of the following with simp
 1. **Setup Custom Registry**: Use a Custom Container Registry: 
 
     `iotedgedev docker --setup-registry`
-
-The project was created by Microsofties that work with IoT Edge customers, who have found it very helpful.  We hope to get a variation of this officially supported by the Azure IoT team in the near future. Your contributions and feedback to this project will help us build an amazing developer experience, so please do not hesitate to participate.
 
 Please see [Azure IoT Edge Dev Resources](https://github.com/jonbgallant/azure-iot-edge-dev) for links to official docs and other IoT Edge dev information.
 
@@ -230,8 +255,6 @@ When you create a new solution, it will have the following contents:
 
 1. **.config folder** - All expanded config files are copied to this folder and these files are used at runtime.
 
-1. **build folder** - Contains the files outputted by the .NET Core SDK.
-
 1. **logs folder** - Contains all the Docker log files for the Runtime and your modules.
 
 ### Step 2: Update Environment Variables
@@ -400,15 +423,23 @@ That's all there is to it.  You can now get started implementing your IoT Edge s
 ## Commands
 The `iotedgedev` module has the following commands:
 
+**init**
+
+- `iotedgedev init`   Creates an Azure IoT Edge Solution and sets up Azure Resources.
+
+**e2e**
+
+- `iotedgedev e2e`    Creates and Azure IoT Edge Solution, sets up Azure Resources, Builds and Deploy Modules to IoT Edge Device, Setup and Starts the IoT Edge Runtime and Monitors Messages flowing from IoT Edge to IoT Hub.
+
 **solution**
 
-`iotedgedev solution --help`
+`iotedgedev solution`
 - `--create TEXT`  Creates a new Azure IoT Edge Solution. Use `--create .` to create in current folder. Use `--create TEXT` to create in a subfolder.
 
 
 **azure**
 
-`iotedgedev azure --help`
+`iotedgedev azure`
 
 - `--setup` Reads the required Azure resources configuration from your subscription. Creates new Azure resources or uses an existing resources.  [required]
 - `--credentials <TEXT TEXT>`   The credentials (username password) to use to login to Azure. If --credentials not specified, you will login in the interactive mode.
@@ -422,12 +453,12 @@ The `iotedgedev` module has the following commands:
 
 **iothub**
 
-`iotedgedev iothub --help`
+`iotedgedev iothub`
 - `--monitor-events`    Displays events that are sent from IoT Hub device to IoT Hub.
 
 **runtime**
 
-`iotedgedev runtime --help`
+`iotedgedev runtime`
 - `--setup`     Setup Edge Runtime using runtime.json in /.config directory.
 - `--start`     Starts Edge Runtime. Calls iotedgectl start.
 - `--stop`      Stops Edge Runtime. Calls iotedgectl stop.
@@ -436,13 +467,13 @@ The `iotedgedev` module has the following commands:
 
 **modules**
 
-`iotedgedev modules --help`
+`iotedgedev modules`
 - `--build`     Builds and pushes modules specified in ACTIVE_MODULES Environment Variable to specified container registry.
 - `--deploy`    Deploys modules to Edge device using deployment.json in the  /.config directory.
 
 **docker**
 
-`iotedgedev docker --help`
+`iotedgedev docker`
 - `--setup-registry`     Pulls Edge Runtime from Docker Hub and pushes to your specified container registry. Also, updates config files to use CONTAINER_REGISTRY_* instead of the Microsoft Docker hub. See CONTAINER_REGISTRY  Environment Variables.
 - `--clean`              Removes all the Docker containers and Images.
 - `--remove-modules`     Removes only the edge modules Docker containers and images specified in ACTIVE_MODULES, not edgeAgent or edgeHub.

@@ -44,7 +44,7 @@ class AzureCli:
 
             stdout_data, stderr_data = process.communicate()
 
-            if stderr_data and "400" in stderr_data:
+            if stderr_data and b"400" in stderr_data:
                 self.output.info(
                     "Your Azure CLI session has expired. Please re-run iotedgedev azure --setup to refresh your credentials.")
                 self.logout()
@@ -178,7 +178,6 @@ class AzureCli:
         with output_io_cls() as io:
             result = self.invoke_az_cli_outproc(["group", "exists", "-n", name, "--debug"],
                                                 f("Resource Group {name} does not exist."), io)
-
             if result:
                 out_string = io.getvalue()
                 if out_string == "true":
@@ -220,7 +219,8 @@ class AzureCli:
     def get_first_iothub(self, resource_group):
 
         with output_io_cls() as io:
-            result = self.invoke_az_cli_outproc(["iot", "hub", "list", "--resource-group", resource_group, "--query", "[0]"], f("Could not get first IoT Hub."), io)
+            result = self.invoke_az_cli_outproc(
+                ["iot", "hub", "list", "--resource-group", resource_group, "--query", "[0]"], f("Could not get first IoT Hub."), io)
 
             if result:
                 out_string = io.getvalue()

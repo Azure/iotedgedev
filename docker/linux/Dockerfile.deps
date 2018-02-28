@@ -20,6 +20,6 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 RUN apt-get update && \
     apt-get install -y --no-install-recommends python-dev build-essential libssl-dev libffi-dev libxml2-dev libxslt1-dev zlib1g-dev
+WORKDIR /home
 COPY install-dev.sh /scripts/install-dev.sh
-RUN chmod +x /scripts/install-dev.sh
 ENV DEBIAN_FRONTEND teletype
