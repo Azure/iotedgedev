@@ -15,9 +15,10 @@ else:
 from .moduletype import ModuleType
 
 class Utility:
-    def __init__(self, envvars, output):
+    def __init__(self, envvars, output, envvars_check=True):
         self.envvars = envvars
-        self.envvars.check()
+        if envvars_check:
+            self.envvars.check()
         self.output = output
         self.config_set = False
 
