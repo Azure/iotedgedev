@@ -1,2 +1,2 @@
-FROM jongallant/iotedgedev-deps:0.64.0-linux
+FROM jongallant/iotedgedev-deps:0.65.0-linux
 RUN pip --no-cache-dir install -U azure-iot-edge-dev-tool
