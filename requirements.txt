@@ -1,11 +1,15 @@
 docker==2.6.0
 python-dotenv
 requests
+fstrings
 azure-iot-edge-runtime-ctl
 azure-cli-iot
 azure-cli-profile
 azure-cli-extension
-fstrings
+azure-cli-configure
+azure-cli-resource
+azure-cli-cloud
+
 
 
 

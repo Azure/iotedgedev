@@ -2,10 +2,23 @@
 # -*- coding: utf-8 -*-
 
 """The setup script."""
-import sys
-from os import path
-
+from subprocess import check_call
 from setuptools import setup, find_packages
+from setuptools.command.install import install
+from setuptools.command.develop import develop
+
+
+class PostInstall(install):
+    def run(self):
+        check_call("pip install azure-cli --no-deps".split())
+        install.run(self)
+
+
+class PostDevelop(develop):
+    def run(self):
+        check_call("pip install azure-cli --no-deps".split())
+        develop.run(self)
+
 
 #with open('README.rst') as readme_file:
 #    readme = readme_file.read()
@@ -18,11 +31,14 @@ requirements = [
     'docker==2.6.0',
     'python-dotenv',
     'requests',
+    'fstrings',
     'azure-iot-edge-runtime-ctl',
     'azure-cli-iot',
     'azure-cli-profile',
     'azure-cli-extension',
-    'fstrings'
+    'azure-cli-configure',
+    'azure-cli-resource',
+    'azure-cli-cloud'
 ]
 
 setup_requirements = [
@@ -69,4 +85,5 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     setup_requires=setup_requirements,
+    cmdclass={'install': PostInstall, 'develop': PostDevelop}
 )
