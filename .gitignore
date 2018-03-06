@@ -81,3 +81,5 @@ test_solution
 README
 
 node_modules
+
+/docker/linux/Dockerfile.expanded
