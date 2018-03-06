@@ -62,7 +62,6 @@ target/
 .python-version
 
 **/.vs
-**/.vscode
 **/bin
 **/obj
 **/out
