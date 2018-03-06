@@ -20,7 +20,7 @@ class PostDevelop(develop):
         develop.run(self)
 
 
-#with open('README.rst') as readme_file:
+# with open('README.rst') as readme_file:
 #    readme = readme_file.read()
 
 with open('HISTORY.rst') as history_file:
@@ -28,11 +28,11 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'Click>=6.0',
-    'docker==2.6.0',
+    'docker==3.0.0',
     'python-dotenv',
     'requests',
     'fstrings',
-    'azure-iot-edge-runtime-ctl==1.0.0rc19',
+    'azure-iot-edge-runtime-ctl==1.0.0rc21',
     'azure-cli-iot',
     'azure-cli-profile',
     'azure-cli-extension',
@@ -52,7 +52,7 @@ test_requirements = [
 
 setup(
     name='azure-iot-edge-dev-tool',
-    version='0.65.0',
+    version='0.67.0',
     description="The Azure IoT Edge Dev Tool package greatly simplifies your IoT Edge development process by automating many of your routine manual tasks, such as building, deploying, pushing modules and configuring your IoT Edge Runtime.",
     long_description="See https://github.com/jonbgallant/azure-iot-edge-dev-tool for usage instructions.",
     author="Jon Gallant",
