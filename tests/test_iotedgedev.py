@@ -19,16 +19,17 @@ from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
 
-solution = "test_solution"
+test_solution = "test_solution"
 root_dir = os.getcwd()
-node_project = "nodeproject"
+nodesolution = "node_solution"
 
 
 class TestAzureCli(AzureCli):
     def invoke_az_cli(self, args, error_message=None, io=None):
         return True
 
-class TestIotedgedev(unittest.TestCase):
+
+class TestIoTEdgeDev(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
@@ -36,13 +37,13 @@ class TestIotedgedev(unittest.TestCase):
         print("SETTING UP TEST SOLUTION")
         try:
             runner = CliRunner()
-            result = runner.invoke(cli.main, ['solution', '--create', solution])
+            result = runner.invoke(cli.main, ['solution', '--create', test_solution])
             # print(result.output)
             #assert result.exit_code == 0
             #assert 'Azure IoT Edge solution created' in result.output
 
-            shutil.copyfile('.env', os.path.join(os.getcwd(), solution, '.env'))
-            os.chdir(solution)
+            shutil.copyfile('.env', os.path.join(os.getcwd(), test_solution, '.env'))
+            os.chdir(test_solution)
 
         except Exception as ex:
             print(str(ex))
@@ -51,7 +52,7 @@ class TestIotedgedev(unittest.TestCase):
     def tearDownClass(self):
         """TEARDOWN"""
         os.chdir("..")
-        shutil.rmtree(os.path.join(root_dir, solution), ignore_errors=True)
+        shutil.rmtree(os.path.join(root_dir, test_solution), ignore_errors=True)
 
     def test_version(self):
         """VERSION"""
@@ -91,8 +92,7 @@ class TestIotedgedev(unittest.TestCase):
         test_string = "Environment Variables loaded from: " + dotenv_file
         assert test_string in result.output
 
-
-    #TODO implement the mock AzureCli class
+        # TODO implement the mock AzureCli class
     '''
     def test_azure_setup_command(self):
         dotenv_file = ".env.test"
@@ -145,3 +145,29 @@ class TestIotedgedev(unittest.TestCase):
         test_string = "{0} file not found on disk".format(dotenv_file)
         assert test_string in result.output
     '''
+
+
+class TestNodeSolution(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(self):
+        """SETUP"""
+        print("SETTING UP NODE TEST SOLUTION")
+        try:
+            node_sol_path = os.path.join("tests", nodesolution)
+            shutil.copyfile('.env', os.path.join(os.getcwd(), node_sol_path, '.env'))
+            os.chdir(node_sol_path)
+
+        except Exception as ex:
+            print(str(ex))
+
+    def test_modules_build_deploy(self):
+        runner = CliRunner()
+        result = runner.invoke(cli.main, ['modules', '--build'])
+        print(result.output)
+        assert result.exit_code == 0
+        assert 'BUILD COMPLETE' in result.output
+        result = runner.invoke(cli.main, ['modules', '--deploy'])
+        print(result.output)
+        assert result.exit_code == 0
+        assert 'Edge Device configuration successfully deployed' in result.output
