@@ -9,7 +9,6 @@ from .modulesprocessorfactory import ModulesProcessorFactory
 class Modules:
     def __init__(self, envvars, utility, output, dock):
         self.envvars = envvars
-        self.envvars.check()
         self.utility = utility
         self.utility.set_config()
         self.output = output

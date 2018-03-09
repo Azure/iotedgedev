@@ -14,11 +14,10 @@ else:
     from urllib import quote, urlencode
 from .moduletype import ModuleType
 
+
 class Utility:
-    def __init__(self, envvars, output, envvars_check=True):
+    def __init__(self, envvars, output):
         self.envvars = envvars
-        if envvars_check:
-            self.envvars.check()
         self.output = output
         self.config_set = False
 
@@ -99,7 +98,6 @@ class Utility:
     def set_config(self, force=False):
 
         if not self.config_set or force:
-            self.envvars.check()
             self.output.header("PROCESSING CONFIG FILES")
 
             config_output_dir = ".config"
@@ -133,4 +131,3 @@ class Utility:
             self.output.line()
 
         self.config_set = True
-

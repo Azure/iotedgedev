@@ -20,45 +20,64 @@ The only thing you need to install is Docker. All of the other dev dependencies 
 
     `iotedgedev init`
 
-1. Build and Deploy Modules
+1. Build IoT Edge Modules
 
-    `iotedgedev modules --build --deploy`
+    `iotedgedev build`
 
-1. Setup and Start the IoT Edge Runtime
+    > You can also combine build and deploy with `iotedgedev build --deploy`
 
-    `iotedgedev runtime --setup --start`
+1. Deploy Modules to IoT Edge Device
+
+    `iotedgedev deploy`
+    
+1. Start the IoT Edge Runtime
+
+    `iotedgedev start`
 
 1. Monitor Messages sent from IoT Edge to IoT Hub
 
-    `iotedgedev iothub --monitor-events`
+    `iotedgedev monitor`
 
 ## Overview
 The **Azure IoT Edge Dev Tool** enables you to do all of the following with simple one-line CLI commands.
 
-1. **Install**: Install the Azure IoT Edge Dev Tool: 
+1. **Start Container**: Install the Azure IoT Edge Dev Tool:
 
-    `pip install azure-iot-edge-dev-tool`
+    `docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v c:/temp/iotedge:/iotedge jongallant/iotedgedev`
+
+    This container includes all of the dependencies you need for IoT Edge development, including:
+
+    - 
+
+    You can also directly install the tool with: `pip install azure-iot-edge-dev-tool`   
     
-1. **Solution**: Create a new IoT Edge Solution that includes a sample module and all the the required configuration files.
+1. **Create Solution**: Create a new IoT Edge Solution that includes a sample module and all the the required configuration files.
 
-    `iotedgedev solution --create edgesolution1`
+    `iotedgedev solution edgesolution1`
 
-1. **Azure**: Creates or selects your Azure IoT Hub and Edge Device and updates your Environment Variables.
+    `cd edgesolution1`
 
-    `iotedgedev azure --setup`
+1. **Setup Azure**: Creates or selects your Azure IoT Hub and Edge Device and updates your Environment Variables.
+
+    `iotedgedev azure`
+
+    > This must be run from the root of your solution, so make sure you cd into the `edgesolution1` folder before you run this command.
 
 1. **Build & Deploy**: Build, Push and Deploy modules: 
 
-    `iotedgedev modules --build --deploy`
+    `iotedgedev build --deploy`
     
-    > This will `build`, `publish`, `docker build, tag and push` and `deploy modules` to your IoT Edge device.
+    > This will `dotnet build`, `publish`, `docker build, tag and push` and `deploy modules` to your IoT Edge device.
+
+    If your module is not dotnet, then the dotnet build/publish steps will be skipped.
+    
 1. **Setup & Start**: Setup and Start the IoT Edge Runtime: 
 
-    `iotedgedev runtime --setup --start`
+    `iotedgedev start`
 
 1. **View Messages**: View Messages Sent from IoT Edge to IoT Hub: 
 
-    `iotedgedev iothub --monitor-events`
+    `iotedgedev monitor`
 
 1. **View Logs**: View and Save Docker log files: 
 
@@ -84,22 +103,28 @@ Please see [Azure IoT Edge Dev Resources](https://github.com/jonbgallant/azure-i
 
 ## Setup
 ### Azure Setup
-
-#### Manual Setup
-1. [**Create Azure IoT Hub**](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-csharp-csharp-getstarted#create-an-iot-hub)
-1. **Create Edge Device** using the Azure Portal
-    - In your IoT Hub, click "IoT Edge", then click "Add IoT Edge Device"
-1. [**Create Azure Container Registry**](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-get-started-portal)
-    > Only needed when you want to push your modules to a central registry. You can run a local registry by setting the .env/CONTAINER_REGISTRY_SERVER setting to `localhost:5000`.
-
-    - Make sure you enable Admin Access when you create the Azure Container Registry
-
 #### Automated Setup
 
-You can use the **Azure IoT Edge Dev Tool** to create a new IoT Hub and a new Edge device. This command will also print the corresponding connection strings:
+The following will show you how to setup your Azure Resources via the CLI instead of using the Portal.
+
+First, create a solution with the following command:
+
+`iotedgedev solution edgesolution1`
+
+Then, cd into that solution:
+
+`cd edgesolution`
+
+Then, run the `iotedgedev azure` command to setup your Azure Resources. This command will bring you through a series of prompts to create Azure Resources and retrieve your IoT Hub and Edge Device connection strings and save them to the `.env` file in the root of the project. All subsequent commands will use those environment variables.
+
+Here are all the `azure` command options:
+
+> You can override all of these parameters with environment variables. Please see the .env file in your solution for details.
+
 ```
-iotedgedev azure --setup
+iotedgedev azure
     --credentials USERNAME PASSWORD
+    --service-principal USERNAME PASSWORD TENANT
     --subscription THE_SUBSCRIPTION_ID 
     --resource-group-location THE_RG_LOCATION
     --resource-group-name THE_RG_NAME 
@@ -109,14 +134,75 @@ iotedgedev azure --setup
     --update-dotenv
 ```
 
+You can use the following `az cli` command to create a service principal:
 
-> Note: Running `iotedgedev azure --setup` without the rest parameters will save you time from looking up the required parameter values. The command will help you choose the parameters in an interactive way 
+```
+az ad sp create-for-rbac -n "iotedgedev01"
+```
+
+> Note: Running `iotedgedev azure` without any other parameters will save you time from looking up the required parameter values. The command will help you choose the parameters in an interactive way.
 
 Alternatively, you can deploy the IoT Hub **and** Container Registry with this **Deploy to Azure** template:
 
 [![Azure Deployment](https://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjonbgallant%2Fazure-iot-edge-dev-tool%2Fmaster%2Fassets%2Fdeploy%2FARMDeployment%2Fazuredeploy.json)
 
-> Note: If you do not need a Container Registry, or are planning to use a local registry, then you should run the **iotedgedev azure --setup** command instead of running this **Deploy to Azure** template, because the template includes a Container Registry.
+> Note: If you do not need a Container Registry, or are planning to use a local registry, then you should run the **iotedgedev azure** command instead of running this **Deploy to Azure** template, because the template includes a Container Registry.
+
+#### Manual Setup
+1. [**Create Azure IoT Hub**](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-csharp-csharp-getstarted#create-an-iot-hub)
+1. **Create Edge Device** using the Azure Portal
+    - In your IoT Hub, click "IoT Edge", then click "Add IoT Edge Device"
+
+1.  **Container Registry**
+    When you develop for IoT Edge, you need to host your images in a container registry, which the IoT Edge runtime will fetch the images from when it starts. 
+
+    > By default, the IoT Edge Dev Tool, will use the Local Registry.
+
+    We have tested the following options, but you can host your images on any Docker compatible registry host.
+
+    1. Local Registry
+
+        Set CONTAINER_REGISTRY_SERVER to localhost:5000 and leave CONTAINER_REGISTRY_USERNAME/CONTAINER_REGISTRY_PASSWORD blank.
+
+        `CONTAINER_REGISTRY_SERVER="localhost:5000"`
+
+    1. Azure Container Registry
+
+        You can create an [**Azure Container Registry**](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-get-started-portal) and host your images there.
+            - Make sure you enable Admin Access when you create the Azure Container Registry
+
+        After created, open .env and set the following:
+
+        ```
+        CONTAINER_REGISTRY_SERVER="ACR URI" 
+        CONTAINER_REGISTRY_USERNAME="ACR USERNAME"
+        CONTAINER_REGISTRY_PASSWORD="ACR PASSWORD"
+        ```
+
+        Example:
+        ```
+        CONTAINER_REGISTRY_SERVER="jong.azurecr.io" 
+        CONTAINER_REGISTRY_USERNAME="jong"
+        CONTAINER_REGISTRY_PASSWORD="p@$$w0rd"
+        ```
+
+    1. Docker Hub
+
+        You can also host your images on Docker Hub. Create a Docker Hub account and then open .env and enter the following:
+
+        ```
+        CONTAINER_REGISTRY_SERVER="DOCKER HUB USERNAME" 
+        CONTAINER_REGISTRY_USERNAME="DOCKER HUB USERNAME"
+        CONTAINER_REGISTRY_PASSWORD="DOCKER HUB PASSWORD"
+        ```
+
+        Example:
+
+        ```
+        CONTAINER_REGISTRY_SERVER="jongallant" 
+        CONTAINER_REGISTRY_USERNAME="jongallant"
+        CONTAINER_REGISTRY_PASSWORD="p@$$w0rd"
+        ```
 
 ### Dev Machine Setup
 
@@ -129,11 +215,13 @@ You can use the IoT Edge Dev Tool container to avoid having to install all the d
 
 > (Only runs on Linux Containers at this time. Windows Container support coming soon.)
 
-1. Install Docker
+1. Install **[Docker](https://docs.docker.com/engine/installation/)**
 
 1. Create Local Folder on Host Dev Machine that will contain your IoT Edge Solutions.
 
     `c:/temp/iotedge`
+
+    > This allows you to use VS Code on your host machine and run all the `iotedgedev` commands in your container. We'll mount this folder to the container in the next step.
 
 1. Start Container:
 
@@ -232,7 +320,8 @@ The following command will setup the folder structure required for this module
 > Replace `edgesolution1` with the name of your solution.  Use `.` to create in the current folder.
 
 ```
-iotedgedev solution --create edgesolution1
+iotedgedev solution edgesolution1
+cd edgesolution1
 ```
 
 #### Folder Structure
@@ -251,7 +340,7 @@ When you create a new solution, it will have the following contents:
 1. **Configuration File Templates** - There are two files in the root of the solution:
 
     - `deployment.template.json` - Contains the config that is deployed to your IoT Edge device. It contains references to your modules, module routes and desired property information.
-    - `runtime.template.json` - Contains the config used by your IoT Edge runtime.  It contains your device connection string, your container registry settings and is used when you call the `runtime --setup` command.
+    - `runtime.template.json` - Contains the config used by your IoT Edge runtime.  It contains your device connection string, your container registry settings and is used when you call the `iotedgedev setup` or `iotedgedev start` commands.
 
 1. **.config folder** - All expanded config files are copied to this folder and these files are used at runtime.
 
@@ -275,7 +364,7 @@ The settings used for this module are stored in a .env file in the root of your 
     This tool offers a wizard-like command to guide you through setting up Azure and also setting up the Environment Variables properly.
 
     ```
-    iotedgedev azure --setup
+    iotedgedev azure
     ```
 
 ### Step 3: Build and Deploy Modules
@@ -283,10 +372,10 @@ The settings used for this module are stored in a .env file in the root of your 
 > Use `sudo` for Linux.  You __will not__ be able to build on the Raspberry Pi, because the .NET Core SDK does not support ARM. You can build on an x86 based machine and deploy to Pi.
 
 ```
-iotedgedev modules --build --deploy
+iotedgedev build --deploy
 ```
 
-The- `--build` command will build each module in the `modules` folder and push it to your container registry.  The- `--deploy` command will apply the generated `.config/deployment.json` configuration file to your IoT Edge device.
+The- `build` command will build each module in the `modules` folder and push it to your container registry.  The- `--deploy` command will apply the generated `.config/deployment.json` configuration file to your IoT Edge device.  You could also call `deploy` directly with `iotedgedev deploy`.
 
 You can configure what modules will be built and deployed by using the `ACTIVE_MODULES` env var in the `.env` file. You can configure which Dockerfiles get built and deployed by using the `ACTIVE_DOCKER_DIRS` env var.
 
@@ -295,15 +384,15 @@ You can configure what modules will be built and deployed by using the `ACTIVE_M
 > Use 'sudo' for Linux/RaspberryPi
 
 ```
-iotedgedev runtime --setup --start
+iotedgedev start
 ```
 
-The- `--setup` command will apply the `/.config/runtime.json` file to your IoT Edge device.  The- `--start` command will start the IoT Edge runtime.
+The `start` command will apply the `/.config/runtime.json` file to your IoT Edge device and will start the IoT Edge runtime. You can also call `iotedgedev setup` and `iotedgedev start` independently.
    
 ### Step 5: Monitor Messages
 
 ```
-iotedgedev iothub --monitor-events
+iotedgedev monitor
 ```
 
 This will print messages sent from the device specified in DEVICE_CONNECTION_STRING. To use this command, you first need to install the [iothub-explorer](https://github.com/Azure/iothub-explorer) npm package with the following command:
@@ -336,7 +425,7 @@ After you have everything running from the IoT Edge Tool solution template, the 
     dotnet new  aziotedgemodule -o modules/mymodule
     ```
 
-    Now, when you run `iotedgedev modules --build` you will see that `mymodule` is also built and pushed to your container registry.
+    Now, when you run `iotedgedev build` you will see that `mymodule` is also built and pushed to your container registry.
 
 1. Add Message Property
 
@@ -390,14 +479,14 @@ After you have everything running from the IoT Edge Tool solution template, the 
 
     > You will notice that the IoT Edge Runtime automatically detects a new deployment, retrieves the new module, applies the new route and keeps sending messages.
 
-    `iotedgedev modules --build --deploy`
+    `iotedgedev build --deploy`
 
 1. Monitor Messages
 
     Now when we view the messages flowing through the system, we'll see an additional 'abc' property:
 
     ```bash
-    iotedgedev iothub --monitor-events
+    iotedgedev monitor
     ```
 
     ```javascript
@@ -434,8 +523,26 @@ The `iotedgedev` module has the following commands:
 **solution**
 
 `iotedgedev solution`
-- `--create TEXT`  Creates a new Azure IoT Edge Solution. Use `--create .` to create in current folder. Use `--create TEXT` to create in a subfolder.
+- `name`    Creates a new Azure IoT Edge Solution. Use `.` to create in current folder. Use `iotedgedev solution [name]` to create in a subfolder.
+- `--create TEXT`  Creates a new Azure IoT Edge Solution. Use `--create .` to create in current folder. Use `--create [name]` to create in a subfolder.
 
+**build**
+`iotedgedev build`  Builds and pushes modules specified in ACTIVE_MODULES Environment Variable to specified container registry. You can also pass a `--deploy` flag to build and deploy in one command: `iotedgedev build --deploy`
+
+**deploy**
+`iotedgedev deploy` Deploys modules to Edge device using deployment.json in the  /.config directory.
+
+**start**
+`iotedgedev start`  Setups up and Starts Edge Runtime. Calls iotedgectl setup and start.
+
+**stop**
+`iotedgedev stop`  Stops Edge Runtime. Calls iotedgectl stop.
+
+**restart**
+`iotedgedev restart`  Restarts Edge Runtime. Calls iotedgectl stop, removes module containers and images, calls iotedgectl setup (with --config-file) and then calls iotedgectl start.
+
+**monitor**
+`iotedgedev monitor`  Displays events that are sent from IoT Hub device to IoT Hub.
 
 **azure**
 
@@ -536,6 +643,8 @@ Instead of using a cloud based container registry, you can use a local Docker re
 1. Set `CONTAINER_REGISTRY_SERVER` in .env to `localhost:5000`. You can enter a different port if you'd like to.
 1. Add `localhost:5000` and `127.0.0.1:5000` to Docker -> Settings -> Daemon -> Insecure Registries
 
+> In the latest `iotedgedev` build, step 2 above hasn't been required. But, if you run into issues, you may want to try adding those Insecure Registries.
+
 `iotedgedev` will look for `localhost` in your setting and take care of the rest for you.
 
 ## IoT Edge Device Setup
@@ -549,7 +658,7 @@ iotedgectl start
 
 Having said that, there's nothing stopping you from deploying `iotedgedev` to your IoT Edge device. It may be helpful if you want to run the `iotedgedev docker --clean` command to clean up Docker containers and images. Or if you want to run `iotedgedev docker --show-logs` to see all the log files on the device or `iotedgedev docker --save-logs` to output to the LOGS_PATH directory.
 
-> Please note that the .NET Core SDK does not support ARM, so you will not be able to run `modules --build` or `modules --deploy` directly on a Raspberry Pi.
+> Please note that the .NET Core SDK does not support ARM, so you will not be able to run `build` directly on a Raspberry Pi.
 
 ### Raspberry Pi
 
@@ -685,7 +794,11 @@ Please fork, branch and pull-request any changes you'd like to make.
 
     `git clone https://github.com/jonbgallant/azure-iot-edge-dev-tool.git`
 
+1. Rename `.env.tmp` in the root of the repo to `.env` and set the `IOTHUB_CONNECTION_STRING_` and `DEVICE_CONNECTION_STRING` values to settings from your IoT Hub and Edge Device. To set these values you could run `iotedgedev azure` in the root of the repo.
+
 1. Install **[Microsoft Visual C++ Build Tools](http://landinghub.visualstudio.com/visual-cpp-build-tools)**
+
+1. Run `npm install` from the root directory to install the required npm packages for iothub-explorer calls.
 
 1. Install **OpenSSL 1.1.0g**
     - Windows

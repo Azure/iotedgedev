@@ -76,9 +76,11 @@ venv
 
 py36
 .pypirc
-test_solution
+tests/test_solution
 README
 
 node_modules
 
 /docker/linux/Dockerfile.expanded
+
+.pytest_cache
