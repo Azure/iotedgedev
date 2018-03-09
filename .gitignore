@@ -82,3 +82,5 @@ README
 node_modules
 
 /docker/linux/Dockerfile.expanded
+
+.pytest_cache

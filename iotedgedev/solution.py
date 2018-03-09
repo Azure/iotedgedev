@@ -1,6 +1,7 @@
 import os
 import zipfile
 
+
 class Solution:
     def __init__(self, output):
         self.output = output
@@ -22,4 +23,6 @@ class Solution:
         zipf.extractall(name)
 
         os.rename(os.path.join(name, ".env.tmp"), os.path.join(name, ".env"))
-        self.output.footer("Azure IoT Edge Solution created")
+        self.output.footer("Azure IoT Edge Solution Created")
+        if name != "":
+            self.output.info("Execute 'cd {0}' to navigate to your new solution.".format(name))

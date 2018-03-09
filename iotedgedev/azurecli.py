@@ -122,11 +122,17 @@ class AzureCli:
             "Azure CLI credentials not found. Please follow instructions below to login to the Azure CLI.")
         return None
 
-    def login(self, username, password):
+    def login_account(self, username, password):
 
         return self.invoke_az_cli_outproc(["login", "-u", username,
                                            "-p",  password],
-                                          "Error while trying to login to Azure. Try logging in with the interactive login mode (do not use the --credentials parameter).", suppress_output=True)
+                                          "Error while trying to login to Azure. Make sure your account credentials are correct", suppress_output=True)
+
+    def login_sp(self, username, password, tenant):
+
+        return self.invoke_az_cli_outproc(["login", "--service-principal", "-u", username,
+                                           "-p",  password, "--tenant", tenant],
+                                          "Error while trying to login to Azure. Make sure your service principal credentials are correct.", suppress_output=True)
 
     def login_interactive(self):
         return self.invoke_az_cli_outproc(["login"],
@@ -186,6 +192,18 @@ class AzureCli:
         self.output.prompt(f("Resource Group {name} does not exist."))
 
         return False
+
+    def get_resource_group_location(self, name):
+
+        self.output.status(f("Retrieving Resource Group '{name}' location..."))
+
+        with output_io_cls() as io:
+            result = self.invoke_az_cli_outproc(["group", "show", "-n", name, "--query", "location", "--output", "tsv"],
+                                                f("Could not retrieve Resource Group {name}'s location."), io)
+            if result:
+                return io.getvalue()
+            else:
+                return ''
 
     def create_resource_group(self, name, location):
         self.output.status(
