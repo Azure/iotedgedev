@@ -1,147 +1,145 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-"""Tests for `iotedgedev` package."""
-
-
-import unittest
+import pytest
 import os
-import sys
 import shutil
+
+import click
 from click.testing import CliRunner
+from iotedgedev.envvars import EnvVars 
+from iotedgedev.output import Output
+# from iotedgedev import cli
 
-from distutils.dir_util import copy_tree
-from filecmp import dircmp
-from iotedgedev import cli
-from iotedgedev.azurecli import AzureCli
-
-from dotenv import load_dotenv, find_dotenv
-
-load_dotenv(find_dotenv())
-
-solution = "test_solution"
 root_dir = os.getcwd()
-node_project = "nodeproject"
+tests_dir = os.path.join(root_dir, "tests")
+env_file = os.path.join(root_dir, ".env")
+test_solution = "test_solution"
+node_solution = "node_solution"
+test_solution_dir = os.path.join(tests_dir, test_solution)
+node_solution_dir = os.path.join(tests_dir, node_solution)
 
 
-class TestAzureCli(AzureCli):
-    def invoke_az_cli(self, args, error_message=None, io=None):
-        return True
+@pytest.fixture(scope="module", autouse=True)
+def create_solution(request):
 
-class TestIotedgedev(unittest.TestCase):
+    cli = __import__("iotedgedev.cli", fromlist=['main'])
+    # print cli
+    # out, err = capsys.readouterr()
+    # print out
 
-    @classmethod
-    def setUpClass(self):
-        """SETUP"""
-        print("SETTING UP TEST SOLUTION")
-        try:
-            runner = CliRunner()
-            result = runner.invoke(cli.main, ['solution', '--create', solution])
-            # print(result.output)
-            #assert result.exit_code == 0
-            #assert 'Azure IoT Edge solution created' in result.output
+    runner = CliRunner()
+    os.chdir(tests_dir)
+    result = runner.invoke(cli.main, ['solution', test_solution])
+    print (result.output)
+    assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
 
-            shutil.copyfile('.env', os.path.join(os.getcwd(), solution, '.env'))
-            os.chdir(solution)
+    shutil.copyfile(env_file, os.path.join(test_solution_dir, '.env'))
+    os.chdir(test_solution_dir)
 
-        except Exception as ex:
-            print(str(ex))
-
-    @classmethod
-    def tearDownClass(self):
-        """TEARDOWN"""
-        os.chdir("..")
-        shutil.rmtree(os.path.join(root_dir, solution), ignore_errors=True)
-
-    def test_version(self):
-        """VERSION"""
-        runner = CliRunner()
-        result = runner.invoke(cli.main, ['--version'])
-        print(result.output)
-        assert result.exit_code == 0
-        assert 'version' in result.output
-
-    def test_help(self):
-        """HELP"""
-        runner = CliRunner()
-        help_result = runner.invoke(cli.main, ['--help'])
-        assert help_result.exit_code == 0
-        assert 'Show this message and exit.' in help_result.output
-
-    def test_modules_build_deploy(self):
-        runner = CliRunner()
-        result = runner.invoke(cli.main, ['modules', '--build'])
-        print(result.output)
-        assert result.exit_code == 0
-        assert '0 Error(s)' in result.output
-        result = runner.invoke(cli.main, ['modules', '--deploy'])
-        print(result.output)
-        assert result.exit_code == 0
-        assert 'Edge Device configuration successfully deployed' in result.output
-
-    def test_alternate_dotenv_file(self):
-        dotenv_file = ".env.test"
-        shutil.copyfile('../.env', dotenv_file)
-        os.environ["DOTENV_FILE"] = dotenv_file
-
-        runner = CliRunner()
-        result = runner.invoke(cli.main, ['--set-config'])
-        print(result.output)
-        assert result.exit_code == 0
-        test_string = "Environment Variables loaded from: " + dotenv_file
-        assert test_string in result.output
+    def clean():
+        os.chdir(root_dir)
+        shutil.rmtree(test_solution_dir, ignore_errors=True)
+    request.addfinalizer(clean)
+    return
 
 
-    #TODO implement the mock AzureCli class
-    '''
-    def test_azure_setup_command(self):
-        dotenv_file = ".env.test"
-        shutil.copyfile('../.env', dotenv_file)
-        os.environ["DOTENV_FILE"] = dotenv_file
+@pytest.fixture
+def test_build_modules(request):
 
-        runner = CliRunner()
-        result = runner.invoke(cli.main, [
-                               'azure', '--setup',
-                               '--credentials', 'username', 'password',
-                               '--subscription', '12341234-1234-1234-1234-123412341234',
-                               '--resource-group-name', 'iotedgedev-rg',
-                               '--iothub-name', 'iotedgedev-iothub',
-                               '--edge-device-id', 'iotedgedev-edgedevice',
-                               '--update-dotenv'
-                               ], az_cli = TestAzureCli(sys.stdout) )
-        print(result.output)
-        assert result.exit_code == 0
-        test_string = "Environment Variables loaded from: " + dotenv_file
-        assert test_string in result.output
-    '''
+    os.chdir(test_solution_dir)
 
-    # TODO: Figure out why tox messes with the paths.
-    '''
-    def test_runtime_setup(self):
-         runner = CliRunner()
-         result = runner.invoke(cli.main, ['runtime', '--setup'])
-         print(result.output)
-         assert result.exit_code == 0
-         assert 'Runtime setup successfully.' in result.output
+    cli = __import__("iotedgedev.cli", fromlist=['main'])
+    runner = CliRunner()
+    result = runner.invoke(cli.main, ['build'])
+    print (result.output)
 
-    def test_docker_logs(self):
-        runner = CliRunner()
-        result = runner.invoke(cli.main, ['docker', '--save-logs'])
-        print(result.output)
-        assert result.exit_code == 0
-        assert 'Log files successfully saved' in result.output
-    '''
+    assert 'BUILD COMPLETE' in result.output
 
-    # TODO: Figure out why tox doesn't work in this case. Manually test it for now.
-    '''
-    def test_no_dotenv_file(self):
-        dotenv_file = ".env.nofile"
-        os.environ["DOTENV_FILE"] = dotenv_file
 
-        runner = CliRunner()
-        result = runner.invoke(cli.main, ['--set-config'])
-        print(result.output)
-        assert result.exit_code == 0
-        test_string = "{0} file not found on disk".format(dotenv_file)
-        assert test_string in result.output
-    '''
+@pytest.fixture
+def test_deploy_modules(request):
+
+    os.chdir(test_solution_dir)
+
+    cli = __import__("iotedgedev.cli", fromlist=['main'])
+    runner = CliRunner()
+    result = runner.invoke(cli.main, ['deploy'])
+    print (result.output)
+
+    assert 'DEPLOY COMPLETE' in result.output
+
+
+@pytest.fixture
+def test_start_runtime(request):
+
+    os.chdir(test_solution_dir)
+
+    cli = __import__("iotedgedev.cli", fromlist=['main'])
+    runner = CliRunner()
+    result = runner.invoke(cli.main, ['start'])
+    print (result.output)
+
+    assert 'Runtime started' in result.output
+
+
+@pytest.fixture
+def test_monitor(request, capfd):
+
+    os.chdir(test_solution_dir)
+
+    cli = __import__("iotedgedev.cli", fromlist=['main'])
+    runner = CliRunner()
+    result = runner.invoke(cli.main, ['monitor', '--timeout', '40000'])
+    out, err = capfd.readouterr()
+    print (out)
+    print (err)
+    print (result.output)
+
+    assert 'application properties' in out
+
+
+@pytest.fixture
+def test_stop(request):
+
+    os.chdir(test_solution_dir)
+
+    cli = __import__("iotedgedev.cli", fromlist=['main'])
+    runner = CliRunner()
+    result = runner.invoke(cli.main, ['stop'])
+    print (result.output)
+
+    assert 'Runtime stopped' in result.output
+
+
+def test_e2e(test_build_modules, test_deploy_modules, test_start_runtime, test_monitor, test_stop):
+    print ('Testing E2E')
+
+
+@pytest.fixture
+def setup_node_solution(request):
+
+    shutil.copyfile(env_file, os.path.join(node_solution_dir, '.env'))
+    os.chdir(node_solution_dir)
+
+    def clean():
+        os.chdir(root_dir)
+    request.addfinalizer(clean)
+    return
+
+
+def test_node(setup_node_solution, test_build_modules, test_deploy_modules, test_start_runtime, test_monitor, test_stop):
+    print ('Testing Node Solution')
+
+
+'''
+def test_load_no_dotenv():
+
+    dotenv_file = ".env.nofile"
+    os.environ["DOTENV_FILE"] = dotenv_file
+
+    # cli_inst =
+    # runner = CliRunner()
+    # result = runner.invoke(cli.main, ['--set-config'])
+    # print result.output
+    # assert result.exit_code == 0
+    # assert '.env.test file not found on disk.' in result.output
+    # assert 'PROCESSING' in result.output
+'''

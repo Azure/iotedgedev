@@ -1,27 +1,28 @@
 import click
 
+
 class Output:
 
     def info(self, text):
-        click.secho(text, fg='yellow')
+        self.echo(text, color='yellow')
 
     def status(self, text):
         self.info(text)
         self.line()
 
     def prompt(self, text):
-        click.secho(text, fg='white')
+        self.echo(text, color='white')
 
     def error(self, text):
-        click.secho("ERROR: " + text, fg='red')
+        self.echo("ERROR: " + text, color='red')
 
     def header(self, text):
         self.line()
         s = "======== {0} ========".format(text).upper()
         m = "="*len(s)
-        click.secho(m, fg='white')
-        click.secho(s, fg='white')
-        click.secho(m, fg='white')
+        self.echo(m, color='white')
+        self.echo(s, color='white')
+        self.echo(m, color='white')
         self.line()
 
     def param(self, text, value, status, suppress):
@@ -34,7 +35,13 @@ class Output:
         self.line()
 
     def procout(self, text):
-        click.secho(text, dim=True)
+        self.echo(text, dim=True)
 
     def line(self):
-        click.secho("")
+        self.echo(text="")
+
+    def echo(self, text, color="", dim=False):
+        try:
+            click.secho(text, fg=color, dim=dim)
+        except:
+            print (text)

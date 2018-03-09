@@ -1,9 +1,0 @@
-{
-  "name": "nodemodule",
-  "version": "0.0.0",
-  "description": "nodemodule",
-  "main": "app.js",
-  "author": {
-    "name": "v-hadabd"
-  }
-}

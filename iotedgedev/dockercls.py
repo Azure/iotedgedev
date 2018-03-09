@@ -3,13 +3,12 @@ from enum import Enum
 import os
 import zipfile
 from .moduletype import ModuleType
-
+import sys
 
 class Docker:
 
     def __init__(self, envvars, utility, output):
         self.envvars = envvars
-        self.envvars.check()
         self.utility = utility
         self.utility.set_config()
         self.output = output
@@ -31,7 +30,8 @@ class Docker:
         if "localhost" in self.envvars.CONTAINER_REGISTRY_SERVER:
             self.init_local_registry()
 
-        self.login_registry()
+        #removing call to login because I don't think it is actually needed anymore. It could have been left over from before we started using auth_config in the push calls.
+        #self.login_registry()
         self.output.line()
 
     def init_local_registry(self):
