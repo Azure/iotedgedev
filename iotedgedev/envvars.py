@@ -17,7 +17,7 @@ class EnvVars:
         self.loaded = False
         self.args = Args()
         self.current_command = self.args.get_current_command()
-        self.terse_commands = ['azure', 'solution']
+        self.terse_commands = ['', 'azure', 'solution']
         self.bypass_dotenv_load_commands = ['init', 'e2e']
 
         # for some commands we don't want verbose dotenv load output
