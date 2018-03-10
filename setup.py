@@ -2,21 +2,24 @@
 # -*- coding: utf-8 -*-
 
 """The setup script."""
+import atexit
 from subprocess import check_call
 from setuptools import setup, find_packages
 from setuptools.command.install import install
 from setuptools.command.develop import develop
 
 
+def _execute():
+    check_call("pip install azure-cli --no-deps".split())
+
 class PostInstall(install):
     def run(self):
-        check_call("pip install azure-cli --no-deps".split())
+        atexit.register(_execute)
         install.run(self)
-
 
 class PostDevelop(develop):
     def run(self):
-        check_call("pip install azure-cli --no-deps".split())
+        atexit.register(_execute)
         develop.run(self)
 
 
