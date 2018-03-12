@@ -1,5 +1,5 @@
 #!/bin/sh
-cd /iotedge/tool
+cd /home/iotedge/tool
 pip install -r requirements_dev.txt
 pip install -e .
-cd /iotedge
+cd /home/iotedge

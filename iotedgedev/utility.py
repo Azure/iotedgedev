@@ -34,7 +34,10 @@ class Utility:
             sys.exit()
 
     def call_proc(self, params, shell=False):
-        subprocess.check_call(params, shell=shell)
+        try:
+            subprocess.check_call(params, shell=shell)
+        except:
+            self.output.error("Error while executing command: " + ' '.join(params))
 
     def find_files(self, directory, pattern):
         # find all files in directory that match the pattern.

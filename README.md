@@ -43,7 +43,7 @@ The **Azure IoT Edge Dev Tool** enables you to do all of the following with simp
 
 1. **Start Container**: Install the Azure IoT Edge Dev Tool:
 
-    `docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v c:/temp/iotedge:/iotedge jongallant/iotedgedev`
+    `docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v c:/temp/iotedge:/home/iotedge jongallant/iotedgedev`
 
     This container includes all of the dependencies you need for IoT Edge development, including:
 
@@ -225,7 +225,7 @@ You can use the IoT Edge Dev Tool container to avoid having to install all the d
 
 1. Start Container:
 
-    `docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v c:/temp/iotedge:/iotedge jongallant/iotedgedev`
+    `docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v c:/temp/iotedge:/home/iotedge jongallant/iotedgedev`
 
 1. Change to the `/iotedge` directory:
 
