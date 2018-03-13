@@ -300,8 +300,10 @@ def list_subscriptions_and_set_default():
     return default_subscriptionId
 
 
-def header_and_default(header, default):
+def header_and_default(header, default, default2=None):
     output.header(header)
+    if default == '' and default2 != None:
+        return default2
     return default
 
 
@@ -333,6 +335,15 @@ def header_and_default(header, default):
               callback=validate_option,
               prompt="Select an Azure Subscription Name or Id:",
               help="The Azure Subscription Name or Id.")
+@click.option('--resource-group-location',
+              envvar=envvars.get_envvar_key_if_val("RESOURCE_GROUP_LOCATION"),
+              required=True,
+              default=lambda: header_and_default('RESOURCE GROUP LOCATION', envvars.RESOURCE_GROUP_LOCATION, 'westus'),
+              type=click.Choice(['australiaeast', 'australiasoutheast', 'brazilsouth', 'canadacentral', 'canadaeast', 'centralindia', 'centralus', 'eastasia', 'eastus', 'eastus2',
+                                 'japanwest', 'japaneast', 'northeurope', 'northcentralus', 'southindia', 'uksouth', 'ukwest', 'westus', 'westeurope', 'southcentralus', 'westcentralus', 'westus2']),
+              callback=validate_option,
+              prompt="Enter a Resource Group Location:",
+              help="The Resource Group Location.")
 @click.option('--resource-group-name',
               envvar=envvars.get_envvar_key_if_val("RESOURCE_GROUP_NAME"),
               required=True,
@@ -341,15 +352,6 @@ def header_and_default(header, default):
               callback=validate_option,
               prompt="Enter Resource Group Name (Creates a new Resource Group if not found):",
               help="The Resource Group Name (Creates a new Resource Group if not found).")
-@click.option('--resource-group-location',
-              envvar=envvars.get_envvar_key_if_val("RESOURCE_GROUP_LOCATION"),
-              required=True,
-              default=lambda: header_and_default('RESOURCE GROUP LOCATION', envvars.RESOURCE_GROUP_LOCATION),
-              type=click.Choice(['australiaeast', 'australiasoutheast', 'brazilsouth', 'canadacentral', 'canadaeast', 'centralindia', 'centralus', 'eastasia', 'eastus', 'eastus2',
-                                 'japanwest', 'japaneast', 'northeurope', 'northcentralus', 'southindia', 'uksouth', 'ukwest', 'westus', 'westeurope', 'southcentralus', 'westcentralus', 'westus2']),
-              callback=validate_option,
-              prompt="Enter a Resource Group Location:",
-              help="The Resource Group Location.")
 @click.option('--iothub-sku',
               envvar=envvars.get_envvar_key_if_val("IOTHUB_SKU"),
               required=True,
