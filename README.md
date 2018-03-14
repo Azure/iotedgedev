@@ -47,7 +47,11 @@ The **Azure IoT Edge Dev Tool** enables you to do all of the following with simp
 
     This container includes all of the dependencies you need for IoT Edge development, including:
 
-    - 
+    - Docker
+    - .NET Core SDK
+    - Python
+    - Pip
+    - Azure CLI
 
     You can also directly install the tool with: `pip install azure-iot-edge-dev-tool`   
     
