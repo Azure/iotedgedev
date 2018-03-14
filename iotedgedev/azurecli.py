@@ -45,6 +45,7 @@ class AzureCli:
             stdout_data, stderr_data = process.communicate()
 
             if stderr_data and b"400" in stderr_data:
+                self.output.error(self.decode(stderr_data))
                 self.output.info(
                     "Your Azure CLI session has expired. Please re-run iotedgedev azure --setup to refresh your credentials.")
                 self.logout()
@@ -182,7 +183,7 @@ class AzureCli:
         self.output.status(f("Checking if Resource Group '{name}' exists..."))
 
         with output_io_cls() as io:
-            result = self.invoke_az_cli_outproc(["group", "exists", "-n", name, "--debug"],
+            result = self.invoke_az_cli_outproc(["group", "exists", "-n", name],
                                                 f("Resource Group {name} does not exist."), io)
             if result:
                 out_string = io.getvalue()
