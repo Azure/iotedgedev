@@ -346,7 +346,7 @@ When you create a new solution, it will have the following contents:
     - `deployment.template.json` - Contains the config that is deployed to your IoT Edge device. It contains references to your modules, module routes and desired property information.
     - `runtime.template.json` - Contains the config used by your IoT Edge runtime.  It contains your device connection string, your container registry settings and is used when you call the `iotedgedev setup` or `iotedgedev start` commands.
 
-1. **.config folder** - All expanded config files are copied to this folder and these files are used at runtime.
+1. **config folder** - All expanded config files are copied to this folder and these files are used at runtime.
 
 1. **logs folder** - Contains all the Docker log files for the Runtime and your modules.
 
@@ -379,7 +379,7 @@ The settings used for this module are stored in a .env file in the root of your 
 iotedgedev build --deploy
 ```
 
-The- `build` command will build each module in the `modules` folder and push it to your container registry.  The- `--deploy` command will apply the generated `.config/deployment.json` configuration file to your IoT Edge device.  You could also call `deploy` directly with `iotedgedev deploy`.
+The- `build` command will build each module in the `modules` folder and push it to your container registry.  The- `--deploy` command will apply the generated `config/deployment.json` configuration file to your IoT Edge device.  You could also call `deploy` directly with `iotedgedev deploy`.
 
 You can configure what modules will be built and deployed by using the `ACTIVE_MODULES` env var in the `.env` file. You can configure which Dockerfiles get built and deployed by using the `ACTIVE_DOCKER_DIRS` env var.
 
@@ -391,7 +391,7 @@ You can configure what modules will be built and deployed by using the `ACTIVE_M
 iotedgedev start
 ```
 
-The `start` command will apply the `/.config/runtime.json` file to your IoT Edge device and will start the IoT Edge runtime. You can also call `iotedgedev setup` and `iotedgedev start` independently.
+The `start` command will apply the `/config/runtime.json` file to your IoT Edge device and will start the IoT Edge runtime. You can also call `iotedgedev setup` and `iotedgedev start` independently.
    
 ### Step 5: Monitor Messages
 
@@ -534,7 +534,7 @@ The `iotedgedev` module has the following commands:
 `iotedgedev build`  Builds and pushes modules specified in ACTIVE_MODULES Environment Variable to specified container registry. You can also pass a `--deploy` flag to build and deploy in one command: `iotedgedev build --deploy`
 
 **deploy**
-`iotedgedev deploy` Deploys modules to Edge device using deployment.json in the  /.config directory.
+`iotedgedev deploy` Deploys modules to Edge device using deployment.json in the config folder.
 
 **start**
 `iotedgedev start`  Setups up and Starts Edge Runtime. Calls iotedgectl setup and start.
@@ -570,7 +570,7 @@ The `iotedgedev` module has the following commands:
 **runtime**
 
 `iotedgedev runtime`
-- `--setup`     Setup Edge Runtime using runtime.json in /.config directory.
+- `--setup`     Setup Edge Runtime using runtime.json in config folder.
 - `--start`     Starts Edge Runtime. Calls iotedgectl start.
 - `--stop`      Stops Edge Runtime. Calls iotedgectl stop.
 - `--restart`   Restarts Edge Runtime. Calls iotedgectl stop, removes module containers and images, calls iotedgectl setup (with --config-file) and then calls iotedgectl start.
@@ -580,7 +580,7 @@ The `iotedgedev` module has the following commands:
 
 `iotedgedev modules`
 - `--build`     Builds and pushes modules specified in ACTIVE_MODULES Environment Variable to specified container registry.
-- `--deploy`    Deploys modules to Edge device using deployment.json in the  /.config directory.
+- `--deploy`    Deploys modules to Edge device using deployment.json in the config folder.
 
 **docker**
 
@@ -597,7 +597,7 @@ The `iotedgedev` module has the following commands:
 **iotedgedev commands**
 
 - `--version`     Show the version and exit.
-- `--set-config`  Expands Environment Variables in *.template.json and copies to /.config.
+- `--set-config`  Expands Environment Variables in *.template.json and copies to config folder.
 
 ### Setup Container Registry
 
@@ -685,9 +685,9 @@ Whether you use `iotedgedev` or directly use `iotedgecgtl` on the Raspberry Pi, 
 
 ##### Environment Variable Change
 
-    Open your .env file and add arm32v7 to your ACTIVE_DOCKER_ARCH setting. This will tell the IoT Edge Dev Tool to also build the arm32v7 images.
+    Open your .env file and add arm32v7 to your ACTIVE_DOCKER_PLATFORMS setting. This will tell the IoT Edge Dev Tool to also build the arm32v7 images.
 
-    `ACTIVE_DOCKER_ARCH="amd64,arm32v7"`
+    `ACTIVE_DOCKER_PLATFORMS="amd64,arm32v7"`
 
 ## Python Virtual Environment Setup
 

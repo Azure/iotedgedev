@@ -37,7 +37,7 @@ azure_cli_processing_complete = False
               default=False,
               required=False,
               is_flag=True,
-              help="Expands Environment Variables in *.template.json and copies to /.config.")
+              help="Expands Environment Variables in *.template.json and copies to config folder.")
 def main(set_config, az_cli=None):
     global azure_cli
 
@@ -104,7 +104,7 @@ def e2e(ctx):
               default=False,
               required=False,
               is_flag=True,
-              help="Deploys modules to Edge device using deployment.json in the /.config directory.")
+              help="Deploys modules to Edge device using deployment.json in the config folder.")
 @click.pass_context
 def build(ctx, deploy):
     ctx.invoke(modules, build=True, deploy=deploy)
@@ -411,7 +411,7 @@ def azure(setup,
               default=False,
               required=False,
               is_flag=True,
-              help="Deploys modules to Edge device using deployment.json in the /.config directory.")
+              help="Deploys modules to Edge device using deployment.json in the config folder.")
 def modules(build, deploy):
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
@@ -429,7 +429,7 @@ def modules(build, deploy):
               default=False,
               required=False,
               is_flag=True,
-              help="Setup Edge Runtime using runtime.json in /.config directory.")
+              help="Setup Edge Runtime using runtime.json in config folder.")
 @click.option('--start',
               default=False,
               required=False,

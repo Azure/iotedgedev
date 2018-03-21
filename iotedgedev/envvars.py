@@ -18,7 +18,7 @@ class EnvVars:
         self.args = Args()
         self.current_command = self.args.get_current_command()
         self.terse_commands = ['', 'azure', 'solution']
-        self.bypass_dotenv_load_commands = ['init', 'e2e']
+        self.bypass_dotenv_load_commands = ['init', 'e2e', 'solution']
 
         # for some commands we don't want verbose dotenv load output
         self.verbose = self.current_command not in self.terse_commands
@@ -109,17 +109,19 @@ class EnvVars:
                 self.RUNTIME_CONFIG_DIR = self.get_envvar("RUNTIME_CONFIG_DIR", default=".")
                 if self.RUNTIME_CONFIG_DIR == ".":
                     self.set_envvar("RUNTIME_CONFIG_DIR", self.get_runtime_config_dir())
-
                 self.ACTIVE_MODULES = self.get_envvar("ACTIVE_MODULES")
-                self.ACTIVE_DOCKER_ARCH = self.get_envvar("ACTIVE_DOCKER_ARCH")
+                self.ACTIVE_DOCKER_PLATFORMS = self.get_envvar("ACTIVE_DOCKER_PLATFORMS", altkeys=["ACTIVE_DOCKER_ARCH"])
                 self.CONTAINER_REGISTRY_SERVER = self.get_envvar("CONTAINER_REGISTRY_SERVER")
                 self.CONTAINER_REGISTRY_USERNAME = self.get_envvar("CONTAINER_REGISTRY_USERNAME")
                 self.CONTAINER_REGISTRY_PASSWORD = self.get_envvar("CONTAINER_REGISTRY_PASSWORD")
                 self.CONTAINER_TAG = self.get_envvar("CONTAINER_TAG")
                 self.RUNTIME_TAG = self.get_envvar("RUNTIME_TAG")
                 self.RUNTIME_VERBOSITY = self.get_envvar("RUNTIME_VERBOSITY")
-                self.MODULES_CONFIG_FILE = self.get_envvar("MODULES_CONFIG_FILE")
+                self.CONFIG_OUTPUT_DIR = self.get_envvar("CONFIG_OUTPUT_DIR", default="config")
+                self.DEPLOYMENT_CONFIG_FILE = self.get_envvar("DEPLOYMENT_CONFIG_FILE", altkeys=['MODULES_CONFIG_FILE'])
+                self.DEPLOYMENT_CONFIG_FILE_PATH = os.path.join(self.CONFIG_OUTPUT_DIR, self.DEPLOYMENT_CONFIG_FILE)
                 self.RUNTIME_CONFIG_FILE = self.get_envvar("RUNTIME_CONFIG_FILE")
+                self.RUNTIME_CONFIG_FILE_PATH = os.path.join(self.CONFIG_OUTPUT_DIR, self.RUNTIME_CONFIG_FILE)
                 self.LOGS_PATH = self.get_envvar("LOGS_PATH")
                 self.MODULES_PATH = self.get_envvar("MODULES_PATH")
                 self.IOT_REST_API_VERSION = self.get_envvar("IOT_REST_API_VERSION")
@@ -156,11 +158,18 @@ class EnvVars:
             else:
                 raise e
 
-    def get_envvar(self, key, required=False, default=None):
+    def get_envvar(self, key, required=False, default=None, altkeys=None):
         val = ""
+        if altkeys is None:
+            altkeys = []
 
-        if key in os.environ:
-            val = os.environ[key].strip()
+        # some envvars have alternate keys for legacy reasons, name changes, etc.  this processes key first and then looks in each altkey until it finds a match.
+        altkeys.insert(0, key)
+        for altkey in altkeys:
+            if altkey in os.environ:
+                val = os.environ[altkey].strip()
+                if val:
+                    break
 
         if required and not val:
             self.output.error("Environment Variable {0} not set. Either add to .env file or to your system's Environment Variables".format(key))
@@ -173,6 +182,11 @@ class EnvVars:
             return default
         else:
             return ''
+
+    def verify_envvar_has_val(self, key, value):
+        if not value:
+            self.output.error("Environment Variable {0} not set. Either add to .env file or to your system's Environment Variables".format(key))
+            sys.exit(-1)
 
     def get_envvar_key_if_val(self, key):
         if key in os.environ and os.environ.get(key):

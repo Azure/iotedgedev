@@ -5,7 +5,7 @@ import sys
 
 class Args():
     def get_current_command(self):
-        if sys.argv and len(sys.argv) > 1:
+        if sys.argv and len(sys.argv) > 1 and not sys.argv[1].startswith('-'):
             return sys.argv[1]
         else:
             return ''

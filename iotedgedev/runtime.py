@@ -18,8 +18,9 @@ class Runtime:
 
     def setup(self):
         self.output.header("Setting Up Edge Runtime")
+        self.envvars.verify_envvar_has_val("RUNTIME_CONFIG_FILE", self.envvars.RUNTIME_CONFIG_FILE)
         self.utility.exe_proc(["iotedgectl", "--verbose", self.envvars.RUNTIME_VERBOSITY,
-                               "setup", "--config-file", self.envvars.RUNTIME_CONFIG_FILE])
+                               "setup", "--config-file", self.envvars.RUNTIME_CONFIG_FILE_PATH])
 
     def status(self):
         self.output.header("Getting Edge Runtime Status")

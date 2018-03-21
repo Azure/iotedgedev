@@ -83,7 +83,7 @@ class Utility:
                 for module in self.envvars.ACTIVE_MODULES.split(",") if module]
 
     def get_modules_in_config(self, moduleType):
-        modules_config = json.load(open(self.envvars.MODULES_CONFIG_FILE))
+        modules_config = json.load(open(self.envvars.DEPLOYMENT_CONFIG_FILE))
 
         props = modules_config["moduleContent"]["$edgeAgent"]["properties.desired"]
 
@@ -105,11 +105,9 @@ class Utility:
         if not self.config_set or force:
             self.output.header("PROCESSING CONFIG FILES")
 
-            config_output_dir = ".config"
-
             # Create config dir if it doesn't exist
-            if not os.path.exists(config_output_dir):
-                os.makedirs(config_output_dir)
+            if not os.path.exists(self.envvars.CONFIG_OUTPUT_DIR):
+                os.makedirs(self.envvars.CONFIG_OUTPUT_DIR)
 
             config_files = self.get_config_files()
 
@@ -118,11 +116,11 @@ class Utility:
                     "Unable to find config files in solution root directory")
                 sys.exit()
 
-            # Expand envars and rewrite to .config/
+            # Expand envars and rewrite to config/
             for config_file in config_files:
 
                 build_config_file = os.path.join(
-                    config_output_dir, os.path.basename(config_file).replace(".template", ""))
+                    self.envvars.CONFIG_OUTPUT_DIR, os.path.basename(config_file).replace(".template", ""))
 
                 self.output.info("Expanding '{0}' to '{1}'".format(
                     os.path.basename(config_file), build_config_file))

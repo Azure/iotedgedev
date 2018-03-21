@@ -8,6 +8,9 @@ class IoTHub:
         self.utility = utility
 
     def monitor_events(self, timeout=0):
+
+        self.envvars.verify_envvar_has_val("DEVICE_CONNECTION_STRING", self.envvars.DEVICE_CONNECTION_STRING)
+
         if timeout == None:
             timeout = 0
 
