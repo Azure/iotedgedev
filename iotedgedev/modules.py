@@ -40,7 +40,7 @@ class Modules:
                     continue
 
                 docker_arch_process = [docker_arch.strip()
-                                       for docker_arch in self.envvars.ACTIVE_DOCKER_ARCH.split(",")if docker_arch]
+                                       for docker_arch in self.envvars.ACTIVE_DOCKER_PLATFORMS.split(",")if docker_arch]
 
                 for arch in module_json.platforms:
                     if len(
@@ -53,22 +53,17 @@ class Modules:
                             "PROCESSING DOCKER FILE: " + docker_file)
 
                         docker_file_name = os.path.basename(docker_file)
-                        container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + \
-                            self.envvars.CONTAINER_TAG
-
+                        container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
                         tag_name = module_json.tag_version + container_tag
 
                         # publish module
-                        self.output.info(
-                            "PUBLISHING MODULE: " + module_dir)
+                        self.output.info("PUBLISHING MODULE: " + module_dir)
 
                         mod_proc.publish()
 
-                        image_destination_name = "{0}/{1}:{2}-{3}".format(
-                            self.envvars.CONTAINER_REGISTRY_SERVER, module, tag_name, arch).lower()
+                        image_destination_name = "{0}/{1}:{2}-{3}".format(self.envvars.CONTAINER_REGISTRY_SERVER, module, tag_name, arch).lower()
 
-                        self.output.info(
-                            "BUILDING DOCKER IMAGE: " + image_destination_name)
+                        self.output.info("BUILDING DOCKER IMAGE: " + image_destination_name)
 
                         # cd to the module folder to build the docker image
                         project_dir = os.getcwd()
@@ -77,29 +72,32 @@ class Modules:
                         # BUILD DOCKER IMAGE
                         build_result = self.dock.docker_client.images.build(
                             tag=image_destination_name, path=".", dockerfile=docker_file_name, buildargs={"EXE_DIR": mod_proc.exe_dir})
-                        self.output.info(
-                            "DOCKER IMAGE DETAILS: {0}".format(build_result))
+                        self.output.info("DOCKER IMAGE DETAILS: {0}".format(build_result))
 
                         # CD BACK UP
                         os.chdir(project_dir)
 
                         # PUSH TO CONTAINER REGISTRY
-                        self.output.info(
-                            "PUSHING DOCKER IMAGE TO: " + image_destination_name)
+                        self.output.info("PUSHING DOCKER IMAGE TO: " + image_destination_name)
 
                         for line in self.dock.docker_client.images.push(repository=image_destination_name, stream=True, auth_config={
                                                                         "username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
-                            self.output.procout(self.utility.decode(
-                                line).replace("\\u003e", ">"))
+                            self.output.procout(self.utility.decode(line).replace("\\u003e", ">"))
 
                 self.output.footer("BUILD COMPLETE")
 
     def deploy(self):
+    
         self.output.header("DEPLOYING MODULES")
+        self.envvars.verify_envvar_has_val("IOTHUB_CONNECTION_STRING", self.envvars.IOTHUB_CONNECTION_STRING)
+        self.envvars.verify_envvar_has_val("DEVICE_CONNECTION_STRING", self.envvars.DEVICE_CONNECTION_STRING)
+        self.envvars.verify_envvar_has_val("DEPLOYMENT_CONFIG_FILE", self.envvars.DEPLOYMENT_CONFIG_FILE)
+
         self.deploy_device_configuration(
             self.envvars.IOTHUB_CONNECTION_INFO.HostName, self.envvars.IOTHUB_CONNECTION_INFO.SharedAccessKey,
-            self.envvars.DEVICE_CONNECTION_INFO.DeviceId, self.envvars.MODULES_CONFIG_FILE,
+            self.envvars.DEVICE_CONNECTION_INFO.DeviceId, self.envvars.DEPLOYMENT_CONFIG_FILE_PATH,
             self.envvars.IOTHUB_CONNECTION_INFO.SharedAccessKeyName, self.envvars.IOT_REST_API_VERSION)
+
         self.output.footer("DEPLOY COMPLETE")
 
     def deploy_device_configuration(
@@ -121,8 +119,7 @@ class Modules:
                                         )
 
         if deploy_response.status_code == 204:
-            self.output.info(
-                "Edge Device configuration successfully deployed to '{0}'.".format(device_id))
+            self.output.info("Edge Device configuration '{0}' successfully deployed to '{1}'.".format(config_file, device_id))
         else:
             self.output.info(deploy_uri)
             self.output.info(deploy_response.status_code)

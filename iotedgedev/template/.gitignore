@@ -7,3 +7,4 @@ build
 venv
 logs
 .config
+config
