@@ -4,7 +4,7 @@ import shutil
 
 import click
 from click.testing import CliRunner
-from iotedgedev.envvars import EnvVars 
+from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 # from iotedgedev import cli
 
@@ -42,16 +42,17 @@ def create_solution(request):
 
 
 @pytest.fixture
-def test_build_modules(request):
+def test_push_modules(request):
 
     os.chdir(test_solution_dir)
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['build'])
+    result = runner.invoke(cli.main, ['push'])
     print (result.output)
 
     assert 'BUILD COMPLETE' in result.output
+    assert 'PUSH COMPLETE' in result.output
 
 
 @pytest.fixture
@@ -109,7 +110,7 @@ def test_stop(request):
     assert 'Runtime stopped' in result.output
 
 
-def test_e2e(test_build_modules, test_deploy_modules, test_start_runtime, test_monitor, test_stop):
+def test_e2e(test_push_modules, test_deploy_modules, test_start_runtime, test_monitor, test_stop):
     print ('Testing E2E')
 
 
@@ -125,7 +126,7 @@ def setup_node_solution(request):
     return
 
 
-def test_node(setup_node_solution, test_build_modules, test_deploy_modules, test_start_runtime, test_monitor, test_stop):
+def test_node(setup_node_solution, test_push_modules, test_deploy_modules, test_start_runtime, test_monitor, test_stop):
     print ('Testing Node Solution')
 
 
