@@ -14,17 +14,25 @@ The only thing you need to install is Docker. All of the other dev dependencies 
 
 1. Run the Azure IoT Edge Dev Container
 
-    `docker run -ti -v /var/run/docker.sock:/var/run/docker.sock jongallant/iotedgedev`
+    **Windows**
+    ```
+    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock c:/temp/iotedge:/home/iotedge jongallant/iotedgedev
+    ```
+
+    **Linux**
+    ```
+    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock /home/iotedge:/home/iotedge jongallant/iotedgedev
+    ```
 
 1. Initialize Edge Solution and Setup Azure Resources
 
     `iotedgedev init`
 
-1. Build IoT Edge Modules
+1. Build & Push IoT Edge Modules
 
-    `iotedgedev build`
+    `iotedgedev push`
 
-    > You can also combine build and deploy with `iotedgedev build --deploy`
+    > You can also combine build, push and deploy with `iotedgedev push --deploy`
 
 1. Deploy Modules to IoT Edge Device
 
@@ -67,9 +75,9 @@ The **Azure IoT Edge Dev Tool** enables you to do all of the following with simp
 
     > This must be run from the root of your solution, so make sure you cd into the `edgesolution1` folder before you run this command.
 
-1. **Build & Deploy**: Build, Push and Deploy modules: 
+1. **Build, Push & Deploy**: Build, Push and Deploy modules: 
 
-    `iotedgedev build --deploy`
+    `iotedgedev push --deploy`
     
     > This will `dotnet build`, `publish`, `docker build, tag and push` and `deploy modules` to your IoT Edge device.
 
@@ -95,13 +103,13 @@ Please see [Azure IoT Edge Dev Resources](https://github.com/jonbgallant/azure-i
 
 ## Videos
 
-### [Azure IoT Edge Dev Tool in 2 Minutes](https://www.youtube.com/watch?v=NsnxMshMhmA)
+[Azure IoT Edge Dev Tool in 2 Minutes](https://www.youtube.com/watch?v=NsnxMshMhmA)
 [![Azure IoT Edge Dev Tool in 2 Minutes](assets/edgedevtool2mins.png)](https://www.youtube.com/watch?v=NsnxMshMhmA)
 
-### [Azure IoT Edge Dev Tool: Introduction](https://www.youtube.com/watch?v=lcDFX8PXqUQ)
+[Azure IoT Edge Dev Tool: Introduction](https://www.youtube.com/watch?v=lcDFX8PXqUQ)
 [![Azure IoT Edge Dev Tool: Introduction](assets/edgedevtoolintro.png)](https://www.youtube.com/watch?v=lcDFX8PXqUQ)
 
-### [Azure IoT Edge Dev Tool with Windows Subsystem for Linux (WSL)](https://www.youtube.com/watch?v=k5ZtTmHgs_8)
+[Azure IoT Edge Dev Tool with Windows Subsystem for Linux (WSL)](https://www.youtube.com/watch?v=k5ZtTmHgs_8)
 [![Azure IoT Edge Dev Tool with Windows Subsystem for Linux (WSL)](assets/edgedevtoolwsl.png)](https://www.youtube.com/watch?v=k5ZtTmHgs_8)
 
 
@@ -514,90 +522,212 @@ After you have everything running from the IoT Edge Tool solution template, the 
 That's all there is to it.  You can now get started implementing your IoT Edge scenario!
 
 ## Commands
-The `iotedgedev` module has the following commands:
+**iotedgedev**
+```
+Usage: iotedgedev [OPTIONS] COMMAND [ARGS]...
 
-**init**
+Options:
+  --version     Show the version and exit.
+  --set-config  Expands environment variables in *.template.json and copies to config folder.
+  -h, --help    Show this message and exit.
 
-- `iotedgedev init`   Creates an Azure IoT Edge Solution and sets up Azure Resources.
+Commands:
+  azure     Manage Azure Resources
+  build     Builds All Active Modules
+  deploy    Deploys Solution to IoT Edge Device
+  docker    Docker Utilities
+  e2e       Push, Deploy, Start, Monitor
+  init      Creates Solution and Azure Resources
+  iothub    Monitor IoT Hub Events
+  modules   Build and Deploy IoT Edge Modules
+  monitor   Monitors Messages from IoT Edge to IoT Hub
+  push      Pushes Active Modules to Container Registry
+  restart   Restarts IoT Edge Runtime
+  runtime   Manage IoT Edge Runtime
+  solution  Manage IoT Edge Solutions
+  start     Starts IoT Edge Runtime
+  stop      Stops IoT Edge Runtime
+```
+**iotedgedev azure**
+```
+Usage: iotedgedev azure [OPTIONS]
 
-**e2e**
+  Manage Azure Resources
 
-- `iotedgedev e2e`    Creates and Azure IoT Edge Solution, sets up Azure Resources, Builds and Deploy Modules to IoT Edge Device, Setup and Starts the IoT Edge Runtime and Monitors Messages flowing from IoT Edge to IoT Hub.
+Options:
+  --setup                         Retrieves or creates the required Azure Resources.
+  --credentials <TEXT TEXT>...    Enter Azure Credentials (username password).
+  --service-principal <TEXT TEXT TEXT>...
+                                  Enter Azure Service Principal Credentials (username password tenant).
+  --subscription TEXT             The Azure Subscription Name or Id.  [required]
+  --resource-group-location [australiaeast|australiasoutheast|brazilsouth|canadacentral|canadaeast|centralindia|centralus|eastasia|eastus|eastus2|japanwest|japaneast|northeurope|northcentralus|southindia|uksouth|ukwest|westus|westeurope|southcentralus|westcentralus|westus2]
+                                  The Resource Group Location.  [required]
+  --resource-group-name TEXT      The Resource Group Name (Creates a new Resource Group if not found).  [required]
+  --iothub-sku [F1|S1|S2|S3]      The IoT Hub SKU.  [required]
+  --iothub-name TEXT              The IoT Hub Name (Creates a new IoT Hub if not found).  [required]
+  --edge-device-id TEXT           The IoT Edge Device Id (Creates a new Edge Device if not found).  [required]
+  --update-dotenv                 If True, the current .env will be updated with the IoT Hub and Device connection
+                                  strings.  [required]
+  -h, --help                      Show this message and exit.
+```
+**iotedgedev build**
+```
+Usage: iotedgedev build [OPTIONS]
 
-**solution**
+  Builds All Active Modules
 
-`iotedgedev solution`
-- `name`    Creates a new Azure IoT Edge Solution. Use `.` to create in current folder. Use `iotedgedev solution [name]` to create in a subfolder.
-- `--create TEXT`  Creates a new Azure IoT Edge Solution. Use `--create .` to create in current folder. Use `--create [name]` to create in a subfolder.
+Options:
+  --push      Pushes modules to container registry.
+  --deploy    Deploys modules to Edge device using deployment.json in the config folder.
+  -h, --help  Show this message and exit.
+```
+**iotedgedev deploy**
+```
+Usage: iotedgedev deploy [OPTIONS]
 
-**build**
-`iotedgedev build`  Builds and pushes modules specified in ACTIVE_MODULES Environment Variable to specified container registry. You can also pass a `--deploy` flag to build and deploy in one command: `iotedgedev build --deploy`
+  Deploys Solution to IoT Edge Device
 
-**deploy**
-`iotedgedev deploy` Deploys modules to Edge device using deployment.json in the config folder.
+Options:
+  -h, --help  Show this message and exit.
+```
+**iotedgedev docker**
+```
+Usage: iotedgedev docker [OPTIONS]
 
-**start**
-`iotedgedev start`  Setups up and Starts Edge Runtime. Calls iotedgectl setup and start.
+  Docker Utilities
 
-**stop**
-`iotedgedev stop`  Stops Edge Runtime. Calls iotedgectl stop.
+Options:
+  --setup-registry     Pulls Edge Runtime from Docker Hub and pushes to your specified container registry. Also,
+                       updates config files to use CONTAINER_REGISTRY_* instead of the Microsoft Docker hub. See
+                       CONTAINER_REGISTRY environment variables.
+  --clean              Removes all the Docker containers and Images.
+  --remove-modules     Removes only the edge modules Docker containers and images specified in ACTIVE_MODULES, not
+                       edgeAgent or edgeHub.
+  --remove-containers  Removes all the Docker containers
+  --remove-images      Removes all the Docker images.
+  --logs               Opens a new terminal window for edgeAgent, edgeHub and each edge module and saves to LOGS_PATH.
+                       You can configure the terminal command with LOGS_CMD.
+  --show-logs          Opens a new terminal window for edgeAgent, edgeHub and each edge module. You can configure the
+                       terminal command with LOGS_CMD.
+  --save-logs          Saves edgeAgent, edgeHub and each edge module logs to LOGS_PATH.
+  -h, --help           Show this message and exit.
+```
+**iotedgedev e2e**
+```
+Usage: iotedgedev e2e [OPTIONS]
 
-**restart**
-`iotedgedev restart`  Restarts Edge Runtime. Calls iotedgectl stop, removes module containers and images, calls iotedgectl setup (with --config-file) and then calls iotedgectl start.
+  Push, Deploy, Start, Monitor
 
-**monitor**
-`iotedgedev monitor`  Displays events that are sent from IoT Hub device to IoT Hub.
+Options:
+  -h, --help  Show this message and exit.
+```
+**iotedgedev init**
+```
+Usage: iotedgedev init [OPTIONS]
 
-**azure**
+  Creates Solution and Azure Resources
 
-`iotedgedev azure`
+Options:
+  -h, --help  Show this message and exit.
+```
+**iotedgedev iothub**
+```
+Usage: iotedgedev iothub [OPTIONS]
 
-- `--setup` Reads the required Azure resources configuration from your subscription. Creates new Azure resources or uses an existing resources.  [required]
-- `--credentials <TEXT TEXT>`   The credentials (username password) to use to login to Azure. If --credentials not specified, you will login in the interactive mode.
-- `--subscription TEXT` The Azure subscription name or id to use. [required]
-- `--resource-group-location`   The location of the new Resource Group. If --resource-group-location not specified, the default will be West US.
-- `--resource-group-name TEXT`  The name of the Resource Group to use or create. Creates a new Resource Group if not found.  [required]
-- `--iothub-sku [F1|S1|S2|S3]`  The SKU of the new IoT Hub. If --iothub-sku not specified, the default will be F1 (free).
-- `--iothub-name TEXT`  The IoT Hub name to be used. Creates a new IoT Hub if not found.  [required]
-- `--edge-device-id TEXT`   The IoT Edge Device Id to be used. Creates a new Edge Device if not found.  [required]
-- `--update-dotenv` If set, the current .env will be updated with the corresponding connection strings. [required]
+  Monitor IoT Hub Events
 
-**iothub**
+Options:
+  --monitor-events  Displays events that are sent from IoT Hub device to IoT Hub.
+  --timeout TEXT    Number of milliseconds to monitor for events.
+  -h, --help        Show this message and exit.
+```
+**iotedgedev modules**
+```
+Usage: iotedgedev modules [OPTIONS]
 
-`iotedgedev iothub`
-- `--monitor-events`    Displays events that are sent from IoT Hub device to IoT Hub.
+  Build and Deploy IoT Edge Modules
 
-**runtime**
+Options:
+  --build     Builds modules specified in ACTIVE_MODULES Environment Variable.
+  --push      Pushes modules specified in ACTIVE_MODULES Environment Variable to container registry.
+  --no-build  Informs the push command to not build modules before pushing to container registry.
+  --deploy    Deploys modules to Edge device using deployment.json in the config folder.
+  -h, --help  Show this message and exit.
+```
+**iotedgedev monitor**
+```
+Usage: iotedgedev monitor [OPTIONS]
 
-`iotedgedev runtime`
-- `--setup`     Setup Edge Runtime using runtime.json in config folder.
-- `--start`     Starts Edge Runtime. Calls iotedgectl start.
-- `--stop`      Stops Edge Runtime. Calls iotedgectl stop.
-- `--restart`   Restarts Edge Runtime. Calls iotedgectl stop, removes module containers and images, calls iotedgectl setup (with --config-file) and then calls iotedgectl start.
-- `--status`    Edge Runtime Status. Calls iotedgectl status.
+  Monitors Messages from IoT Edge to IoT Hub
 
-**modules**
+Options:
+  --timeout TEXT  Number of milliseconds to monitor for events.
+  -h, --help      Show this message and exit.
+```
+**iotedgedev push**
+```
+Usage: iotedgedev push [OPTIONS]
 
-`iotedgedev modules`
-- `--build`     Builds and pushes modules specified in ACTIVE_MODULES Environment Variable to specified container registry.
-- `--deploy`    Deploys modules to Edge device using deployment.json in the config folder.
+  Pushes Active Modules to Container Registry
 
-**docker**
+Options:
+  --deploy    Deploys modules to Edge device using deployment.json in the config folder.
+  --no-build  Informs the push command to not build modules before pushing to container registry.
+  -h, --help  Show this message and exit.
+```
+**iotedgedev restart**
+```
+Usage: iotedgedev restart [OPTIONS]
 
-`iotedgedev docker`
-- `--setup-registry`     Pulls Edge Runtime from Docker Hub and pushes to your specified container registry. Also, updates config files to use CONTAINER_REGISTRY_* instead of the Microsoft Docker hub. See CONTAINER_REGISTRY  Environment Variables.
-- `--clean`              Removes all the Docker containers and Images.
-- `--remove-modules`     Removes only the edge modules Docker containers and images specified in ACTIVE_MODULES, not edgeAgent or edgeHub.
-- `--remove-containers`  Removes all the Docker containers
-- `--remove-images`      Removes all the Docker images.
-- `--logs`               Opens a new terminal window for edgeAgent, edgeHub and each edge module and saves to LOGS_PATH. You can configure the terminal command with LOGS_CMD.
-- `--show-logs`          Opens a new terminal window for edgeAgent, edgeHub and each edge module. You can configure the terminal command with LOGS_CMD.
-- `--save-logs`          Saves edgeAgent, edgeHub and each edge module logs to LOGS_PATH.
+  Restarts IoT Edge Runtime
 
-**iotedgedev commands**
+Options:
+  -h, --help  Show this message and exit.
+```
+**iotedgedev runtime**
+```
+Usage: iotedgedev runtime [OPTIONS]
 
-- `--version`     Show the version and exit.
-- `--set-config`  Expands Environment Variables in *.template.json and copies to config folder.
+  Manage IoT Edge Runtime
+
+Options:
+  --setup     Setup Edge Runtime using runtime.json in config folder.
+  --start     Starts Edge Runtime. Calls iotedgectl start.
+  --stop      Stops Edge Runtime. Calls iotedgectl stop.
+  --restart   Restarts Edge Runtime. Calls iotedgectl stop, removes module containers and images, calls iotedgectl
+              setup (with --config-file) and then calls iotedgectl start.
+  --status    Edge Runtime Status. Calls iotedgectl status.
+  -h, --help  Show this message and exit.
+```
+**iotedgedev solution**
+```
+Usage: iotedgedev solution [OPTIONS] [NAME]
+
+  Manage IoT Edge Solutions
+
+Options:
+  --create TEXT  Creates a new Azure IoT Edge Solution. Use `--create .` to create in current folder. Use `--create
+                 TEXT` to create in a subfolder.
+  -h, --help     Show this message and exit.
+```
+**iotedgedev start**
+```
+Usage: iotedgedev start [OPTIONS]
+
+  Starts IoT Edge Runtime
+
+Options:
+  -h, --help  Show this message and exit.
+```
+**iotedgedev stop**
+```
+Usage: iotedgedev stop [OPTIONS]
+
+  Stops IoT Edge Runtime
+
+Options:
+  -h, --help  Show this message and exit.
+```
 
 ### Setup Container Registry
 

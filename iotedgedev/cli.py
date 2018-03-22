@@ -20,7 +20,7 @@ from .solution import Solution
 from .utility import Utility
 
 
-CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'], max_content_width=120)
 
 output = Output()
 envvars = EnvVars(output)
@@ -37,7 +37,7 @@ azure_cli_processing_complete = False
               default=False,
               required=False,
               is_flag=True,
-              help="Expands Environment Variables in *.template.json and copies to config folder.")
+              help="Expands environment variables in *.template.json and copies to config folder.")
 def main(set_config, az_cli=None):
     global azure_cli
 
@@ -87,54 +87,75 @@ def init(ctx):
     # Had to use call_proc, because @click.invoke doesn't honor prompts
 
 
-@click.command(context_settings=CONTEXT_SETTINGS, help="IoT Edge Dev E2E")
+@click.command(context_settings=CONTEXT_SETTINGS, help="Push, Deploy, Start, Monitor")
 @click.pass_context
 def e2e(ctx):
 
     ctx.invoke(init)
     envvars.load(force=True)
-    ctx.invoke(build)
+    ctx.invoke(push)
     ctx.invoke(deploy)
     ctx.invoke(start)
     ctx.invoke(monitor)
 
 
-@click.command(context_settings=CONTEXT_SETTINGS, help="Builds all Modules in IoT Edge Solution.")
+@click.command(context_settings=CONTEXT_SETTINGS, help="Builds All Active Modules")
+@click.option('--push',
+              default=False,
+              required=False,
+              is_flag=True,
+              help="Pushes modules to container registry.")
 @click.option('--deploy',
               default=False,
               required=False,
               is_flag=True,
               help="Deploys modules to Edge device using deployment.json in the config folder.")
 @click.pass_context
-def build(ctx, deploy):
-    ctx.invoke(modules, build=True, deploy=deploy)
+def build(ctx, push, deploy):
+    ctx.invoke(modules, build=True, push=push, deploy=deploy)
 
 
-@click.command(context_settings=CONTEXT_SETTINGS, help="Deploys Solution to IoT Edge Device.")
+@click.command(context_settings=CONTEXT_SETTINGS, help="Pushes Active Modules to Container Registry")
+@click.option('--deploy',
+              default=False,
+              required=False,
+              is_flag=True,
+              help="Deploys modules to Edge device using deployment.json in the config folder.")
+@click.option('--no-build',
+              default=False,
+              required=False,
+              is_flag=True,
+              help="Informs the push command to not build modules before pushing to container registry.")
+@click.pass_context
+def push(ctx, deploy, no_build):
+    ctx.invoke(modules, push=push, deploy=deploy, no_build=no_build)
+
+
+@click.command(context_settings=CONTEXT_SETTINGS, help="Deploys Solution to IoT Edge Device")
 @click.pass_context
 def deploy(ctx):
     ctx.invoke(modules, deploy=True)
 
 
-@click.command(context_settings=CONTEXT_SETTINGS, help="Starts the IoT Edge Runtime.")
+@click.command(context_settings=CONTEXT_SETTINGS, help="Starts IoT Edge Runtime")
 @click.pass_context
 def start(ctx):
     ctx.invoke(runtime, setup=True, start=True)
 
 
-@click.command(context_settings=CONTEXT_SETTINGS, help="Restarts the IoT Edge Runtime.")
+@click.command(context_settings=CONTEXT_SETTINGS, help="Restarts IoT Edge Runtime")
 @click.pass_context
 def restart(ctx):
     ctx.invoke(runtime, restart=True)
 
 
-@click.command(context_settings=CONTEXT_SETTINGS, help="Stops the IoT Edge Runtime.")
+@click.command(context_settings=CONTEXT_SETTINGS, help="Stops IoT Edge Runtime")
 @click.pass_context
 def stop(ctx):
     ctx.invoke(runtime, stop=True)
 
 
-@click.command(context_settings=CONTEXT_SETTINGS, help="Monitors Messages from IoT Edge to IoT Hub.")
+@click.command(context_settings=CONTEXT_SETTINGS, help="Monitors Messages from IoT Edge to IoT Hub")
 @click.option('--timeout',
               required=False,
               help="Number of milliseconds to monitor for events.")
@@ -406,18 +427,30 @@ def azure(setup,
               default=False,
               required=False,
               is_flag=True,
-              help="Builds and pushes modules specified in ACTIVE_MODULES Environment Variable to specified container registry.")
+              help="Builds modules specified in ACTIVE_MODULES Environment Variable.")
+@click.option('--push',
+              default=False,
+              required=False,
+              is_flag=True,
+              help="Pushes modules specified in ACTIVE_MODULES Environment Variable to container registry.")
+@click.option('--no-build',
+              default=False,
+              required=False,
+              is_flag=True,
+              help="Informs the push command to not build modules before pushing to container registry.")
 @click.option('--deploy',
               default=False,
               required=False,
               is_flag=True,
               help="Deploys modules to Edge device using deployment.json in the config folder.")
-def modules(build, deploy):
+def modules(build, push, no_build, deploy):
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
     mod = Modules(envvars, utility, output, dock)
 
-    if build:
+    if push:
+        mod.push(no_build=no_build)
+    elif build:
         mod.build()
 
     if deploy:
@@ -477,7 +510,7 @@ def runtime(setup, start, stop, restart, status):
               default=False,
               required=False,
               is_flag=True,
-              help="Pulls Edge Runtime from Docker Hub and pushes to your specified container registry. Also, updates config files to use CONTAINER_REGISTRY_* instead of the Microsoft Docker hub. See CONTAINER_REGISTRY Environment Variables.")
+              help="Pulls Edge Runtime from Docker Hub and pushes to your specified container registry. Also, updates config files to use CONTAINER_REGISTRY_* instead of the Microsoft Docker hub. See CONTAINER_REGISTRY environment variables.")
 @click.option('--clean',
               default=False,
               required=False,
@@ -558,6 +591,7 @@ main.add_command(azure)
 main.add_command(init)
 main.add_command(e2e)
 main.add_command(build)
+main.add_command(push)
 main.add_command(deploy)
 main.add_command(start)
 main.add_command(restart)
