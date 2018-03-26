@@ -16,12 +16,14 @@ The only thing you need to install is Docker. All of the other dev dependencies 
 
     **Windows**
     ```
-    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock c:/temp/iotedge:/home/iotedge jongallant/iotedgedev
+    mkdir c:\temp\iotedge
+    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v c:/temp/iotedge:/home/iotedge jongallant/iotedgedev
     ```
 
     **Linux**
     ```
-    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock /home/iotedge:/home/iotedge jongallant/iotedgedev
+    sudo mkdir /home/iotedge
+    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v /home/iotedge:/home/iotedge jongallant/iotedgedev
     ```
 
 1. Initialize Edge Solution and Setup Azure Resources
