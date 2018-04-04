@@ -45,7 +45,7 @@ COPY --from=base ["tools", "/tools"]
 COPY --from=base ["/Program Files (x86)/Microsoft SDKs/Azure/", "/tools/azure"]
 
 USER ContainerAdministrator 
-RUN setx /M PATH "%PATH%;C:\\tools\\dotnet;C:\\tools\\node\\;C:\tools\\python\\;C:\\tools\\python\\Scripts\\;c:\\tools\\azure\\CLI2\\wbin"
+RUN setx /M PATH "%PATH%;C:\\tools\\dotnet;C:\\tools\\node\\;C:\tools\\python\\;C:\\tools\\python\\Scripts\\;c:\\tools\\azure\\CLI2\\wbin\\;"
 USER ContainerUser
 
 RUN npm -i -g iothub-explorer 
