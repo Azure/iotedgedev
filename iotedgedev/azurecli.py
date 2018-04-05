@@ -34,17 +34,14 @@ class AzureCli:
 
     def invoke_az_cli_outproc(self, args, error_message=None, stdout_io=None, stderr_io=None, suppress_output=False):
         try:
-
             if stdout_io or stderr_io:
-                process = subprocess.Popen(self.prepare_az_cli_args(
-                    args, suppress_output), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=not self.envvars.is_posix())
+                process = subprocess.Popen(self.prepare_az_cli_args(args, suppress_output), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=not self.envvars.is_posix())
             else:
-                process = subprocess.Popen(self.prepare_az_cli_args(
-                    args, suppress_output), shell=not self.envvars.is_posix())
+                process = subprocess.Popen(self.prepare_az_cli_args(args, suppress_output), shell=not self.envvars.is_posix())
 
             stdout_data, stderr_data = process.communicate()
 
-            if stderr_data and b"400" in stderr_data:
+            if stderr_data and b"invalid_grant" in stderr_data:
                 self.output.error(self.decode(stderr_data))
                 self.output.info(
                     "Your Azure CLI session has expired. Please re-run iotedgedev azure --setup to refresh your credentials.")
@@ -219,8 +216,15 @@ class AzureCli:
     def list_resource_groups(self):
         self.output.header("RESOURCE GROUP")
         self.output.status("Retrieving Resource Groups...")
-        return self.invoke_az_cli_outproc(["group", "list", "--query", "[].{\"Resource Group\":name, Location:location}", "--out", "table"],
-                                          "Could not list the Resource Groups.")
+
+        with output_io_cls() as io:
+
+            result = self.invoke_az_cli_outproc(["group", "list", "--query", "[].{\"Resource Group\":name, Location:location}", "--out", "table"], "Could not list the Resource Groups.", stdout_io=io)
+
+            self.output.prompt(io.getvalue())
+            self.output.line()
+
+        return result
 
     def get_free_iothub(self):
         with output_io_cls() as io:

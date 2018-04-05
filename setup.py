@@ -54,13 +54,13 @@ test_requirements = [
 
 
 setup(
-    name='azure-iot-edge-dev-tool',
+    name='azure-iot-edge-dev-cli',
     version='0.77.0',
-    description="The Azure IoT Edge Dev Tool package greatly simplifies your IoT Edge development process by automating many of your routine manual tasks, such as building, deploying, pushing modules and configuring your IoT Edge Runtime.",
-    long_description="See https://github.com/jonbgallant/azure-iot-edge-dev-tool for usage instructions.",
+    description="The Azure IoT Edge Dev CLI greatly simplifies the IoT Edge development process by automating many routine manual tasks, such as building, deploying, pushing modules and configuring the IoT Edge Runtime.",
+    long_description="See https://github.com/azure/iot-edge-dev-cli for usage instructions.",
     author="Jon Gallant",
     author_email='info@jongallant.com',
-    url='https://github.com/jonbgallant/azure-iot-edge-dev-tool',
+    url='https://github.com/azure/iot-edge-dev-cli',
     packages=find_packages(include=['iotedgedev']),
     entry_points={
         'console_scripts': [
@@ -71,7 +71,7 @@ setup(
     install_requires=requirements,
     license="MIT license",
     zip_safe=False,
-    keywords='azure iot edge dev tool',
+    keywords='azure iot edge dev cli',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',

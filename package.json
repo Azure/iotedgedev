@@ -1,7 +1,7 @@
 {
-  "name": "azure-iot-edge-dev-tool",
+  "name": "azure-iot-edge-dev-cli",
   "version": "1.0.0",
-  "description": "The **Azure IoT Edge Dev Tool** greatly simplifies [Azure IoT Edge](https://azure.microsoft.com/en-us/services/iot-edge/) development down to simple CLI commands driven by Environment Variables.",
+  "description": "The **Azure IoT Edge Dev CLI** greatly simplifies [Azure IoT Edge](https:/azure.microsoft.com/en-us/services/iot-edge/) development down to simple CLI commands driven by Environment Variables.",
   "main": "index.js",
   "directories": {
     "test": "tests"
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jonbgallant/azure-iot-edge-dev-tool.git"
+    "url": "git+https://github.com/azure/iot-edge-dev-cli.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jonbgallant/azure-iot-edge-dev-tool/issues"
+    "url": "https://github.com/azure/iot-edge-dev-cli/issues"
   },
-  "homepage": "https://github.com/jonbgallant/azure-iot-edge-dev-tool#readme",
+  "homepage": "https://github.com/azure/iot-edge-dev-cli#readme",
   "dependencies": {
     "iothub-explorer": "^1.1.20",
     "tree-kill": "^1.2.0"
