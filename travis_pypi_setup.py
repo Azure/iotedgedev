@@ -20,7 +20,7 @@ except ImportError:
     from urllib.request import urlopen
 
 
-GITHUB_REPO = 'jonbgallant/azure-iot-edge-dev-tool'
+GITHUB_REPO = 'azure/iot-edge-dev-cli'
 TRAVIS_CONFIG_FILE = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), '.travis.yml')
 

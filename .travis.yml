@@ -25,5 +25,5 @@ deploy:
     secure: PLEASE_REPLACE_ME
   on:
     tags: true
-    repo: jonbgallant/azure-iot-edge-dev-tool
+    repo: azure/iot-edge-dev-cli
     python: 2.7

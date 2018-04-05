@@ -83,7 +83,7 @@ class Utility:
                 for module in self.envvars.ACTIVE_MODULES.split(",") if module]
 
     def get_modules_in_config(self, moduleType):
-        modules_config = json.load(open(self.envvars.DEPLOYMENT_CONFIG_FILE))
+        modules_config = json.load(open(self.envvars.DEPLOYMENT_CONFIG_FILE_PATH))
 
         props = modules_config["moduleContent"]["$edgeAgent"]["properties.desired"]
 

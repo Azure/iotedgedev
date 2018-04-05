@@ -5,6 +5,7 @@ import zipfile
 from .moduletype import ModuleType
 import sys
 
+
 class Docker:
 
     def __init__(self, envvars, utility, output):
@@ -30,8 +31,8 @@ class Docker:
         if "localhost" in self.envvars.CONTAINER_REGISTRY_SERVER:
             self.init_local_registry()
 
-        #removing call to login because I don't think it is actually needed anymore. It could have been left over from before we started using auth_config in the push calls.
-        #self.login_registry()
+        # removing call to login because I don't think it is actually needed anymore. It could have been left over from before we started using auth_config in the push calls.
+        # self.login_registry()
         self.output.line()
 
     def init_local_registry(self):
@@ -90,7 +91,7 @@ class Docker:
 
         except Exception as ex:
             self.output.error(
-                "Could not login to Container Registry. 1. Make sure Docker is running locally. 2. Verify your credentials in CONTAINER_REGISTRY_ environment variables. 2. If you are using WSL, then please set DOCKER_HOST Environment Variable. See the IoT Edge Dev Tool readme at https://aka.ms/iotedgedev for full instructions.")
+                "Could not login to Container Registry. 1. Make sure Docker is running locally. 2. Verify your credentials in CONTAINER_REGISTRY_ environment variables. 2. If you are using WSL, then please set DOCKER_HOST Environment Variable. See the Azure IoT Edge Dev CLI readme at https://aka.ms/iotedgedev for full instructions.")
             self.output.error(str(ex))
             sys.exit(-1)
 
@@ -138,7 +139,7 @@ class Docker:
                     container_registry_image_name))
 
                 for line in self.docker_client.images.push(repository=container_registry_image_name, tag=self.envvars.RUNTIME_TAG, stream=True, auth_config={"username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
-                    self.output.procout(self.utility.decode(line).replace("\\u003e",">"))
+                    self.output.procout(self.utility.decode(line).replace("\\u003e", ">"))
                 self.output.info("SUCCESSFULLY PUSHED IMAGE: '{0}'".format(
                     container_registry_image_name))
             except docker.errors.APIError as e:
@@ -240,8 +241,7 @@ class Docker:
                     self.utility.exe_proc(["docker", "logs", module, ">",
                                            os.path.join(self.envvars.LOGS_PATH, module + ".log")], True)
                 except Exception as ex:
-                    self.output.error(
-                        "Error while trying to save module log file '{0}'".format(module))
+                    self.output.error("Error while trying to save module log file '{0}'".format(module))
                     self.output.error(str(ex))
 
         if save:
