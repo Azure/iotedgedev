@@ -55,7 +55,7 @@ test_requirements = [
 
 setup(
     name='azure-iot-edge-dev-cli',
-    version='0.77.0',
+    version='0.78.0',
     description="The Azure IoT Edge Dev CLI greatly simplifies the IoT Edge development process by automating many routine manual tasks, such as building, deploying, pushing modules and configuring the IoT Edge Runtime.",
     long_description="See https://github.com/azure/iot-edge-dev-cli for usage instructions.",
     author="Jon Gallant",
