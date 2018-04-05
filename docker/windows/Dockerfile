@@ -9,7 +9,14 @@ ENV DESTINATION_FOLDER C:\\tools
 
 WORKDIR /tmp
 
-RUN $python_url = ('https://www.python.org/ftp/python/{0}/python-{0}.exe' -f $env:PYTHON_VERSION); \
+#RUN $python_url = ('https://www.python.org/ftp/python/{0}/python-{0}-embed-amd64.zip' -f $env:PYTHON_VERSION); \
+#    Write-Host ('Downloading {0}...' -f $python_url); \
+#    (New-Object System.Net.WebClient).DownloadFile($python_url, '/tmp/python.zip'); \
+#    $unpack_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath 'python'; \
+#    Write-Host ('Unpacking into {0}...' -f $unpack_folder); \
+#    Expand-Archive python.zip -DestinationPath $unpack_folder; 
+
+RUN $python_url = ('https://www.python.org/ftp/python/{0}/python-{0}-amd64.exe' -f $env:PYTHON_VERSION); \
     Write-Host ('Downloading {0}...' -f $python_url); \
     (New-Object System.Net.WebClient).DownloadFile($python_url, '/tmp/python-installer.exe'); \
     $install_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath 'python'; \
@@ -33,21 +40,20 @@ RUN Write-Host ('Downloading Azure CLI...'); \
 RUN $dotnetcoresdk_url = ('https://dotnetcli.blob.core.windows.net/dotnet/Sdk/{0}/dotnet-sdk-{0}-win-x64.zip' -f $env:DOTNETCORESDK_VERSION); \
     Write-Host ('Downloading {0}...' -f $dotnetcoresdk_url); \
     (New-Object System.Net.WebClient).DownloadFile($dotnetcoresdk_url, '/tmp/dotnetcoresdk.zip'); \
-    Write-Host ('Unpacking .NET Core SDK...'); \
-    Expand-Archive dotnetcoresdk.zip -DestinationPath ..\\tools\\dotnet; 
+    $unpack_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath 'dotnetcoresdk'; \
+    Write-Host ('Unpacking into {0}...' -f $unpack_folder); \
+    Expand-Archive dotnetcoresdk.zip -DestinationPath $unpack_folder; 
 
-FROM microsoft/nanoserver:1709
+FROM microsoft/nanoserver:sac2016
 
 RUN mkdir c:\\tools 
 RUN mkdir c:\\tools\\azure
 
-COPY --from=base ["tools", "/tools"]
+COPY --from=base ["tools/", "/tools"]
 COPY --from=base ["/Program Files (x86)/Microsoft SDKs/Azure/", "/tools/azure"]
 
-USER ContainerAdministrator 
-RUN setx /M PATH "%PATH%;C:\\tools\\dotnet;C:\\tools\\node\\;C:\tools\\python\\;C:\\tools\\python\\Scripts\\;c:\\tools\\azure\\CLI2\\wbin\\;"
-USER ContainerUser
+RUN setx /M PATH "%PATH%;C:\\tools\\dotnetcoresdk;C:\\tools\\node\\;C:\tools\\python\\;C:\\tools\\python\\Scripts\\;c:\\tools\\azure\\CLI2\\wbin\\;"
 
-RUN npm -i -g iothub-explorer 
+RUN npm i -g iothub-explorer 
 
 RUN az extension add --name azure-cli-iot-ext
