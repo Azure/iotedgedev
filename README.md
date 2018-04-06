@@ -8,6 +8,9 @@ The **Azure IoT Edge Dev CLI** greatly simplifies [Azure IoT Edge](https:/azure.
 ## Quickstart
 Here is the absolute fastest way to get started with IoT Edge Dev. This quickstart will run a container, create a solution, setup Azure resources, build and deploy modules to your device, setup and start the Edge Runtime and then monitor messages flowing into IoT Hub.
 
+Here's a video walk-through of this Quickstart:
+[![Azure IoT Edge Dev CLI: Quickstart](assets/edgedevcliquickstart.png)](https://aka.ms/iotedgedevquickstart)
+
 The only thing you need to install is Docker. All of the other dev dependencies are included in the container. 
 
 1. Install **[Docker](https://docs.docker.com/engine/installation/)**
@@ -146,7 +149,7 @@ az ad sp create-for-rbac -n "iotedgedev01"
 
 Alternatively, you can deploy the IoT Hub **and** Container Registry with this **Deploy to Azure** template:
 
-[![Azure Deployment](https:/azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fazure%2Fiot-edge-dev-cli%2Fmaster%2Fassets%2Fdeploy%2FARMDeployment%2Fazuredeploy.json)
+[![Azure Deployment](https://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fazure%2Fiot-edge-dev-cli%2Fmaster%2Fassets%2Fdeploy%2FARMDeployment%2Fazuredeploy.json)
 
 > Note: If you do not need a Container Registry, or are planning to use a local registry, then you should run the **iotedgedev azure** command instead of running this **Deploy to Azure** template, because the template includes a Container Registry.
 
