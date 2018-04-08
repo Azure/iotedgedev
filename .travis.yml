@@ -25,5 +25,5 @@ deploy:
     secure: PLEASE_REPLACE_ME
   on:
     tags: true
-    repo: azure/iot-edge-dev-cli
+    repo: azure/iotedgedev
     python: 2.7
