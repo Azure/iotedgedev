@@ -5,19 +5,14 @@ SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPref
 ENV PYTHON_VERSION 3.6.5
 ENV NODEJS_VERSION 8.11.1
 ENV DOTNETCORESDK_VERSION 2.1.4
+ENV DOCKER_VERSION 17.09.0
 ENV DESTINATION_FOLDER C:\\tools
 
 WORKDIR /tmp
 
-#RUN $python_url = ('https://www.python.org/ftp/python/{0}/python-{0}-embed-amd64.zip' -f $env:PYTHON_VERSION); \
-#    Write-Host ('Downloading {0}...' -f $python_url); \
-#    (New-Object System.Net.WebClient).DownloadFile($python_url, '/tmp/python.zip'); \
-#    $unpack_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath 'python'; \
-#    Write-Host ('Unpacking into {0}...' -f $unpack_folder); \
-#    Expand-Archive python.zip -DestinationPath $unpack_folder; 
-
 RUN $python_url = ('https://www.python.org/ftp/python/{0}/python-{0}-amd64.exe' -f $env:PYTHON_VERSION); \
     Write-Host ('Downloading {0}...' -f $python_url); \
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
     (New-Object System.Net.WebClient).DownloadFile($python_url, '/tmp/python-installer.exe'); \
     $install_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath 'python'; \
     Write-Host ('Installing into {0}...' -f $install_folder); \
@@ -25,34 +20,39 @@ RUN $python_url = ('https://www.python.org/ftp/python/{0}/python-{0}-amd64.exe' 
 
 RUN $node_url = ('https://nodejs.org/dist/v{0}/node-v{0}-x64.msi' -f $env:NODEJS_VERSION); \
     Write-Host ('Downloading {0}...' -f $node_url); \
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
     (New-Object System.Net.WebClient).DownloadFile($node_url, '/tmp/nodejs-installer.msi'); \
     $install_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath 'node'; \
     Write-Host ('Installing into {0}...' -f $install_folder); \
     Start-Process nodejs-installer.msi -Wait -ArgumentList @('/quiet', '/q', 'InstallDir={0}' -f $install_folder); 
 
-RUN Write-Host ('Downloading Azure CLI...'); \
-    Invoke-WebRequest 'https://aka.ms/installazurecliwindows' -OutFile azure-cli-installer.msi; \
-    # $install_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath 'azcli'; \
-    Write-Host ('Installing...'); \
-    Start-Process azure-cli-installer.msi -Wait -ArgumentList @('/quiet', '/q');     
-# Start-Process azure-cli-installer.msi -Wait -ArgumentList @('/quiet', '/q', 'InstallDir={0}' -f $install_folder); # Seems that InstallDir is not used at all
-
 RUN $dotnetcoresdk_url = ('https://dotnetcli.blob.core.windows.net/dotnet/Sdk/{0}/dotnet-sdk-{0}-win-x64.zip' -f $env:DOTNETCORESDK_VERSION); \
     Write-Host ('Downloading {0}...' -f $dotnetcoresdk_url); \
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
     (New-Object System.Net.WebClient).DownloadFile($dotnetcoresdk_url, '/tmp/dotnetcoresdk.zip'); \
     $unpack_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath 'dotnetcoresdk'; \
     Write-Host ('Unpacking into {0}...' -f $unpack_folder); \
     Expand-Archive dotnetcoresdk.zip -DestinationPath $unpack_folder; 
 
-FROM microsoft/nanoserver:sac2016
+RUN $docker_url = ('https://download.docker.com/win/static/stable/x86_64/docker-{0}-ce.zip'  -f $env:DOCKER_VERSION);\
+    (New-Object System.Net.WebClient).DownloadFile($docker_url, '/tmp/docker.zip'); \
+    $install_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath ''; \
+    Expand-Archive -Path .\docker.zip -DestinationPath $install_folder; \
+    Remove-Item ('{0}\docker\dockerd.exe' -f $env:DESTINATION_FOLDER)
+    
+FROM microsoft/nanoserver:1709
 
 RUN mkdir c:\\tools 
-RUN mkdir c:\\tools\\azure
 
 COPY --from=base ["tools/", "/tools"]
-COPY --from=base ["/Program Files (x86)/Microsoft SDKs/Azure/", "/tools/azure"]
 
-RUN setx /M PATH "%PATH%;C:\\tools\\dotnetcoresdk;C:\\tools\\node\\;C:\tools\\python\\;C:\\tools\\python\\Scripts\\;c:\\tools\\azure\\CLI2\\wbin\\;"
+USER ContainerAdministrator
+
+RUN setx /M PATH "%PATH%;C:\\tools\\dotnetcoresdk;C:\\tools\\node\\;C:\tools\\python\\;C:\\tools\\python\\Scripts\\;c:\\tools\\docker\\;"
+
+USER ContainerUser
+
+RUN pip install azure-cli
 
 RUN npm i -g iothub-explorer 
 
