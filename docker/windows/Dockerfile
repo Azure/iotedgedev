@@ -57,3 +57,5 @@ RUN pip install azure-cli
 RUN npm i -g iothub-explorer 
 
 RUN az extension add --name azure-cli-iot-ext
+
+RUN pip install bumpversion==0.5.3 wheel==0.29.0 watchdog==0.8.3 flake8==2.6.0 tox==2.3.1 coverage==4.1 Sphinx==1.4.8 cryptography PyYAML==3.11 iotedgedev

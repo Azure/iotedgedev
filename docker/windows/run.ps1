@@ -1,4 +1,4 @@
-if ((Get-NetFirewallRule -DisplayName "Docker Proxy 2" -ErrorAction Ignore) -ne $null)
+if ((Get-NetFirewallRule -DisplayName "Docker Proxy" -ErrorAction Ignore) -eq $null)
 {
     New-NetFirewallRule -DisplayName "Docker Proxy" -LocalPort 2375 -Action Allow -Protocol TCP
 }
