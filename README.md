@@ -1,8 +1,8 @@
 # Azure IoT Edge Dev Tool
 
-The **Azure IoT Edge Dev Tool** greatly simplifies [Azure IoT Edge](https://azure.microsoft.com/en-us/services/iot-edge/) development down to simple CLI commands driven by Environment Variables. 
+The **Azure IoT Edge Dev Tool** greatly simplifies [Azure IoT Edge](https:/azure.microsoft.com/en-us/services/iot-edge/) development down to simple Tool commands driven by Environment Variables. 
 
- - It gets you started with IoT Edge development with the [IoT Edge Dev Container](#dev-machine-setup) and IoT Edge Solution Scaffolding that contains a sample module and all the required configuration files.
+ - It gets you started with IoT Edge development with the [IoT Edge Dev Container](#iot-edge-dev-container) and IoT Edge Solution Scaffolding that contains a sample module and all the required configuration files.
  - It speeds up your inner-loop dev (dev, debug, test) by reducing multi-step build & deploy processes into one-line CLI commands and well as drive your outer-loop CI/CD pipeline. _You can use all the same commands in both stages of your development life-cycle._
  
 ## Quickstart
@@ -51,7 +51,7 @@ The only thing you need to install is Docker. All of the other dev dependencies 
 ## Overview
 The **Azure IoT Edge Dev Tool** enables you to do all of the following with simple one-line CLI commands.
 
-1. **Start Container**: Install the Azure IoT Edge Dev Tool:
+1. **Start Container**: 
 
     `docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v c:/temp/iotedge:/home/iotedge jongallant/iotedgedev`
 
@@ -63,7 +63,7 @@ The **Azure IoT Edge Dev Tool** enables you to do all of the following with simp
     - Pip
     - Azure CLI
 
-    You can also directly install the tool with: `pip install azure-iot-edge-dev-tool`   
+    You can also directly install with: `pip install iotedgedev`   
     
 1. **Create Solution**: Create a new IoT Edge Solution that includes a sample module and all the the required configuration files.
 
@@ -102,18 +102,6 @@ The **Azure IoT Edge Dev Tool** enables you to do all of the following with simp
     `iotedgedev docker --setup-registry`
 
 Please see [Azure IoT Edge Dev Resources](https://github.com/jonbgallant/azure-iot-edge-dev) for links to official docs and other IoT Edge dev information.
-
-## Videos
-
-[Azure IoT Edge Dev Tool in 2 Minutes](https://www.youtube.com/watch?v=NsnxMshMhmA)
-[![Azure IoT Edge Dev Tool in 2 Minutes](assets/edgedevtool2mins.png)](https://www.youtube.com/watch?v=NsnxMshMhmA)
-
-[Azure IoT Edge Dev Tool: Introduction](https://www.youtube.com/watch?v=lcDFX8PXqUQ)
-[![Azure IoT Edge Dev Tool: Introduction](assets/edgedevtoolintro.png)](https://www.youtube.com/watch?v=lcDFX8PXqUQ)
-
-[Azure IoT Edge Dev Tool with Windows Subsystem for Linux (WSL)](https://www.youtube.com/watch?v=k5ZtTmHgs_8)
-[![Azure IoT Edge Dev Tool with Windows Subsystem for Linux (WSL)](assets/edgedevtoolwsl.png)](https://www.youtube.com/watch?v=k5ZtTmHgs_8)
-
 
 ## Setup
 ### Azure Setup
@@ -158,7 +146,7 @@ az ad sp create-for-rbac -n "iotedgedev01"
 
 Alternatively, you can deploy the IoT Hub **and** Container Registry with this **Deploy to Azure** template:
 
-[![Azure Deployment](https://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fjonbgallant%2Fazure-iot-edge-dev-tool%2Fmaster%2Fassets%2Fdeploy%2FARMDeployment%2Fazuredeploy.json)
+[![Azure Deployment](https://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fazure%2Fiotedgedev%2Fmaster%2Fassets%2Fdeploy%2FARMDeployment%2Fazuredeploy.json)
 
 > Note: If you do not need a Container Registry, or are planning to use a local registry, then you should run the **iotedgedev azure** command instead of running this **Deploy to Azure** template, because the template includes a Container Registry.
 
@@ -222,24 +210,30 @@ Alternatively, you can deploy the IoT Hub **and** Container Registry with this *
 
 Here's what you need to do to get Azure IoT Edge Dev Tool (aka `iotedgedev`) running on your dev machine. If you are using a separate Edge device, like a Raspberry Pi, you do not need to run all of these steps on your IoT Edge device, you can just use `iotedgectl` directly on the device. See the [IoT Edge Device Setup](#iot-edge-device-setup) section below for more information on setting up your Edge device.
 
-> Note: See the ["Test Coverage"](#test-coverage) section below to see what the Edge Dev Tool has been tested with.
+> Note: See the ["Test Coverage"](#test-coverage) section below to see what the IoT Edge Dev Tool has been tested with.
 
-#### IoT Edge Dev Tool Container
+#### IoT Edge Dev Container
 You can use the IoT Edge Dev Tool container to avoid having to install all the dependencies on your local dev machine.  
 
 > (Only runs on Linux Containers at this time. Windows Container support coming soon.)
 
 1. Install **[Docker](https://docs.docker.com/engine/installation/)**
 
-1. Create Local Folder on Host Dev Machine that will contain your IoT Edge Solutions.
+1. Run Container
 
-    `c:/temp/iotedge`
+    > Your iotedgedev files will be saved to the /iotedge directory on your host machine.
 
-    > This allows you to use VS Code on your host machine and run all the `iotedgedev` commands in your container. We'll mount this folder to the container in the next step.
+    **Windows**
+    ```
+    mkdir c:\temp\iotedge
+    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v c:/temp/iotedge:/home/iotedge jongallant/iotedgedev
+    ```
 
-1. Start Container:
-
-    `docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v c:/temp/iotedge:/home/iotedge jongallant/iotedgedev`
+    **Linux**
+    ```
+    sudo mkdir /home/iotedge
+    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v /home/iotedge:/home/iotedge jongallant/iotedgedev
+    ``` 
 
 1. Change to the `/iotedge` directory:
 
@@ -315,12 +309,12 @@ You can use the IoT Edge Dev Tool container to avoid having to install all the d
 
     You can also use [Device Explorer](https://github.com/Azure/azure-iot-sdk-csharp/releases) as well, but it is Windows only.  The Azure IoT team is working on porting the monitor-events functionality to the official az iot CLI - but for now we'll use the npm package.
 
-1. Install **`azure-iot-edge-dev-tool`**
+1. Install **`iotedgedev`**
 
     > You do not need to run this on the IoT Edge device. See the [IoT Edge Device Setup](#iot-edge-device-setup) section below for more information on setting up your IoT Edge device.
 
     ```
-    pip install azure-iot-edge-dev-tool
+    pip install iotedgedev
     ```  
 
 ## Usage
@@ -375,7 +369,7 @@ The settings used for this module are stored in a .env file in the root of your 
 
     > You can use the `DOTENV_FILE` Environment Variable to point to a different .env file, such as .env.integration or .env.test. This is helpful in CI/CD pipeline scenarios where you'll want to target different environments and devices to ensure all scenarios are tested.
 
-    This tool offers a wizard-like command to guide you through setting up Azure and also setting up the Environment Variables properly.
+    IoT Edge Dev Tool offers a wizard-like command to guide you through setting up Azure and also setting up the Environment Variables properly.
 
     ```
     iotedgedev azure
@@ -415,13 +409,11 @@ This will print messages sent from the device specified in DEVICE_CONNECTION_STR
 npm i -g iothub-explorer
 ```
 
-> NOTE: iothub-explorer is included in the [IoT Edge Dev Tool Container](#iot-edge-dev-tool-container)
+> NOTE: iothub-explorer is included in the [IoT Edge Dev Container](#iot-edge-dev-container)
 
 ### Step 6: Create a new Module
 
 After you have everything running from the IoT Edge Tool solution template, the next step is to develop all the custom modules you need for your scenario.  Here's how you do that:
-
-> Note that as of 2/9, the public version of this module template is not yet aligned with the Edge Dev Tool. At this point you are better off creating a copy of the `filtermodule` module and renaming it to mymodule.  The dotnet module template will be updated soon.
 
 1. Install the .NET Core Module Template
 
@@ -803,7 +795,7 @@ Whether you use `iotedgedev` or directly use `iotedgecgtl` on the Raspberry Pi, 
     ```
     sudo pip install --upgrade setuptools pip
     sudo apt install python2.7-dev libffi-dev libssl-dev -y
-    sudo pip install -U azure-iot-edge-dev-tool
+    sudo pip install -U azure-iot-edge-runtime-ctl
     ```
 
 ##### Config Changes
@@ -902,7 +894,7 @@ This module has been tested with the following:
 
     ```
     ERROR: Could not login to Container Registry. Please verify your credentials in CONTAINER_REGISTRY_ environment variables. 
-    If you are using WSL, then please set DOCKER_HOST Environment Variable. See the [Edge Dev Tool readme](https://aka.ms/iotedgedev) for full instructions.
+    If you are using WSL, then please set DOCKER_HOST Environment Variable. See the [IoT Edge Dev Tool readme](https://aka.ms/iotedgedev) for full instructions.
     ```
 
     ```
@@ -912,13 +904,9 @@ This module has been tested with the following:
     CRITICAL: IoT Edge dependency not available: docker
     ```
 
-## Backlog
-
-Please see the [GitHub project page](https://github.com/jonbgallant/azure-iot-edge-dev-tool/projects) for backlog tasks.
-
 ## Issues
 
-Please use the [GitHub issues page](https://github.com/jonbgallant/azure-iot-edge-dev-tool/issues) to report any issues.
+Please use the [GitHub issues page](https://github.com/azure/iotedgedev/issues) to report any issues.
 
 ## Contributing
 
@@ -928,7 +916,7 @@ Please fork, branch and pull-request any changes you'd like to make.
 
 1. Clone or Fork this Repository
 
-    `git clone https://github.com/jonbgallant/azure-iot-edge-dev-tool.git`
+    `git clone https://github.com/azure/iotedgedev.git`
 
 1. Rename `.env.tmp` in the root of the repo to `.env` and set the `IOTHUB_CONNECTION_STRING_` and `DEVICE_CONNECTION_STRING` values to settings from your IoT Hub and Edge Device. To set these values you could run `iotedgedev azure` in the root of the repo.
 

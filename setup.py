@@ -54,13 +54,13 @@ test_requirements = [
 
 
 setup(
-    name='azure-iot-edge-dev-tool',
-    version='0.77.0',
-    description="The Azure IoT Edge Dev Tool package greatly simplifies your IoT Edge development process by automating many of your routine manual tasks, such as building, deploying, pushing modules and configuring your IoT Edge Runtime.",
-    long_description="See https://github.com/jonbgallant/azure-iot-edge-dev-tool for usage instructions.",
+    name='iotedgedev',
+    version='0.79.0',
+    description="The Azure IoT Edge Dev Tool greatly simplifies the IoT Edge development process by automating many routine manual tasks, such as building, deploying, pushing modules and configuring the IoT Edge Runtime.",
+    long_description="See https://github.com/azure/iotedgedev for usage instructions.",
     author="Jon Gallant",
     author_email='info@jongallant.com',
-    url='https://github.com/jonbgallant/azure-iot-edge-dev-tool',
+    url='https://github.com/azure/iotedgedev',
     packages=find_packages(include=['iotedgedev']),
     entry_points={
         'console_scripts': [
@@ -84,6 +84,7 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6'
     ],
     test_suite='tests',
     tests_require=test_requirements,
