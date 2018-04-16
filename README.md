@@ -1,6 +1,6 @@
 # Azure IoT Edge Dev Tool
 
-The **Azure IoT Edge Dev Tool** greatly simplifies [Azure IoT Edge](https:/azure.microsoft.com/en-us/services/iot-edge/) development down to simple Tool commands driven by Environment Variables. 
+The **Azure IoT Edge Dev Tool** greatly simplifies [Azure IoT Edge](https:/azure.microsoft.com/en-us/services/iot-edge/) development down to simple commands driven by Environment Variables. 
 
  - It gets you started with IoT Edge development with the [IoT Edge Dev Container](#iot-edge-dev-container) and IoT Edge Solution Scaffolding that contains a sample module and all the required configuration files.
  - It speeds up your inner-loop dev (dev, debug, test) by reducing multi-step build & deploy processes into one-line CLI commands and well as drive your outer-loop CI/CD pipeline. _You can use all the same commands in both stages of your development life-cycle._
@@ -10,10 +10,14 @@ Here is the absolute fastest way to get started with IoT Edge Dev. This quicksta
 
 The only thing you need to install is Docker. All of the other dev dependencies are included in the container. 
 
-1. Install **[Docker](https://docs.docker.com/engine/installation/)**
+1. **Install [Docker](https://docs.docker.com/engine/installation/)**
 
-1. Run the Azure IoT Edge Dev Container
+    - Open Docker Settings and setup a Shared Drive that you'll use to store your IoT Edge Solution files.
 
+1. **Run the Azure IoT Edge Dev Container**
+
+    Before you run the container, you will need to create a local folder to store your IoT Edge solution files.
+    
     **Windows**
     ```
     mkdir c:\temp\iotedge
@@ -26,25 +30,27 @@ The only thing you need to install is Docker. All of the other dev dependencies 
     docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v /home/iotedge:/home/iotedge jongallant/iotedgedev
     ```
 
-1. Initialize Edge Solution and Setup Azure Resources
+1. **Initialize Edge Solution and Setup Azure Resources**
 
     `iotedgedev init`
 
-1. Build & Push IoT Edge Modules
+    > 'iotedgedev init' will run both 'iotedgedev solution .' and 'iotedgedev azure', which will create a solution and setup your Azure resource in a single comamnd.
+
+1. **Build & Push IoT Edge Modules**
 
     `iotedgedev push`
 
     > You can also combine build, push and deploy with `iotedgedev push --deploy`
 
-1. Deploy Modules to IoT Edge Device
+1. **Deploy Modules to IoT Edge Device**
 
     `iotedgedev deploy`
     
-1. Start the IoT Edge Runtime
+1. **Start the IoT Edge Runtime**
 
     `iotedgedev start`
 
-1. Monitor Messages sent from IoT Edge to IoT Hub
+1. **Monitor Messages sent from IoT Edge to IoT Hub**
 
     `iotedgedev monitor`
 
