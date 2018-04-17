@@ -65,7 +65,7 @@ def test_deploy_modules(request):
     result = runner.invoke(cli.main, ['deploy'])
     print (result.output)
 
-    assert 'DEPLOY COMPLETE' in result.output
+    assert 'DEPLOYMENT COMPLETE' in result.output
 
 
 @pytest.fixture

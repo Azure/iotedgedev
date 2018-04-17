@@ -35,7 +35,7 @@ requirements = [
     'python-dotenv',
     'requests',
     'fstrings',
-    'azure-iot-edge-runtime-ctl==1.0.0rc21',
+    'azure-iot-edge-runtime-ctl==1.0.0rc22',
     'azure-cli-iot',
     'azure-cli-profile',
     'azure-cli-extension',
@@ -45,11 +45,9 @@ requirements = [
 ]
 
 setup_requirements = [
-    # TODO(jonbgallant): put setup requirements (distutils extensions, etc.) here
 ]
 
 test_requirements = [
-    # TODO: put package test requirements here
 ]
 
 
