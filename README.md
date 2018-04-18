@@ -8,6 +8,10 @@ The **Azure IoT Edge Dev Tool** greatly simplifies [Azure IoT Edge](https:/azure
 ## Quickstart
 Here is the absolute fastest way to get started with IoT Edge Dev. This quickstart will run a container, create a solution, setup Azure resources, build and deploy modules to your device, setup and start the Edge Runtime and then monitor messages flowing into IoT Hub.
 
+Here's a 3 minute video walk-through of this Quickstart:
+
+[![Azure IoT Edge Dev Tool: Quickstart](assets/edgedevtoolquickstartsmall.png)](https://aka.ms/iotedgedevquickstart)
+
 The only thing you need to install is Docker. All of the other dev dependencies are included in the container. 
 
 1. **Install [Docker](https://docs.docker.com/engine/installation/)**
