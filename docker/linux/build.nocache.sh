@@ -1,4 +1,2 @@
 export VERSION=$1
-docker build --no-cache -f Dockerfile.deps -t jongallant/iotedgedev-deps:$1 -t jongallant/iotedgedev-deps:$1-linux -t jongallant/iotedgedev-deps:latest -t jongallant/iotedgedev-deps:latest-linux   . 
-cat Dockerfile | envsubst > Dockerfile.expanded
-docker build --no-cache -f Dockerfile.expanded -t jongallant/iotedgedev:$1 -t jongallant/iotedgedev:$1-linux -t jongallant/iotedgedev:latest -t jongallant/iotedgedev:latest-linux .
+docker build --no-cache -f Dockerfile -t microsoft/iotedgedev:$1 -t microsoft/iotedgedev:$1-linux -t microsoft/iotedgedev:latest -t microsoft/iotedgedev:latest-linux .

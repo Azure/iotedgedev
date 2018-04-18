@@ -18,6 +18,7 @@ from .output import Output
 from .runtime import Runtime
 from .solution import Solution
 from .utility import Utility
+from .edge import Edge
 
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'], max_content_width=120)
@@ -447,6 +448,7 @@ def modules(build, push, no_build, deploy):
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
     mod = Modules(envvars, utility, output, dock)
+    edge = Edge(envvars, utility, output, azure_cli)
 
     if push:
         mod.push(no_build=no_build)
@@ -454,7 +456,7 @@ def modules(build, push, no_build, deploy):
         mod.build()
 
     if deploy:
-        mod.deploy()
+        edge.deploy()
 
 
 @click.command(context_settings=CONTEXT_SETTINGS, help="Manage IoT Edge Runtime")

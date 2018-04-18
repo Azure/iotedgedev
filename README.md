@@ -1,6 +1,6 @@
 # Azure IoT Edge Dev Tool
 
-The **Azure IoT Edge Dev Tool** greatly simplifies [Azure IoT Edge](https:/azure.microsoft.com/en-us/services/iot-edge/) development down to simple Tool commands driven by Environment Variables. 
+The **Azure IoT Edge Dev Tool** greatly simplifies [Azure IoT Edge](https:/azure.microsoft.com/en-us/services/iot-edge/) development down to simple commands driven by Environment Variables. 
 
  - It gets you started with IoT Edge development with the [IoT Edge Dev Container](#iot-edge-dev-container) and IoT Edge Solution Scaffolding that contains a sample module and all the required configuration files.
  - It speeds up your inner-loop dev (dev, debug, test) by reducing multi-step build & deploy processes into one-line CLI commands and well as drive your outer-loop CI/CD pipeline. _You can use all the same commands in both stages of your development life-cycle._
@@ -8,43 +8,53 @@ The **Azure IoT Edge Dev Tool** greatly simplifies [Azure IoT Edge](https:/azure
 ## Quickstart
 Here is the absolute fastest way to get started with IoT Edge Dev. This quickstart will run a container, create a solution, setup Azure resources, build and deploy modules to your device, setup and start the Edge Runtime and then monitor messages flowing into IoT Hub.
 
+Here's a 3 minute video walk-through of this Quickstart:
+
+[![Azure IoT Edge Dev Tool: Quickstart](assets/edgedevtoolquickstartsmall.png)](https://aka.ms/iotedgedevquickstart)
+
 The only thing you need to install is Docker. All of the other dev dependencies are included in the container. 
 
-1. Install **[Docker](https://docs.docker.com/engine/installation/)**
+1. **Install [Docker](https://docs.docker.com/engine/installation/)**
 
-1. Run the Azure IoT Edge Dev Container
+    - Open Docker Settings and setup a Shared Drive that you'll use to store your IoT Edge Solution files.
 
+1. **Run the Azure IoT Edge Dev Container**
+
+    Before you run the container, you will need to create a local folder to store your IoT Edge solution files.
+    
     **Windows**
     ```
     mkdir c:\temp\iotedge
-    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v c:/temp/iotedge:/home/iotedge jongallant/iotedgedev
+    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v c:/temp/iotedge:/home/iotedge microsoft/iotedgedev
     ```
 
     **Linux**
     ```
     sudo mkdir /home/iotedge
-    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v /home/iotedge:/home/iotedge jongallant/iotedgedev
+    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v /home/iotedge:/home/iotedge microsoft/iotedgedev
     ```
 
-1. Initialize Edge Solution and Setup Azure Resources
+1. **Initialize Edge Solution and Setup Azure Resources**
 
     `iotedgedev init`
 
-1. Build & Push IoT Edge Modules
+    > 'iotedgedev init' will run both 'iotedgedev solution .' and 'iotedgedev azure', which will create a solution and setup your Azure resource in a single comamnd.
+
+1. **Build & Push IoT Edge Modules**
 
     `iotedgedev push`
 
     > You can also combine build, push and deploy with `iotedgedev push --deploy`
 
-1. Deploy Modules to IoT Edge Device
+1. **Deploy Modules to IoT Edge Device**
 
     `iotedgedev deploy`
     
-1. Start the IoT Edge Runtime
+1. **Start the IoT Edge Runtime**
 
     `iotedgedev start`
 
-1. Monitor Messages sent from IoT Edge to IoT Hub
+1. **Monitor Messages sent from IoT Edge to IoT Hub**
 
     `iotedgedev monitor`
 
@@ -53,7 +63,7 @@ The **Azure IoT Edge Dev Tool** enables you to do all of the following with simp
 
 1. **Start Container**: 
 
-    `docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v c:/temp/iotedge:/home/iotedge jongallant/iotedgedev`
+    `docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v c:/temp/iotedge:/home/iotedge microsoft/iotedgedev`
 
     This container includes all of the dependencies you need for IoT Edge development, including:
 
@@ -226,13 +236,13 @@ You can use the IoT Edge Dev Tool container to avoid having to install all the d
     **Windows**
     ```
     mkdir c:\temp\iotedge
-    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v c:/temp/iotedge:/home/iotedge jongallant/iotedgedev
+    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v c:/temp/iotedge:/home/iotedge microsoft/iotedgedev
     ```
 
     **Linux**
     ```
     sudo mkdir /home/iotedge
-    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v /home/iotedge:/home/iotedge jongallant/iotedgedev
+    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v /home/iotedge:/home/iotedge microsoft/iotedgedev
     ``` 
 
 1. Change to the `/iotedge` directory:
@@ -281,8 +291,24 @@ You can use the IoT Edge Dev Tool container to avoid having to install all the d
 
 1. Install [Azure CLI IoT Extension](https://github.com/Azure/azure-iot-cli-extension/)
 
-    `az extension add --name azure-cli-iot-ext`
+    - New Install: `az extension add --name azure-cli-iot-ext`
+    - Update Install: `az extension update --name azure-cli-iot-ext`
 
+1. Install [Node.js](https://nodejs.org/en/download/)
+
+    - Node.js is required for the `iotedgedev monitor` command, which uses the Node.js package: `iothub-explorer monitor-events`. Node.js won't be required soon as the monitor-events functionality is currently being ported to the Az IoT Extension. 
+
+1. Install Node.js Packages
+
+    Install the following packages: [iothub-explorer](https://www.npmjs.com/package/iothub-explorer) and [tree-kill](https://www.npmjs.com/package/tree-kill).
+    
+    Execute the following commands to install the packages.
+    
+    ```
+    npm i -g iothub-explorer
+    npm i -g tree-kill
+    ``` 
+        
 1. Install **System Dependencies**
 
     > You can also run under a Python Virtual Environment.  See the [Python Virtual Environment Setup](#python-virtual-environment-setup) instructions below for details on how to set that up.
@@ -299,16 +325,6 @@ You can use the IoT Edge Dev Tool container to avoid having to install all the d
             sudo pip install --upgrade setuptools pip
             sudo apt install python2.7-dev libffi-dev libssl-dev -y
             ```
-1. Install **IoTHub-Explorer**
-
-    Currently, the only way to view IoT Hub Messages via CLI is with the `iothub-explorer` npm package.  You need to [install Node.js](https://nodejs.org/en/download/) and then install the `iothub-explorer` package with the following command:
-
-    ```
-    npm i -g iothub-explorer
-    ```
-
-    You can also use [Device Explorer](https://github.com/Azure/azure-iot-sdk-csharp/releases) as well, but it is Windows only.  The Azure IoT team is working on porting the monitor-events functionality to the official az iot CLI - but for now we'll use the npm package.
-
 1. Install **`iotedgedev`**
 
     > You do not need to run this on the IoT Edge device. See the [IoT Edge Device Setup](#iot-edge-device-setup) section below for more information on setting up your IoT Edge device.
