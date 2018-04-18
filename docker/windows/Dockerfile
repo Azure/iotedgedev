@@ -1,15 +1,11 @@
 FROM microsoft/windowsservercore:1709 AS base
-
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
-
 ENV PYTHON_VERSION 3.6.5
 ENV NODEJS_VERSION 8.11.1
 ENV DOTNETCORESDK_VERSION 2.1.4
 ENV DOCKER_VERSION 17.09.0
 ENV DESTINATION_FOLDER C:\\tools
-
 WORKDIR /tmp
-
 RUN $python_url = ('https://www.python.org/ftp/python/{0}/python-{0}-amd64.exe' -f $env:PYTHON_VERSION); \
     Write-Host ('Downloading {0}...' -f $python_url); \
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
@@ -17,7 +13,6 @@ RUN $python_url = ('https://www.python.org/ftp/python/{0}/python-{0}-amd64.exe' 
     $install_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath 'python'; \
     Write-Host ('Installing into {0}...' -f $install_folder); \
     Start-Process python-installer.exe -Wait -ArgumentList @('/quiet', 'InstallAllUsers=1', 'TargetDir={0}' -f $install_folder, 'PrependPath=1', 'Shortcuts=0', 'Include_doc=0','Include_pip=1', 'Include_test=0'); 
-
 RUN $node_url = ('https://nodejs.org/dist/v{0}/node-v{0}-x64.msi' -f $env:NODEJS_VERSION); \
     Write-Host ('Downloading {0}...' -f $node_url); \
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
@@ -25,7 +20,6 @@ RUN $node_url = ('https://nodejs.org/dist/v{0}/node-v{0}-x64.msi' -f $env:NODEJS
     $install_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath 'node'; \
     Write-Host ('Installing into {0}...' -f $install_folder); \
     Start-Process nodejs-installer.msi -Wait -ArgumentList @('/quiet', '/q', 'InstallDir={0}' -f $install_folder); 
-
 RUN $dotnetcoresdk_url = ('https://dotnetcli.blob.core.windows.net/dotnet/Sdk/{0}/dotnet-sdk-{0}-win-x64.zip' -f $env:DOTNETCORESDK_VERSION); \
     Write-Host ('Downloading {0}...' -f $dotnetcoresdk_url); \
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
@@ -33,7 +27,6 @@ RUN $dotnetcoresdk_url = ('https://dotnetcli.blob.core.windows.net/dotnet/Sdk/{0
     $unpack_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath 'dotnetcoresdk'; \
     Write-Host ('Unpacking into {0}...' -f $unpack_folder); \
     Expand-Archive dotnetcoresdk.zip -DestinationPath $unpack_folder; 
-
 RUN $docker_url = ('https://download.docker.com/win/static/stable/x86_64/docker-{0}-ce.zip'  -f $env:DOCKER_VERSION);\
     (New-Object System.Net.WebClient).DownloadFile($docker_url, '/tmp/docker.zip'); \
     $install_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath ''; \
@@ -41,21 +34,15 @@ RUN $docker_url = ('https://download.docker.com/win/static/stable/x86_64/docker-
     Remove-Item ('{0}\docker\dockerd.exe' -f $env:DESTINATION_FOLDER)
     
 FROM microsoft/nanoserver:1709
-
 RUN mkdir c:\\tools 
-
 COPY --from=base ["tools/", "/tools"]
-
 USER ContainerAdministrator
-
-RUN setx /M PATH "%PATH%;C:\\tools\\dotnetcoresdk;C:\\tools\\node\\;C:\tools\\python\\;C:\\tools\\python\\Scripts\\;c:\\tools\\docker\\;"
-
+RUN setx /M PATH "%PATH%;C:\tools\dotnetcoresdk;C:\tools\node\;C:\tools\python;C:\tools\python\Scripts;c:\tools\docker\;"
 USER ContainerUser
-
+RUN python -m pip install --upgrade pip
 RUN pip install azure-cli
-
 RUN npm i -g iothub-explorer 
-
 RUN az extension add --name azure-cli-iot-ext
-
-RUN pip install bumpversion==0.5.3 wheel==0.29.0 watchdog==0.8.3 flake8==2.6.0 tox==2.3.1 coverage==4.1 Sphinx==1.4.8 cryptography PyYAML==3.11 iotedgedev
+RUN pip --no-cache-dir install -U iotedgedev
+WORKDIR /home/iotedge
+COPY install-dev.bat /scripts/install-dev.bat
