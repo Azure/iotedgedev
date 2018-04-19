@@ -1,6 +1,6 @@
 FROM microsoft/windowsservercore:1709 AS base
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
-ENV PYTHON_VERSION 3.6.5
+ARG PYTHON_VERSION 
 ENV NODEJS_VERSION 8.11.1
 ENV DOTNETCORESDK_VERSION 2.1.4
 ENV DOCKER_VERSION 17.09.0
@@ -42,6 +42,7 @@ USER ContainerUser
 RUN python -m pip install --upgrade pip
 RUN pip install azure-cli
 RUN npm i -g iothub-explorer 
+RUN npm i -g tree-kill
 RUN az extension add --name azure-cli-iot-ext
 RUN pip --no-cache-dir install -U iotedgedev
 WORKDIR /home/iotedge

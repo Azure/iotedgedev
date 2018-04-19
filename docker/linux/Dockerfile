@@ -1,5 +1,6 @@
 FROM ubuntu:16.04
 ENV DEBIAN_FRONTEND noninteractive
+ENV DOTNETCORESDK_VERSION 2.1.4
 RUN apt-get update && \
     apt-get install -y --no-install-recommends dialog apt-utils curl apt-transport-https python-pip libltdl-dev docker.io && \ 
     curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
@@ -9,7 +10,7 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > mic
     mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg && \ 
     sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-ubuntu-xenial-prod xenial main" > /etc/apt/sources.list.d/dotnetdev.list' && \ 
     apt-get update && \ 
-    apt-get install -y dotnet-sdk-2.1.3
+    apt-get install -y dotnet-sdk-${DOTNETCORESDK_VERSION}
 RUN AZ_REPO=$(lsb_release -cs) && \
     echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | \
     tee /etc/apt/sources.list.d/azure-cli.list && \
