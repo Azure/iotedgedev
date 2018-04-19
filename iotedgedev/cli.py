@@ -74,13 +74,16 @@ def solution(create, name):
 @click.pass_context
 def init(ctx):
 
+    if len(os.listdir(os.getcwd())) > 0:
+        output.prompt("Directory is not empty. Run iotedgedev azure --setup or clear the directory.")
+        sys.exit()
+
     utility = Utility(envvars, output)
 
-    if len(os.listdir(os.getcwd())) == 0:
-        solcmd = "iotedgedev solution ."
-        output.header(solcmd)
-        utility.call_proc(solcmd.split())
-
+    solcmd = "iotedgedev solution ."
+    output.header(solcmd)
+    utility.call_proc(solcmd.split())
+    
     azsetupcmd = "iotedgedev azure --update-dotenv"
     output.header(azsetupcmd)
     utility.call_proc(azsetupcmd.split())
