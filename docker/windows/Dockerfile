@@ -46,7 +46,7 @@ FROM microsoft/nanoserver:1709
 RUN mkdir c:\\tools 
 COPY --from=base ["tools/", "/tools"]
 USER ContainerAdministrator
-RUN setx /M PATH "%PATH%;C:\tools\dotnetcoresdk;C:\tools\node\;C:\tools\python2;C:\tools\python2\Scripts;c:\tools\docker\;"
+RUN setx /M PATH "%PATH%;C:\tools\dotnetcoresdk;C:\tools\node\;C:\tools\python3;C:\tools\python3\Scripts;c:\tools\docker\;"
 USER ContainerUser
 RUN python -m pip install --upgrade pip
 RUN pip install azure-cli
