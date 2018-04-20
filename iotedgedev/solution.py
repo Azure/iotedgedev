@@ -8,7 +8,7 @@ class Solution:
 
     def create(self, name):
         if not self.utility.is_dir_empty(name):
-            self.output.prompt("Directory is not empty. Run 'iotedgedev azure' or clean the directory")
+            self.output.prompt("Directory is not empty. Run 'iotedgedev azure' or clean the directory.")
             return
 
         self.output.header("CREATING AZURE IOT EDGE SOLUTION: {0}".format(name))
