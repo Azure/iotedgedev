@@ -48,9 +48,7 @@ function build_windows
     check_docker_expected_mode "windows"
 
     cd windows
-
-    echo "===== Building Windows Based image (Python $PYTHON3)"
-    docker build --build-arg PYTHON_VERSION=$PYTHON3 -f Dockerfile -t microsoft/iotedgedev:$VERSION-windows -t microsoft/iotedgedev:latest-windows -t microsoft/iotedgedev:$VERSION-windows-py3 -t microsoft/iotedgedev:latest-windows-py3 .
+    docker build --build-arg PYTHON2_VERSION=$PYTHON2 --build-arg PYTHON3_VERSION=$PYTHON3 -f Dockerfile -t microsoft/iotedgedev:$VERSION-windows -t microsoft/iotedgedev:latest-windows .
 
     cd ..
 }

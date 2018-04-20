@@ -1,18 +1,27 @@
 FROM microsoft/windowsservercore:1709 AS base
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
-ARG PYTHON_VERSION 
+ARG PYTHON2_VERSION
+ARG PYTHON3_VERSION
 ENV NODEJS_VERSION 8.11.1
 ENV DOTNETCORESDK_VERSION 2.1.4
 ENV DOCKER_VERSION 17.09.0
 ENV DESTINATION_FOLDER C:\\tools
 WORKDIR /tmp
-RUN $python_url = ('https://www.python.org/ftp/python/{0}/python-{0}-amd64.exe' -f $env:PYTHON_VERSION); \
+RUN $python_url = ('https://www.python.org/ftp/python/{0}/python-{0}.amd64.msi' -f $env:PYTHON2_VERSION); \
     Write-Host ('Downloading {0}...' -f $python_url); \
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
-    (New-Object System.Net.WebClient).DownloadFile($python_url, '/tmp/python-installer.exe'); \
-    $install_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath 'python'; \
+    (New-Object System.Net.WebClient).DownloadFile($python_url, '/tmp/python2-installer.msi'); \
+    $install_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath 'python2'; \
     Write-Host ('Installing into {0}...' -f $install_folder); \
-    Start-Process python-installer.exe -Wait -ArgumentList @('/quiet', 'InstallAllUsers=1', 'TargetDir={0}' -f $install_folder, 'PrependPath=1', 'Shortcuts=0', 'Include_doc=0','Include_pip=1', 'Include_test=0'); 
+    Start-Process python2-installer.msi -Wait -ArgumentList @('/quiet', 'InstallAllUsers=1', 'TargetDir={0}' -f $install_folder, 'PrependPath=1', 'Shortcuts=0', 'Include_doc=0','Include_pip=1', 'Include_test=0');    
+RUN $python_url = ('https://www.python.org/ftp/python/{0}/python-{0}-amd64.exe' -f $env:PYTHON3_VERSION); \
+    Write-Host ('Downloading {0}...' -f $python_url); \
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
+    (New-Object System.Net.WebClient).DownloadFile($python_url, '/tmp/python3-installer.exe'); \
+    $install_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath 'python3'; \
+    Write-Host ('Installing into {0}...' -f $install_folder); \
+    Start-Process python3-installer.exe -Wait -ArgumentList @('/quiet', 'InstallAllUsers=1', 'TargetDir={0}' -f $install_folder, 'PrependPath=1', 'Shortcuts=0', 'Include_doc=0','Include_pip=1', 'Include_test=0'); \
+    Rename-Item -Path "..\tools\python3\python.exe" -NewName "python3.exe"
 RUN $node_url = ('https://nodejs.org/dist/v{0}/node-v{0}-x64.msi' -f $env:NODEJS_VERSION); \
     Write-Host ('Downloading {0}...' -f $node_url); \
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
@@ -37,7 +46,7 @@ FROM microsoft/nanoserver:1709
 RUN mkdir c:\\tools 
 COPY --from=base ["tools/", "/tools"]
 USER ContainerAdministrator
-RUN setx /M PATH "%PATH%;C:\tools\dotnetcoresdk;C:\tools\node\;C:\tools\python;C:\tools\python\Scripts;c:\tools\docker\;"
+RUN setx /M PATH "%PATH%;C:\tools\dotnetcoresdk;C:\tools\node\;C:\tools\python2;C:\tools\python2\Scripts;c:\tools\docker\;"
 USER ContainerUser
 RUN python -m pip install --upgrade pip
 RUN pip install azure-cli
