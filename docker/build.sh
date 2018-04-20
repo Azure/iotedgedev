@@ -6,6 +6,9 @@ export VERSION=$(cat ../iotedgedev/__init__.py | grep '__version__' | grep -oP "
 PYTHON2="2.7.14"
 PYTHON3="3.6.5"
 
+build_linux=1
+build_windows=1
+
 function switch_docker
 {
     echo "===== Switching Docker engine"
@@ -53,19 +56,42 @@ function build_windows
     cd ..
 }
 
+if [ $1 = "--help" ]; then    
+    echo "Usage:"
+    echo "build.sh [linux|windows]"
+    exit 1
+fi
+
+if [ $1 = "linux" ]; then
+    build_windows=0
+    echo "===== Building Linux image only"
+fi
+
+if [ $1 = "windows" ]; then
+    build_linux=0
+    echo "===== Building Windows image only"
+fi
+
 mode=$(get_docker_mode)
 echo "===== Docker is in '$mode' container mode"
 if [ $mode = "windows" ]; then
     # Docker is in Windows Container mode
-    build_windows
-    switch_docker
-    build_linux
-    switch_docker
+    if [ $build_windows = "1" ]; then
+        build_windows
+    fi
+    if [ $build_linux = "1" ]; then
+        switch_docker
+        build_linux
+        switch_docker
+    fi
 else
     # Docker is in Linux Container mode
-    build_linux
-    switch_docker
-    build_windows
-    switch_docker
+    if [ $build_linux -eq "1" ]; then    
+        build_linux
+    fi
+    if [ $build_windows -eq "1" ]; then    
+        switch_docker
+        build_windows
+        switch_docker
+    fi
 fi
-
