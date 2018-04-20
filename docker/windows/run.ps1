@@ -1,5 +1,5 @@
 param (
-    [string]$interface = 'vEthernet (nat'    
+    [string]$interface = 'vEthernet (nat)'
  )
 
 $ErrorActionPreference = "Stop"
