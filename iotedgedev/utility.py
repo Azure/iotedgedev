@@ -41,6 +41,17 @@ class Utility:
         except Exception as e:
             self.output.error("Error while executing command: {0}. {1}".format(' '.join(params), str(e)))
 
+    def is_dir_empty(self, name):
+        if name == ".":
+            name = os.getcwd()
+        else:
+            name = os.path.join(os.getcwd(), name)
+        
+        if os.path.exists(name):
+            return len(os.listdir(name)) == 0
+        else:
+            return True
+
     def find_files(self, directory, pattern):
         # find all files in directory that match the pattern.
         for root, dirs, files in os.walk(directory):

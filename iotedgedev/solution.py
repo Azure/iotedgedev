@@ -1,13 +1,13 @@
 import os
 import zipfile
 
-
 class Solution:
-    def __init__(self, output):
+    def __init__(self, output, utility):
         self.output = output
+        self.utility = utility
 
     def create(self, name):
-        if not is_dir_empty(name):
+        if not self.utility.is_dir_empty(name):
             self.output.prompt("Directory is not empty. Run 'iotedgedev azure' or clean the directory")
             return
 
@@ -30,14 +30,3 @@ class Solution:
         self.output.footer("Azure IoT Edge Solution Created")
         if name != "":
             self.output.info("Execute 'cd {0}' to navigate to your new solution.".format(name))
-
-    def is_dir_empty(name):
-        if name == ".":
-            name = os.getcwd()
-        else:
-            name = os.path.join(os.getcwd(), name)
-        
-        if os.path.exists(name):
-            return len(os.listdir(name)) == 0
-        else:
-            return True
