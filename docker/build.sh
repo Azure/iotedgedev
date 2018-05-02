@@ -39,7 +39,12 @@ function build_linux
     check_docker_expected_mode "linux"
 
     cd linux
-    docker build -f Dockerfile -t microsoft/iotedgedev:$VERSION-linux -t microsoft/iotedgedev:latest-linux .
+    docker build \
+        -f Dockerfile \
+        --no-cache \
+        -t microsoft/iotedgedev:$VERSION-linux \
+        -t microsoft/iotedgedev:latest-linux \
+        .
 
     cd ..
 }
@@ -51,25 +56,38 @@ function build_windows
     check_docker_expected_mode "windows"
 
     cd windows
-    docker build --build-arg PYTHON2_VERSION=$PYTHON2 --build-arg PYTHON3_VERSION=$PYTHON3 -f Dockerfile -t microsoft/iotedgedev:$VERSION-windows -t microsoft/iotedgedev:latest-windows .
+    docker build \
+        --build-arg PYTHON2_VERSION=$PYTHON2 \
+        --build-arg PYTHON3_VERSION=$PYTHON3 \
+        -f Dockerfile \
+        --no-cache \
+        -t microsoft/iotedgedev:$VERSION-windows \
+        -t microsoft/iotedgedev:latest-windows \
+        .
 
     cd ..
 }
 
-if [ $1 = "--help" ]; then    
-    echo "Usage:"
-    echo "build.sh [linux|windows]"
-    exit 1
-fi
+if [ ! -z "$1" ];  then
+    if [ "$1" = "--help" ]; then    
+        echo "Usage:"
+        echo "build.sh [linux|windows]"
+        exit 1
+    fi
 
-if [ $1 = "linux" ]; then
-    build_windows=0
-    echo "===== Building Linux image only"
-fi
-
-if [ $1 = "windows" ]; then
-    build_linux=0
-    echo "===== Building Windows image only"
+    if [ "$1" = "linux" ]; then
+        build_windows=0
+        echo "===== Building Linux image only"
+    elif [ "$1" = "windows" ]; then
+        build_linux=0
+        echo "===== Building Windows image only"
+    else
+        echo "Unknown option: $1"
+        echo "Use --help for help"
+        exit 1
+    fi
+else
+    echo "===== Building Windows and Linux images"
 fi
 
 mode=$(get_docker_mode)
