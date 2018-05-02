@@ -15,7 +15,7 @@
                 "RedirectOutput"
             ],
             "env": {
-                "DOTENV_FILE": ".env.tmp",
+                "DOTENV_FILE": ".env",
             }
         }
     ]
