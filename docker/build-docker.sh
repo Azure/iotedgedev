@@ -71,7 +71,7 @@ function build_windows
 if [ ! -z "$1" ];  then
     if [ "$1" = "--help" ]; then    
         echo "Usage:"
-        echo "build.sh [linux|windows]"
+        echo "build-docker.sh [linux|windows]"
         exit 1
     fi
 
