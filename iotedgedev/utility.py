@@ -42,11 +42,6 @@ class Utility:
             self.output.error("Error while executing command: {0}. {1}".format(' '.join(params), str(e)))
 
     def is_dir_empty(self, name):
-        if name == ".":
-            name = os.getcwd()
-        else:
-            name = os.path.join(os.getcwd(), name)
-        
         if os.path.exists(name):
             return len(os.listdir(name)) == 0
         else:
