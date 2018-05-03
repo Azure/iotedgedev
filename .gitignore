@@ -85,3 +85,10 @@ node_modules
 /docker/linux/Dockerfile.expanded
 
 .pytest_cache
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
