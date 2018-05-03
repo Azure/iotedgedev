@@ -23,7 +23,7 @@ rm .pytest_cache -rf
 rm tests/__pycache__ -rf
 
 echo "===== Running smoke tests"
-#tox
+tox
 
 echo "===== Bumping version"
 bumpversion minor

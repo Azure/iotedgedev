@@ -3,7 +3,7 @@
 # read IoTEdgeDev version from python __init__ file
 export VERSION=$(cat ../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
 
-PYTHON2="2.7.14"
+PYTHON2="2.7.14" #TODO READ FROM deps.txt
 PYTHON3="3.6.5"
 
 build_linux=1
