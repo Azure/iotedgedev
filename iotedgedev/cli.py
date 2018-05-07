@@ -580,10 +580,6 @@ def docker(setup_registry,
     if show_logs or save_logs:
         dock.handle_logs_cmd(show_logs, save_logs)
 
-
-if __name__ == "__main__":
-    main()
-
 main.add_command(runtime)
 main.add_command(modules)
 main.add_command(docker)
@@ -599,3 +595,6 @@ main.add_command(start)
 main.add_command(restart)
 main.add_command(stop)
 main.add_command(monitor)
+
+if __name__ == "__main__":
+    main()

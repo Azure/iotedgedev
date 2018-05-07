@@ -962,7 +962,11 @@ Please fork, branch and pull-request any changes you'd like to make.
     ```
     pip install -e .
     ```
+#### VS Code Debugging
+VS Code Debugging works only with Python 3.6 VS Code Python Environments for now. Make sure that your VS Code Python Environment is [pointing to Python 3.6](https://code.visualstudio.com/docs/python/environments#_how-to-choose-an-environment)
 
+Set your CLI arguments in launch.json and hit **F5**
+ 
 #### Run Tests
 
 Run the following command to run tests.
