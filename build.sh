@@ -6,24 +6,26 @@ set -e
 function show_help
 {
     echo "Usage:"
-    echo "build.sh <mode> <dockerhub>"
+    echo "build.sh <mode> <dockerhub> <pipyaccount>"
     echo ""
     echo "mode: test|prod"
     echo "dockerhub: docker hub name (eg:microsoft/iotedgedev) used for pushing created images"
+    echo "pipyaccount: account name used to login into PyPi repository"
     exit 1
 }
 
 MODE="$1"
 DOCKERHUB="$2"
+PIPYUSER="$3"
 
 if [ -z "$MODE" ] && [ -z "$DOCKERHUB" ]; then
     show_help
 fi
 
 echo -e "\n===== Setting up build environment"
-if [ "$MODE" = "prod" ]; then
+if [ "$MODE" = "test" ]; then
     PIPYREPO="https://test.pypi.org/legacy/"
-elif [ "$MODE" = "test" ]; then
+elif [ "$MODE" = "prod" ]; then
     PIPYREPO="https://pypi.org/legacy/"
 else
     echo "ERROR> Build mode parameter not known. must be 'prod' or 'test'"
@@ -31,7 +33,12 @@ else
 fi
 echo "Building for: $MODE"
 if [ -z "$DOCKERHUB" ]; then
-    echo "ERROR>Build mode docker hub target not specified."
+    echo "ERROR> Build mode docker hub target not specified."
+    exit 1
+fi
+echo "PyPi account used: $PIPYUSER"
+if [ -z "$PIPYUSER" ]; then
+    echo "ERROR> PyPi account name not specified."
     exit 1
 fi
 echo "Target Docker Hub: $DOCKERHUB"
@@ -51,6 +58,7 @@ fi
 # stop and restart docker to make sure to avoid networking problem?
 # check that dockerhub exists and is accessible
 # check that pipy repo exists and is accessible
+# make sure there are no pending changes in GIT otherwise bumpversion will complain
 
 echo -e "\n===== Preventive cleanup"
 rm __pycache__ -rf
@@ -60,17 +68,21 @@ rm .pytest_cache -rf
 rm tests/__pycache__ -rf
 
 echo -e "\n===== Running smoke tests"
-tox
+#tox
 
 echo -e "\n===== Bumping version"
-bumpversion minor
+if [ "$MODE" = "prod" ]; then
+    bumpversion minor
+fi
+
+echo -e "\n===== Detecting version"
 VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
 
 echo -e "\n===== Building Python Wheel"
 python setup.py bdist_wheel 
 
 echo -e "\n===== Uploading to PyPi"
-twine upload --repository-url $PIPYREPO  dist/iotedgedev-$VERSION-py2.py3-none-any.whl
+twine upload -u $PIPYUSER --repository-url $PIPYREPO dist/iotedgedev-$VERSION-py2.py3-none-any.whl
 
 echo -e "\n===== Building Docker images"
 cd docker
