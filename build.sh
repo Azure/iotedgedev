@@ -3,47 +3,89 @@
 # stop on error
 set -e
 
-echo "===== Checking pre-requisistes"
+function show_help
+{
+    echo "Usage:"
+    echo "build.sh <mode> <dockerhub>"
+    echo ""
+    echo "mode: test|prod"
+    echo "dockerhub: docker hub name (eg:microsoft/iotedgedev) used for pushing created images"
+    exit 1
+}
+
+MODE="$1"
+DOCKERHUB="$2"
+
+if [ -z "$MODE" ] && [ -z "$DOCKERHUB" ]; then
+    show_help
+fi
+
+echo -e "\n===== Setting up build environment"
+if [ "$MODE" = "prod" ]; then
+    PIPYREPO="https://test.pypi.org/legacy/"
+elif [ "$MODE" = "test" ]; then
+    PIPYREPO="https://pypi.org/legacy/"
+else
+    echo "ERROR> Build mode parameter not known. must be 'prod' or 'test'"
+    exit 1
+fi
+echo "Building for: $MODE"
+if [ -z "$DOCKERHUB" ]; then
+    echo "ERROR>Build mode docker hub target not specified."
+    exit 1
+fi
+echo "Target Docker Hub: $DOCKERHUB"
+
+
+echo -e "\n===== Checking pre-requisistes"
 IS_ADMIN=$(powershell '([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")')
 if [ "$IS_ADMIN" = "False" ]; then        
-    echo "build script must be run as administrator"
+    echo "ERROR> Build script must be run as administrator"
     exit 1
 fi
 
 #TODO
 # check if running in administrator mode
 # make sure docker is in linux mode
+# make sure docker supports manifest option
 # stop and restart docker to make sure to avoid networking problem?
+# check that dockerhub exists and is accessible
+# check that pipy repo exists and is accessible
 
-echo "===== Preventive cleanup"
+echo -e "\n===== Preventive cleanup"
 rm __pycache__ -rf
 rm .pytest_cache -rf
 rm .tox -rf
 rm .pytest_cache -rf
 rm tests/__pycache__ -rf
 
-echo "===== Running smoke tests"
+echo -e "\n===== Running smoke tests"
 tox
 
-echo "===== Bumping version"
+echo -e "\n===== Bumping version"
 bumpversion minor
+VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
 
-echo "===== Building Python Wheel"
+echo -e "\n===== Building Python Wheel"
 python setup.py bdist_wheel 
 
-echo "===== Uploading to PyPi"
-VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
-twine upload --repository-url https://test.pypi.org/legacy/  dist/iotedgedev-$VERSION-py2.py3-none-any.whl
+echo -e "\n===== Uploading to PyPi"
+twine upload --repository-url $PIPYREPO  dist/iotedgedev-$VERSION-py2.py3-none-any.whl
 
-echo "===== Building Docker images"
+echo -e "\n===== Building Docker images"
 cd docker
 ./build-docker.sh
 
-echo "===== Pushing Docker images"
-#TODO
+echo -e "\n===== Pushing Docker images"
+docker push $DOCKERHUB:$VERSION-linux 
+docker push $DOCKERHUB:latest-linux 
+docker push $DOCKERHUB:$VERSION-windows 
+docker push $DOCKERHUB:latest-windows 
 
-echo "===== Creating Multi-Arch Docker image"
-#TODO
+echo -e "\n===== Creating Multi-Arch Docker image"
+docker manifest create $DOCKERHUB:latest $DOCKERHUB:latest-linux $DOCKERHUB:latest-windows 
 
-echo "===== Pushing Docker Multi-Arch image"
-#TODO
+echo -e "\n===== Pushing Docker Multi-Arch image"
+docker manifest push
+
+echo -e "\n===== All done"
