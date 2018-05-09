@@ -22,6 +22,7 @@ RUN az extension add --name azure-cli-iot-ext && \
     apt-get update && \
     apt-get install -y --no-install-recommends python-dev build-essential libssl-dev libffi-dev libxml2-dev libxslt1-dev zlib1g-dev && \
     rm -rf /var/lib/apt/lists/*
+RUN python -m pip install --upgrade pip    
 RUN pip install setuptools
 RUN pip --no-cache-dir install -U iotedgedev
 WORKDIR /home/iotedge

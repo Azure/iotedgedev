@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# make sure we're in docker folder
+original_folder=$PWD
+
+if [ -z $"echo $PWD | grep /docker$" ]; then 
+    in_docker_folder=1
+else
+    in_docker_folder=0
+    cd docker
+fi
+
 # read IoTEdgeDev version from python __init__ file
 export VERSION=$(cat ../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
 
@@ -71,11 +81,7 @@ function build_windows
 if [ ! -z "$1" ];  then
     if [ "$1" = "--help" ]; then    
         echo "Usage:"
-<<<<<<< HEAD:docker/build.sh
-        echo "build.sh [linux|windows]"
-=======
         echo "build-docker.sh [linux|windows]"
->>>>>>> 028442b7701263ba42568307895edb45d09f2311:docker/build-docker.sh
         exit 1
     fi
 
@@ -116,4 +122,8 @@ else
         build_windows
         switch_docker
     fi
+fi
+
+if [ in_docker_folder = 0 ] then;
+    cd original_folder
 fi
