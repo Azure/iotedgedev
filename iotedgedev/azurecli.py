@@ -157,7 +157,7 @@ class AzureCli:
 
     def get_subscription_id_starts_with(self, token):
         with output_io_cls() as io:
-            result = self.invoke_az_cli_outproc(["account", "list", "--query", "[?starts_with(@.id,'{0}') || starts_with(@.name,'{0}')] | [0]".format(token)],
+            result = self.invoke_az_cli_outproc(["account", "list", "--query", "[?starts_with(@.id,'{0}') || starts_with(@.name,'{1}')] | [0]".format(token.lower(), token)],
                                                 "Could not find a subscription that starts with '{0}'".format(token), io)
             if result:
                 out_string = io.getvalue()
