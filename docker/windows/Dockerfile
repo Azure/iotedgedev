@@ -20,8 +20,7 @@ RUN $python_url = ('https://www.python.org/ftp/python/{0}/python-{0}-amd64.exe' 
     (New-Object System.Net.WebClient).DownloadFile($python_url, '/tmp/python3-installer.exe'); \
     $install_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath 'python3'; \
     Write-Host ('Installing into {0}...' -f $install_folder); \
-    Start-Process python3-installer.exe -Wait -ArgumentList @('/quiet', 'InstallAllUsers=1', 'TargetDir={0}' -f $install_folder, 'PrependPath=1', 'Shortcuts=0', 'Include_doc=0','Include_pip=1', 'Include_test=0'); \
-    Rename-Item -Path "..\tools\python3\python.exe" -NewName "python3.exe"
+    Start-Process python3-installer.exe -Wait -ArgumentList @('/quiet', 'InstallAllUsers=1', 'TargetDir={0}' -f $install_folder, 'PrependPath=1', 'Shortcuts=0', 'Include_doc=0','Include_pip=1', 'Include_test=0');     
 RUN $node_url = ('https://nodejs.org/dist/v{0}/node-v{0}-x64.msi' -f $env:NODEJS_VERSION); \
     Write-Host ('Downloading {0}...' -f $node_url); \
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
