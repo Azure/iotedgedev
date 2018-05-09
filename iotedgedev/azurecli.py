@@ -159,11 +159,19 @@ class AzureCli:
         with output_io_cls() as io:
             result = self.invoke_az_cli_outproc(["account", "list", "--query", "[?starts_with(@.id,'{0}') || starts_with(@.name,'{1}')] | [0]".format(token.lower(), token)],
                                                 "Could not find a subscription that starts with '{0}'".format(token), io)
+
             if result:
                 out_string = io.getvalue()
                 if out_string:
+
                     data = json.loads(out_string)
-                    return data["id"]
+                    if len(data) == 1:
+                        return data[0]["id"]
+                    elif len(data) > 1:
+                        self.output.error("Found multiple subscriptions that start with '{0}'".format(token))
+                    else:
+                        self.output.error("Could not find a subscription that starts with '{0}'".format(token))
+
         return ''
 
     def set_subscription(self, subscription):
@@ -171,10 +179,13 @@ class AzureCli:
         if len(subscription) < 36:
             subscription = self.get_subscription_id_starts_with(subscription)
 
-        self.output.status(f("Setting Subscription to '{subscription}'..."))
+        if len(subscription) == 36:
+            self.output.status(f("Setting Subscription to '{subscription}'..."))
 
-        return self.invoke_az_cli_outproc(["account", "set", "--subscription", subscription],
-                                          "Error while trying to set Azure subscription.")
+            return self.invoke_az_cli_outproc(["account", "set", "--subscription", subscription],
+                                            "Error while trying to set Azure subscription.")
+        
+        return False
 
     def resource_group_exists(self, name):
         self.output.status(f("Checking if Resource Group '{name}' exists..."))
