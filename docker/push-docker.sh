@@ -3,6 +3,16 @@
 # stop on error
 set -e
 
+# make sure we're in docker folder
+original_folder=$PWD
+
+if [ -z $"echo $PWD | grep /docker$" ]; then 
+    in_docker_folder=1
+else
+    in_docker_folder=0
+    cd docker
+fi
+
 function show_help
 {
     echo "Usage:"
@@ -42,3 +52,7 @@ docker manifest create $DOCKERHUB:latest $DOCKERHUB:latest-linux $DOCKERHUB:late
 
 echo -e "\n===== Pushing Docker Multi-Arch image"
 docker manifest push
+
+if [ in_docker_folder = 0 ]; then
+    cd original_folder
+fi
