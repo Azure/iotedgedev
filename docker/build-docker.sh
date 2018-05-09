@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# stop on error
+set -e
+
 # make sure we're in docker folder
 original_folder=$PWD
 
