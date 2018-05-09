@@ -124,6 +124,6 @@ else
     fi
 fi
 
-if [ in_docker_folder = 0 ] then;
+if [ in_docker_folder = 0 ]; then
     cd original_folder
 fi
