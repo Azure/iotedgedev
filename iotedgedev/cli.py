@@ -63,7 +63,8 @@ def main(set_config, az_cli=None):
 @click.argument("name", required=False)
 def solution(create, name):
 
-    sol = Solution(output)
+    utility = Utility(envvars, output)
+    sol = Solution(output, utility)
     if name:
         sol.create(name)
     elif create:

@@ -42,6 +42,65 @@ def create_solution(request):
 
 
 @pytest.fixture
+def test_solution_create_in_non_empty_current_path(request):
+
+    os.chdir(test_solution_dir)
+
+    cli = __import__("iotedgedev.cli", fromlist=['main'])
+    runner = CliRunner()
+    result = runner.invoke(cli.main, ['solution', '.'])
+    print (result.output)
+
+    assert "Directory is not empty" in result.output
+
+
+@pytest.fixture
+def test_solution_create_in_empty_current_path(request):
+
+    os.chdir(test_solution_dir)
+
+    dirname = "emptydir_current"
+    os.makedirs(dirname)
+    os.chdir(os.path.join(test_solution_dir, dirname))
+
+    cli = __import__("iotedgedev.cli", fromlist=['main'])
+    runner = CliRunner()
+    result = runner.invoke(cli.main, ['solution', '.'])
+    print (result.output)
+
+    assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
+
+
+@pytest.fixture
+def test_solution_create_in_non_empty_dir(request):
+
+    os.chdir(tests_dir)
+
+    cli = __import__("iotedgedev.cli", fromlist=['main'])
+    runner = CliRunner()
+    result = runner.invoke(cli.main, ['solution', test_solution])
+    print (result.output)
+
+    assert "Directory is not empty" in result.output
+
+
+@pytest.fixture
+def test_solution_create_in_empty_child_dir(request):
+
+    os.chdir(test_solution_dir)
+
+    dirname = "emptydir"
+    os.makedirs(dirname)
+    
+    cli = __import__("iotedgedev.cli", fromlist=['main'])
+    runner = CliRunner()
+    result = runner.invoke(cli.main, ['solution', dirname])
+    print (result.output)
+
+    assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
+
+
+@pytest.fixture
 def test_push_modules(request):
 
     os.chdir(test_solution_dir)
