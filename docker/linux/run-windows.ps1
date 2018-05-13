@@ -2,4 +2,4 @@
 $source_folder = Get-Location | Split-Path | Split-Path 
 
 # Run Docker Container
-docker run -it -v /var/run/docker.sock:/var/run/docker.sock -v ${source_folder}:/home/iotedge/tool microsoft/iotedgedev:latest-linux
+winpty docker run -it -v //var//run//docker.sock://var//run//docker.sock -v ${source_folder}:/home/iotedge/tool microsoft/iotedgedev:latest-linux
