@@ -6,7 +6,7 @@ set -e
 # make sure we're in docker folder
 original_folder=$PWD
 
-if [ -z $"echo $PWD | grep /docker$" ]; then 
+if [ ! -z "$(echo $PWD | grep /docker$)" ]; then 
     in_docker_folder=1
 else
     in_docker_folder=0
