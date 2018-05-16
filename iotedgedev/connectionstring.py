@@ -13,6 +13,8 @@ class ConnectionString:
 
             if self.data:
                 self.HostName = self["hostname"]
+                if self.HostName:
+                    self.HubName = self.HostName.split('.')[0]
                 self.SharedAccessKey = self["sharedaccesskey"]
 
     def __getitem__(self, key):

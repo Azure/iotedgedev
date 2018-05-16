@@ -226,10 +226,10 @@ class AzureCli:
 
         return result
 
-    def apply_configuration(self, deviceId, connection_string, config):
+    def apply_configuration(self, deviceId, connection_string, hubName, config):
         self.output.status(f("Deploying '{config}' to '{deviceId}'..."))
 
-        return self.invoke_az_cli_outproc(["iot", "hub", "apply-configuration", "-d", deviceId, "-k", config, "-l", connection_string], error_message=f("Failed to deploy '{config}' to '{deviceId}'..."), suppress_output=True)
+        return self.invoke_az_cli_outproc(["iot", "hub", "apply-configuration", "-d", deviceId, "-n", hubName, "-k", config, "-l", connection_string], error_message=f("Failed to deploy '{config}' to '{deviceId}'..."), suppress_output=True)
 
     def get_free_iothub(self):
         with output_io_cls() as io:
