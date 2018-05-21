@@ -94,7 +94,7 @@ def test_monitor(request, capfd):
     print (err)
     print (result.output)
 
-    assert 'application properties' in out
+    assert 'timeCreated' in out
 
 
 @pytest.fixture
