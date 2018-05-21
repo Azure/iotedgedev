@@ -168,9 +168,9 @@ class AzureCli:
                     if len(data) == 1:
                         return data[0]["id"]
                     elif len(data) > 1:
-                        self.output.error("Found multiple subscriptions that start with '{0}'".format(token))
+                        self.output.error("Found multiple subscriptions that start with '{0}'. Please enter more characters to further refine your selection.".format(token))
                     else:
-                        self.output.error("Could not find a subscription that starts with '{0}'".format(token))
+                        self.output.error("Could not find a subscription that starts with '{0}'.".format(token))
 
         return ''
 
