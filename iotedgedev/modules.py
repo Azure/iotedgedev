@@ -15,6 +15,25 @@ class Modules:
         self.dock = dock
         self.dock.init_registry()
 
+    def create(self, name, lang):
+        self.output.header("CREATING MODULE")
+
+        if lang == "csharp":
+            cmd = "dotnet new -i Microsoft.Azure.IoT.Edge.Module"
+            self.output.header(cmd)
+            self.utility.call_proc(cmd.split(), True)
+            cmd = "dotnet new aziotedgemodule -n " + name
+            self.output.header(cmd)
+            self.utility.call_proc(cmd.split, True)
+        elif lang == "python":
+            pass
+        elif lang == "nodejs":
+            pass
+        elif lang == "csharpfunction":
+            pass
+
+        self.output.footer("CREATE COMPLETE")
+
     def build(self):
         self.build_push(no_push=True)
 
