@@ -20,10 +20,10 @@ class Modules:
         if lang == "csharp":
             cmd = "dotnet new -i Microsoft.Azure.IoT.Edge.Module"
             self.output.header(cmd)
-            # self.utility.call_proc(cmd.split())
+            self.utility.call_proc(cmd.split())
             cmd = "dotnet new aziotedgemodule -n " + name + " -r " + self.envvars.CONTAINER_REGISTRY_SERVER
             self.output.header(cmd)
-            # self.utility.call_proc(cmd.split(), cwd=self.envvars.MODULES_PATH)
+            self.utility.call_proc(cmd.split(), cwd=self.envvars.MODULES_PATH)
         elif lang == "python":
             pass
         elif lang == "nodejs":
@@ -42,9 +42,9 @@ class Modules:
             }
         }"""
 
-        deployment_manifest_json = json.load(open(self.envvars.DEPLOYMENT_CONFIG_FILE_PATH))
+        deployment_manifest_json = json.load(open(self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE))
         deployment_manifest_json["moduleContent"]["$edgeAgent"]["properties.desired"]["modules"][name] = json.loads(new_module)
-        with open(self.envvars.DEPLOYMENT_CONFIG_FILE_PATH, "w") as deployment_manifest:
+        with open(self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, "w") as deployment_manifest:
             json.dump(deployment_manifest_json, deployment_manifest, indent=2)
 
         self.output.footer("CREATE COMPLETE")
