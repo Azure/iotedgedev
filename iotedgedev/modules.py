@@ -24,15 +24,15 @@ class Modules:
             cmd = "dotnet new aziotedgemodule -n {0} -r {1}".format(name, self.envvars.CONTAINER_REGISTRY_SERVER)
             self.output.header(cmd)
             self.utility.call_proc(cmd.split(), cwd=self.envvars.MODULES_PATH)
-        elif lang == "python":
-            gitHub_source = "https://github.com/Azure/cookiecutter-azure-iot-edge-module"
-            branch = "master"
-            cmd = ("cookiecutter --no-input {0} module_name={1} image_repository={2} --checkout {3}"
-                   .format(gitHub_source, name, self.envvars.CONTAINER_REGISTRY_SERVER, branch))
-            self.output.header(cmd)
-            self.utility.call_proc(cmd.split(), cwd=self.envvars.MODULES_PATH)
         elif lang == "nodejs":
             pass
+        elif lang == "python":
+            github_source = "https://github.com/Azure/cookiecutter-azure-iot-edge-module"
+            branch = "master"
+            cmd = ("cookiecutter --no-input {0} module_name={1} image_repository={2} --checkout {3}"
+                   .format(github_source, name, self.envvars.CONTAINER_REGISTRY_SERVER, branch))
+            self.output.header(cmd)
+            self.utility.call_proc(cmd.split(), cwd=self.envvars.MODULES_PATH)
         elif lang == "csharpfunction":
             cmd = "dotnet new -i Microsoft.Azure.IoT.Edge.Function"
             self.output.header(cmd)

@@ -4,7 +4,6 @@ from hashlib import sha256
 from hmac import HMAC
 import json
 import os
-import requests
 import subprocess
 import sys
 from time import time

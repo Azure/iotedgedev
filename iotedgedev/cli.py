@@ -433,7 +433,7 @@ def azure(setup,
 # @click.option("--lang",
 #               default="csharp",
 #               required=False,
-#               type=click.Choice(["csharp", "python", "nodejs", "csharpfunction"]))
+#               type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]))
 # def module(create, name, lang):
 #     utility = Utility(envvars, output)
 #     dock = Docker(envvars, utility, output)
