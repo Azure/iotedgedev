@@ -33,9 +33,9 @@ class Utility:
             self.output.error(self.decode(stderr_data))
             sys.exit()
 
-    def call_proc(self, params, shell=False):
+    def call_proc(self, params, shell=False, cwd=None):
         try:
-            subprocess.check_call(params, shell=shell)
+            subprocess.check_call(params, shell=shell, cwd=cwd)
         except KeyboardInterrupt as ki:
             return
         except Exception as e:
