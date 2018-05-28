@@ -423,25 +423,25 @@ def azure(setup,
             envvars.save_envvar("DEVICE_CONNECTION_STRING", envvars.DEVICE_CONNECTION_STRING)
             output.info("Updated current .env file")
 
-@click.command(context_settings=CONTEXT_SETTINGS, help="Create IoT Edge Modules")
-@click.option('--create',
-              default=".",
-              required=False,
-              help="Creates a new Azure IoT module. User `--create .` to create in current folder. Use `--create TEXT to create in a subfolder.`")
-@click.argument('name',
-                required=False)
-@click.option("--lang",
-              default="csharp",
-              required=False,
-              type=click.Choice(["csharp", "python", "nodejs", "csharpfunction"]))
-def module(create, name, lang):
-    utility = Utility(envvars, output)
-    dock = Docker(envvars, utility, output)
-    mod = Modules(envvars, utility, output, dock)
-    edge = Edge(envvars, utility, output, azure_cli)
+# @click.command(context_settings=CONTEXT_SETTINGS, help="Create IoT Edge Modules")
+# @click.option('--create',
+#               default=".",
+#               required=False,
+#               help="Creates a new Azure IoT module. User `--create .` to create in current folder. Use `--create TEXT to create in a subfolder.`")
+# @click.argument('name',
+#                 required=False)
+# @click.option("--lang",
+#               default="csharp",
+#               required=False,
+#               type=click.Choice(["csharp", "python", "nodejs", "csharpfunction"]))
+# def module(create, name, lang):
+#     utility = Utility(envvars, output)
+#     dock = Docker(envvars, utility, output)
+#     mod = Modules(envvars, utility, output, dock)
+#     edge = Edge(envvars, utility, output, azure_cli)
 
-    if create:
-        mod.create(create, lang)
+#     if create:
+#         mod.create(create, lang)
 
 @click.command(context_settings=CONTEXT_SETTINGS, help="Build and Deploy IoT Edge Modules")
 @click.option('--build',
@@ -602,7 +602,7 @@ def docker(setup_registry,
 
 main.add_command(runtime)
 main.add_command(modules)
-main.add_command(module)
+# main.add_command(module)
 main.add_command(docker)
 main.add_command(solution)
 main.add_command(iothub)
