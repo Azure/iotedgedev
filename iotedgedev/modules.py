@@ -14,32 +14,34 @@ class Modules:
         self.dock = dock
         self.dock.init_registry()
 
-    def create(self, name, lang):
+    def create(self, name, template):
         self.output.header("CREATING MODULE")
 
-        if lang == "csharp":
+        repo = "{0}/{1}".format(self.envvars.CONTAINER_REGISTRY_SERVER, name.lower())
+        cwd = self.envvars.MODULES_PATH
+        if template == "csharp":
             cmd = "dotnet new -i Microsoft.Azure.IoT.Edge.Module"
             self.output.header(cmd)
             self.utility.exe_proc(cmd.split())
-            cmd = "dotnet new aziotedgemodule -n {0} -r {1}".format(name, self.envvars.CONTAINER_REGISTRY_SERVER)
+            cmd = "dotnet new aziotedgemodule -n {0} -r {1}".format(name, repo)
             self.output.header(cmd)
-            self.utility.exe_proc(cmd.split(), cwd=self.envvars.MODULES_PATH)
-        elif lang == "nodejs":
+            self.utility.exe_proc(cmd.split(), cwd=cwd)
+        elif template == "nodejs":
             pass
-        elif lang == "python":
+        elif template == "python":
             github_source = "https://github.com/Azure/cookiecutter-azure-iot-edge-module"
             branch = "master"
             cmd = ("cookiecutter --no-input {0} module_name={1} image_repository={2} --checkout {3}"
-                   .format(github_source, name, self.envvars.CONTAINER_REGISTRY_SERVER, branch))
+                   .format(github_source, name, repo, branch))
             self.output.header(cmd)
-            self.utility.exe_proc(cmd.split(), cwd=self.envvars.MODULES_PATH)
-        elif lang == "csharpfunction":
+            self.utility.exe_proc(cmd.split(), cwd=cwd)
+        elif template == "csharpfunction":
             cmd = "dotnet new -i Microsoft.Azure.IoT.Edge.Function"
             self.output.header(cmd)
             self.utility.exe_proc(cmd.split())
-            cmd = "dotnet new aziotedgefunction -n {0} -r {1}".format(name, self.envvars.CONTAINER_REGISTRY_SERVER)
+            cmd = "dotnet new aziotedgefunction -n {0} -r {1}".format(name, repo)
             self.output.header(cmd)
-            self.utility.exe_proc(cmd.split(), cwd=self.envvars.MODULES_PATH)
+            self.utility.exe_proc(cmd.split(), cwd=cwd)
 
         new_module = """{
             "version": "1.0",

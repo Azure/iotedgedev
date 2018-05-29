@@ -430,18 +430,18 @@ def azure(setup,
 #               help="Creates a new Azure IoT module. User `--create .` to create in current folder. Use `--create TEXT to create in a subfolder.`")
 # @click.argument('name',
 #                 required=False)
-# @click.option("--lang",
+# @click.option("--template",
 #               default="csharp",
 #               required=False,
 #               type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]))
-# def module(create, name, lang):
+# def module(create, name, template):
 #     utility = Utility(envvars, output)
 #     dock = Docker(envvars, utility, output)
 #     mod = Modules(envvars, utility, output, dock)
 #     edge = Edge(envvars, utility, output, azure_cli)
 
 #     if create:
-#         mod.create(create, lang)
+#         mod.create(create, template)
 
 @click.command(context_settings=CONTEXT_SETTINGS, help="Build and Deploy IoT Edge Modules")
 @click.option('--build',
