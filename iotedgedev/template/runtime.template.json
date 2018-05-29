@@ -23,7 +23,7 @@
   "homeDir": "${RUNTIME_HOME_DIR}", 
   "configDir": "${RUNTIME_CONFIG_DIR}", 
   "hostName": "${RUNTIME_HOST_NAME}", 
-  "logLevel": "info", 
+  "logLevel": "${RUNTIME_LOG_LEVEL}",
   "schemaVersion": "1", 
   "security": {
     "certificates": {
