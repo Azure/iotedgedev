@@ -20,9 +20,9 @@ class Utility:
         self.output = output
         self.config_set = False
 
-    def exe_proc(self, params, shell=False):
+    def exe_proc(self, params, shell=False, cwd=None):
         proc = subprocess.Popen(
-            params, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell)
+            params, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell, cwd=cwd)
 
         stdout_data, stderr_data = proc.communicate()
         if stdout_data != "":
