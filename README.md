@@ -4,9 +4,14 @@ The **Azure IoT Edge Dev Tool** greatly simplifies [Azure IoT Edge](https:/azure
 
  - It gets you started with IoT Edge development with the [IoT Edge Dev Container](#iot-edge-dev-container) and IoT Edge Solution Scaffolding that contains a sample module and all the required configuration files.
  - It speeds up your inner-loop dev (dev, debug, test) by reducing multi-step build & deploy processes into one-line CLI commands and well as drive your outer-loop CI/CD pipeline. _You can use all the same commands in both stages of your development life-cycle._
- 
+
+## Overview
+For the absolute fastest way to get started with IoT Edge Dev, please see the [Quickstart](#quickstart) section below.
+
+For a more detailed overview of IoT Edge Dev Tool including setup and commands, please see the [Wiki](https://github.com/Azure/iotedgedev/wiki).
+
 ## Quickstart
-Here is the absolute fastest way to get started with IoT Edge Dev. This quickstart will run a container, create a solution, setup Azure resources, build and deploy modules to your device, setup and start the Edge Runtime and then monitor messages flowing into IoT Hub.
+This quickstart will run a container, create a solution, setup Azure resources, build and deploy modules to your device, setup and start the Edge Runtime and then monitor messages flowing into IoT Hub.
 
 Here's a 3 minute video walk-through of this Quickstart:
 
