@@ -66,4 +66,4 @@ The only thing you need to install is Docker. All of the other dev dependencies 
 ## Resources
 Please refer to the [Wiki](https://github.com/Azure/iotedgedev/wiki) for details on setup, usage, and troubleshooting.
 
-Please refer to the [Contributing file](CONTRIBUTING.MD) for details on contributing changes.
+Please refer to the [Contributing file](CONTRIBUTING.md) for details on contributing changes.
