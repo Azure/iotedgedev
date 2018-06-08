@@ -427,7 +427,7 @@ def azure(setup,
 # @click.option('--create',
 #               default=".",
 #               required=False,
-#               help="Creates a new Azure IoT module. User `--create .` to create in current folder. Use `--create TEXT to create in a subfolder.`")
+#               help="Creates a new Azure IoT module. Use `--create .` to create in current folder. Use `--create TEXT to create in a subfolder.`")
 # @click.argument('name',
 #                 required=False)
 # @click.option("--template",
