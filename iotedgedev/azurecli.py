@@ -10,6 +10,8 @@ output_io_cls = StringIO
 from azure.cli.core import get_default_cli
 from .envvars import EnvVars
 
+def get_query_argument_for_id_and_name(token):
+    return "[?starts_with(@.id,'{0}') || starts_with(@.name,'{1}')]".format(token.lower(), token)
 
 class AzureCli:
     def __init__(self,  output, envvars, cli=get_default_cli()):
@@ -157,7 +159,8 @@ class AzureCli:
 
     def get_subscription_id_starts_with(self, token):
         with output_io_cls() as io:
-            result = self.invoke_az_cli_outproc(["account", "list", "--query", "[?starts_with(@.id,'{0}') || starts_with(@.name,'{1}')] | [0]".format(token.lower(), token)],
+            query = get_query_argument_for_id_and_name(token)
+            result = self.invoke_az_cli_outproc(["account", "list", "--query", query],
                                                 "Could not find a subscription that starts with '{0}'".format(token), io)
 
             if result:
