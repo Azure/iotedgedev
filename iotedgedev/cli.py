@@ -101,6 +101,20 @@ def e2e(ctx):
     ctx.invoke(monitor)
 
 
+@click.command(context_settings=CONTEXT_SETTINGS,
+               short_help="Create a New IoT Edge Module",
+               help="Create a New IoT Edge Module. Specify as `.` NAME to create in current folder, otherwise in a subfolder.")
+@click.argument('name',
+                required=True)
+@click.option("--template",
+              required=True,
+              type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]),
+              help="Specify the template used to create the new IoT Edge module")
+@click.pass_context
+def createmodule(ctx, name, template):
+    ctx.invoke(modules, create=name, template=template)
+
+
 @click.command(context_settings=CONTEXT_SETTINGS, help="Builds All Active Modules")
 @click.option('--push',
               default=False,
@@ -423,27 +437,16 @@ def azure(setup,
             envvars.save_envvar("DEVICE_CONNECTION_STRING", envvars.DEVICE_CONNECTION_STRING)
             output.info("Updated current .env file")
 
-# @click.command(context_settings=CONTEXT_SETTINGS, help="Create IoT Edge Modules")
-# @click.option('--create',
-#               default=".",
-#               required=False,
-#               help="Creates a new Azure IoT module. Use `--create .` to create in current folder. Use `--create TEXT to create in a subfolder.`")
-# @click.argument('name',
-#                 required=False)
-# @click.option("--template",
-#               default="csharp",
-#               required=False,
-#               type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]))
-# def module(create, name, template):
-#     utility = Utility(envvars, output)
-#     dock = Docker(envvars, utility, output)
-#     mod = Modules(envvars, utility, output, dock)
-#     edge = Edge(envvars, utility, output, azure_cli)
 
-#     if create:
-#         mod.create(create, template)
-
-@click.command(context_settings=CONTEXT_SETTINGS, help="Build and Deploy IoT Edge Modules")
+@click.command(context_settings=CONTEXT_SETTINGS, help="Create, Build and Deploy IoT Edge Modules")
+@click.option('--create',
+              required=False,
+              help="Creates a new IoT Edge module. Use `--create .` to create in current folder. Use `--create TEXT` to create in a subfolder.")
+@click.option("--template",
+              default="csharp",
+              required=False,
+              type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]),
+              help="Specifies the template used to create the new IoT Edge module")
 @click.option('--build',
               default=False,
               required=False,
@@ -464,13 +467,15 @@ def azure(setup,
               required=False,
               is_flag=True,
               help="Deploys modules to Edge device using deployment.json in the config folder.")
-def modules(build, push, no_build, deploy):
+def modules(create, template, build, push, no_build, deploy):
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
     mod = Modules(envvars, utility, output, dock)
     edge = Edge(envvars, utility, output, azure_cli)
 
-    if push:
+    if create:
+        mod.create(create, template)
+    elif push:
         mod.push(no_build=no_build)
     elif build:
         mod.build()
@@ -600,15 +605,16 @@ def docker(setup_registry,
     if show_logs or save_logs:
         dock.handle_logs_cmd(show_logs, save_logs)
 
+
 main.add_command(runtime)
 main.add_command(modules)
-# main.add_command(module)
 main.add_command(docker)
 main.add_command(solution)
 main.add_command(iothub)
 main.add_command(azure)
 main.add_command(init)
 main.add_command(e2e)
+main.add_command(createmodule)
 main.add_command(build)
 main.add_command(push)
 main.add_command(deploy)
