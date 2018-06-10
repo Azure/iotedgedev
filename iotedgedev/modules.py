@@ -1,5 +1,6 @@
 import os
 import json
+import re
 
 from .module import Module
 from .modulesprocessorfactory import ModulesProcessorFactory
@@ -16,6 +17,16 @@ class Modules:
 
     def create(self, name, template):
         self.output.header("CREATING MODULE")
+
+        if name.startswith("_") or name.endswith("_"):
+            self.output.error("Module name cannot start or end with the symbol _")
+            return
+        elif not re.match("^[a-zA-Z0-9_]+$", name):
+            self.output.error("Module name can only contain alphanumeric characters and the symbol _")
+            return
+        elif os.path.exists(os.path.join(self.envvars.MODULES_PATH, name)):
+            self.output.error("Module \"{0}\" already exists under {1}".format(name, os.path.abspath(self.envvars.MODULES_PATH)))
+            return
 
         repo = "{0}/{1}".format(self.envvars.CONTAINER_REGISTRY_SERVER, name.lower())
         cwd = self.envvars.MODULES_PATH

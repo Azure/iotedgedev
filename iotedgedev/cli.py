@@ -102,14 +102,13 @@ def e2e(ctx):
 
 
 @click.command(context_settings=CONTEXT_SETTINGS,
-               short_help="Create a New IoT Edge Module",
-               help="Create a New IoT Edge Module. Specify as `.` NAME to create in current folder, otherwise in a subfolder.")
+               help="Create a New IoT Edge Module.")
 @click.argument('name',
                 required=True)
 @click.option("--template",
               required=True,
               type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]),
-              help="Specify the template used to create the new IoT Edge module")
+              help="Specify the template used to create the new IoT Edge module.")
 @click.pass_context
 def createmodule(ctx, name, template):
     ctx.invoke(modules, create=name, template=template)
@@ -441,12 +440,12 @@ def azure(setup,
 @click.command(context_settings=CONTEXT_SETTINGS, help="Create, Build and Deploy IoT Edge Modules")
 @click.option('--create',
               required=False,
-              help="Creates a new IoT Edge module. Use `--create .` to create in current folder. Use `--create TEXT` to create in a subfolder.")
+              help="Create a new IoT Edge module.")
 @click.option("--template",
               default="csharp",
               required=False,
               type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]),
-              help="Specifies the template used to create the new IoT Edge module")
+              help="Specify the template used to create the new IoT Edge module.")
 @click.option('--build',
               default=False,
               required=False,
