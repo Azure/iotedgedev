@@ -2,6 +2,7 @@ import os
 import json
 import re
 
+from .deploymentmanifest import DeploymentManifest
 from .module import Module
 from .modulesprocessorfactory import ModulesProcessorFactory
 
@@ -57,21 +58,9 @@ class Modules:
             self.output.header(cmd)
             self.utility.exe_proc(cmd.split(), cwd=cwd)
 
-        new_module = """{
-            "version": "1.0",
-            "type": "docker",
-            "status": "running",
-            "restartPolicy": "always",
-            "settings": {
-              "image": \"{MODULES.""" + name + """.amd64}\",
-              "createOptions": ""
-            }
-        }"""
-
-        deployment_manifest_json = json.load(open(self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE))
-        deployment_manifest_json["moduleContent"]["$edgeAgent"]["properties.desired"]["modules"][name] = json.loads(new_module)
-        with open(self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, "w") as deployment_manifest:
-            json.dump(deployment_manifest_json, deployment_manifest, indent=2)
+        deployment_manifest = DeploymentManifest(self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
+        deployment_manifest.add_module_template(name)
+        deployment_manifest.save()
 
         self.output.footer("CREATE COMPLETE")
 
