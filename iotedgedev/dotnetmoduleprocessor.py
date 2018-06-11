@@ -13,7 +13,7 @@ class DotNetModuleProcessor(object):
         try:
             self.utility.exe_proc(["dotnet", "--version"])
         except:
-            self.output.error("The .NET Core SDK is required to use the Azure IoT Edge Dev Tool. For installation instructions, see the README at https://aka.ms/iotedgedev.")
+            self.output.error("The .NET Core SDK is required to build .NET modules with the Azure IoT Edge Dev Tool. For installation instructions, see the README at https://aka.ms/iotedgedev.")
             sys.exit(-1)
 
     def build(self):
