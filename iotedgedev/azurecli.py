@@ -10,6 +10,8 @@ output_io_cls = StringIO
 from azure.cli.core import get_default_cli
 from .envvars import EnvVars
 
+def get_query_argument_for_id_and_name(token):
+    return "[?starts_with(@.id,'{0}') || contains(@.name,'{1}')]".format(token.lower(), token)
 
 class AzureCli:
     def __init__(self,  output, envvars, cli=get_default_cli()):
@@ -157,13 +159,22 @@ class AzureCli:
 
     def get_subscription_id_starts_with(self, token):
         with output_io_cls() as io:
-            result = self.invoke_az_cli_outproc(["account", "list", "--query", "[?starts_with(@.id,'{0}') || starts_with(@.name,'{0}')] | [0]".format(token)],
-                                                "Could not find a subscription that starts with '{0}'".format(token), io)
+            query = get_query_argument_for_id_and_name(token)
+            result = self.invoke_az_cli_outproc(["account", "list", "--query", query],
+                                                "Could not find a subscription for which the id starts with or name contains '{0}'".format(token), io)
+
             if result:
                 out_string = io.getvalue()
                 if out_string:
+
                     data = json.loads(out_string)
-                    return data["id"]
+                    if len(data) == 1:
+                        return data[0]["id"]
+                    elif len(data) > 1:
+                        self.output.error("Found multiple subscriptions for which the ids start with or names contain '{0}'. Please enter more characters to further refine your selection.".format(token))
+                    else:
+                        self.output.error("Could not find a subscription for which the id starts with or name contains '{0}'.".format(token))
+
         return ''
 
     def set_subscription(self, subscription):
@@ -171,10 +182,13 @@ class AzureCli:
         if len(subscription) < 36:
             subscription = self.get_subscription_id_starts_with(subscription)
 
-        self.output.status(f("Setting Subscription to '{subscription}'..."))
+        if len(subscription) == 36:
+            self.output.status(f("Setting Subscription to '{subscription}'..."))
 
-        return self.invoke_az_cli_outproc(["account", "set", "--subscription", subscription],
-                                          "Error while trying to set Azure subscription.")
+            return self.invoke_az_cli_outproc(["account", "set", "--subscription", subscription],
+                                            "Error while trying to set Azure subscription.")
+        
+        return False
 
     def resource_group_exists(self, name):
         self.output.status(f("Checking if Resource Group '{name}' exists..."))
