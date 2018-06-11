@@ -11,7 +11,7 @@ from azure.cli.core import get_default_cli
 from .envvars import EnvVars
 
 def get_query_argument_for_id_and_name(token):
-    return "[?starts_with(@.id,'{0}') || starts_with(@.name,'{1}')]".format(token.lower(), token)
+    return "[?starts_with(@.id,'{0}') || contains(@.name,'{1}')]".format(token.lower(), token)
 
 class AzureCli:
     def __init__(self,  output, envvars, cli=get_default_cli()):
@@ -161,7 +161,7 @@ class AzureCli:
         with output_io_cls() as io:
             query = get_query_argument_for_id_and_name(token)
             result = self.invoke_az_cli_outproc(["account", "list", "--query", query],
-                                                "Could not find a subscription that starts with '{0}'".format(token), io)
+                                                "Could not find a subscription for which the id starts with or name contains '{0}'".format(token), io)
 
             if result:
                 out_string = io.getvalue()
@@ -171,9 +171,9 @@ class AzureCli:
                     if len(data) == 1:
                         return data[0]["id"]
                     elif len(data) > 1:
-                        self.output.error("Found multiple subscriptions that start with '{0}'. Please enter more characters to further refine your selection.".format(token))
+                        self.output.error("Found multiple subscriptions for which the ids start with or names contain '{0}'. Please enter more characters to further refine your selection.".format(token))
                     else:
-                        self.output.error("Could not find a subscription that starts with '{0}'.".format(token))
+                        self.output.error("Could not find a subscription for which the id starts with or name contains '{0}'.".format(token))
 
         return ''
 
