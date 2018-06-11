@@ -15,7 +15,7 @@ def test_lowercase_token_should_be_lowercase_for_name_and_id():
 
     assert len(terms) == 2
     assert "starts_with(@.id,'abc123')" in terms 
-    assert "starts_with(@.name,'abc123')" in terms
+    assert "contains(@.name,'abc123')" in terms
 
 def test_mixedcase_token_should_be_lowercase_for_id_but_unmodified_for_name():
     token = "AbC123"
@@ -24,4 +24,4 @@ def test_mixedcase_token_should_be_lowercase_for_id_but_unmodified_for_name():
 
     assert len(terms) == 2
     assert "starts_with(@.id,'abc123')" in terms 
-    assert "starts_with(@.name,'AbC123')" in terms
+    assert "contains(@.name,'AbC123')" in terms
