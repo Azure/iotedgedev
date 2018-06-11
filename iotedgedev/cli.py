@@ -381,7 +381,7 @@ def header_and_default(header, default, default2=None):
               default=lambda: header_and_default('IOTHUB SKU', 'F1'),
               type=click.Choice(['F1', 'S1', 'S2', 'S3']),
               callback=validate_option,
-              prompt="Enter IoT Hub SKU (F1|S1|S3|S3):",
+              prompt="Enter IoT Hub SKU (F1|S1|S2|S3):",
               help="The IoT Hub SKU.")
 @click.option('--iothub-name',
               envvar=envvars.get_envvar_key_if_val("IOTHUB_NAME"),
