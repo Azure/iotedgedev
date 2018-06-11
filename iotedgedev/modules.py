@@ -40,7 +40,7 @@ class Modules:
         elif template == "nodejs":
             # cmd = "yo azure-iot-edge-module -n {0} -r {1}".format(name, repo)
             # self.output.header(cmd)
-            # self.utility.exe_proc(cmd.split(), shell=True, cwd=cwd=)
+            # self.utility.exe_proc(cmd.split(), shell=True, cwd=cwd)
             pass
         elif template == "python":
             github_source = "https://github.com/Azure/cookiecutter-azure-iot-edge-module"
