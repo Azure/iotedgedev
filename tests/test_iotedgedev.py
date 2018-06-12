@@ -100,37 +100,37 @@ def test_solution_create_in_empty_child_dir(request):
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
 
 
-def test_module_create():
-    """Test the createmodule command"""
+def test_module_add():
+    """Test the addmodule command"""
     os.chdir(test_solution_dir)
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
 
-    create_module_and_verify(cli.main, runner, "csharp")
-    # create_module_and_verify(cli.main, runner, "nodejs")
-    create_module_and_verify(cli.main, runner, "python")
-    create_module_and_verify(cli.main, runner, "csharpfunction")
+    add_module_and_verify(cli.main, runner, "csharp")
+    # add_module_and_verify(cli.main, runner, "nodejs")
+    add_module_and_verify(cli.main, runner, "python")
+    add_module_and_verify(cli.main, runner, "csharpfunction")
 
 
-def test_module_create_invalid_name():
-    """Test the createmodule command with invalid module name"""
+def test_module_add_invalid_name():
+    """Test the addmodule command with invalid module name"""
     os.chdir(test_solution_dir)
     cli = __import__("iotedgedev.cli", fromlist=["main"])
     runner = CliRunner()
 
-    result = runner.invoke(cli.main, ["createmodule", "_csharpmodule", "--template", "csharp"])
+    result = runner.invoke(cli.main, ["addmodule", "_csharpmodule", "--template", "csharp"])
     print(result.output)
     assert "Module name cannot start or end with the symbol _" in result.output
 
-    result = runner.invoke(cli.main, ["createmodule", "csharpmodule_", "--template", "csharp"])
+    result = runner.invoke(cli.main, ["addmodule", "csharpmodule_", "--template", "csharp"])
     print(result.output)
     assert "Module name cannot start or end with the symbol _" in result.output
 
-    result = runner.invoke(cli.main, ["createmodule", "csharp-module", "--template", "csharp"])
+    result = runner.invoke(cli.main, ["addmodule", "csharp-module", "--template", "csharp"])
     print(result.output)
     assert "Module name can only contain alphanumeric characters and the symbol _" in result.output
 
-    result = runner.invoke(cli.main, ["createmodule", "filtermodule", "--template", "csharp"])
+    result = runner.invoke(cli.main, ["addmodule", "filtermodule", "--template", "csharp"])
     print(result.output)
     assert "already exists under" in result.output
 
@@ -240,10 +240,10 @@ def test_load_no_dotenv():
 '''
 
 
-def create_module_and_verify(main, runner, template):
+def add_module_and_verify(main, runner, template):
     module_name = template + "module"
-    result = runner.invoke(main, ['createmodule', module_name, '--template', template])
-    print(result)
+    result = runner.invoke(main, ['addmodule', module_name, '--template', template])
+    print(result.output)
     assert 'CREATE COMPLETE' in result.output
     assert os.path.exists(os.path.join(os.environ["MODULES_PATH"], module_name))
     assert module_name in json.load(open(os.environ["DEPLOYMENT_CONFIG_TEMPLATE_FILE"]))["moduleContent"]["$edgeAgent"]["properties.desired"]["modules"]

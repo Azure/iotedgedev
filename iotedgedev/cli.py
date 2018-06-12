@@ -102,7 +102,7 @@ def e2e(ctx):
 
 
 @click.command(context_settings=CONTEXT_SETTINGS,
-               help="Create a New IoT Edge Module.")
+               help="Add a New IoT Edge Module.")
 @click.argument('name',
                 required=True)
 @click.option("--template",
@@ -110,8 +110,8 @@ def e2e(ctx):
               type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]),
               help="Specify the template used to create the new IoT Edge module.")
 @click.pass_context
-def createmodule(ctx, name, template):
-    ctx.invoke(modules, create=name, template=template)
+def addmodule(ctx, name, template):
+    ctx.invoke(modules, add=name, template=template)
 
 
 @click.command(context_settings=CONTEXT_SETTINGS, help="Builds All Active Modules")
@@ -437,10 +437,10 @@ def azure(setup,
             output.info("Updated current .env file")
 
 
-@click.command(context_settings=CONTEXT_SETTINGS, help="Create, Build and Deploy IoT Edge Modules")
-@click.option('--create',
+@click.command(context_settings=CONTEXT_SETTINGS, help="Add, Build and Deploy IoT Edge Modules")
+@click.option('--add',
               required=False,
-              help="Create a new IoT Edge module.")
+              help="Add a new IoT Edge module.")
 @click.option("--template",
               default="csharp",
               required=False,
@@ -466,14 +466,14 @@ def azure(setup,
               required=False,
               is_flag=True,
               help="Deploys modules to Edge device using deployment.json in the config folder.")
-def modules(create, template, build, push, no_build, deploy):
+def modules(add, template, build, push, no_build, deploy):
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
     mod = Modules(envvars, utility, output, dock)
     edge = Edge(envvars, utility, output, azure_cli)
 
-    if create:
-        mod.create(create, template)
+    if add:
+        mod.add(add, template)
     elif push:
         mod.push(no_build=no_build)
     elif build:
@@ -613,7 +613,7 @@ main.add_command(iothub)
 main.add_command(azure)
 main.add_command(init)
 main.add_command(e2e)
-main.add_command(createmodule)
+main.add_command(addmodule)
 main.add_command(build)
 main.add_command(push)
 main.add_command(deploy)

@@ -16,7 +16,7 @@ class Modules:
         self.dock = dock
         self.dock.init_registry()
 
-    def create(self, name, template):
+    def add(self, name, template):
         self.output.header("CREATING MODULE")
 
         if name.startswith("_") or name.endswith("_"):
