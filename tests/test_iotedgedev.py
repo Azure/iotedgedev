@@ -4,9 +4,6 @@ import shutil
 import pytest
 
 from click.testing import CliRunner
-from iotedgedev.envvars import EnvVars
-from iotedgedev.output import Output
-# from iotedgedev import cli
 
 root_dir = os.getcwd()
 tests_dir = os.path.join(root_dir, "tests")

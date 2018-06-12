@@ -1,14 +1,11 @@
 import sys
-import platform
 import subprocess
 import json
-from fstrings import f
 
 from io import StringIO
-output_io_cls = StringIO
-
 from azure.cli.core import get_default_cli
-from .envvars import EnvVars
+from fstrings import f
+output_io_cls = StringIO
 
 
 class AzureCli:
