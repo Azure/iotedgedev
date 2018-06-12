@@ -39,10 +39,9 @@ class Modules:
             self.output.header(cmd)
             self.utility.exe_proc(cmd.split(), cwd=cwd)
         elif template == "nodejs":
-            # cmd = "yo azure-iot-edge-module -n {0} -r {1}".format(name, repo)
-            # self.output.header(cmd)
-            # self.utility.exe_proc(cmd.split(), shell=True, cwd=cwd)
-            pass
+            cmd = "yo azure-iot-edge-module -n {0} -r {1}".format(name, repo)
+            self.output.header(cmd)
+            self.utility.exe_proc(cmd.split(), shell=True, cwd=cwd)
         elif template == "python":
             github_source = "https://github.com/Azure/cookiecutter-azure-iot-edge-module"
             branch = "master"
