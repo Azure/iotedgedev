@@ -1,5 +1,5 @@
 import os
-
+import sys
 
 class DotNetModuleProcessor(object):
     def __init__(self, envvars, utility, output, module_dir):
@@ -8,6 +8,13 @@ class DotNetModuleProcessor(object):
         self.output = output
         self.module_dir = module_dir
         self.exe_dir = self.envvars.DOTNET_EXE_DIR
+       
+        # Fail fast if dotnet is not on path
+        try:
+            self.utility.exe_proc(["dotnet", "--version"])
+        except:
+            self.output.error("The .NET Core SDK is required to build .NET modules with the Azure IoT Edge Dev Tool. For installation instructions, see the README at https://aka.ms/iotedgedev.")
+            sys.exit(-1)
 
     def build(self):
         project_file = self.get_project_file()
