@@ -1,8 +1,8 @@
 import os
-import json
 import re
 
 from .deploymentmanifest import DeploymentManifest
+from .dotnet import DotNet
 from .module import Module
 from .modulesprocessorfactory import ModulesProcessorFactory
 
@@ -19,25 +19,22 @@ class Modules:
     def add(self, name, template):
         self.output.header("CREATING MODULE")
 
+        cwd = self.envvars.MODULES_PATH
         if name.startswith("_") or name.endswith("_"):
             self.output.error("Module name cannot start or end with the symbol _")
             return
         elif not re.match("^[a-zA-Z0-9_]+$", name):
             self.output.error("Module name can only contain alphanumeric characters and the symbol _")
             return
-        elif os.path.exists(os.path.join(self.envvars.MODULES_PATH, name)):
+        elif os.path.exists(os.path.join(cwd, name)):
             self.output.error("Module \"{0}\" already exists under {1}".format(name, os.path.abspath(self.envvars.MODULES_PATH)))
             return
 
         repo = "{0}/{1}".format(self.envvars.CONTAINER_REGISTRY_SERVER, name.lower())
-        cwd = self.envvars.MODULES_PATH
         if template == "csharp":
-            cmd = "dotnet new -i Microsoft.Azure.IoT.Edge.Module"
-            self.output.header(cmd)
-            self.utility.exe_proc(cmd.split())
-            cmd = "dotnet new aziotedgemodule -n {0} -r {1}".format(name, repo)
-            self.output.header(cmd)
-            self.utility.exe_proc(cmd.split(), cwd=cwd)
+            dotnet = DotNet(self.envvars, self.output, self.utility)
+            dotnet.install_module_template()
+            dotnet.create_custom_module(name, repo, cwd)
         elif template == "nodejs":
             cmd = "yo azure-iot-edge-module -n {0} -r {1}".format(name, repo)
             self.output.header(cmd)
@@ -50,12 +47,9 @@ class Modules:
             self.output.header(cmd)
             self.utility.exe_proc(cmd.split(), cwd=cwd)
         elif template == "csharpfunction":
-            cmd = "dotnet new -i Microsoft.Azure.IoT.Edge.Function"
-            self.output.header(cmd)
-            self.utility.exe_proc(cmd.split())
-            cmd = "dotnet new aziotedgefunction -n {0} -r {1}".format(name, repo)
-            self.output.header(cmd)
-            self.utility.exe_proc(cmd.split(), cwd=cwd)
+            dotnet = DotNet(self.envvars, self.output, self.utility)
+            dotnet.install_function_template()
+            dotnet.create_function_module(name, repo, cwd)
 
         deployment_manifest = DeploymentManifest(self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
         deployment_manifest.add_module_template(name)
