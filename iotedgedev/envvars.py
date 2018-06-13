@@ -120,7 +120,7 @@ class EnvVars:
                 self.CONFIG_OUTPUT_DIR = self.get_envvar("CONFIG_OUTPUT_DIR", default="config")
                 self.DEPLOYMENT_CONFIG_FILE = self.get_envvar("DEPLOYMENT_CONFIG_FILE", altkeys=['MODULES_CONFIG_FILE'])
                 self.DEPLOYMENT_CONFIG_FILE_PATH = os.path.join(self.CONFIG_OUTPUT_DIR, self.DEPLOYMENT_CONFIG_FILE)
-                self.DEPLOYMENT_CONFIG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE")
+                self.DEPLOYMENT_CONFIG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", default="deployment.template.json")
                 self.RUNTIME_CONFIG_FILE = self.get_envvar("RUNTIME_CONFIG_FILE")
                 self.RUNTIME_CONFIG_FILE_PATH = os.path.join(self.CONFIG_OUTPUT_DIR, self.RUNTIME_CONFIG_FILE)
                 self.LOGS_PATH = self.get_envvar("LOGS_PATH")
