@@ -17,7 +17,7 @@ class Modules:
         self.dock.init_registry()
 
     def add(self, name, template):
-        self.output.header("CREATING MODULE")
+        self.output.header("ADDING MODULE")
 
         cwd = self.envvars.MODULES_PATH
         if name.startswith("_") or name.endswith("_"):
@@ -55,7 +55,7 @@ class Modules:
         deployment_manifest.add_module_template(name)
         deployment_manifest.save()
 
-        self.output.footer("CREATE COMPLETE")
+        self.output.footer("ADD COMPLETE")
 
     def build(self):
         self.build_push(no_push=True)
