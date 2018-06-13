@@ -30,6 +30,8 @@ class Modules:
             self.output.error("Module \"{0}\" already exists under {1}".format(name, os.path.abspath(self.envvars.MODULES_PATH)))
             return
 
+        deployment_manifest = DeploymentManifest(self.output, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
+
         repo = "{0}/{1}".format(self.envvars.CONTAINER_REGISTRY_SERVER, name.lower())
         if template == "csharp":
             dotnet = DotNet(self.envvars, self.output, self.utility)
@@ -51,7 +53,6 @@ class Modules:
             dotnet.install_function_template()
             dotnet.create_function_module(name, repo, cwd)
 
-        deployment_manifest = DeploymentManifest(self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
         deployment_manifest.add_module_template(name)
         deployment_manifest.save()
 

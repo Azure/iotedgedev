@@ -4,13 +4,22 @@ and deployment manifest template (deployment.template.json)
 """
 
 import json
+import sys
 
 
 class DeploymentManifest:
-    def __init__(self, path, is_template):
-        self.path = path
-        self.json = json.load(open(path))
-        self.is_template = is_template
+    def __init__(self, output, path, is_template):
+        self.output = output
+        try:
+            self.path = path
+            self.json = json.load(open(path))
+            self.is_template = is_template
+        except FileNotFoundError:
+            if is_template:
+                self.output.error('Deployment manifest template file "{0}" not found'.format(path))
+            else:
+                self.output.error('Deployment manifest file "{0}" not found'.format(path))
+            sys.exit()
 
     def add_module_template(self, module_name):
         """Add a module template to the deployment manifest with amd64 as the default platform"""
