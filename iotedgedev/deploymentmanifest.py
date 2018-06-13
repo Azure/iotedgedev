@@ -24,6 +24,7 @@ class DeploymentManifest:
                     if output.confirm('Would you like to make a copy of the deployment manifest file "{0}" as the deployment template file?'.format(deployment_manifest_path), default=True):
                         shutil.copyfile(deployment_manifest_path, path)
                         self.json = json.load(open(envvars.DEPLOYMENT_CONFIG_FILE_PATH))
+                        envvars.save_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", path)
             else:
                 self.output.error('Deployment manifest file "{0}" not found'.format(path))
                 sys.exit()
