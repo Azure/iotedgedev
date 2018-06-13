@@ -40,6 +40,13 @@ class Utility:
         except Exception as e:
             self.output.error("Error while executing command: {0}. {1}".format(' '.join(params), str(e)))
 
+    def check_dependency(self, params, description, shell=False):
+        try:
+            self.exe_proc(params, shell=shell)
+        except:
+            self.output.error("The {0} is required by the Azure IoT Edge Dev Tool. For installation instructions, see the README at https://aka.ms/iotedgedev.".format(description))
+            sys.exit(-1)
+
     def is_dir_empty(self, name):
         if os.path.exists(name):
             return len(os.listdir(name)) == 0

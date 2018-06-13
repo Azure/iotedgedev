@@ -38,10 +38,12 @@ class Modules:
             dotnet.install_module_template()
             dotnet.create_custom_module(name, repo, cwd)
         elif template == "nodejs":
+            self.utility.check_dependency("yo azure-iot-edge-module --help".split(), "Yeoman tool and Azure IoT Edge Node.js module generator")
             cmd = "yo azure-iot-edge-module -n {0} -r {1}".format(name, repo)
             self.output.header(cmd)
             self.utility.exe_proc(cmd.split(), shell=True, cwd=cwd)
         elif template == "python":
+            self.utility.check_dependency("cookiecutter --help".split(), "Cookiecutter tool")
             github_source = "https://github.com/Azure/cookiecutter-azure-iot-edge-module"
             branch = "master"
             cmd = ("cookiecutter --no-input {0} module_name={1} image_repository={2} --checkout {3}"
