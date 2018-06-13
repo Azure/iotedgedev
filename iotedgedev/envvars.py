@@ -117,6 +117,7 @@ class EnvVars:
                 self.CONTAINER_TAG = self.get_envvar("CONTAINER_TAG")
                 self.RUNTIME_TAG = self.get_envvar("RUNTIME_TAG")
                 self.RUNTIME_VERBOSITY = self.get_envvar("RUNTIME_VERBOSITY")
+                self.RUNTIME_LOG_LEVEL = self.get_envvar("RUNTIME_LOG_LEVEL", default="info")
                 self.CONFIG_OUTPUT_DIR = self.get_envvar("CONFIG_OUTPUT_DIR", default="config")
                 self.DEPLOYMENT_CONFIG_FILE = self.get_envvar("DEPLOYMENT_CONFIG_FILE", altkeys=['MODULES_CONFIG_FILE'])
                 self.DEPLOYMENT_CONFIG_FILE_PATH = os.path.join(self.CONFIG_OUTPUT_DIR, self.DEPLOYMENT_CONFIG_FILE)

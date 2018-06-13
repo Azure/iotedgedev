@@ -2,12 +2,20 @@
 This module provides interfaces to interact with dotnet CLI
 """
 
+import sys
+
 
 class DotNet:
     def __init__(self, envvars, output, utility):
         self.envvars = envvars
         self.output = output
         self.utility = utility
+        # Fail fast if dotnet is not on path
+        try:
+            self.utility.exe_proc(["dotnet", "--version"])
+        except:
+            self.output.error("The .NET Core SDK is required to build .NET modules with the Azure IoT Edge Dev Tool. For installation instructions, see the README at https://aka.ms/iotedgedev.")
+            sys.exit(-1)
 
     def install_module_template(self):
         cmd = "dotnet new -i Microsoft.Azure.IoT.Edge.Module"

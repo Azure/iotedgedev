@@ -1,6 +1,6 @@
 import os
-
 from .dotnet import DotNet
+
 
 class DotNetModuleProcessor(object):
     def __init__(self, envvars, utility, output, module_dir):
