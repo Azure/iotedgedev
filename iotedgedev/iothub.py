@@ -15,6 +15,8 @@ class IoTHub:
             timeout = 0
 
         try:
+            self.output.status("Monitoring events may take longer than expected...")
+            
             if timeout == 0:
                 self.utility.call_proc(['iothub-explorer', '--login', self.envvars.IOTHUB_CONNECTION_STRING,
                                         'monitor-events', self.envvars.DEVICE_CONNECTION_INFO.DeviceId], shell=not self.envvars.is_posix())
