@@ -11,7 +11,7 @@ class DotNet:
         self.output = output
         self.utility = utility
         # Fail fast if dotnet is not on path
-        self.utility.check_dependency(["dotnet", "--version"], ".NET Core SDK")
+        self.utility.check_dependency(["dotnet", "--version"], "To add new C# modules and C# Functions modules, the .NET Core SDK")
 
     def install_module_template(self):
         cmd = "dotnet new -i Microsoft.Azure.IoT.Edge.Module"
