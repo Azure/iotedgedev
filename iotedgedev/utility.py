@@ -20,12 +20,12 @@ class Utility:
         self.output = output
         self.config_set = False
 
-    def exe_proc(self, params, shell=False, cwd=None):
+    def exe_proc(self, params, shell=False, cwd=None, suppress=False):
         proc = subprocess.Popen(
             params, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell, cwd=cwd)
 
         stdout_data, stderr_data = proc.communicate()
-        if stdout_data != "":
+        if not suppress and stdout_data != "":
             self.output.procout(self.decode(stdout_data))
 
         if proc.returncode != 0:
@@ -42,7 +42,7 @@ class Utility:
 
     def check_dependency(self, params, description, shell=False):
         try:
-            self.exe_proc(params, shell=shell)
+            self.exe_proc(params, shell=shell, suppress=True)
         except:
             self.output.error("{0} is required by the Azure IoT Edge Dev Tool. For installation instructions, see the README at https://aka.ms/iotedgedev.".format(description))
             sys.exit(-1)
