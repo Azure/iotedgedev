@@ -181,6 +181,7 @@ class EnvVars:
         if val:
             return val
         elif default:
+            self.set_envvar(key, default)
             return default
         else:
             return ''
