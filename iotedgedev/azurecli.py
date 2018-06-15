@@ -1,14 +1,11 @@
 import sys
-import platform
 import subprocess
 import json
-from fstrings import f
 
 from io import StringIO
-output_io_cls = StringIO
-
 from azure.cli.core import get_default_cli
-from .envvars import EnvVars
+from fstrings import f
+output_io_cls = StringIO
 
 def get_query_argument_for_id_and_name(token):
     return "[?starts_with(@.id,'{0}') || contains(@.name,'{1}')]".format(token.lower(), token)

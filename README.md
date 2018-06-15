@@ -63,6 +63,18 @@ The only thing you need to install is Docker. All of the other dev dependencies 
 
     `iotedgedev monitor`
 
+## Set up environment manually
+If you prefer setting up environment manually instead of running the Azure IoT Edge Dev Docker image, you need to install below prerequisites:
+* [Docker](https://docs.docker.com/install/)
+* [Python](https://www.python.org/downloads/)
+* [Pip](https://pip.pypa.io/en/stable/installing/)
+* Azure IoT Edge Dev Tool: `pip install -U iotedgedev`
+* [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)
+* iothub-explorer and tree-kill: `npm i -g iothub-explorer tree-kill`
+* [.NET Core SDK](https://www.microsoft.com/net/download) (for C# module and C# Azure Functions module development only)
+* Cookiecutter (for Python module development only): `pip install -U cookiecutter`
+* Yeoman and Azure IoT Edge Node.js module generator (for Node.js module development only): `npm i -g yo generator-azure-iot-edge-module`
+
 ## Resources
 Please refer to the [Wiki](https://github.com/Azure/iotedgedev/wiki) for details on setup, usage, and troubleshooting.
 

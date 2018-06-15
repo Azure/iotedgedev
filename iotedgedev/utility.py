@@ -4,7 +4,6 @@ from hashlib import sha256
 from hmac import HMAC
 import json
 import os
-import requests
 import subprocess
 import sys
 from time import time
@@ -21,25 +20,32 @@ class Utility:
         self.output = output
         self.config_set = False
 
-    def exe_proc(self, params, shell=False):
+    def exe_proc(self, params, shell=False, cwd=None, suppress_out=False):
         proc = subprocess.Popen(
-            params, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell)
+            params, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell, cwd=cwd)
 
         stdout_data, stderr_data = proc.communicate()
-        if stdout_data != "":
+        if not suppress_out and stdout_data != "":
             self.output.procout(self.decode(stdout_data))
 
         if proc.returncode != 0:
             self.output.error(self.decode(stderr_data))
             sys.exit()
 
-    def call_proc(self, params, shell=False):
+    def call_proc(self, params, shell=False, cwd=None):
         try:
-            subprocess.check_call(params, shell=shell)
+            subprocess.check_call(params, shell=shell, cwd=cwd)
         except KeyboardInterrupt as ki:
             return
         except Exception as e:
             self.output.error("Error while executing command: {0}. {1}".format(' '.join(params), str(e)))
+
+    def check_dependency(self, params, description, shell=False):
+        try:
+            self.exe_proc(params, shell=shell, suppress_out=True)
+        except:
+            self.output.error("{0} is required by the Azure IoT Edge Dev Tool. For installation instructions, see the README at https://aka.ms/iotedgedev.".format(description))
+            sys.exit(-1)
 
     def is_dir_empty(self, name):
         if os.path.exists(name):

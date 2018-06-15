@@ -11,7 +11,7 @@ class Solution:
             dir_path = os.getcwd()
         else:
             dir_path = os.path.join(os.getcwd(), name)
-        
+
         if not self.utility.is_dir_empty(dir_path):
             self.output.prompt("Directory is not empty. Run 'iotedgedev azure' or clean the directory.")
             return
