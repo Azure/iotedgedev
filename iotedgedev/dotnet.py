@@ -37,8 +37,7 @@ class DotNet:
         if project_file is None or project_file == "":
             return False
 
-        self.utility.exe_proc(["dotnet", "build", project_file,
-                               "-v", self.envvars.DOTNET_VERBOSITY])
+        self.utility.exe_proc(["dotnet", "build", project_file, "-v", self.envvars.DOTNET_VERBOSITY])
         return True
 
     def publish_module(self, project_file):

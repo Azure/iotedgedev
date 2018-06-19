@@ -46,8 +46,7 @@ class Modules:
             self.utility.check_dependency("cookiecutter --help".split(), "To add new Python modules, the Cookiecutter tool")
             github_source = "https://github.com/Azure/cookiecutter-azure-iot-edge-module"
             branch = "master"
-            cmd = ("cookiecutter --no-input {0} module_name={1} image_repository={2} --checkout {3}"
-                   .format(github_source, name, repo, branch))
+            cmd = "cookiecutter --no-input {0} module_name={1} image_repository={2} --checkout {3}".format(github_source, name, repo, branch)
             self.output.header(cmd)
             self.utility.exe_proc(cmd.split(), cwd=cwd)
         elif template == "csharpfunction":
