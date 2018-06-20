@@ -1,7 +1,8 @@
 import os
-import requests
-from shutil import copyfile
+import re
 
+from .deploymentmanifest import DeploymentManifest
+from .dotnet import DotNet
 from .module import Module
 from .modulesprocessorfactory import ModulesProcessorFactory
 
@@ -14,6 +15,49 @@ class Modules:
         self.output = output
         self.dock = dock
         self.dock.init_registry()
+
+    def add(self, name, template):
+        self.output.header("ADDING MODULE")
+
+        cwd = self.envvars.MODULES_PATH
+        if name.startswith("_") or name.endswith("_"):
+            self.output.error("Module name cannot start or end with the symbol _")
+            return
+        elif not re.match("^[a-zA-Z0-9_]+$", name):
+            self.output.error("Module name can only contain alphanumeric characters and the symbol _")
+            return
+        elif os.path.exists(os.path.join(cwd, name)):
+            self.output.error("Module \"{0}\" already exists under {1}".format(name, os.path.abspath(self.envvars.MODULES_PATH)))
+            return
+
+        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
+
+        repo = "{0}/{1}".format(self.envvars.CONTAINER_REGISTRY_SERVER, name.lower())
+        if template == "csharp":
+            dotnet = DotNet(self.envvars, self.output, self.utility)
+            dotnet.install_module_template()
+            dotnet.create_custom_module(name, repo, cwd)
+        elif template == "nodejs":
+            self.utility.check_dependency("yo azure-iot-edge-module --help".split(), "To add new Node.js modules, the Yeoman tool and Azure IoT Edge Node.js module generator")
+            cmd = "yo azure-iot-edge-module -n {0} -r {1}".format(name, repo)
+            self.output.header(cmd)
+            self.utility.exe_proc(cmd.split(), shell=True, cwd=cwd)
+        elif template == "python":
+            self.utility.check_dependency("cookiecutter --help".split(), "To add new Python modules, the Cookiecutter tool")
+            github_source = "https://github.com/Azure/cookiecutter-azure-iot-edge-module"
+            branch = "master"
+            cmd = "cookiecutter --no-input {0} module_name={1} image_repository={2} --checkout {3}".format(github_source, name, repo, branch)
+            self.output.header(cmd)
+            self.utility.exe_proc(cmd.split(), cwd=cwd)
+        elif template == "csharpfunction":
+            dotnet = DotNet(self.envvars, self.output, self.utility)
+            dotnet.install_function_template()
+            dotnet.create_function_module(name, repo, cwd)
+
+        deployment_manifest.add_module_template(name)
+        deployment_manifest.save()
+
+        self.output.footer("ADD COMPLETE")
 
     def build(self):
         self.build_push(no_push=True)

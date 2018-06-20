@@ -48,4 +48,7 @@ class Output:
         try:
             click.secho(text, fg=color, dim=dim)
         except:
-            print (text)
+            print(text)
+
+    def confirm(self, text, default=False, abort=True):
+        return click.confirm(text, default=default, abort=abort)

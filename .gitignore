@@ -85,3 +85,9 @@ node_modules
 /docker/linux/Dockerfile.expanded
 
 .pytest_cache
+
+# rope
+.vscode/.ropeproject/
+
+# ctags
+.vscode/tags
