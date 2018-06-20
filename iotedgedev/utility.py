@@ -44,7 +44,7 @@ class Utility:
         try:
             self.exe_proc(params, shell=shell, suppress_out=True)
         except:
-            self.output.error("{0} is required by the Azure IoT Edge Dev Tool. For installation instructions, see the README at https://aka.ms/iotedgedev.".format(description))
+            self.output.error("{0} is required by the Azure IoT Edge Dev Tool. For installation instructions, see https://aka.ms/iotedgedevwiki.".format(description))
             sys.exit(-1)
 
     def is_dir_empty(self, name):
