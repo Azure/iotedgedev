@@ -61,14 +61,22 @@ def main(set_config, az_cli=None):
               required=False,
               help="Creates a new Azure IoT Edge Solution. Use `--create .` to create in current folder. Use `--create TEXT` to create in a subfolder.")
 @click.argument("name", required=False)
-def solution(create, name):
+@click.option('--module',
+              required=True,
+              help="Specify the name of the default IoT Edge module.")
+@click.option("--template",
+              default="csharp",
+              required=False,
+              type=click.Choice(["csharp", "python", "csharpfunction"]),
+              help="Specify the template used to create the default IoT Edge module.")
+def solution(create, name, module, template):
 
     utility = Utility(envvars, output)
     sol = Solution(output, utility)
     if name:
-        sol.create(name)
+        sol.create(name, module, template)
     elif create:
-        sol.create(create)
+        sol.create(create, module, template)
 
 
 @click.command(context_settings=CONTEXT_SETTINGS, help="Creates Solution and Azure Resources")

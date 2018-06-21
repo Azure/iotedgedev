@@ -1,12 +1,13 @@
 import os
 import zipfile
 
+
 class Solution:
     def __init__(self, output, utility):
         self.output = output
         self.utility = utility
 
-    def create(self, name):
+    def create(self, name, module, template):
         if name == ".":
             dir_path = os.getcwd()
         else:
