@@ -1,12 +1,21 @@
 import os
 import zipfile
 
-
 class Solution:
-    def __init__(self, output):
+    def __init__(self, output, utility):
         self.output = output
+        self.utility = utility
 
     def create(self, name):
+        if name == ".":
+            dir_path = os.getcwd()
+        else:
+            dir_path = os.path.join(os.getcwd(), name)
+
+        if not self.utility.is_dir_empty(dir_path):
+            self.output.prompt("Directory is not empty. Run 'iotedgedev azure' or clean the directory.")
+            return
+
         self.output.header("CREATING AZURE IOT EDGE SOLUTION: {0}".format(name))
 
         try:

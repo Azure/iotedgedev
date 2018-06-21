@@ -1,10 +1,10 @@
 class ConnectionString:
     def __init__(self, value):
-        self.value = value
+        self.ConnectionString = value
         self.data = dict()
 
-        if self.value: 
-            parts = value.split(';')
+        if self.ConnectionString: 
+            parts = self.ConnectionString.split(';')
             if len(parts) > 0:
                 for part in parts:
                     subpart = part.split('=', 1)
@@ -13,6 +13,8 @@ class ConnectionString:
 
             if self.data:
                 self.HostName = self["hostname"]
+                if self.HostName:
+                    self.HubName = self.HostName.split('.')[0]
                 self.SharedAccessKey = self["sharedaccesskey"]
 
     def __getitem__(self, key):
@@ -23,7 +25,7 @@ class IoTHubConnectionString(ConnectionString):
     def __init__(self, value):
         ConnectionString.__init__(self, value)
 
-        if self.value:
+        if self.ConnectionString:
             self.SharedAccessKeyName = self["sharedaccesskeyname"]
 
 
@@ -31,5 +33,5 @@ class DeviceConnectionString(ConnectionString):
     def __init__(self, value):
         ConnectionString.__init__(self, value)
 
-        if self.value:
+        if self.ConnectionString:
             self.DeviceId = self["deviceid"]

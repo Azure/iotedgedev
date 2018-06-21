@@ -92,3 +92,9 @@ node_modules
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# rope
+.vscode/.ropeproject/
+
+# ctags
+.vscode/tags
