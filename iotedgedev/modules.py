@@ -32,7 +32,7 @@ class Modules:
 
         deployment_manifest = DeploymentManifest(self.envvars, self.output, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
 
-        repo = "{0}/{1}".format(self.envvars.CONTAINER_REGISTRY_SERVER, name.lower())
+        repo = "{0}/{1}".format("${CONTAINER_REGISTRY_SERVER}", name.lower())
         if template == "csharp":
             dotnet = DotNet(self.envvars, self.output, self.utility)
             dotnet.install_module_template()
