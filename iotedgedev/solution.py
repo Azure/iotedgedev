@@ -26,13 +26,15 @@ class Solution:
             self.output.error("Error while trying to load template.zip")
             self.output.error(str(ex))
 
-        if name == ".":
-            name = ""
-
         zipf = zipfile.ZipFile(template_zip)
         zipf.extractall(name)
 
         os.rename(os.path.join(name, ".env.tmp"), os.path.join(name, ".env"))
+
+        mod_cmd = "iotedgedev addmodule {0} --template {1}".format(module, template)
+        self.output.header(mod_cmd)
+        self.utility.call_proc(mod_cmd.split(), cwd=name)
+
         self.output.footer("Azure IoT Edge Solution Created")
-        if name != "":
+        if name != ".":
             self.output.info("Execute 'cd {0}' to navigate to your new solution.".format(name))

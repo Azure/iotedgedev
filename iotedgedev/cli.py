@@ -86,7 +86,7 @@ def init(ctx):
     utility = Utility(envvars, output)
 
     if len(os.listdir(os.getcwd())) == 0:
-        solcmd = "iotedgedev solution ."
+        solcmd = "iotedgedev solution . --module filtermodule"
         output.header(solcmd)
         utility.call_proc(solcmd.split())
 
