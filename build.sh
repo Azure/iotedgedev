@@ -84,15 +84,14 @@ function run_push_docker
 }
 
 
-run_tox
+#run_tox
 if [ "$MODE" = "prod" ]; then
     run_bumpversion
 fi
 run_build
 #run_twine
-#run_build_docker
+run_build_docker
 #run_push_docker
-
 
 #./docker/push-docker.sh $DOCKERHUB
 
