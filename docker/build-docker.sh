@@ -52,12 +52,24 @@ function build_linux
     check_docker_expected_mode "linux"
 
     cd linux
+
+    rm iotedgedev-$VERSION-py2.py3-none-any.whl --force
+    
+    cp ../../dist/iotedgedev-$VERSION-py2.py3-none-any.whl iotedgedev-$VERSION-py2.py3-none-any.whl
+
+    docker build \
+        -f Dockerfile.base \
+        -t iotedgedev-linux-base \
+        .
+
     docker build \
         -f Dockerfile \
-        --no-cache \
         -t microsoft/iotedgedev:$VERSION-linux \
         -t microsoft/iotedgedev:latest-linux \
+        --build-arg IOTEDGEDEV_VERSION=$VERSION \
         .
+
+    rm iotedgedev-$VERSION-py2.py3-none-any.whl --force
 
     cd ..
 }
@@ -69,14 +81,26 @@ function build_windows
     check_docker_expected_mode "windows"
 
     cd windows
+
+    rm iotedgedev-$VERSION-py2.py3-none-any.whl --force
+    
+    cp ../../dist/iotedgedev-$VERSION-py2.py3-none-any.whl iotedgedev-$VERSION-py2.py3-none-any.whl
+
     docker build \
+        -f Dockerfile.base \
+        -t iotedgedev-windows-base \
         --build-arg PYTHON2_VERSION=$PYTHON2 \
         --build-arg PYTHON3_VERSION=$PYTHON3 \
+        .
+        
+    docker build \
         -f Dockerfile \
-        --no-cache \
+        --build-arg IOTEDGEDEV_VERSION=$VERSION \
         -t microsoft/iotedgedev:$VERSION-windows \
         -t microsoft/iotedgedev:latest-windows \
         .
+
+    rm iotedgedev-$VERSION-py2.py3-none-any.whl --force
 
     cd ..
 }
