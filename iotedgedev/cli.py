@@ -63,7 +63,8 @@ def main(set_config, az_cli=None):
 @click.argument("name", required=False)
 def solution(create, name):
 
-    sol = Solution(output)
+    utility = Utility(envvars, output)
+    sol = Solution(output, utility)
     if name:
         sol.create(name)
     elif create:
@@ -98,6 +99,19 @@ def e2e(ctx):
     ctx.invoke(deploy)
     ctx.invoke(start)
     ctx.invoke(monitor)
+
+
+@click.command(context_settings=CONTEXT_SETTINGS,
+               help="Add a New IoT Edge Module.")
+@click.argument('name',
+                required=True)
+@click.option("--template",
+              required=True,
+              type=click.Choice(["csharp", "python", "csharpfunction"]),
+              help="Specify the template used to create the new IoT Edge module.")
+@click.pass_context
+def addmodule(ctx, name, template):
+    ctx.invoke(modules, add=name, template=template)
 
 
 @click.command(context_settings=CONTEXT_SETTINGS, help="Builds All Active Modules")
@@ -380,7 +394,7 @@ def header_and_default(header, default, default2=None):
               default=lambda: header_and_default('IOTHUB SKU', 'F1'),
               type=click.Choice(['F1', 'S1', 'S2', 'S3']),
               callback=validate_option,
-              prompt="Enter IoT Hub SKU (F1|S1|S3|S3):",
+              prompt="Enter IoT Hub SKU (F1|S1|S2|S3):",
               help="The IoT Hub SKU.")
 @click.option('--iothub-name',
               envvar=envvars.get_envvar_key_if_val("IOTHUB_NAME"),
@@ -423,7 +437,15 @@ def azure(setup,
             output.info("Updated current .env file")
 
 
-@click.command(context_settings=CONTEXT_SETTINGS, help="Build and Deploy IoT Edge Modules")
+@click.command(context_settings=CONTEXT_SETTINGS, help="Add, Build and Deploy IoT Edge Modules")
+@click.option('--add',
+              required=False,
+              help="Add a new IoT Edge module.")
+@click.option("--template",
+              default="csharp",
+              required=False,
+              type=click.Choice(["csharp", "python", "csharpfunction"]),
+              help="Specify the template used to create the new IoT Edge module.")
 @click.option('--build',
               default=False,
               required=False,
@@ -444,13 +466,15 @@ def azure(setup,
               required=False,
               is_flag=True,
               help="Deploys modules to Edge device using deployment.json in the config folder.")
-def modules(build, push, no_build, deploy):
+def modules(add, template, build, push, no_build, deploy):
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
     mod = Modules(envvars, utility, output, dock)
     edge = Edge(envvars, utility, output, azure_cli)
 
-    if push:
+    if add:
+        mod.add(add, template)
+    elif push:
         mod.push(no_build=no_build)
     elif build:
         mod.build()
@@ -581,9 +605,6 @@ def docker(setup_registry,
         dock.handle_logs_cmd(show_logs, save_logs)
 
 
-if __name__ == "__main__":
-    main()
-
 main.add_command(runtime)
 main.add_command(modules)
 main.add_command(docker)
@@ -592,6 +613,7 @@ main.add_command(iothub)
 main.add_command(azure)
 main.add_command(init)
 main.add_command(e2e)
+main.add_command(addmodule)
 main.add_command(build)
 main.add_command(push)
 main.add_command(deploy)
@@ -599,3 +621,6 @@ main.add_command(start)
 main.add_command(restart)
 main.add_command(stop)
 main.add_command(monitor)
+
+if __name__ == "__main__":
+    main()
