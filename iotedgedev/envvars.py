@@ -9,6 +9,7 @@ from fstrings import f
 
 from .args import Args
 from .connectionstring import DeviceConnectionString, IoTHubConnectionString
+from .containerregistry import ContainerRegistry
 
 
 class EnvVars:
@@ -74,7 +75,7 @@ class EnvVars:
                 self.output.header("ENVIRONMENT VARIABLES")
 
             self.load_dotenv()
-
+            self.get_registries()
             try:
                 try:
                     self.IOTHUB_CONNECTION_STRING = self.get_envvar("IOTHUB_CONNECTION_STRING")
@@ -111,9 +112,6 @@ class EnvVars:
                     self.set_envvar("RUNTIME_CONFIG_DIR", self.get_runtime_config_dir())
                 self.ACTIVE_MODULES = self.get_envvar("ACTIVE_MODULES")
                 self.ACTIVE_DOCKER_PLATFORMS = self.get_envvar("ACTIVE_DOCKER_PLATFORMS", altkeys=["ACTIVE_DOCKER_ARCH"])
-                self.CONTAINER_REGISTRY_SERVER = self.get_envvar("CONTAINER_REGISTRY_SERVER")
-                self.CONTAINER_REGISTRY_USERNAME = self.get_envvar("CONTAINER_REGISTRY_USERNAME")
-                self.CONTAINER_REGISTRY_PASSWORD = self.get_envvar("CONTAINER_REGISTRY_PASSWORD")
                 self.CONTAINER_TAG = self.get_envvar("CONTAINER_TAG")
                 self.RUNTIME_TAG = self.get_envvar("RUNTIME_TAG")
                 self.RUNTIME_VERBOSITY = self.get_envvar("RUNTIME_VERBOSITY")
@@ -208,6 +206,25 @@ class EnvVars:
         except Exception:
             self.output.error(f("Could not update the environment variable {key} in file {dotenv_path}"))
             sys.exit(-1)
+
+    def get_registries(self):
+        registries = {}
+        self.CONTAINER_REGISTRY = {}
+        for key in os.environ:
+            if key.startswith('CONTAINER_REGISTRY_SERVER'):
+                token = key[25:]
+                if token not in registries:
+                    registries[token] = {}
+                registries[token]['server'] = os.environ[key]
+            elif key.startswith(('CONTAINER_REGISTRY_USERNAME', 'CONTAINER_REGISTRY_PASSWORD')):
+                token = key[27:]
+                value = key[19:27].lower()
+                if token not in registries:
+                    registries[token] = {}
+                registries[token][value] = os.environ[key]
+
+        for key, value in registries.items():
+            self.CONTAINER_REGISTRY[key] = ContainerRegistry(value['server'], value['username'], value['password'])
 
     def get_runtime_home_dir(self):
         if self.is_posix():
