@@ -86,6 +86,13 @@ node_modules
 
 .pytest_cache
 
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
 # rope
 .vscode/.ropeproject/
 
