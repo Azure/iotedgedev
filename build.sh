@@ -8,11 +8,12 @@ function show_help
     echo "Usage:"
     echo "build.sh <mode>"
     echo ""
-    echo "mode: test|prod"
+    echo "mode: test|prod [windows|linux]"
     exit 1
 }
 
 MODE="$1"
+PLATFORM="$2"
 
 if [ -z "$MODE" ]; then
     show_help
@@ -20,12 +21,16 @@ fi
 
 echo -e "\n===== Setting up build environment"
 if [ "$MODE" = "test" ]; then
-    echo "Environment: TEST"
+    echo "Environment: $MODE"
 elif [ "$MODE" = "prod" ]; then
-    echo "Environment: PROD"
+    echo "Environment: $MODE"
 else
     echo "ERROR> Build mode parameter not known. must be 'prod' or 'test'"
     exit 1
+fi
+
+if [ ! -z $PLATFORM ]; then
+    echo "Platform: $PLATFORM"
 fi
 
 echo -e "\n===== Checking pre-requisistes"
@@ -75,7 +80,7 @@ function run_twine
 
 function run_build_docker
 {
-    ./docker/build-docker.sh
+    ./docker/build-docker.sh $PLATFORM
 }
 
 function run_push_docker 
