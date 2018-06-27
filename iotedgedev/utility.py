@@ -150,8 +150,9 @@ class Utility:
 
         content = self.get_file_contents(src)
 
-        for key, value in var_dict.iteritems():
-            content = content.replace(key, value)
+        if var_dict is not None:
+            for key, value in var_dict.items():
+                content = content.replace(key, value)
 
         if expand_env:
             content = os.path.expandvars(content)

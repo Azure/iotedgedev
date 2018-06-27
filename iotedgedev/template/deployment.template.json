@@ -45,7 +45,9 @@
     "$edgeHub": {
       "properties.desired": {
         "schemaVersion": "1.0",
-        "routes": {},
+        "routes": {
+          "%MODULE%ToIoTHub": "FROM /messages/modules/%MODULE%/outputs/output1 INTO $upstream"
+        },
         "storeAndForwardConfiguration": {
           "timeToLiveSecs": 7200
         }

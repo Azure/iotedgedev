@@ -29,6 +29,8 @@ class Solution:
         zipf = zipfile.ZipFile(template_zip)
         zipf.extractall(name)
 
+        self.utility.copy_template(os.path.join(dir_path, "deployment.template.json"), None, {"%MODULE%": module})
+
         os.rename(os.path.join(name, ".env.tmp"), os.path.join(name, ".env"))
 
         mod_cmd = "iotedgedev addmodule {0} --template {1}".format(module, template)
