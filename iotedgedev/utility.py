@@ -137,12 +137,24 @@ class Utility:
                 self.output.info("Expanding '{0}' to '{1}'".format(
                     os.path.basename(config_file), build_config_file))
 
-                config_file_expanded = os.path.expandvars(
-                    self.get_file_contents(config_file))
-
-                with open(build_config_file, "w") as config_file_build:
-                    config_file_build.write(config_file_expanded)
+                self.copy_template(config_file, build_config_file, None, True)
 
             self.output.line()
 
         self.config_set = True
+
+    def copy_template(self, src, dest, var_dict, expand_env=False):
+        """Read file at src, replace the keys in var_dict with their values, optionally expand environment variables, and save to dest"""
+        if dest is None:
+            dest = src
+
+        content = self.get_file_contents(src)
+
+        for key, value in var_dict.iteritems():
+            content = content.replace(key, value)
+
+        if expand_env:
+            content = os.path.expandvars(content)
+
+        with open(dest, "w") as dest_file:
+            dest_file.write(content)
