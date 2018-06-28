@@ -3,6 +3,8 @@ import pytest
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 
+pytestmark = pytest.mark.unit
+
 def test_valid_get_envvar():
     output = Output()
     envvars = EnvVars(output)

@@ -3,6 +3,8 @@ import pytest
 from dotenv import load_dotenv
 from iotedgedev.connectionstring import ConnectionString, IoTHubConnectionString, DeviceConnectionString
 
+pytestmark = pytest.mark.unit
+
 emptystring = ""
 valid_connectionstring = "HostName=testhub.azure-devices.net;SharedAccessKey=gibberish"
 valid_iothub_connectionstring = "HostName=testhub.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=moregibberish"

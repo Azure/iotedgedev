@@ -5,6 +5,8 @@ import pytest
 
 from click.testing import CliRunner
 
+pytestmark = pytest.mark.e2e
+
 root_dir = os.getcwd()
 tests_dir = os.path.join(root_dir, "tests")
 env_file = os.path.join(root_dir, ".env")
