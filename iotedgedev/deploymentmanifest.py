@@ -67,9 +67,11 @@ class DeploymentManifest:
         for _, module_info in user_modules.items():
             image = module_info.get("settings", {}).get("image", "")
             # If the image is placeholder, e.g., ${MODULES.NodeModule.amd64}, parse module folder and platform from the placeholder
-            if image.startswith("${") and image.endswith("}"):
-                module_dir = image.split(".")[1]
-                module_platform = image.split(".")[2][:image.split(".")[2].find("}")]
+            if image.startswith("${") and image.endswith("}") and len(image.split(".")) > 2:
+                first_dot = image.index(".")
+                second_dot = image.index(".", first_dot + 1)
+                module_dir = image[first_dot+1:second_dot]
+                module_platform = image[second_dot+1:image.index("}")]
                 modules_to_process.append((module_dir, module_platform))
         return modules_to_process
 
