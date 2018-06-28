@@ -54,7 +54,6 @@ class Modules:
             dotnet.create_function_module(name, repo, cwd)
 
         deployment_manifest.add_module_template(name)
-        deployment_manifest.add_temp_sensor_route(name)
         deployment_manifest.save()
 
         self.output.footer("ADD COMPLETE")

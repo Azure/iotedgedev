@@ -53,13 +53,6 @@ class DeploymentManifest:
 
         self.json["moduleContent"]["$edgeHub"]["properties.desired"]["routes"][new_route_name] = new_route
 
-    def add_temp_sensor_route(self, module_name):
-        """Add a route from temp sensor module"""
-        new_route_name = "sensorTo{0}".format(module_name)
-        new_route = "FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/{0}/inputs/input1\")".format(module_name)
-
-        self.json["moduleContent"]["$edgeHub"]["properties.desired"]["routes"][new_route_name] = new_route
-
     def get_modules_to_process(self):
         """Get modules to process from deployment manifest template"""
         user_modules = self.json.get("moduleContent", {}).get("$edgeAgent", {}).get("properties.desired", {}).get("modules", {})
