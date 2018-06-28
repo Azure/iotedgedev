@@ -143,7 +143,7 @@ class Utility:
 
         self.config_set = True
 
-    def copy_template(self, src, dest, var_dict=None, expand_env=True):
+    def copy_template(self, src, dest=None, var_dict=None, expand_env=True):
         """Read file at src, replace the keys in var_dict with their values, optionally expand environment variables, and save to dest"""
         if dest is None:
             dest = src

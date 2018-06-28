@@ -41,9 +41,7 @@ class Module(object):
 
     @property
     def tag_version(self):
-        tag = self.file_json_content.get("image", {}).get("tag", {}).get("version", "")
-        if tag == "":
-            tag = "0.0.0"
+        tag = self.file_json_content.get("image", {}).get("tag", {}).get("version", "0.0.0")
 
         return tag
 
@@ -56,4 +54,4 @@ class Module(object):
         return self.file_json_content.get("image", {}).get("buildOptions", [])
 
     def get_dockerfile_by_platform(self, platform):
-        return self.file_json_content.get("image").get("tag").get("platforms").get(platform)
+        return self.file_json_content.get("image", {}).get("tag", {}).get("platforms", {}).get(platform, "")

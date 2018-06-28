@@ -116,6 +116,8 @@ class Modules:
                                                                         "username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
                             self.output.procout(self.utility.decode(line).replace("\\u003e", ">"))
 
+                    break
+
             self.output.footer("BUILD COMPLETE", suppress=no_build)
             self.output.footer("PUSH COMPLETE", suppress=no_push)
         self.utility.set_config(force=True, var_dict=var_dict)
