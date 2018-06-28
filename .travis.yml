@@ -5,4 +5,4 @@ python:
 install:
   - pip install -r requirements_travis.txt
 script:
-  - pylint iotedgedev & pytest -m unit # or py.test for Python versions 3.5 and below
+  - pytest -m unit # & pylint iotedgedev # or py.test for Python versions 3.5 and below
