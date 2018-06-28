@@ -37,15 +37,23 @@ class Module(object):
 
     @property
     def platforms(self):
-        return self.file_json_content.get("image").get("tag").get("platforms")
+        return self.file_json_content.get("image", {}).get("tag", {}).get("platforms", "")
 
     @property
     def tag_version(self):
-        tag = self.file_json_content.get("image").get("tag").get("version")
+        tag = self.file_json_content.get("image", {}).get("tag", {}).get("version", "")
         if tag == "":
             tag = "0.0.0"
 
         return tag
 
-    def get_platform_by_key(self, platform):
+    @property
+    def repository(self):
+        return self.file_json_content.get("image", {}).get("repository", "")
+
+    @property
+    def build_options(self):
+        return self.file_json_content.get("image", {}).get("buildOptions", [])
+
+    def get_dockerfile_by_platform(self, platform):
         return self.file_json_content.get("image").get("tag").get("platforms").get(platform)

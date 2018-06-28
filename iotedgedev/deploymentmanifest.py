@@ -37,7 +37,7 @@ class DeploymentManifest:
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": \"{MODULES.""" + module_name + """.amd64}\",
+              "image": \"${MODULES.""" + module_name + """.amd64}\",
               "createOptions": ""
             }
         }"""
@@ -59,6 +59,19 @@ class DeploymentManifest:
         new_route = "FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/{0}/inputs/input1\")".format(module_name)
 
         self.json["moduleContent"]["$edgeHub"]["properties.desired"]["routes"][new_route_name] = new_route
+
+    def get_modules_to_process(self):
+        """Get modules to process from deployment manifest template"""
+        user_modules = self.json.get("moduleContent", {}).get("$edgeAgent", {}).get("properties.desired", {}).get("modules", {})
+        modules_to_process = []
+        for _, module_info in user_modules.items():
+            image = module_info.get("settings", {}).get("image", "")
+            # If the image is placeholder, e.g., ${MODULES.NodeModule.amd64}, parse module folder and platform from the placeholder
+            if image.startswith("${") and image.endswith("}"):
+                module_dir = image.split(".")[1]
+                module_platform = image.split(".")[2][:image.split(".")[2].find("}")]
+                modules_to_process.append((module_dir, module_platform))
+        return modules_to_process
 
     def save(self):
         """Dump the JSON to the disk"""

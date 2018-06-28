@@ -11,7 +11,6 @@ class Modules:
     def __init__(self, envvars, utility, output, dock):
         self.envvars = envvars
         self.utility = utility
-        self.utility.set_config()
         self.output = output
         self.dock = dock
         self.dock.init_registry()
@@ -67,72 +66,69 @@ class Modules:
         self.build_push(no_build=no_build)
 
     def build_push(self, no_build=False, no_push=False):
-
         self.output.header("BUILDING MODULES", suppress=no_build)
 
-        # Get all the modules to build as specified in config.
-        modules_to_process = self.utility.get_active_modules()
+        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
+        modules_to_process = deployment_manifest.get_modules_to_process()
 
-        for module in os.listdir(self.envvars.MODULES_PATH):
+        var_dict = {}
 
-            if len(modules_to_process) == 0 or modules_to_process[0] == "*" or module in modules_to_process:
+        for module_dir_base, module_platform in modules_to_process:
+            self.output.info("BUILDING MODULE: {0}".format(module_dir_base), suppress=no_build)
 
-                module_dir = os.path.join(self.envvars.MODULES_PATH, module)
+            module_dir = os.path.join(self.envvars.MODULES_PATH, module_dir_base)
+            module_json = Module(self.output, self.utility, os.path.join(module_dir, "module.json"))
 
-                self.output.info("BUILDING MODULE: {0}".format(module_dir), suppress=no_build)
+            for platform in module_json.platforms:
+                if platform == module_platform:
+                    # get the Dockerfile from module.json
+                    dockerfile = module_json.get_dockerfile_by_platform(platform)
 
-                module_json = Module(self.output, self.utility, os.path.join(module_dir, "module.json"))
-                mod_proc = ModulesProcessorFactory(self.envvars, self.utility, self.output, module_dir).get(module_json.language)
+                    self.output.info("PROCESSING DOCKER FILE: " + dockerfile, suppress=no_build)
 
-                # build module
-                if not no_build:
-                    if not mod_proc.build():
-                        continue
+                    dockerfile_name = os.path.basename(dockerfile)
+                    container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
+                    tag_name = module_json.tag_version + container_tag
+                    image_destination_name = os.path.expandvars("{0}:{1}-{2}".format(module_json.repository, tag_name, platform).lower())
+                    var_dict["${{MODULES.{0}.{1}}}".format(module_dir_base, platform)] = image_destination_name
 
-                docker_arch_process = [docker_arch.strip() for docker_arch in self.envvars.ACTIVE_DOCKER_PLATFORMS.split(",") if docker_arch]
+                    self.output.info("BUILDING DOCKER IMAGE: " + image_destination_name, suppress=no_build)
 
-                for arch in module_json.platforms:
-                    if len(docker_arch_process) == 0 or docker_arch_process[0] == "*" or arch in docker_arch_process:
+                    # cd to the module folder to build the docker image
+                    project_dir = os.getcwd()
+                    os.chdir(os.path.join(project_dir, module_dir))
 
-                        # get the docker file from module.json
-                        docker_file = module_json.get_platform_by_key(arch)
+                    # BUILD DOCKER IMAGE
+                    if not no_build:
+                        build_options = self.filter_build_options(module_json.build_options)
+                        # TODO: apply build options
+                        build_result = self.dock.docker_client.images.build(tag=image_destination_name, path=".", dockerfile=dockerfile_name)
 
-                        self.output.info("PROCESSING DOCKER FILE: " + docker_file, suppress=no_build)
+                        self.output.info("DOCKER IMAGE DETAILS: {0}".format(build_result))
 
-                        docker_file_name = os.path.basename(docker_file)
-                        container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
-                        tag_name = module_json.tag_version + container_tag
+                    # CD BACK UP
+                    os.chdir(project_dir)
 
-                        # publish module
-                        if not no_build:
-                            self.output.info("PUBLISHING MODULE: " + module_dir)
-                            mod_proc.publish()
+                    if not no_push:
+                        # PUSH TO CONTAINER REGISTRY
+                        self.output.info("PUSHING DOCKER IMAGE TO: " + image_destination_name)
 
-                        image_destination_name = "{0}/{1}:{2}-{3}".format(self.envvars.CONTAINER_REGISTRY_SERVER, module, tag_name, arch).lower()
+                        for line in self.dock.docker_client.images.push(repository=image_destination_name, stream=True, auth_config={
+                                                                        "username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
+                            self.output.procout(self.utility.decode(line).replace("\\u003e", ">"))
 
-                        self.output.info("BUILDING DOCKER IMAGE: " + image_destination_name, suppress=no_build)
+            self.output.footer("BUILD COMPLETE", suppress=no_build)
+            self.output.footer("PUSH COMPLETE", suppress=no_push)
+        self.utility.set_config(force=True, var_dict=var_dict)
 
-                        # cd to the module folder to build the docker image
-                        project_dir = os.getcwd()
-                        os.chdir(os.path.join(project_dir, module_dir))
+    @staticmethod
+    def filter_build_options(build_options):
+        """Remove build options which will be ignored"""
+        filtered_build_options = []
+        for build_option in build_options:
+            build_option = build_option.strip()
+            parsed_option = re.compile(r"\s+").split(build_option)
+            if parsed_option and ["--rm", "--tag", "-t", "--file", "-f"].index(parsed_option[0]) < 0:
+                filtered_build_options.append(build_option)
 
-                        # BUILD DOCKER IMAGE
-
-                        if not no_build:
-                            build_result = self.dock.docker_client.images.build(tag=image_destination_name, path=".", dockerfile=docker_file_name, buildargs={"EXE_DIR": mod_proc.exe_dir})
-
-                            self.output.info("DOCKER IMAGE DETAILS: {0}".format(build_result))
-
-                        # CD BACK UP
-                        os.chdir(project_dir)
-
-                        if not no_push:
-                            # PUSH TO CONTAINER REGISTRY
-                            self.output.info("PUSHING DOCKER IMAGE TO: " + image_destination_name)
-
-                            for line in self.dock.docker_client.images.push(repository=image_destination_name, stream=True, auth_config={
-                                                                            "username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
-                                self.output.procout(self.utility.decode(line).replace("\\u003e", ">"))
-
-                self.output.footer("BUILD COMPLETE", suppress=no_build)
-                self.output.footer("PUSH COMPLETE", suppress=no_push)
+        return filtered_build_options

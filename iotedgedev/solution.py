@@ -29,7 +29,7 @@ class Solution:
         zipf = zipfile.ZipFile(template_zip)
         zipf.extractall(name)
 
-        self.utility.copy_template(os.path.join(dir_path, "deployment.template.json"), None, {"%MODULE%": module})
+        self.utility.copy_template(os.path.join(dir_path, "deployment.template.json"), None, {"%MODULE%": module}, False)
 
         os.rename(os.path.join(name, ".env.tmp"), os.path.join(name, ".env"))
 

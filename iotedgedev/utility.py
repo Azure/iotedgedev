@@ -112,7 +112,7 @@ class Utility:
             return_modules.update(user_modules)
             return return_modules
 
-    def set_config(self, force=False):
+    def set_config(self, force=False, var_dict=None):
 
         if not self.config_set or force:
             self.output.header("PROCESSING CONFIG FILES")
@@ -137,20 +137,20 @@ class Utility:
                 self.output.info("Expanding '{0}' to '{1}'".format(
                     os.path.basename(config_file), build_config_file))
 
-                self.copy_template(config_file, build_config_file, None, True)
+                self.copy_template(config_file, build_config_file, var_dict, True)
 
             self.output.line()
 
         self.config_set = True
 
-    def copy_template(self, src, dest, var_dict, expand_env=False):
+    def copy_template(self, src, dest, var_dict=None, expand_env=True):
         """Read file at src, replace the keys in var_dict with their values, optionally expand environment variables, and save to dest"""
         if dest is None:
             dest = src
 
         content = self.get_file_contents(src)
 
-        if var_dict is not None:
+        if var_dict:
             for key, value in var_dict.items():
                 content = content.replace(key, value)
 
