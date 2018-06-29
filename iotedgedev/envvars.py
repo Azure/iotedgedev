@@ -75,7 +75,7 @@ class EnvVars:
                 self.output.header("ENVIRONMENT VARIABLES")
 
             self.load_dotenv()
-            self.get_registries()
+
             try:
                 try:
                     self.IOTHUB_CONNECTION_STRING = self.get_envvar("IOTHUB_CONNECTION_STRING")
@@ -98,6 +98,8 @@ class EnvVars:
                     self.output.error("Unable to parse DEVICE_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set.")
                     self.output.error(str(ex))
                     sys.exit(-1)
+                
+                self.get_registries()
 
                 self.RUNTIME_HOST_NAME = self.get_envvar("RUNTIME_HOST_NAME", default=".")
                 if self.RUNTIME_HOST_NAME == ".":
@@ -211,14 +213,15 @@ class EnvVars:
         registries = {}
         self.CONTAINER_REGISTRY = {}
         for key in os.environ:
-            if key.startswith('CONTAINER_REGISTRY_SERVER'):
+            key = key.lower()
+            if key.startswith('container_registry_server'):
                 token = key[25:]
                 if token not in registries:
                     registries[token] = {}
                 registries[token]['server'] = os.environ[key]
-            elif key.startswith(('CONTAINER_REGISTRY_USERNAME', 'CONTAINER_REGISTRY_PASSWORD')):
+            elif key.startswith(('container_registry_username', 'container_registry_password')):
                 token = key[27:]
-                subkey = key[19:27].lower()
+                subkey = key[19:27]
                 if token not in registries:
                     registries[token] = {}
                 registries[token][subkey] = os.environ[key]

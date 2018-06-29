@@ -130,9 +130,9 @@ class Modules:
                             self.output.info("PUSHING DOCKER IMAGE TO: " + image_destination_name)
                             # FIND ENV VAR KEY BASED ON REGISTRY VALUE
                             registry_key = None
-                            for registry in self.envvars.CONTAINER_REGISTRY:
-                                if self.envvars.CONTAINER_REGISTRY[registry].server == module_json.registry:
-                                    registry_key = registry
+                            for key, registry in self.envvars.CONTAINER_REGISTRY.items():
+                                if registry.server.lower() == module_json.registry.lower():
+                                    registry_key = key
                                     break
                             if registry_key is None:
                                 self.output.error("Error while trying to retrieve container registry information.")
