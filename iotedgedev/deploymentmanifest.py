@@ -10,7 +10,8 @@ import sys
 
 
 class DeploymentManifest:
-    def __init__(self, envvars, output, path, is_template):
+    def __init__(self, envvars, output, utility, path, is_template):
+        self.utility = utility
         self.output = output
         try:
             self.path = path
@@ -42,7 +43,7 @@ class DeploymentManifest:
             }
         }"""
 
-        self.json["moduleContent"]["$edgeAgent"]["properties.desired"]["modules"][module_name] = json.loads(new_module)
+        self.utility.nested_set(self.json, ["moduleContent", "$edgeAgent", "properties.desired", "modules", module_name], json.loads(new_module))
 
         self.add_default_route(module_name)
 
@@ -51,7 +52,7 @@ class DeploymentManifest:
         new_route_name = "{0}ToIoTHub".format(module_name)
         new_route = "FROM /messages/modules/{0}/outputs/* INTO $upstream".format(module_name)
 
-        self.json["moduleContent"]["$edgeHub"]["properties.desired"]["routes"][new_route_name] = new_route
+        self.utility.nested_set(self.json, ["moduleContent", "$edgeHub", "properties.desired", "routes", new_route_name], new_route)
 
     def get_modules_to_process(self):
         """Get modules to process from deployment manifest template"""

@@ -159,3 +159,12 @@ class Utility:
 
         with open(dest, "w") as dest_file:
             dest_file.write(content)
+
+    def nested_set(self, dic, keys, value):
+        current = dic
+        for key in keys[:-1]:
+            if key not in current:
+                current[key] = {}
+            current = current.get(key)
+
+        current[keys[-1]] = value

@@ -29,7 +29,7 @@ class Modules:
             self.output.error("Module \"{0}\" already exists under {1}".format(name, os.path.abspath(self.envvars.MODULES_PATH)))
             return
 
-        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
+        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
 
         repo = "{0}/{1}".format("${CONTAINER_REGISTRY_SERVER}", name.lower())
         if template == "csharp":
@@ -67,7 +67,7 @@ class Modules:
     def build_push(self, no_build=False, no_push=False):
         self.output.header("BUILDING MODULES", suppress=no_build)
 
-        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
+        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
         modules_to_process = deployment_manifest.get_modules_to_process()
 
         var_dict = {}
