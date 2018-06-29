@@ -3,6 +3,8 @@ import pytest
 from dotenv import load_dotenv
 from iotedgedev.connectionstring import ConnectionString, IoTHubConnectionString, DeviceConnectionString
 
+pytestmark = pytest.mark.unit
+
 emptystring = ""
 valid_connectionstring = "HostName=testhub.azure-devices.net;SharedAccessKey=gibberish"
 valid_iothub_connectionstring = "HostName=testhub.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=moregibberish"
@@ -57,22 +59,3 @@ def test_invalid_devicehub_connectionstring():
     assert connectionstring.HubName == "testhub"
     assert not connectionstring.DeviceId
     assert connectionstring.SharedAccessKey == "othergibberish"
-
-def test_valid_env_iothub_connectionstring():
-    load_dotenv(".env")
-    env_iothub_connectionstring = os.getenv("IOTHUB_CONNECTION_STRING")
-    connectionstring = IoTHubConnectionString(env_iothub_connectionstring)
-    assert connectionstring.HostName
-    assert connectionstring.HubName
-    assert connectionstring.SharedAccessKey
-    assert connectionstring.SharedAccessKeyName
-
-def test_valid_env_device_connectionstring():
-    load_dotenv(".env")
-    env_device_connectionstring = os.getenv("DEVICE_CONNECTION_STRING")
-    connectionstring = DeviceConnectionString(env_device_connectionstring)
-    assert connectionstring.HostName
-    assert connectionstring.HubName
-    assert connectionstring.SharedAccessKey
-    assert connectionstring.DeviceId
-    

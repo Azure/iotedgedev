@@ -1,6 +1,8 @@
 import pytest
 from iotedgedev.azurecli import get_query_argument_for_id_and_name
 
+pytestmark = pytest.mark.unit
+
 def get_terms(query):
     # These tests are all asserting that the query contains two terms enclosed in 
     # [?], separated by || 
