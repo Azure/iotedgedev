@@ -47,5 +47,13 @@ class Module(object):
 
         return tag
 
+    @property
+    def registry(self):
+        return self.file_json_content.get("image").get("repository").split('/')[0]
+
+    @property
+    def repository_name(self):
+        return self.file_json_content.get("image").get("repository").split('/')[1]
+        
     def get_platform_by_key(self, platform):
         return self.file_json_content.get("image").get("tag").get("platforms").get(platform)

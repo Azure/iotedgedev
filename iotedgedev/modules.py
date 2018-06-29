@@ -107,7 +107,7 @@ class Modules:
                             self.output.info("PUBLISHING MODULE: " + module_dir)
                             mod_proc.publish()
 
-                        image_destination_name = "{0}/{1}:{2}-{3}".format(self.envvars.CONTAINER_REGISTRY_SERVER, module, tag_name, arch).lower()
+                        image_destination_name = "{0}/{1}:{2}-{3}".format(module_json.registry, module_json.repository_name, tag_name, arch).lower()
 
                         self.output.info("BUILDING DOCKER IMAGE: " + image_destination_name, suppress=no_build)
 
@@ -128,9 +128,18 @@ class Modules:
                         if not no_push:
                             # PUSH TO CONTAINER REGISTRY
                             self.output.info("PUSHING DOCKER IMAGE TO: " + image_destination_name)
+                            # FIND ENV VAR KEY BASED ON REGISTRY VALUE
+                            registry_key = None
+                            for registry in self.envvars.CONTAINER_REGISTRY:
+                                if self.envvars.CONTAINER_REGISTRY[registry].server == module_json.registry:
+                                    registry_key = registry
+                                    break
+                            if registry_key is None:
+                                self.output.error("Error while trying to retrieve container registry information.")
 
                             for line in self.dock.docker_client.images.push(repository=image_destination_name, stream=True, auth_config={
-                                                                            "username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
+                                                                            "username": self.envvars.CONTAINER_REGISTRY[registry_key].username,
+                                                                            "password": self.envvars.CONTAINER_REGISTRY[registry_key].password}):
                                 self.output.procout(self.utility.decode(line).replace("\\u003e", ">"))
 
                 self.output.footer("BUILD COMPLETE", suppress=no_build)

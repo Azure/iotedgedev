@@ -218,10 +218,10 @@ class EnvVars:
                 registries[token]['server'] = os.environ[key]
             elif key.startswith(('CONTAINER_REGISTRY_USERNAME', 'CONTAINER_REGISTRY_PASSWORD')):
                 token = key[27:]
-                value = key[19:27].lower()
+                subkey = key[19:27].lower()
                 if token not in registries:
                     registries[token] = {}
-                registries[token][value] = os.environ[key]
+                registries[token][subkey] = os.environ[key]
 
         for key, value in registries.items():
             self.CONTAINER_REGISTRY[key] = ContainerRegistry(value['server'], value['username'], value['password'])
