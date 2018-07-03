@@ -46,7 +46,7 @@
       "properties.desired": {
         "schemaVersion": "1.0",
         "routes": {
-          "%MODULE%ToIoTHub": "FROM /messages/modules/%MODULE%/outputs/output1 INTO $upstream"
+          "sensorTo%MODULE%": "FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/%MODULE%/inputs/input1\")"
         },
         "storeAndForwardConfiguration": {
           "timeToLiveSecs": 7200
