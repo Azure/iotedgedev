@@ -28,7 +28,7 @@ class DeploymentManifest:
                         envvars.save_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", path)
             else:
                 self.output.error('Deployment manifest file "{0}" not found'.format(path))
-                sys.exit()
+                sys.exit(1)
 
     def add_module_template(self, module_name):
         """Add a module template to the deployment manifest with amd64 as the default platform"""

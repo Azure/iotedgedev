@@ -4,7 +4,6 @@ import re
 from .deploymentmanifest import DeploymentManifest
 from .dotnet import DotNet
 from .module import Module
-from .modulesprocessorfactory import ModulesProcessorFactory
 
 
 class Modules:
@@ -70,7 +69,7 @@ class Modules:
         deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
         modules_to_process = deployment_manifest.get_modules_to_process()
 
-        var_dict = {}
+        replacements = {}
 
         for module_dir_base, module_platform in modules_to_process:
             self.output.info("BUILDING MODULE: {0}".format(module_dir_base), suppress=no_build)
@@ -89,7 +88,7 @@ class Modules:
                     container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
                     tag_name = module_json.tag_version + container_tag
                     image_destination_name = os.path.expandvars("{0}:{1}-{2}".format(module_json.repository, tag_name, platform).lower())
-                    var_dict["${{MODULES.{0}.{1}}}".format(module_dir_base, platform)] = image_destination_name
+                    replacements["${{MODULES.{0}.{1}}}".format(module_dir_base, platform)] = image_destination_name
 
                     self.output.info("BUILDING DOCKER IMAGE: " + image_destination_name, suppress=no_build)
 
@@ -120,7 +119,7 @@ class Modules:
 
             self.output.footer("BUILD COMPLETE", suppress=no_build)
             self.output.footer("PUSH COMPLETE", suppress=no_push)
-        self.utility.set_config(force=True, var_dict=var_dict)
+        self.utility.set_config(force=True, replacements=replacements)
 
     @staticmethod
     def filter_build_options(build_options):

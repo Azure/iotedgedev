@@ -1,17 +1,19 @@
-from base64 import b64encode, b64decode
 import fnmatch
-from hashlib import sha256
-from hmac import HMAC
 import json
 import os
 import subprocess
 import sys
+from base64 import b64decode, b64encode
+from hashlib import sha256
+from hmac import HMAC
 from time import time
+
+from .moduletype import ModuleType
+
 if sys.version_info.major >= 3:
     from urllib.parse import quote, urlencode
 else:
     from urllib import quote, urlencode
-from .moduletype import ModuleType
 
 
 class Utility:
@@ -112,7 +114,7 @@ class Utility:
             return_modules.update(user_modules)
             return return_modules
 
-    def set_config(self, force=False, var_dict=None):
+    def set_config(self, force=False, replacements=None):
 
         if not self.config_set or force:
             self.output.header("PROCESSING CONFIG FILES")
@@ -137,21 +139,21 @@ class Utility:
                 self.output.info("Expanding '{0}' to '{1}'".format(
                     os.path.basename(config_file), build_config_file))
 
-                self.copy_template(config_file, build_config_file, var_dict, True)
+                self.copy_template(config_file, build_config_file, replacements, True)
 
             self.output.line()
 
         self.config_set = True
 
-    def copy_template(self, src, dest=None, var_dict=None, expand_env=True):
-        """Read file at src, replace the keys in var_dict with their values, optionally expand environment variables, and save to dest"""
+    def copy_template(self, src, dest=None, replacements=None, expand_env=True):
+        """Read file at src, replace the keys in replacements with their values, optionally expand environment variables, and save to dest"""
         if dest is None:
             dest = src
 
         content = self.get_file_contents(src)
 
-        if var_dict:
-            for key, value in var_dict.items():
+        if replacements:
+            for key, value in replacements.items():
                 content = content.replace(key, value)
 
         if expand_env:
