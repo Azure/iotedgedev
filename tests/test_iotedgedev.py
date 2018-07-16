@@ -24,7 +24,7 @@ def create_solution(request):
 
     runner = CliRunner()
     os.chdir(tests_dir)
-    result = runner.invoke(cli.main, ['solution', test_solution, '--module', 'filtermodule'])
+    result = runner.invoke(cli.main, ['solution', test_solution])
     print(result.output)
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
 
@@ -45,7 +45,7 @@ def test_solution_create_in_non_empty_current_path(request):
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['solution', '.', '--module', 'filtermodule'])
+    result = runner.invoke(cli.main, ['solution', '.'])
     print(result.output)
 
     assert "Directory is not empty" in result.output
@@ -62,7 +62,7 @@ def test_solution_create_in_empty_current_path(request):
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['solution', '.', '--module', 'filtermodule'])
+    result = runner.invoke(cli.main, ['solution', '.'])
     print(result.output)
 
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
@@ -75,7 +75,7 @@ def test_solution_create_in_non_empty_dir(request):
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['solution', test_solution, '--module', 'filtermodule'])
+    result = runner.invoke(cli.main, ['solution', test_solution])
     print(result.output)
 
     assert "Directory is not empty" in result.output
@@ -91,7 +91,7 @@ def test_solution_create_in_empty_child_dir(request):
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['solution', dirname, '--module', 'filtermodule'])
+    result = runner.invoke(cli.main, ['solution', dirname])
     print(result.output)
 
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
