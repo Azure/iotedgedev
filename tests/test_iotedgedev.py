@@ -5,6 +5,8 @@ import pytest
 
 from click.testing import CliRunner
 
+pytestmark = pytest.mark.e2e
+
 root_dir = os.getcwd()
 tests_dir = os.path.join(root_dir, "tests")
 env_file = os.path.join(root_dir, ".env")
@@ -220,6 +222,23 @@ def setup_node_solution(request):
 def test_node(setup_node_solution, test_push_modules, test_deploy_modules, test_start_runtime, test_monitor, test_stop):
     print('Testing Node Solution')
 
+def test_valid_env_iothub_connectionstring():
+    load_dotenv(".env")
+    env_iothub_connectionstring = os.getenv("IOTHUB_CONNECTION_STRING")
+    connectionstring = IoTHubConnectionString(env_iothub_connectionstring)
+    assert connectionstring.HostName
+    assert connectionstring.HubName
+    assert connectionstring.SharedAccessKey
+    assert connectionstring.SharedAccessKeyName
+
+def test_valid_env_device_connectionstring():
+    load_dotenv(".env")
+    env_device_connectionstring = os.getenv("DEVICE_CONNECTION_STRING")
+    connectionstring = DeviceConnectionString(env_device_connectionstring)
+    assert connectionstring.HostName
+    assert connectionstring.HubName
+    assert connectionstring.SharedAccessKey
+    assert connectionstring.DeviceId
 
 '''
 def test_load_no_dotenv():

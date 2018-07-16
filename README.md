@@ -1,5 +1,7 @@
 # Azure IoT Edge Dev Tool
 
+[![Build Status](https://travis-ci.org/Azure/iotedgedev.svg?branch=master)](https://travis-ci.org/Azure/iotedgedev)
+
 The **Azure IoT Edge Dev Tool** greatly simplifies [Azure IoT Edge](https:/azure.microsoft.com/en-us/services/iot-edge/) development down to simple commands driven by Environment Variables. 
 
  - It gets you started with IoT Edge development with the [IoT Edge Dev Container](#iot-edge-dev-container) and IoT Edge Solution Scaffolding that contains a sample module and all the required configuration files.
