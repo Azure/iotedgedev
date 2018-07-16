@@ -92,9 +92,9 @@ class Utility:
 
         return [os.path.join(os.getcwd(), f) for f in os.listdir(os.getcwd()) if f.endswith("template.json")]
 
-    def get_active_modules(self):
+    def get_bypass_modules(self):
         return [module.strip()
-                for module in self.envvars.ACTIVE_MODULES.split(",") if module]
+                for module in self.envvars.BYPASS_MODULES.split(",") if module]
 
     def get_modules_in_config(self, moduleType):
         modules_config = json.load(open(self.envvars.DEPLOYMENT_CONFIG_FILE_PATH))
