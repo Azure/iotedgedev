@@ -16,7 +16,7 @@ class DeploymentManifest:
         try:
             self.path = path
             self.is_template = is_template
-            self.json = json.load(open(path))
+            self.json = json.loads(os.path.expandvars(self.utility.get_file_contents(path)))
         except FileNotFoundError:
             self.output.error('Deployment manifest template file "{0}" not found'.format(path))
             if is_template:

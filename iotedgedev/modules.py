@@ -69,78 +69,69 @@ class Modules:
         bypass_modules = self.utility.get_bypass_modules()
         docker_arch_process = [docker_arch.strip() for docker_arch in self.envvars.ACTIVE_DOCKER_PLATFORMS.split(",") if docker_arch]
 
-        module_image_map = {}
-        image_dockerfile_map = {}
-        image_build_option_map = {}
-        image_to_build = []
+        # map image (module name and platform joined with colon) to tag.
+        # sample: ('filtermodule:amd64', 'localhost:5000/filtermodule:0.0.1-amd64')
+        image_tag_map = {}
+        # map image tag to (module name, dockerfile) tuple
+        # sample: ('localhost:5000/filtermodule:0.0.1-amd64', ('filtermodule', '/test_solution/modules/filtermodule/Dockerfile.amd64'))
+        tag_dockerfile_map = {}
+        # map image tag to build options
+        # sample: ('localhost:5000/filtermodule:0.0.1-amd64', ["--add-host=github.com:192.30.255.112"])
+        tag_build_options_map = {}
+        # image tags to build
+        # sample: 'localhost:5000/filtermodule:0.0.1-amd64'
+        tags_to_build = set()
 
         for module in os.listdir(self.envvars.MODULES_PATH):
             if module not in bypass_modules:
                 module_dir = os.path.join(self.envvars.MODULES_PATH, module)
                 module_json = Module(self.output, self.utility, os.path.join(module_dir, "module.json"))
                 for platform in module_json.platforms:
+                    # get the Dockerfile from module.json
+                    dockerfile = os.path.abspath(os.path.join(module_dir, module_json.get_dockerfile_by_platform(platform)))
+                    container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
+                    tag = "{0}:{1}{2}-{3}".format(module_json.repository, module_json.tag_version, container_tag, platform).lower()
+                    image_tag_map["{0}:{1}".format(module, platform)] = tag
+                    tag_dockerfile_map[tag] = (module, dockerfile)
+                    tag_build_options_map[tag] = module_json.build_options
                     if len(docker_arch_process) == 0 or docker_arch_process[0] == "*" or platform in docker_arch_process:
-                        # get the Dockerfile from module.json
-                        dockerfile = os.path.abspath(os.path.join(module_dir, module_json.get_dockerfile_by_platform(platform)))
-                        container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
-                        tag_name = module_json.tag_version + container_tag
-                        image_url = os.path.expandvars("{0}:{1}-{2}".format(module_json.repository, tag_name, platform).lower())
-                        module_image_map[module] = image_url
-                        image_dockerfile_map[image_url] = dockerfile
-                        image_build_option_map[image_url] = module_json.build_options
-                        image_to_build.append(image_url)
+                        tags_to_build.add(tag)
 
         deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
         modules_to_process = deployment_manifest.get_modules_to_process()
 
         replacements = {}
+        for module, platform in modules_to_process:
+            if module not in bypass_modules:
+                key = "{0}:{1}".format(module, platform)
+                if key in image_tag_map:
+                    tag = image_tag_map.get(key)
+                    tags_to_build.add(tag)
+                    replacements["${{MODULES.{0}.{1}}}".format(module, platform)] = tag
 
-        for module_dir_base, module_platform in modules_to_process:
-            self.output.info("BUILDING MODULE: {0}".format(module_dir_base), suppress=no_build)
+        for tag in tags_to_build:
+            if tag in tag_dockerfile_map:
+                module = tag_dockerfile_map.get(tag)[0]
+                dockerfile = tag_dockerfile_map.get(tag)[1]
+                self.output.info("BUILDING MODULE: {0}".format(module), suppress=no_build)
+                self.output.info("BUILDING DOCKER IMAGE: {0}".format(tag), suppress=no_build)
+                self.output.info("PROCESSING DOCKERFILE: {0}".format(dockerfile), suppress=no_build)
 
-            module_dir = os.path.join(self.envvars.MODULES_PATH, module_dir_base)
-            module_json = Module(self.output, self.utility, os.path.join(module_dir, "module.json"))
+                # BUILD DOCKER IMAGE
+                if not no_build:
+                    build_options = self.filter_build_options(tag_build_options_map.get(tag, None))
+                    # TODO: apply build options
+                    build_result = self.dock.docker_client.images.build(tag=tag, path=os.path.join(self.envvars.MODULES_PATH, module), dockerfile=dockerfile)
 
-            for platform in module_json.platforms:
-                if platform == module_platform:
-                    # get the Dockerfile from module.json
-                    dockerfile = module_json.get_dockerfile_by_platform(platform)
+                    self.output.info("DOCKER IMAGE DETAILS: {0}".format(build_result))
 
-                    self.output.info("PROCESSING DOCKER FILE: " + dockerfile, suppress=no_build)
+                if not no_push:
+                    # PUSH TO CONTAINER REGISTRY
+                    self.output.info("PUSHING DOCKER IMAGE: " + tag)
 
-                    dockerfile_name = os.path.basename(dockerfile)
-                    container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
-                    tag_name = module_json.tag_version + container_tag
-                    image_destination_name = os.path.expandvars("{0}:{1}-{2}".format(module_json.repository, tag_name, platform).lower())
-                    replacements["${{MODULES.{0}.{1}}}".format(module_dir_base, platform)] = image_destination_name
-
-                    self.output.info("BUILDING DOCKER IMAGE: " + image_destination_name, suppress=no_build)
-
-                    # cd to the module folder to build the docker image
-                    project_dir = os.getcwd()
-                    os.chdir(os.path.join(project_dir, module_dir))
-
-                    # BUILD DOCKER IMAGE
-                    if not no_build:
-                        build_options = self.filter_build_options(module_json.build_options)
-                        # TODO: apply build options
-                        build_result = self.dock.docker_client.images.build(tag=image_destination_name, path=".", dockerfile=dockerfile_name)
-
-                        self.output.info("DOCKER IMAGE DETAILS: {0}".format(build_result))
-
-                    # CD BACK UP
-                    os.chdir(project_dir)
-
-                    if not no_push:
-                        # PUSH TO CONTAINER REGISTRY
-                        self.output.info("PUSHING DOCKER IMAGE TO: " + image_destination_name)
-
-                        for line in self.dock.docker_client.images.push(repository=image_destination_name, stream=True, auth_config={
-                                                                        "username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
-                            self.output.procout(self.utility.decode(line).replace("\\u003e", ">"))
-
-                    break
-
+                    for line in self.dock.docker_client.images.push(repository=tag, stream=True, auth_config={
+                            "username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
+                        self.output.procout(self.utility.decode(line).replace("\\u003e", ">"))
             self.output.footer("BUILD COMPLETE", suppress=no_build)
             self.output.footer("PUSH COMPLETE", suppress=no_push)
         self.utility.set_config(force=True, replacements=replacements)
@@ -148,6 +139,9 @@ class Modules:
     @staticmethod
     def filter_build_options(build_options):
         """Remove build options which will be ignored"""
+        if build_options is None:
+            return None
+
         filtered_build_options = []
         for build_option in build_options:
             build_option = build_option.strip()
