@@ -66,6 +66,30 @@ class Modules:
     def build_push(self, no_build=False, no_push=False):
         self.output.header("BUILDING MODULES", suppress=no_build)
 
+        bypass_modules = self.utility.get_bypass_modules()
+        docker_arch_process = [docker_arch.strip() for docker_arch in self.envvars.ACTIVE_DOCKER_PLATFORMS.split(",") if docker_arch]
+
+        module_image_map = {}
+        image_dockerfile_map = {}
+        image_build_option_map = {}
+        image_to_build = []
+
+        for module in os.listdir(self.envvars.MODULES_PATH):
+            if module not in bypass_modules:
+                module_dir = os.path.join(self.envvars.MODULES_PATH, module)
+                module_json = Module(self.output, self.utility, os.path.join(module_dir, "module.json"))
+                for platform in module_json.platforms:
+                    if len(docker_arch_process) == 0 or docker_arch_process[0] == "*" or platform in docker_arch_process:
+                        # get the Dockerfile from module.json
+                        dockerfile = os.path.abspath(os.path.join(module_dir, module_json.get_dockerfile_by_platform(platform)))
+                        container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
+                        tag_name = module_json.tag_version + container_tag
+                        image_url = os.path.expandvars("{0}:{1}-{2}".format(module_json.repository, tag_name, platform).lower())
+                        module_image_map[module] = image_url
+                        image_dockerfile_map[image_url] = dockerfile
+                        image_build_option_map[image_url] = module_json.build_options
+                        image_to_build.append(image_url)
+
         deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
         modules_to_process = deployment_manifest.get_modules_to_process()
 

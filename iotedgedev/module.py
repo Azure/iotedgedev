@@ -18,7 +18,7 @@ class Module(object):
         if os.path.exists(self.module_json_file):
             try:
                 self.file_json_content = json.loads(
-                    self.utility.get_file_contents(self.module_json_file))
+                    os.path.expandvars(self.utility.get_file_contents(self.module_json_file)))
 
                 self.module_language = self.file_json_content.get(
                     "language").lower()
