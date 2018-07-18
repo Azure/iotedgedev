@@ -69,8 +69,8 @@ class Modules:
         bypass_modules = self.utility.get_bypass_modules()
         active_platform = self.utility.get_active_docker_platform()
 
-        # map image (module name and platform joined with colon) to tag.
-        # sample: ('filtermodule:amd64', 'localhost:5000/filtermodule:0.0.1-amd64')
+        # map (module name, platform) tuple to tag.
+        # sample: (('filtermodule', 'amd64'), 'localhost:5000/filtermodule:0.0.1-amd64')
         image_tag_map = {}
         # map image tag to (module name, dockerfile) tuple
         # sample: ('localhost:5000/filtermodule:0.0.1-amd64', ('filtermodule', '/test_solution/modules/filtermodule/Dockerfile.amd64'))
@@ -91,7 +91,7 @@ class Modules:
                     dockerfile = os.path.abspath(os.path.join(module_dir, module_json.get_dockerfile_by_platform(platform)))
                     container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
                     tag = "{0}:{1}{2}-{3}".format(module_json.repository, module_json.tag_version, container_tag, platform).lower()
-                    image_tag_map["{0}:{1}".format(module, platform)] = tag
+                    image_tag_map[(module, platform)] = tag
                     tag_dockerfile_map[tag] = (module, dockerfile)
                     tag_build_options_map[tag] = module_json.build_options
                     if len(active_platform) == 0 or active_platform[0] == "*" or platform in active_platform:
@@ -103,7 +103,7 @@ class Modules:
         replacements = {}
         for module, platform in modules_to_process:
             if module not in bypass_modules:
-                key = "{0}:{1}".format(module, platform)
+                key = (module, platform)
                 if key in image_tag_map:
                     tag = image_tag_map.get(key)
                     tags_to_build.add(tag)
