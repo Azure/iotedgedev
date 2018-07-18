@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 
 from .deploymentmanifest import DeploymentManifest
 from .dotnet import DotNet
@@ -94,7 +95,7 @@ class Modules:
                     image_tag_map[(module, platform)] = tag
                     tag_dockerfile_map[tag] = (module, dockerfile)
                     tag_build_options_map[tag] = module_json.build_options
-                    if len(active_platform) == 0 or active_platform[0] == "*" or platform in active_platform:
+                    if len(active_platform) > 0 and (active_platform[0] == "*" or platform in active_platform):
                         tags_to_build.add(tag)
 
         deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
@@ -119,9 +120,17 @@ class Modules:
 
                 # BUILD DOCKER IMAGE
                 if not no_build:
-                    build_options = self.filter_build_options(tag_build_options_map.get(tag, None))
                     # TODO: apply build options
-                    build_result = self.dock.docker_client.images.build(tag=tag, path=os.path.join(self.envvars.MODULES_PATH, module), dockerfile=dockerfile)
+                    build_options = self.filter_build_options(tag_build_options_map.get(tag, None))
+
+                    context_path = os.path.abspath(os.path.join(self.envvars.MODULES_PATH, module))
+                    dockerfile_relative = os.path.relpath(dockerfile, context_path)
+                    # a hack to workaround Python Docker SDK's bug with Linux container mode on Windows
+                    if self.dock.get_os_type() == "linux" and sys.platform == "win32":
+                        dockerfile = dockerfile.replace("\\", "/")
+                        dockerfile_relative = dockerfile_relative.replace("\\", "/")
+
+                    build_result = self.dock.docker_client.images.build(tag=tag, path=context_path, dockerfile=dockerfile_relative)
 
                     self.output.info("DOCKER IMAGE DETAILS: {0}".format(build_result))
 
