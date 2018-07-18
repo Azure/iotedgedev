@@ -28,7 +28,7 @@ def test_copy_template(utility, tmpdir):
         "${MODULES.csharpmodule.amd64}": "localhost:5000/csharpmodule:0.0.1-amd64",
         "${MODULES.csharpfunction.amd64.debug}": "localhost:5000/csharpfunction:0.0.1-amd64.debug"
     }
-    dest = tmpdir.join("deployment_template_1.dest.json")
+    dest = tmpdir.join("deployment_template_1.dest.json").strpath
     utility.copy_template(test_file_1, dest, replacements=replacements, expand_env=False)
     assert_json_file_equal(test_file_2, dest)
 
@@ -39,7 +39,7 @@ def test_copy_template_expand_env(utility, tmpdir):
         "${MODULES.csharpfunction.amd64.debug}": "${CONTAINER_REGISTRY_SERVER}/csharpfunction:0.0.1-amd64.debug"
     }
     os.environ["CONTAINER_REGISTRY_SERVER"] = "localhost:5000"
-    dest = tmpdir.join("deployment_template_2.dest.json")
+    dest = tmpdir.join("deployment_template_2.dest.json").strpath
     utility.copy_template(test_file_1, dest, replacements=replacements, expand_env=True)
     assert_json_file_equal(test_file_2, dest)
 
