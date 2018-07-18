@@ -1,6 +1,5 @@
-
-import os
 import json
+import os
 import sys
 
 
@@ -17,8 +16,7 @@ class Module(object):
     def load_module_json(self):
         if os.path.exists(self.module_json_file):
             try:
-                self.file_json_content = json.loads(
-                    os.path.expandvars(self.utility.get_file_contents(self.module_json_file)))
+                self.file_json_content = json.loads(self.utility.get_file_contents(self.module_json_file, expand_env=True))
 
                 self.module_language = self.file_json_content.get(
                     "language").lower()

@@ -67,7 +67,7 @@ class Modules:
         self.output.header("BUILDING MODULES", suppress=no_build)
 
         bypass_modules = self.utility.get_bypass_modules()
-        docker_arch_process = [docker_arch.strip() for docker_arch in self.envvars.ACTIVE_DOCKER_PLATFORMS.split(",") if docker_arch]
+        active_platform = self.utility.get_active_docker_platform()
 
         # map image (module name and platform joined with colon) to tag.
         # sample: ('filtermodule:amd64', 'localhost:5000/filtermodule:0.0.1-amd64')
@@ -94,7 +94,7 @@ class Modules:
                     image_tag_map["{0}:{1}".format(module, platform)] = tag
                     tag_dockerfile_map[tag] = (module, dockerfile)
                     tag_build_options_map[tag] = module_json.build_options
-                    if len(docker_arch_process) == 0 or docker_arch_process[0] == "*" or platform in docker_arch_process:
+                    if len(active_platform) == 0 or active_platform[0] == "*" or platform in active_platform:
                         tags_to_build.add(tag)
 
         deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)

@@ -80,9 +80,13 @@ class Utility:
 
         return "SharedAccessSignature " + urlencode(rawtoken)
 
-    def get_file_contents(self, file):
+    def get_file_contents(self, file, expand_env=False):
         with open(file, "r") as file:
-            return file.read()
+            content = file.read()
+            if expand_env:
+                return os.path.expandvars(content)
+            else:
+                return content
 
     def decode(self, val):
         return val.decode("utf-8").strip()
@@ -95,6 +99,9 @@ class Utility:
     def get_bypass_modules(self):
         return [module.strip()
                 for module in self.envvars.BYPASS_MODULES.split(",") if module]
+
+    def get_active_docker_platform(self):
+        return [platform.strip() for platform in self.envvars.ACTIVE_DOCKER_PLATFORMS.split(",") if platform]
 
     def get_modules_in_config(self, moduleType):
         modules_config = json.load(open(self.envvars.DEPLOYMENT_CONFIG_FILE_PATH))
