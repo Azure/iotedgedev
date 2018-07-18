@@ -246,6 +246,7 @@ def test_valid_env_device_connectionstring():
     assert connectionstring.SharedAccessKey
     assert connectionstring.DeviceId
 
+
 '''
 def test_load_no_dotenv():
 
