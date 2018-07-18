@@ -55,7 +55,7 @@
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "localhost:5000/csharpfunction:0.0.1-amd64",
+              "image": "localhost:5000/csharpfunction:0.0.1-amd64.debug",
               "createOptions": ""
             }
           }
