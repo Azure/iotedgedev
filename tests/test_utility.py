@@ -1,4 +1,3 @@
-import json
 import os
 
 import pytest
@@ -6,6 +5,7 @@ import pytest
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 from iotedgedev.utility import Utility
+from utility import assert_json_file_equal
 
 pytestmark = pytest.mark.unit
 
@@ -42,9 +42,3 @@ def test_copy_template_expand_env(utility, tmpdir):
     dest = tmpdir.join("deployment_template_2.dest.json").strpath
     utility.copy_template(test_file_1, dest, replacements=replacements, expand_env=True)
     assert_json_file_equal(test_file_2, dest)
-
-
-def assert_json_file_equal(file1, file2):
-    with open(file1, "r") as f1:
-        with open(file2, "r") as f2:
-            assert json.load(f1) == json.load(f2)

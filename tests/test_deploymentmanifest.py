@@ -7,6 +7,7 @@ from iotedgedev.deploymentmanifest import DeploymentManifest
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 from iotedgedev.utility import Utility
+from utility import assert_list_equal
 
 pytestmark = pytest.mark.unit
 
@@ -33,13 +34,13 @@ def deployment_manifest():
 def test_get_modules_to_process(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_1)
     modules_to_process = deployment_manifest.get_modules_to_process()
-    assert modules_to_process == [("csharpmodule", "amd64"), ("csharpfunction", "amd64.debug")]
+    assert_list_equal(modules_to_process, [("csharpmodule", "amd64"), ("csharpfunction", "amd64.debug")])
 
 
 def test_get_modules_to_process_empty(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_2)
     modules_to_process = deployment_manifest.get_modules_to_process()
-    assert modules_to_process == []
+    assert_list_equal(modules_to_process, [])
 
 
 def test_add_module_template(deployment_manifest):
