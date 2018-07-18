@@ -115,8 +115,8 @@ class Modules:
                 module = tag_dockerfile_map.get(tag)[0]
                 dockerfile = tag_dockerfile_map.get(tag)[1]
                 self.output.info("BUILDING MODULE: {0}".format(module), suppress=no_build)
-                self.output.info("BUILDING DOCKER IMAGE: {0}".format(tag), suppress=no_build)
                 self.output.info("PROCESSING DOCKERFILE: {0}".format(dockerfile), suppress=no_build)
+                self.output.info("BUILDING DOCKER IMAGE: {0}".format(tag), suppress=no_build)
 
                 # BUILD DOCKER IMAGE
                 if not no_build:
