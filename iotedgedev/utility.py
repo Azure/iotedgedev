@@ -1,17 +1,19 @@
-from base64 import b64encode, b64decode
 import fnmatch
-from hashlib import sha256
-from hmac import HMAC
 import json
 import os
 import subprocess
 import sys
+from base64 import b64decode, b64encode
+from hashlib import sha256
+from hmac import HMAC
 from time import time
+
+from .moduletype import ModuleType
+
 if sys.version_info.major >= 3:
     from urllib.parse import quote, urlencode
 else:
     from urllib import quote, urlencode
-from .moduletype import ModuleType
 
 
 class Utility:
@@ -78,9 +80,13 @@ class Utility:
 
         return "SharedAccessSignature " + urlencode(rawtoken)
 
-    def get_file_contents(self, file):
+    def get_file_contents(self, file, expand_env=False):
         with open(file, "r") as file:
-            return file.read()
+            content = file.read()
+            if expand_env:
+                return os.path.expandvars(content)
+            else:
+                return content
 
     def decode(self, val):
         return val.decode("utf-8").strip()
@@ -90,9 +96,12 @@ class Utility:
 
         return [os.path.join(os.getcwd(), f) for f in os.listdir(os.getcwd()) if f.endswith("template.json")]
 
-    def get_active_modules(self):
+    def get_bypass_modules(self):
         return [module.strip()
-                for module in self.envvars.ACTIVE_MODULES.split(",") if module]
+                for module in self.envvars.BYPASS_MODULES.split(",") if module]
+
+    def get_active_docker_platform(self):
+        return [platform.strip() for platform in self.envvars.ACTIVE_DOCKER_PLATFORMS.split(",") if platform]
 
     def get_modules_in_config(self, moduleType):
         modules_config = json.load(open(self.envvars.DEPLOYMENT_CONFIG_FILE_PATH))
@@ -112,7 +121,7 @@ class Utility:
             return_modules.update(user_modules)
             return return_modules
 
-    def set_config(self, force=False):
+    def set_config(self, force=False, replacements=None):
 
         if not self.config_set or force:
             self.output.header("PROCESSING CONFIG FILES")
@@ -137,12 +146,34 @@ class Utility:
                 self.output.info("Expanding '{0}' to '{1}'".format(
                     os.path.basename(config_file), build_config_file))
 
-                config_file_expanded = os.path.expandvars(
-                    self.get_file_contents(config_file))
-
-                with open(build_config_file, "w") as config_file_build:
-                    config_file_build.write(config_file_expanded)
+                self.copy_template(config_file, build_config_file, replacements, True)
 
             self.output.line()
 
         self.config_set = True
+
+    def copy_template(self, src, dest=None, replacements=None, expand_env=True):
+        """Read file at src, replace the keys in replacements with their values, optionally expand environment variables, and save to dest"""
+        if dest is None:
+            dest = src
+
+        content = self.get_file_contents(src)
+
+        if replacements:
+            for key, value in replacements.items():
+                content = content.replace(key, value)
+
+        if expand_env:
+            content = os.path.expandvars(content)
+
+        with open(dest, "w") as dest_file:
+            dest_file.write(content)
+
+    def nested_set(self, dic, keys, value):
+        current = dic
+        for key in keys[:-1]:
+            if key not in current:
+                current[key] = {}
+            current = current.get(key)
+
+        current[keys[-1]] = value

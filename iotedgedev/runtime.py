@@ -32,4 +32,3 @@ class Runtime:
         self.dock.remove_modules()
         self.setup()
         self.start()
-

@@ -61,14 +61,25 @@ def main(set_config, az_cli=None):
               required=False,
               help="Creates a new Azure IoT Edge Solution. Use `--create .` to create in current folder. Use `--create TEXT` to create in a subfolder.")
 @click.argument("name", required=False)
-def solution(create, name):
+@click.option('--module',
+              required=False,
+              default=envvars.get_envvar("DEFAULT_MODULE_NAME", default="filtermodule"),
+              show_default=True,
+              help="Specify the name of the default IoT Edge module.")
+@click.option("--template",
+              default="csharp",
+              show_default=True,
+              required=False,
+              type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]),
+              help="Specify the template used to create the default IoT Edge module.")
+def solution(create, name, module, template):
 
     utility = Utility(envvars, output)
     sol = Solution(output, utility)
     if name:
-        sol.create(name)
+        sol.create(name, module, template)
     elif create:
-        sol.create(create)
+        sol.create(create, module, template)
 
 
 @click.command(context_settings=CONTEXT_SETTINGS, help="Creates Solution and Azure Resources")
@@ -107,7 +118,7 @@ def e2e(ctx):
                 required=True)
 @click.option("--template",
               required=True,
-              type=click.Choice(["csharp", "python", "csharpfunction"]),
+              type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]),
               help="Specify the template used to create the new IoT Edge module.")
 @click.pass_context
 def addmodule(ctx, name, template):
@@ -444,7 +455,7 @@ def azure(setup,
 @click.option("--template",
               default="csharp",
               required=False,
-              type=click.Choice(["csharp", "python", "csharpfunction"]),
+              type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]),
               help="Specify the template used to create the new IoT Edge module.")
 @click.option('--build',
               default=False,

@@ -1,7 +1,7 @@
 {
   "deployment": {
     "docker": {
-      "edgeRuntimeImage": "microsoft/azureiotedge-agent:${RUNTIME_TAG}", 
+      "edgeRuntimeImage": "mcr.microsoft.com/azureiotedge-agent:${RUNTIME_TAG}",
       "loggingOptions": {
         "log-driver": "json-file", 
         "log-opts": {

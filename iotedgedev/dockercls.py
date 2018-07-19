@@ -23,6 +23,9 @@ class Docker:
             self.docker_client = docker.from_env()
             self.docker_api = docker.APIClient()
 
+    def get_os_type(self):
+        return self.docker_client.info()["OSType"].lower()
+
     def init_registry(self):
 
         self.output.header("INITIALIZING CONTAINER REGISTRY")

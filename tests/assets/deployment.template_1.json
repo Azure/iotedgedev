@@ -14,7 +14,7 @@
           "edgeAgent": {
             "type": "docker",
             "settings": {
-              "image": "mcr.microsoft.com/azureiotedge-agent:${RUNTIME_TAG}",
+              "image": "mcr.microsoft.com/azureiotedge-agent:1.0",
               "createOptions": ""
             }
           },
@@ -23,7 +23,7 @@
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "mcr.microsoft.com/azureiotedge-hub:${RUNTIME_TAG}",
+              "image": "mcr.microsoft.com/azureiotedge-hub:1.0",
               "createOptions": "{\"HostConfig\":{\"PortBindings\":{\"8883/tcp\":[{\"HostPort\":\"8883\"}],\"443/tcp\":[{\"HostPort\":\"443\"}]}}}"
             }
           }
@@ -35,7 +35,27 @@
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "mcr.microsoft.com/azureiotedge-simulated-temperature-sensor:${RUNTIME_TAG}",
+              "image": "mcr.microsoft.com/azureiotedge-simulated-temperature-sensor:1.0",
+              "createOptions": ""
+            }
+          },
+          "csharpmodule": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "${MODULES.csharpmodule.amd64}",
+              "createOptions": ""
+            }
+          },
+          "csharpfunction": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "${MODULES.csharpfunction.amd64.debug}",
               "createOptions": ""
             }
           }
@@ -46,7 +66,9 @@
       "properties.desired": {
         "schemaVersion": "1.0",
         "routes": {
-          "sensorTo%MODULE%": "FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/%MODULE%/inputs/input1\")"
+          "sensorTocsharpmodule": "FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/csharpmodule/inputs/input1\")",
+          "csharpmoduleToIoTHub": "FROM /messages/modules/csharpmodule/outputs/* INTO $upstream",
+          "csharpfunctionToIoTHub": "FROM /messages/modules/csharpfunction/outputs/* INTO $upstream"
         },
         "storeAndForwardConfiguration": {
           "timeToLiveSecs": 7200
