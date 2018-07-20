@@ -80,10 +80,10 @@ class Utility:
 
         return "SharedAccessSignature " + urlencode(rawtoken)
 
-    def get_file_contents(self, file, expand_env=False):
+    def get_file_contents(self, file, expandvars=False):
         with open(file, "r") as file:
             content = file.read()
-            if expand_env:
+            if expandvars:
                 return os.path.expandvars(content)
             else:
                 return content
@@ -152,7 +152,7 @@ class Utility:
 
         self.config_set = True
 
-    def copy_template(self, src, dest=None, replacements=None, expand_env=True):
+    def copy_template(self, src, dest=None, replacements=None, expandvars=True):
         """Read file at src, replace the keys in replacements with their values, optionally expand environment variables, and save to dest"""
         if dest is None:
             dest = src
@@ -163,7 +163,7 @@ class Utility:
             for key, value in replacements.items():
                 content = content.replace(key, value)
 
-        if expand_env:
+        if expandvars:
             content = os.path.expandvars(content)
 
         with open(dest, "w") as dest_file:
