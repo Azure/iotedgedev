@@ -1,6 +1,8 @@
 # Azure IoT Edge Dev Tool
 
-## IOTEDGEDEV DOES NOT WORK WITH IOT EDGE GA BITS.  UPDATE COMING SOON. PLEASE WATCH THIS REPO FOR NOTIFICATIONS
+## IOTEDGEDEV DOES NOT WORK WITH IOT EDGE GA BITS.  
+## ETA: Mid-August
+## PLEASE WATCH THIS REPO FOR NOTIFICATIONS
 
 [![Build Status](https://travis-ci.org/Azure/iotedgedev.svg?branch=master)](https://travis-ci.org/Azure/iotedgedev)
 
