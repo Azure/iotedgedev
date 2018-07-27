@@ -42,3 +42,15 @@ def test_copy_template_expand_env(utility, tmpdir):
     dest = tmpdir.join("deployment_template_2.dest.json").strpath
     utility.copy_template(test_file_1, dest, replacements=replacements, expand_env=True)
     assert_json_file_equal(test_file_2, dest)
+
+
+def test_in_asterisk_list(utility):
+    assert utility.in_asterisk_list("filtermodule", "pipemodule, filtermodule")
+
+
+def test_in_asterisk_list_empty(utility):
+    assert not utility.in_asterisk_list("filtermodule", "")
+
+
+def test_in_asterisk_list_asterisk(utility):
+    assert utility.in_asterisk_list("filtermodule", "*")

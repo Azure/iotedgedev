@@ -94,7 +94,7 @@ class Modules:
                 image_tag_map[(module, platform)] = tag
                 tag_dockerfile_map[tag] = (module, dockerfile)
                 tag_build_options_map[tag] = module_json.build_options
-                if module not in bypass_modules and len(active_platform) > 0 and (active_platform[0] == "*" or platform in active_platform):
+                if not self.utility.in_asterisk_list(module, bypass_modules) and self.utility.in_asterisk_list(platform, active_platform):
                     tags_to_build.add(tag)
 
         deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
@@ -102,12 +102,12 @@ class Modules:
 
         replacements = {}
         for module, platform in modules_to_process:
-            if module not in bypass_modules:
-                key = (module, platform)
-                if key in image_tag_map:
-                    tag = image_tag_map.get(key)
+            key = (module, platform)
+            if key in image_tag_map:
+                tag = image_tag_map.get(key)
+                replacements["${{MODULES.{0}.{1}}}".format(module, platform)] = tag
+                if not self.utility.in_asterisk_list(module, bypass_modules):
                     tags_to_build.add(tag)
-                    replacements["${{MODULES.{0}.{1}}}".format(module, platform)] = tag
 
         for tag in tags_to_build:
             if tag in tag_dockerfile_map:

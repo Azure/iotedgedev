@@ -103,6 +103,9 @@ class Utility:
     def get_active_docker_platform(self):
         return [platform.strip() for platform in self.envvars.ACTIVE_DOCKER_PLATFORMS.split(",") if platform]
 
+    def in_asterisk_list(self, item, asterisk_list):
+        return len(asterisk_list) > 0 and (asterisk_list[0] == "*" or item in asterisk_list)
+
     def get_modules_in_config(self, moduleType):
         modules_config = json.load(open(self.envvars.DEPLOYMENT_CONFIG_FILE_PATH))
 
