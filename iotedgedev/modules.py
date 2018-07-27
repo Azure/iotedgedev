@@ -84,31 +84,30 @@ class Modules:
         tags_to_build = set()
 
         for module in os.listdir(self.envvars.MODULES_PATH):
-            if module not in bypass_modules:
-                module_dir = os.path.join(self.envvars.MODULES_PATH, module)
-                module_json = Module(self.output, self.utility, os.path.join(module_dir, "module.json"))
-                for platform in module_json.platforms:
-                    # get the Dockerfile from module.json
-                    dockerfile = os.path.abspath(os.path.join(module_dir, module_json.get_dockerfile_by_platform(platform)))
-                    container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
-                    tag = "{0}:{1}{2}-{3}".format(module_json.repository, module_json.tag_version, container_tag, platform).lower()
-                    image_tag_map[(module, platform)] = tag
-                    tag_dockerfile_map[tag] = (module, dockerfile)
-                    tag_build_options_map[tag] = module_json.build_options
-                    if len(active_platform) > 0 and (active_platform[0] == "*" or platform in active_platform):
-                        tags_to_build.add(tag)
+            module_dir = os.path.join(self.envvars.MODULES_PATH, module)
+            module_json = Module(self.output, self.utility, os.path.join(module_dir, "module.json"))
+            for platform in module_json.platforms:
+                # get the Dockerfile from module.json
+                dockerfile = os.path.abspath(os.path.join(module_dir, module_json.get_dockerfile_by_platform(platform)))
+                container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
+                tag = "{0}:{1}{2}-{3}".format(module_json.repository, module_json.tag_version, container_tag, platform).lower()
+                image_tag_map[(module, platform)] = tag
+                tag_dockerfile_map[tag] = (module, dockerfile)
+                tag_build_options_map[tag] = module_json.build_options
+                if not self.utility.in_asterisk_list(module, bypass_modules) and self.utility.in_asterisk_list(platform, active_platform):
+                    tags_to_build.add(tag)
 
         deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
         modules_to_process = deployment_manifest.get_modules_to_process()
 
         replacements = {}
         for module, platform in modules_to_process:
-            if module not in bypass_modules:
-                key = (module, platform)
-                if key in image_tag_map:
-                    tag = image_tag_map.get(key)
+            key = (module, platform)
+            if key in image_tag_map:
+                tag = image_tag_map.get(key)
+                replacements["${{MODULES.{0}.{1}}}".format(module, platform)] = tag
+                if not self.utility.in_asterisk_list(module, bypass_modules):
                     tags_to_build.add(tag)
-                    replacements["${{MODULES.{0}.{1}}}".format(module, platform)] = tag
 
         for tag in tags_to_build:
             if tag in tag_dockerfile_map:
