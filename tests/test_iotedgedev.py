@@ -1,9 +1,15 @@
 import json
 import os
 import shutil
-import pytest
 
+import pytest
 from click.testing import CliRunner
+from dotenv import load_dotenv
+
+from iotedgedev.connectionstring import (DeviceConnectionString,
+                                         IoTHubConnectionString)
+
+pytestmark = pytest.mark.e2e
 
 root_dir = os.getcwd()
 tests_dir = os.path.join(root_dir, "tests")
@@ -104,7 +110,7 @@ def test_module_add():
     runner = CliRunner()
 
     add_module_and_verify(cli.main, runner, "csharp")
-    # add_module_and_verify(cli.main, runner, "nodejs")
+    add_module_and_verify(cli.main, runner, "nodejs")
     add_module_and_verify(cli.main, runner, "python")
     add_module_and_verify(cli.main, runner, "csharpfunction")
 
@@ -159,49 +165,49 @@ def test_deploy_modules(request):
     assert 'DEPLOYMENT COMPLETE' in result.output
 
 
-@pytest.fixture
-def test_start_runtime(request):
+# @pytest.fixture
+# def test_start_runtime(request):
 
-    os.chdir(test_solution_dir)
+#     os.chdir(test_solution_dir)
 
-    cli = __import__("iotedgedev.cli", fromlist=['main'])
-    runner = CliRunner()
-    result = runner.invoke(cli.main, ['start'])
-    print(result.output)
+#     cli = __import__("iotedgedev.cli", fromlist=['main'])
+#     runner = CliRunner()
+#     result = runner.invoke(cli.main, ['start'])
+#     print(result.output)
 
-    assert 'Runtime started' in result.output
-
-
-@pytest.fixture
-def test_monitor(request, capfd):
-
-    os.chdir(test_solution_dir)
-
-    cli = __import__("iotedgedev.cli", fromlist=['main'])
-    runner = CliRunner()
-    result = runner.invoke(cli.main, ['monitor', '--timeout', '60000'])
-    out, err = capfd.readouterr()
-    print(out)
-    print(err)
-    print(result.output)
-
-    assert 'timeCreated' in out
+#     assert 'Runtime started' in result.output
 
 
-@pytest.fixture
-def test_stop(request):
+# @pytest.fixture
+# def test_monitor(request, capfd):
 
-    os.chdir(test_solution_dir)
+#     os.chdir(test_solution_dir)
 
-    cli = __import__("iotedgedev.cli", fromlist=['main'])
-    runner = CliRunner()
-    result = runner.invoke(cli.main, ['stop'])
-    print(result.output)
+#     cli = __import__("iotedgedev.cli", fromlist=['main'])
+#     runner = CliRunner()
+#     result = runner.invoke(cli.main, ['monitor', '--timeout', '60000'])
+#     out, err = capfd.readouterr()
+#     print(out)
+#     print(err)
+#     print(result.output)
 
-    assert 'Runtime stopped' in result.output
+#     assert 'timeCreated' in out
 
 
-def test_e2e(test_push_modules, test_deploy_modules, test_start_runtime, test_monitor, test_stop):
+# @pytest.fixture
+# def test_stop(request):
+
+#     os.chdir(test_solution_dir)
+
+#     cli = __import__("iotedgedev.cli", fromlist=['main'])
+#     runner = CliRunner()
+#     result = runner.invoke(cli.main, ['stop'])
+#     print(result.output)
+
+#     assert 'Runtime stopped' in result.output
+
+
+def test_e2e(test_push_modules, test_deploy_modules):
     print('Testing E2E')
 
 
@@ -217,8 +223,28 @@ def setup_node_solution(request):
     return
 
 
-def test_node(setup_node_solution, test_push_modules, test_deploy_modules, test_start_runtime, test_monitor, test_stop):
+def test_node(setup_node_solution, test_push_modules, test_deploy_modules):
     print('Testing Node Solution')
+
+
+def test_valid_env_iothub_connectionstring():
+    load_dotenv(".env")
+    env_iothub_connectionstring = os.getenv("IOTHUB_CONNECTION_STRING")
+    connectionstring = IoTHubConnectionString(env_iothub_connectionstring)
+    assert connectionstring.HostName
+    assert connectionstring.HubName
+    assert connectionstring.SharedAccessKey
+    assert connectionstring.SharedAccessKeyName
+
+
+def test_valid_env_device_connectionstring():
+    load_dotenv(".env")
+    env_device_connectionstring = os.getenv("DEVICE_CONNECTION_STRING")
+    connectionstring = DeviceConnectionString(env_device_connectionstring)
+    assert connectionstring.HostName
+    assert connectionstring.HubName
+    assert connectionstring.SharedAccessKey
+    assert connectionstring.DeviceId
 
 
 '''
