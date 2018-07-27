@@ -112,7 +112,7 @@ class EnvVars:
                 self.RUNTIME_CONFIG_DIR = self.get_envvar("RUNTIME_CONFIG_DIR", default=".")
                 if self.RUNTIME_CONFIG_DIR == ".":
                     self.set_envvar("RUNTIME_CONFIG_DIR", self.get_runtime_config_dir())
-                self.ACTIVE_MODULES = self.get_envvar("ACTIVE_MODULES")
+                self.BYPASS_MODULES = self.get_envvar("BYPASS_MODULES")
                 self.ACTIVE_DOCKER_PLATFORMS = self.get_envvar("ACTIVE_DOCKER_PLATFORMS", altkeys=["ACTIVE_DOCKER_ARCH"])
                 self.CONTAINER_TAG = self.get_envvar("CONTAINER_TAG")
                 self.RUNTIME_TAG = self.get_envvar("RUNTIME_TAG")
