@@ -8,7 +8,7 @@ azure-cli-extension
 azure-cli-configure
 azure-cli-resource
 azure-cli-cloud
-
+iotedgehubdev
 
 
 

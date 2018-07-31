@@ -12,6 +12,7 @@ from fstrings import f
 from .azurecli import AzureCli
 from .dockercls import Docker
 from .envvars import EnvVars
+from .iotedgehubdev import iotedgehubdev
 from .iothub import IoTHub
 from .modules import Modules
 from .output import Output
@@ -270,7 +271,9 @@ def validate_option(ctx, param, value):
             if envvars.IOTHUB_SKU == "F1":
                 free_iot_name, free_iot_rg = azure_cli.get_free_iothub()
                 if free_iot_name:
-                    output.info("You already have a Free IoT Hub SKU in your subscription, so you must either use that existing IoT Hub or create a new S1 IoT Hub. Enter (F) to use the existing Free IoT Hub or enter (S) to create a new S1 IoT Hub:")
+                    output.info("You already have a Free IoT Hub SKU in your subscription, "
+                                "so you must either use that existing IoT Hub or create a new S1 IoT Hub. "
+                                "Enter (F) to use the existing Free IoT Hub or enter (S) to create a new S1 IoT Hub:")
                     user_response = sys.stdin.readline().strip().upper()
                     if user_response == "S":
                         envvars.IOTHUB_SKU = "S1"
@@ -349,7 +352,7 @@ def list_subscriptions_and_set_default():
 
 def header_and_default(header, default, default2=None):
     output.header(header)
-    if default == '' and default2 != None:
+    if default == '' and default2 is not None:
         return default2
     return default
 
@@ -520,17 +523,18 @@ def modules(add, template, build, push, no_build, deploy):
               required=False,
               is_flag=True,
               help="Edge Runtime Status. Calls iotedgectl status.")
-def runtime(setup, start, stop, restart, status):
+def runtime(setup, start, stop, restart, status, verbose):
 
     utility = Utility(envvars, output)
-    dock = Docker(envvars, utility, output)
-    run = Runtime(envvars, utility, output, dock)
+    # dock = Docker(envvars, utility, output)
+    # run = Runtime(envvars, utility, output, dock)
+    run = iotedgehubdev(envvars, output, utility)
 
     if setup:
         run.setup()
 
     if start:
-        run.start()
+        run.start_solution()
 
     if stop:
         run.stop()
@@ -547,7 +551,9 @@ def runtime(setup, start, stop, restart, status):
               default=False,
               required=False,
               is_flag=True,
-              help="Pulls Edge Runtime from Docker Hub and pushes to your specified container registry. Also, updates config files to use CONTAINER_REGISTRY_* instead of the Microsoft Docker hub. See CONTAINER_REGISTRY environment variables.")
+              help="Pulls Edge Runtime from Docker Hub and pushes to your specified container registry. "
+                   "Also, updates config files to use CONTAINER_REGISTRY_* instead of the Microsoft Docker hub. "
+                   "See CONTAINER_REGISTRY environment variables.")
 @click.option('--clean',
               default=False,
               required=False,

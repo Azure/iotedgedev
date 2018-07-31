@@ -54,7 +54,7 @@ class EnvVars:
     def get_dotenv_file(self):
         default_dotenv_file = ".env"
 
-        if not "DOTENV_FILE" in os.environ:
+        if "DOTENV_FILE" not in os.environ:
             return default_dotenv_file
         else:
             dotenv_file_from_environ = os.environ["DOTENV_FILE"].strip("\"").strip("'")
@@ -145,7 +145,8 @@ class EnvVars:
                     self.DOCKER_HOST = None
             except Exception as ex:
                 self.output.error(
-                    "Environment variables not configured correctly. Run `iotedgedev solution --create [name]` to create a new solution with sample .env file. Please see README for variable configuration options. Tip: You might just need to restart your command prompt to refresh your Environment Variables.")
+                    "Environment variables not configured correctly. Run `iotedgedev solution --create [name]` to create a new solution with sample .env file. "
+                    "Please see README for variable configuration options. Tip: You might just need to restart your command prompt to refresh your Environment Variables.")
                 self.output.error("Variable that caused exception: " + str(ex))
                 sys.exit(-1)
 

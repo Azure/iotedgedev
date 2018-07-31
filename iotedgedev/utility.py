@@ -23,6 +23,7 @@ class Utility:
         self.config_set = False
 
     def exe_proc(self, params, shell=False, cwd=None, suppress_out=False):
+        print(params)
         proc = subprocess.Popen(
             params, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell, cwd=cwd)
 
