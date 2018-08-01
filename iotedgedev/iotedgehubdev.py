@@ -10,6 +10,7 @@ class iotedgehubdev:
 
     def setup(self):
         self.output.header("Setting Up Edge Simulator")
+        self.envvars.verify_envvar_has_val("DEVICE_CONNECTION_STRING", self.envvars.DEVICE_CONNECTION_STRING)
         self.utility.exe_proc("iotedgehubdev setup -c {0}".format(self.envvars.DEVICE_CONNECTION_STRING).split())
 
     def start_single(self, inputs):
