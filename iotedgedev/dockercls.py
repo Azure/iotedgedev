@@ -95,7 +95,10 @@ class Docker:
 
         except Exception as ex:
             self.output.error(
-                "Could not login to Container Registry. 1. Make sure Docker is running locally. 2. Verify your credentials in CONTAINER_REGISTRY_ environment variables. 2. If you are using WSL, then please set DOCKER_HOST Environment Variable. See the Azure IoT Edge Dev readme at https://aka.ms/iotedgedev for full instructions.")
+                "Could not login to Container Registry. 1. Make sure Docker is running locally. "
+                "2. Verify your credentials in CONTAINER_REGISTRY_ environment variables. "
+                "2. If you are using WSL, then please set DOCKER_HOST Environment Variable. "
+                "See the Azure IoT Edge Dev readme at https://aka.ms/iotedgedev for full instructions.")
             self.output.error(str(ex))
             sys.exit(-1)
 
@@ -142,7 +145,10 @@ class Docker:
                 self.output.info("PUSHING IMAGE: '{0}'".format(
                     container_registry_image_name))
 
-                for line in self.docker_client.images.push(repository=container_registry_image_name, tag=self.envvars.RUNTIME_TAG, stream=True, auth_config={"username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
+                for line in self.docker_client.images.push(repository=container_registry_image_name,
+                                                           tag=self.envvars.RUNTIME_TAG, stream=True,
+                                                           auth_config={"username": self.envvars.CONTAINER_REGISTRY_USERNAME,
+                                                                        "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
                     self.output.procout(self.utility.decode(line).replace("\\u003e", ">"))
                 self.output.info("SUCCESSFULLY PUSHED IMAGE: '{0}'".format(
                     container_registry_image_name))
