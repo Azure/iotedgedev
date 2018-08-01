@@ -523,7 +523,7 @@ def modules(add, template, build, push, no_build, deploy):
               required=False,
               is_flag=True,
               help="Edge Runtime Status. Calls iotedgectl status.")
-def runtime(setup, start, stop, restart, status, verbose):
+def runtime(setup, start, stop, restart, status):
 
     utility = Utility(envvars, output)
     # dock = Docker(envvars, utility, output)

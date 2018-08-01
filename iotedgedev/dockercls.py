@@ -1,9 +1,10 @@
-import docker
-from enum import Enum
 import os
-import zipfile
-from .moduletype import ModuleType
 import sys
+import zipfile
+
+import docker
+
+from .moduletype import ModuleType
 
 
 class Docker:
