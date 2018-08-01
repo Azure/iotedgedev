@@ -130,6 +130,9 @@ def add(ctx, name, template):
     mod.add(name, template)
 
 
+main.add_command(add)
+
+
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Build the solution")
 @click.option("--push",
               "-p",
@@ -149,6 +152,9 @@ def build(ctx, push, deploy):
     dock = Docker(envvars, utility, output)
     mod = Modules(envvars, utility, output, dock)
     mod.build()
+
+
+main.add_command(build)
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Pushes Active Modules to Container Registry")
@@ -171,12 +177,18 @@ def push(ctx, deploy, no_build):
     mod.push(no_build=no_build)
 
 
+main.add_command(push)
+
+
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Deploys Solution to IoT Edge Device")
 @click.pass_context
 def deploy(ctx):
     utility = Utility(envvars, output)
     edge = Edge(envvars, utility, output, azure_cli)
     edge.deploy()
+
+
+main.add_command(deploy)
 
 
 @runtime.command(context_settings=CONTEXT_SETTINGS,
