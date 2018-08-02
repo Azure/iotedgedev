@@ -91,7 +91,10 @@ def create(name, module, template):
 main.add_command(create)
 
 
-@solution.command(context_settings=CONTEXT_SETTINGS, help="Create a new IoT Edge solution and provision Azure resources")
+@solution.command(context_settings=CONTEXT_SETTINGS,
+                  help="Create a new IoT Edge solution and provision Azure resources",
+                  # hack to prevent Click truncating help messages
+                  short_help="Create a new IoT Edge solution and provision Azure resources")
 def init(ctx):
     utility = Utility(envvars, output)
 
@@ -201,6 +204,18 @@ def deploy(ctx):
 
 
 main.add_command(deploy)
+
+
+@solution.command(context_settings=CONTEXT_SETTINGS,
+                  help="Expand environment variables and placeholders in *.template.json and copy to config folder",
+                  # hack to prevent Click truncating help messages
+                  short_help="Expand environment variables and placeholders in *.template.json and copy to config folder")
+def genconfig():
+    mod = Modules(envvars, output)
+    mod.build_push(no_build=True, no_push=True)
+
+
+main.add_command(genconfig)
 
 
 @runtime.command(context_settings=CONTEXT_SETTINGS,
