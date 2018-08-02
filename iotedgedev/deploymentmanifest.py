@@ -43,7 +43,11 @@ class DeploymentManifest:
             }
         }"""
 
-        self.utility.nested_set(self.json, ["moduleContent", "$edgeAgent", "properties.desired", "modules", module_name], json.loads(new_module))
+        try:
+            self.utility.nested_set(self.get_module_content(), ["$edgeAgent", "properties.desired", "modules", module_name], json.loads(new_module))
+        except KeyError as err:
+            self.output.error("Missing key {0} in file {1}".format(err, self.path))
+            sys.exit(1)
 
         self.add_default_route(module_name)
 
@@ -52,24 +56,58 @@ class DeploymentManifest:
         new_route_name = "{0}ToIoTHub".format(module_name)
         new_route = "FROM /messages/modules/{0}/outputs/* INTO $upstream".format(module_name)
 
-        self.utility.nested_set(self.json, ["moduleContent", "$edgeHub", "properties.desired", "routes", new_route_name], new_route)
+        try:
+            self.utility.nested_set(self.get_module_content(), ["$edgeHub", "properties.desired", "routes", new_route_name], new_route)
+        except KeyError as err:
+            self.output.error("Missing key {0} in file {1}".format(err, self.path))
+            sys.exit(1)
+
+    def get_user_modules(self):
+        """Get user modules from deployment manifest"""
+        try:
+            modules = self.get_module_content()["$edgeAgent"]["properties.desired"]["modules"]
+            return list(modules.keys())
+        except KeyError as err:
+            self.output.error("Missing key {0} in file {1}".format(err, self.path))
+            sys.exit(1)
+
+    def get_system_modules(self):
+        """Get system modules from deployment manifest"""
+        try:
+            modules = self.get_module_content()["$edgeAgent"]["properties.desired"]["systemModules"]
+            return list(modules.keys())
+        except KeyError as err:
+            self.output.error("Missing key {0} in file {1}".format(err, self.path))
+            sys.exit(1)
 
     def get_modules_to_process(self):
         """Get modules to process from deployment manifest template"""
-        user_modules = self.json.get("moduleContent", {}).get("$edgeAgent", {}).get("properties.desired", {}).get("modules", {})
-        modules_to_process = []
-        for _, module_info in user_modules.items():
-            image = module_info.get("settings", {}).get("image", "")
-            # If the image is placeholder, e.g., ${MODULES.NodeModule.amd64}, parse module folder and platform from the placeholder
-            if image.startswith("${") and image.endswith("}") and len(image.split(".")) > 2:
-                first_dot = image.index(".")
-                second_dot = image.index(".", first_dot + 1)
-                module_dir = image[first_dot+1:second_dot]
-                module_platform = image[second_dot+1:image.index("}")]
-                modules_to_process.append((module_dir, module_platform))
-        return modules_to_process
+        try:
+            user_modules = self.get_module_content()["$edgeAgent"]["properties.desired"]["modules"]
+            modules_to_process = []
+            for _, module_info in user_modules.items():
+                image = module_info["settings"]["image"]
+                # If the image is placeholder, e.g., ${MODULES.NodeModule.amd64}, parse module folder and platform from the placeholder
+                if image.startswith("${") and image.endswith("}") and len(image.split(".")) > 2:
+                    first_dot = image.index(".")
+                    second_dot = image.index(".", first_dot + 1)
+                    module_dir = image[first_dot+1:second_dot]
+                    module_platform = image[second_dot+1:image.index("}")]
+                    modules_to_process.append((module_dir, module_platform))
+            return modules_to_process
+        except KeyError as err:
+            self.output.error("Missing key {0} in file {1}".format(err, self.path))
+            sys.exit(1)
 
     def save(self):
         """Dump the JSON to the disk"""
         with open(self.path, "w") as deployment_manifest:
             json.dump(self.json, deployment_manifest, indent=2)
+
+    def get_module_content(self):
+        if "modulesContent" in self.json:
+            return self.json["modulesContent"]
+        elif "moduleContent" in self.json:
+            return self.json["moduleContent"]
+        else:
+            raise KeyError("modulesContent")
