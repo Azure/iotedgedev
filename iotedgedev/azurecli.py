@@ -7,8 +7,10 @@ from azure.cli.core import get_default_cli
 from fstrings import f
 output_io_cls = StringIO
 
+
 def get_query_argument_for_id_and_name(token):
     return "[?starts_with(@.id,'{0}') || contains(@.name,'{1}')]".format(token.lower(), token)
+
 
 class AzureCli:
     def __init__(self,  output, envvars, cli=get_default_cli()):
@@ -43,7 +45,7 @@ class AzureCli:
             if stderr_data and b"invalid_grant" in stderr_data:
                 self.output.error(self.decode(stderr_data))
                 self.output.info(
-                    "Your Azure CLI session has expired. Please re-run iotedgedev azure --setup to refresh your credentials.")
+                    "Your Azure CLI session has expired. Please re-run iotedgedev iothub --setup to refresh your credentials.")
                 self.logout()
                 sys.exit()
 
@@ -168,7 +170,8 @@ class AzureCli:
                     if len(data) == 1:
                         return data[0]["id"]
                     elif len(data) > 1:
-                        self.output.error("Found multiple subscriptions for which the ids start with or names contain '{0}'. Please enter more characters to further refine your selection.".format(token))
+                        self.output.error(
+                            "Found multiple subscriptions for which the ids start with or names contain '{0}'. Please enter more characters to further refine your selection.".format(token))
                     else:
                         self.output.error("Could not find a subscription for which the id starts with or name contains '{0}'.".format(token))
 
@@ -183,8 +186,8 @@ class AzureCli:
             self.output.status(f("Setting Subscription to '{subscription}'..."))
 
             return self.invoke_az_cli_outproc(["account", "set", "--subscription", subscription],
-                                            "Error while trying to set Azure subscription.")
-        
+                                              "Error while trying to set Azure subscription.")
+
         return False
 
     def resource_group_exists(self, name):

@@ -11,15 +11,15 @@ from fstrings import f
 
 from .azurecli import AzureCli
 from .dockercls import Docker
+from .edge import Edge
 from .envvars import EnvVars
 from .iothub import IoTHub
 from .modules import Modules
+from .organizedgroup import OrganizedGroup
 from .output import Output
 from .runtime import Runtime
 from .solution import Solution
 from .utility import Utility
-from .edge import Edge
-
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'], max_content_width=120)
 
@@ -30,53 +30,6 @@ envvars.load()
 azure_cli = AzureCli(output, envvars)
 default_subscriptionId = None
 azure_cli_processing_complete = False
-
-
-class OrganizedGroup(click.Group):
-    """A subclass of click.Group which allows specifying an `order` parameter (0 by default) to sort the commands and groups"""
-
-    def __init__(self, *args, **kwargs):
-        self.orders = {}
-        super(OrganizedGroup, self).__init__(*args, **kwargs)
-
-    def get_help(self, ctx):
-        self.list_commands = self.list_commands_for_help
-        return super(OrganizedGroup, self).get_help(ctx)
-
-    def list_commands_for_help(self, ctx):
-        """reorder the list of commands when listing the help"""
-        commands = super(OrganizedGroup, self).list_commands(ctx)
-        return (c[1] for c in sorted(
-            (self.orders.get(command, 0), command)
-            for command in commands))
-
-    def command(self, *args, **kwargs):
-        """Behaves the same as `click.Group.command()` except capture
-        a priority for listing command names in help.
-        """
-        order = kwargs.pop('order', 0)
-        orders = self.orders
-
-        def decorator(f):
-            cmd = super(OrganizedGroup, self).command(*args, **kwargs)(f)
-            orders[cmd.name] = order
-            return cmd
-
-        return decorator
-
-    def group(self, *args, **kwargs):
-        """Behaves the same as `click.Group.group()` except capture
-        a priority for listing command names in help.
-        """
-        order = kwargs.pop('order', 0)
-        orders = self.orders
-
-        def decorator(f):
-            cmd = super(OrganizedGroup, self).group(*args, **kwargs)(f)
-            orders[cmd.name] = order
-            return cmd
-
-        return decorator
 
 
 @click.group(context_settings=CONTEXT_SETTINGS, cls=OrganizedGroup)
@@ -100,7 +53,7 @@ def simulator():
     pass
 
 
-@main.group(context_settings=CONTEXT_SETTINGS, help="Manage Azure IoT Hub and IoT Edge devices", order=1)
+@main.group(context_settings=CONTEXT_SETTINGS, help="Manage IoT Hub and IoT Edge devices", order=1)
 def iothub():
     pass
 
@@ -110,7 +63,10 @@ def docker():
     pass
 
 
-@solution.command(context_settings=CONTEXT_SETTINGS, help="Create a new Azure IoT Edge Solution")
+@solution.command(context_settings=CONTEXT_SETTINGS,
+                  short_help="Create a new IoT Edge solution",
+                  help="Create a new IoT Edge solution, where NAME is the solution folder name. "
+                       "Use \".\" as NAME to create in the current folder.")
 @click.argument("name",
                 required=True)
 @click.option("--module",
@@ -118,38 +74,39 @@ def docker():
               required=False,
               default=envvars.get_envvar("DEFAULT_MODULE_NAME", default="filtermodule"),
               show_default=True,
-              help="Specify the name of the default IoT Edge module.")
+              help="Specify the name of the default module")
 @click.option("--template",
               "-t",
               default="csharp",
               show_default=True,
               required=False,
               type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]),
-              help="Specify the template used to create the default IoT Edge module.")
+              help="Specify the template used to create the default module")
 def create(name, module, template):
     utility = Utility(envvars, output)
     sol = Solution(output, utility)
     sol.create(name, module, template)
 
 
-@solution.command(context_settings=CONTEXT_SETTINGS, help="Creates Solution and Azure Resources")
-@click.pass_context
+main.add_command(create)
+
+
+@solution.command(context_settings=CONTEXT_SETTINGS, help="Create a new IoT Edge solution and provision Azure resources")
 def init(ctx):
     utility = Utility(envvars, output)
 
     if len(os.listdir(os.getcwd())) == 0:
-        solcmd = "iotedgedev solution ."
+        solcmd = "iotedgedev solution create ."
         output.header(solcmd)
         utility.call_proc(solcmd.split())
 
-    azsetupcmd = "iotedgedev azure --update-dotenv"
+    azsetupcmd = "iotedgedev iothub --update-dotenv"
     output.header(azsetupcmd)
+    # Had to use call_proc, because @click.invoke doesn't honor prompts
     utility.call_proc(azsetupcmd.split())
 
-    # Had to use call_proc, because @click.invoke doesn't honor prompts
 
-
-@solution.command(context_settings=CONTEXT_SETTINGS, help="Push, Deploy, Start, Monitor")
+@solution.command(context_settings=CONTEXT_SETTINGS, help="Push, deploy, start, monitor")
 @click.pass_context
 def e2e(ctx):
     ctx.invoke(init)
@@ -161,19 +118,19 @@ def e2e(ctx):
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS,
-                  help="Add a New IoT Edge Module.")
+                  short_help="Add a new module to the solution",
+                  help="Add a new module to the solution, where NAME is the module name.")
 @click.argument("name",
                 required=True)
 @click.option("--template",
               "-t",
               required=True,
               type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]),
-              help="Specify the template used to create the new IoT Edge module.")
-@click.pass_context
-def add(ctx, name, template):
-    utility = Utility(envvars, output)
-    dock = Docker(envvars, utility, output)
-    mod = Modules(envvars, utility, output, dock)
+              default="csharp",
+              show_default=True,
+              help="Specify the template used to create the new module.")
+def add(name, template):
+    mod = Modules(envvars, output)
     mod.add(name, template)
 
 
@@ -184,50 +141,58 @@ main.add_command(add)
 @click.option("--push",
               "-p",
               default=False,
+              show_default=True,
               required=False,
               is_flag=True,
-              help="Push modules to container registry.")
+              help="Push module images to container registry.")
 @click.option("--deploy",
               "-d",
+              "do_deploy",  # an alias to prevent conflict with the deploy method
               default=False,
+              show_default=True,
               required=False,
               is_flag=True,
-              help="Deploys modules to Edge device using deployment.json in the config folder.")
+              help="Deploy modules to Edge device using deployment.json in the config folder.")
 @click.pass_context
-def build(ctx, push, deploy):
-    utility = Utility(envvars, output)
-    dock = Docker(envvars, utility, output)
-    mod = Modules(envvars, utility, output, dock)
-    mod.build()
+def build(ctx, push, do_deploy):
+    mod = Modules(envvars, output)
+    mod.build_push(no_push=not push)
+
+    if do_deploy:
+        ctx.invoke(deploy)
 
 
 main.add_command(build)
 
 
-@solution.command(context_settings=CONTEXT_SETTINGS, help="Pushes Active Modules to Container Registry")
+@solution.command(context_settings=CONTEXT_SETTINGS, help="Push module images to container registry")
 @click.option('--deploy',
               "-d",
+              "do_deploy",  # an alias to prevent conflict with the deploy method
               default=False,
+              show_default=True,
               required=False,
               is_flag=True,
-              help="Deploys modules to Edge device using deployment.json in the config folder.")
+              help="Deploy modules to Edge device using deployment.json in the config folder")
 @click.option('--no-build',
               default=False,
+              show_default=True,
               required=False,
               is_flag=True,
-              help="Informs the push command to not build modules before pushing to container registry.")
+              help="Inform the push command to not build modules images before pushing to container registry")
 @click.pass_context
-def push(ctx, deploy, no_build):
-    utility = Utility(envvars, output)
-    dock = Docker(envvars, utility, output)
-    mod = Modules(envvars, utility, output, dock)
+def push(ctx, do_deploy, no_build):
+    mod = Modules(envvars, output)
     mod.push(no_build=no_build)
+
+    if do_deploy:
+        ctx.invoke(deploy)
 
 
 main.add_command(push)
 
 
-@solution.command(context_settings=CONTEXT_SETTINGS, help="Deploys Solution to IoT Edge Device")
+@solution.command(context_settings=CONTEXT_SETTINGS, help="Deploy solution to IoT Edge device")
 @click.pass_context
 def deploy(ctx):
     utility = Utility(envvars, output)
@@ -240,7 +205,7 @@ main.add_command(deploy)
 
 @runtime.command(context_settings=CONTEXT_SETTINGS,
                  name="start",
-                 help="Starts IoT Edge Runtime")
+                 help="Start IoT Edge runtime")
 def start_runtime():
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
@@ -251,8 +216,7 @@ def start_runtime():
 
 @runtime.command(context_settings=CONTEXT_SETTINGS,
                  name="restart",
-                 help="Restarts IoT Edge Runtime")
-@click.pass_context
+                 help="Restart IoT Edge runtime")
 def restart_runtime():
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
@@ -263,7 +227,7 @@ def restart_runtime():
 
 @runtime.command(context_settings=CONTEXT_SETTINGS,
                  name="stop",
-                 help="Stops IoT Edge Runtime")
+                 help="Stop IoT Edge runtime")
 def stop_runtime():
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
@@ -274,7 +238,7 @@ def stop_runtime():
 
 @runtime.command(context_settings=CONTEXT_SETTINGS,
                  name="status",
-                 help="Edge Runtime Status")
+                 help="Show IoT Edge runtime status")
 def status_runtime():
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
@@ -285,8 +249,8 @@ def status_runtime():
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
                    name="start",
-                   help="Starts IoT Edge Simulator")
-def start_simulator(ctx):
+                   help="Start IoT Edge simulator")
+def start_simulator():
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
     run = Runtime(envvars, utility, output, dock)
@@ -296,8 +260,8 @@ def start_simulator(ctx):
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
                    name="restart",
-                   help="Restarts IoT Edge Simulator")
-def restart_simulator(ctx):
+                   help="Restart IoT Edge simulator")
+def restart_simulator():
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
     run = Runtime(envvars, utility, output, dock)
@@ -307,8 +271,8 @@ def restart_simulator(ctx):
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
                    name="stop",
-                   help="Stops IoT Edge Simulator")
-def stop_simulator(ctx):
+                   help="Stop IoT Edge simulator")
+def stop_simulator():
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
     run = Runtime(envvars, utility, output, dock)
@@ -316,15 +280,21 @@ def stop_simulator(ctx):
     run.stop()
 
 
-@iothub.command(context_settings=CONTEXT_SETTINGS, help="Monitor Messages from IoT Edge to IoT Hub")
-@click.option('--timeout',
+@iothub.command(context_settings=CONTEXT_SETTINGS,
+                help="Monitor messages from IoT Edge device to IoT Hub",
+                # hack to prevent Click truncating help messages
+                short_help="Monitor messages from IoT Edge device to IoT Hub")
+@click.option("--timeout",
+              "-t",
               required=False,
-              help="Number of milliseconds to monitor for events.")
-@click.pass_context
-def monitor(ctx, timeout):
+              help="Specify number of milliseconds to monitor for messages")
+def monitor(timeout):
     utility = Utility(envvars, output)
     ih = IoTHub(envvars, utility, output)
     ih.monitor_events(timeout)
+
+
+main.add_command(monitor)
 
 
 def validate_option(ctx, param, value):
@@ -476,7 +446,9 @@ def header_and_default(header, default, default2=None):
     return default
 
 
-@iothub.command(context_settings=CONTEXT_SETTINGS, help="Retrieve or create the required Azure Resources.")
+@iothub.command(context_settings=CONTEXT_SETTINGS,
+                help="Retrieve or create required Azure resources",
+                name="setup")
 @click.option('--credentials',
               envvar=envvars.get_envvar_key_if_val("CREDENTIALS"),
               required=False,
@@ -496,7 +468,7 @@ def header_and_default(header, default, default2=None):
 @click.option('--subscription',
               envvar=envvars.get_envvar_key_if_val("SUBSCRIPTION_ID"),
               default=lambda: list_subscriptions_and_set_default(),
-              required=True,
+              show_default=True,
               callback=validate_option,
               prompt="Select an Azure Subscription Name or Id:",
               help="The Azure Subscription Name or Id.")
@@ -542,23 +514,23 @@ def header_and_default(header, default, default2=None):
               prompt='Enter the IoT Edge Device Id (Creates a new Edge Device if not found):',
               help='The IoT Edge Device Id (Creates a new Edge Device if not found).')
 @click.option('--update-dotenv',
+              "-u",
               envvar=envvars.get_envvar_key_if_val("UPDATE_DOTENV"),
               required=True,
               default=False,
+              show_default=True,
               is_flag=True,
               prompt='Update the .env file with connection strings?',
               help='If True, the current .env will be updated with the IoT Hub and Device connection strings.')
-def setup(setup,
-          credentials,
-          service_principal,
-          subscription,
-          resource_group_name,
-          resource_group_location,
-          iothub_sku,
-          iothub_name,
-          edge_device_id,
-          update_dotenv):
-
+def setup_iothub(credentials,
+                 service_principal,
+                 subscription,
+                 resource_group_name,
+                 resource_group_location,
+                 iothub_sku,
+                 iothub_name,
+                 edge_device_id,
+                 update_dotenv):
     if update_dotenv:
         if envvars.backup_dotenv():
             envvars.save_envvar("IOTHUB_CONNECTION_STRING", envvars.IOTHUB_CONNECTION_STRING)
@@ -567,8 +539,10 @@ def setup(setup,
 
 
 @docker.command(context_settings=CONTEXT_SETTINGS,
-                help="Pulls Edge Runtime from Docker Hub and pushes to your specified container registry. "
-                "Also, updates config files to use CONTAINER_REGISTRY_* instead of the Microsoft Docker hub. See CONTAINER_REGISTRY environment variables.")
+                help="Pull Edge runtime images from Microsoft Container Registry and push to your specified container registry. "
+                     "Also, update config files to use CONTAINER_REGISTRY_* instead of the Microsoft Container Registry. See CONTAINER_REGISTRY environment variables.",
+                short_help="Pull Edge runtime images from MCR and push to your specified container registry",
+                name="setup")
 def setup_registry():
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
@@ -576,24 +550,29 @@ def setup_registry():
     dock.setup_registry()
 
 
-@docker.command(context_settings=CONTEXT_SETTINGS, help="Removes all the Docker containers and Images.")
-@click.option('--remove-modules',
+@docker.command(context_settings=CONTEXT_SETTINGS, help="Remove all the containers and images")
+@click.option("--remove-modules",
+              "-m",
               default=False,
+              show_default=True,
               required=False,
               is_flag=True,
-              help="Removes only the edge modules Docker containers and images specified in ACTIVE_MODULES, not edgeAgent or edgeHub.")
-@click.option('--remove-containers',
+              help="Remove only the Edge module containers and images, not EdgeAgent or EdgeHub.")
+@click.option("--remove-containers",
+              "-c",
               default=False,
+              show_default=True,
               required=False,
               is_flag=True,
-              help="Removes all the Docker containers")
-@click.option('--remove-images',
+              help="Remove all the containers")
+@click.option("--remove-images",
+              "-i",
               default=False,
+              show_default=True,
               required=False,
               is_flag=True,
-              help="Removes all the Docker images.")
+              help="Remove all the images")
 def clean(remove_modules, remove_containers, remove_images):
-
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
 
@@ -608,24 +587,31 @@ def clean(remove_modules, remove_containers, remove_images):
 
 
 @docker.command(context_settings=CONTEXT_SETTINGS,
-                help="Opens a new terminal window for edgeAgent, edgeHub and each edge module and saves to LOGS_PATH. "
-                "You can configure the terminal command with LOGS_CMD.")
-@click.option('--show-logs',
+                help="Open a new terminal window for EdgeAgent, EdgeHub and each edge module and save to LOGS_PATH. "
+                     "You can configure the terminal command with LOGS_CMD.",
+                short_help="Open a new terminal window for EdgeAgent, EdgeHub and each edge module and save to LOGS_PATH")
+@click.option("--show-logs",
+              "-l",
               default=False,
+              show_default=True,
               required=False,
               is_flag=True,
-              help="Opens a new terminal window for edgeAgent, edgeHub and each edge module. You can configure the terminal command with LOGS_CMD.")
-@click.option('--save-logs',
+              help="Open a new terminal window for EdgeAgent, EdgeHub and each edge module. You can configure the terminal command with LOGS_CMD.")
+@click.option("--save-logs",
+              "-s",
               default=False,
+              show_default=True,
               required=False,
               is_flag=True,
-              help="Saves edgeAgent, edgeHub and each edge module logs to LOGS_PATH.")
+              help="Save EdgeAgent, EdgeHub and each Edge module logs to LOGS_PATH.")
 def logs(show_logs, save_logs):
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
 
     dock.handle_logs_cmd(show_logs, save_logs)
 
+
+main.add_command(logs)
 
 if __name__ == "__main__":
     main()

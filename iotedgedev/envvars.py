@@ -17,8 +17,8 @@ class EnvVars:
         self.loaded = False
         self.args = Args()
         self.current_command = self.args.get_current_command()
-        self.terse_commands = ['', 'azure', 'solution']
-        self.bypass_dotenv_load_commands = ['init', 'e2e', 'solution']
+        self.terse_commands = ['', 'azure']
+        self.bypass_dotenv_load_commands = ['init', 'e2e']
 
         # for some commands we don't want verbose dotenv load output
         self.verbose = self.current_command not in self.terse_commands
@@ -54,7 +54,7 @@ class EnvVars:
     def get_dotenv_file(self):
         default_dotenv_file = ".env"
 
-        if not "DOTENV_FILE" in os.environ:
+        if "DOTENV_FILE" not in os.environ:
             return default_dotenv_file
         else:
             dotenv_file_from_environ = os.environ["DOTENV_FILE"].strip("\"").strip("'")
@@ -145,7 +145,8 @@ class EnvVars:
                     self.DOCKER_HOST = None
             except Exception as ex:
                 self.output.error(
-                    "Environment variables not configured correctly. Run `iotedgedev solution --create [name]` to create a new solution with sample .env file. Please see README for variable configuration options. Tip: You might just need to restart your command prompt to refresh your Environment Variables.")
+                    "Environment variables not configured correctly. Run `iotedgedev solution create` to create a new solution with sample .env file. "
+                    "Please see README for variable configuration options. Tip: You might just need to restart your command prompt to refresh your Environment Variables.")
                 self.output.error("Variable that caused exception: " + str(ex))
                 sys.exit(-1)
 
