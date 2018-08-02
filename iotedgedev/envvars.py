@@ -215,13 +215,13 @@ class EnvVars:
         for key in os.environ:
             key = key.lower()
             if key.startswith('container_registry_server'):
-                token = key[25:]
+                token = key[len('container_registry_server'):]
                 if token not in registries:
                     registries[token] = {}
                 registries[token]['server'] = os.environ[key]
             elif key.startswith(('container_registry_username', 'container_registry_password')):
-                token = key[27:]
-                subkey = key[19:27]
+                token = key[len('container_registry_username'):]
+                subkey = key[len('container_registry_'):len('container_registry_username')]
                 if token not in registries:
                     registries[token] = {}
                 registries[token][subkey] = os.environ[key]

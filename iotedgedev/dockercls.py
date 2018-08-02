@@ -28,23 +28,24 @@ class Docker:
 
     def init_registry(self):
 
-        self.output.header("INITIALIZING CONTAINER REGISTRY")
-        self.output.info("REGISTRY: " + self.envvars.CONTAINER_REGISTRY_SERVER)
+        for registry in self.envvars.CONTAINER_REGISTRY.values():
+            self.output.header("INITIALIZING CONTAINER REGISTRY")
+            self.output.info("REGISTRY: " + registry.server)
 
-        if "localhost" in self.envvars.CONTAINER_REGISTRY_SERVER:
-            self.init_local_registry()
+            if "localhost" in registry.server:
+                self.init_local_registry(registry.server)
 
         # removing call to login because I don't think it is actually needed anymore. It could have been left over from before we started using auth_config in the push calls.
         # self.login_registry()
         self.output.line()
 
-    def init_local_registry(self):
+    def init_local_registry(self, local_server):
 
-        parts = self.envvars.CONTAINER_REGISTRY_SERVER.split(":")
+        parts = local_server.split(":")
 
         if len(parts) < 2:
             self.output.error("You must specific a port for your local registry server. Expected: 'localhost:5000'. Found: " +
-                              self.envvars.CONTAINER_REGISTRY_SERVER)
+                              local_server)
             sys.exit()
 
         port = parts[1]
@@ -69,34 +70,6 @@ class Docker:
             self.output.info("Running registry container")
             self.docker_client.containers.run(
                 "registry:2", detach=True, name="registry", ports=ports, restart_policy={"Name": "always"})
-
-    def login_registry(self):
-        try:
-
-            if "localhost" in self.envvars.CONTAINER_REGISTRY_SERVER:
-                client_login_status = self.docker_client.login(
-                    self.envvars.CONTAINER_REGISTRY_SERVER)
-
-                api_login_status = self.docker_api.login(
-                    self.envvars.CONTAINER_REGISTRY_SERVER)
-            else:
-
-                client_login_status = self.docker_client.login(registry=self.envvars.CONTAINER_REGISTRY_SERVER,
-                                                               username=self.envvars.CONTAINER_REGISTRY_USERNAME,
-                                                               password=self.envvars.CONTAINER_REGISTRY_PASSWORD)
-
-                api_login_status = self.docker_api.login(registry=self.envvars.CONTAINER_REGISTRY_SERVER,
-                                                         username=self.envvars.CONTAINER_REGISTRY_USERNAME,
-                                                         password=self.envvars.CONTAINER_REGISTRY_PASSWORD)
-
-            self.output.info("Successfully logged into container registry: " +
-                             self.envvars.CONTAINER_REGISTRY_SERVER)
-
-        except Exception as ex:
-            self.output.error(
-                "Could not login to Container Registry. 1. Make sure Docker is running locally. 2. Verify your credentials in CONTAINER_REGISTRY_ environment variables. 2. If you are using WSL, then please set DOCKER_HOST Environment Variable. See the Azure IoT Edge Dev readme at https://aka.ms/iotedgedev for full instructions.")
-            self.output.error(str(ex))
-            sys.exit(-1)
 
     def setup_registry(self):
         self.output.header("SETTING UP CONTAINER REGISTRY")
