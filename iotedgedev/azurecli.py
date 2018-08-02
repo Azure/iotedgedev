@@ -45,7 +45,7 @@ class AzureCli:
             if stderr_data and b"invalid_grant" in stderr_data:
                 self.output.error(self.decode(stderr_data))
                 self.output.info(
-                    "Your Azure CLI session has expired. Please re-run iotedgedev iothub --setup to refresh your credentials.")
+                    "Your Azure CLI session has expired. Please re-run `iotedgedev iothub setup` to refresh your credentials.")
                 self.logout()
                 sys.exit()
 

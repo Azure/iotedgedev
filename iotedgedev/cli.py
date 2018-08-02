@@ -95,7 +95,7 @@ main.add_command(create)
                   help="Create a new IoT Edge solution and provision Azure resources",
                   # hack to prevent Click truncating help messages
                   short_help="Create a new IoT Edge solution and provision Azure resources")
-def init(ctx):
+def init():
     utility = Utility(envvars, output)
 
     if len(os.listdir(os.getcwd())) == 0:
@@ -103,7 +103,7 @@ def init(ctx):
         output.header(solcmd)
         utility.call_proc(solcmd.split())
 
-    azsetupcmd = "iotedgedev iothub --update-dotenv"
+    azsetupcmd = "iotedgedev iothub setup --update-dotenv"
     output.header(azsetupcmd)
     # Had to use call_proc, because @click.invoke doesn't honor prompts
     utility.call_proc(azsetupcmd.split())
@@ -122,7 +122,7 @@ def e2e(ctx):
 
 @solution.command(context_settings=CONTEXT_SETTINGS,
                   short_help="Add a new module to the solution",
-                  help="Add a new module to the solution, where NAME is the module name.")
+                  help="Add a new module to the solution, where NAME is the module name")
 @click.argument("name",
                 required=True)
 @click.option("--template",
@@ -131,7 +131,7 @@ def e2e(ctx):
               type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]),
               default="csharp",
               show_default=True,
-              help="Specify the template used to create the new module.")
+              help="Specify the template used to create the new module")
 def add(name, template):
     mod = Modules(envvars, output)
     mod.add(name, template)
@@ -147,15 +147,15 @@ main.add_command(add)
               show_default=True,
               required=False,
               is_flag=True,
-              help="Push module images to container registry.")
+              help="Push module images to container registry")
 @click.option("--deploy",
               "-d",
-              "do_deploy",  # an alias to prevent conflict with the deploy method
+              "do_deploy",  # an alias to prevent conflict with the deploy function
               default=False,
               show_default=True,
               required=False,
               is_flag=True,
-              help="Deploy modules to Edge device using deployment.json in the config folder.")
+              help="Deploy modules to Edge device using deployment.json in the config folder")
 @click.pass_context
 def build(ctx, push, do_deploy):
     mod = Modules(envvars, output)
@@ -196,8 +196,7 @@ main.add_command(push)
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Deploy solution to IoT Edge device")
-@click.pass_context
-def deploy(ctx):
+def deploy():
     utility = Utility(envvars, output)
     edge = Edge(envvars, utility, output, azure_cli)
     edge.deploy()
@@ -483,7 +482,7 @@ def header_and_default(header, default, default2=None):
 @click.option('--subscription',
               envvar=envvars.get_envvar_key_if_val("SUBSCRIPTION_ID"),
               default=lambda: list_subscriptions_and_set_default(),
-              show_default=True,
+              required=True,
               callback=validate_option,
               prompt="Select an Azure Subscription Name or Id:",
               help="The Azure Subscription Name or Id.")
@@ -566,38 +565,38 @@ def setup_registry():
 
 
 @docker.command(context_settings=CONTEXT_SETTINGS, help="Remove all the containers and images")
-@click.option("--remove-modules",
+@click.option("--module",
               "-m",
               default=False,
               show_default=True,
               required=False,
               is_flag=True,
-              help="Remove only the Edge module containers and images, not EdgeAgent or EdgeHub.")
-@click.option("--remove-containers",
+              help="Remove only the Edge module containers and images, not EdgeAgent or EdgeHub")
+@click.option("--container",
               "-c",
               default=False,
               show_default=True,
               required=False,
               is_flag=True,
               help="Remove all the containers")
-@click.option("--remove-images",
+@click.option("--image",
               "-i",
               default=False,
               show_default=True,
               required=False,
               is_flag=True,
               help="Remove all the images")
-def clean(remove_modules, remove_containers, remove_images):
+def clean(module, container, image):
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
 
-    if remove_modules:
+    if module:
         dock.remove_modules()
 
-    if remove_containers:
+    if container:
         dock.remove_containers()
 
-    if remove_images:
+    if image:
         dock.remove_images()
 
 
@@ -605,28 +604,27 @@ def clean(remove_modules, remove_containers, remove_images):
                 help="Open a new terminal window for EdgeAgent, EdgeHub and each edge module and save to LOGS_PATH. "
                      "You can configure the terminal command with LOGS_CMD.",
                 short_help="Open a new terminal window for EdgeAgent, EdgeHub and each edge module and save to LOGS_PATH")
-@click.option("--show-logs",
+@click.option("--show",
               "-l",
               default=False,
               show_default=True,
               required=False,
               is_flag=True,
               help="Open a new terminal window for EdgeAgent, EdgeHub and each edge module. You can configure the terminal command with LOGS_CMD.")
-@click.option("--save-logs",
+@click.option("--save",
               "-s",
               default=False,
               show_default=True,
               required=False,
               is_flag=True,
               help="Save EdgeAgent, EdgeHub and each Edge module logs to LOGS_PATH.")
-def logs(show_logs, save_logs):
+def log(show, save):
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
+    dock.handle_logs_cmd(show, save)
 
-    dock.handle_logs_cmd(show_logs, save_logs)
 
-
-main.add_command(logs)
+main.add_command(log)
 
 if __name__ == "__main__":
     main()
