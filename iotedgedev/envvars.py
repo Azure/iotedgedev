@@ -211,23 +211,26 @@ class EnvVars:
 
     def get_registries(self):
         registries = {}
-        self.CONTAINER_REGISTRY = {}
+        self.CONTAINER_REGISTRY_MAP = {}
+        length_container_registry_server = len('container_registry_server')
+        length_container_registry_username_or_password = len('container_registry_username')
+        length_container_registry_ = len('container_registry_')
         for key in os.environ:
             key = key.lower()
             if key.startswith('container_registry_server'):
-                token = key[len('container_registry_server'):]
+                token = key[length_container_registry_server:]
                 if token not in registries:
                     registries[token] = {}
                 registries[token]['server'] = os.environ[key]
             elif key.startswith(('container_registry_username', 'container_registry_password')):
-                token = key[len('container_registry_username'):]
-                subkey = key[len('container_registry_'):len('container_registry_username')]
+                token = key[length_container_registry_username_or_password:]
+                subkey = key[length_container_registry_:length_container_registry_username_or_password]
                 if token not in registries:
                     registries[token] = {}
                 registries[token][subkey] = os.environ[key]
 
         for key, value in registries.items():
-            self.CONTAINER_REGISTRY[key] = ContainerRegistry(value['server'], value['username'], value['password'])
+            self.CONTAINER_REGISTRY_MAP[key] = ContainerRegistry(value['server'], value['username'], value['password'])
 
     def get_runtime_home_dir(self):
         if self.is_posix():

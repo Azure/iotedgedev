@@ -28,7 +28,7 @@ class Docker:
 
     def init_registry(self):
 
-        for registry in self.envvars.CONTAINER_REGISTRY.values():
+        for registry in self.envvars.CONTAINER_REGISTRY_MAP.values():
             self.output.header("INITIALIZING CONTAINER REGISTRY")
             self.output.info("REGISTRY: " + registry.server)
 
@@ -84,7 +84,7 @@ class Docker:
                 image_name, self.envvars.RUNTIME_TAG)
 
             container_registry_image_name = "{0}/{1}:{2}".format(
-                self.envvars.CONTAINER_REGISTRY_SERVER, image_name, self.envvars.RUNTIME_TAG)
+                self.envvars.CONTAINER_REGISTRY_MAP[''].server, image_name, self.envvars.RUNTIME_TAG)
 
             # Pull image from Microsoft Docker Hub
             try:
@@ -114,7 +114,7 @@ class Docker:
                 self.output.info("PUSHING IMAGE: '{0}'".format(
                     container_registry_image_name))
 
-                for line in self.docker_client.images.push(repository=container_registry_image_name, tag=self.envvars.RUNTIME_TAG, stream=True, auth_config={"username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
+                for line in self.docker_client.images.push(repository=container_registry_image_name, tag=self.envvars.RUNTIME_TAG, stream=True, auth_config={"username": self.envvars.CONTAINER_REGISTRY_MAP[''].username, "password": self.envvars.CONTAINER_REGISTRY_MAP[''].password}):
                     self.output.procout(self.utility.decode(line).replace("\\u003e", ">"))
                 self.output.info("SUCCESSFULLY PUSHED IMAGE: '{0}'".format(
                     container_registry_image_name))

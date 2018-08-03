@@ -55,3 +55,28 @@ def test_set_envvar():
     setlevel = envvars.get_envvar("RUNTIME_LOG_LEVEL")
     assert setlevel == "debug"
     envvars.set_envvar("RUNTIME_LOG_LEVEL", loglevel)
+
+def test_default_container_registry_server_key_exists():
+    output = Output()
+    envvars = EnvVars(output)
+    server = envvars.get_envvar("CONTAINER_REGISTRY_SERVER")
+    assert server is not None
+
+def test_default_container_registry_username_key_exists():
+    output = Output()
+    envvars = EnvVars(output)
+    username = envvars.get_envvar("CONTAINER_REGISTRY_USERNAME")
+    assert username is not None
+
+def test_default_container_registry_password_key_exists():
+    output = Output()
+    envvars = EnvVars(output)
+    password = envvars.get_envvar("CONTAINER_REGISTRY_PASSWORD")
+    assert password is not None
+
+def test_container_registry_map_has_val():
+    output = Output()
+    envvars = EnvVars(output)
+    envvars.load()
+    result = envvars.verify_envvar_has_val("CONTAINER_REGISTRY_MAP", envvars.CONTAINER_REGISTRY_MAP)
+    assert not result

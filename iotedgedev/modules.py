@@ -89,8 +89,8 @@ class Modules:
             for platform in module_json.platforms:
                 # get the Dockerfile from module.json
                 dockerfile = os.path.abspath(os.path.join(module_dir, module_json.get_dockerfile_by_platform(platform)))
-                #container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
-                tag = "{0}:{1}{2}-{3}".format(module_json.repository, module_json.tag_version, "", platform).lower()
+                container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
+                tag = "{0}:{1}{2}-{3}".format(module_json.repository, module_json.tag_version, container_tag, platform).lower()
                 image_tag_map[(module, platform)] = tag
                 tag_dockerfile_map[tag] = (module, dockerfile)
                 tag_build_options_map[tag] = module_json.build_options
@@ -137,7 +137,7 @@ class Modules:
                     # PUSH TO CONTAINER REGISTRY
                     self.output.info("PUSHING DOCKER IMAGE: " + tag)
                     registry_key = None
-                    for key, registry in self.envvars.CONTAINER_REGISTRY.items():
+                    for key, registry in self.envvars.CONTAINER_REGISTRY_MAP.items():
                         if registry.server.lower() == tag.split('/')[0].lower():
                             registry_key = key
                             break
@@ -146,7 +146,7 @@ class Modules:
                     self.output.info("module json reading {0}".format(tag))
 
                     for line in self.dock.docker_client.images.push(repository=tag, stream=True, auth_config={
-                            "username": self.envvars.CONTAINER_REGISTRY[registry_key].username, "password": self.envvars.CONTAINER_REGISTRY[registry_key].password}):
+                            "username": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].username, "password": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].password}):
                         self.output.procout(self.utility.decode(line).replace("\\u003e", ">"))
             self.output.footer("BUILD COMPLETE", suppress=no_build)
             self.output.footer("PUSH COMPLETE", suppress=no_push)
