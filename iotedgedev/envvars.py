@@ -23,6 +23,26 @@ class EnvVars:
         # for some commands we don't want verbose dotenv load output
         self.verbose = self.current_command not in self.terse_commands
 
+    def clean(self):
+        """docker-py had py2 issues with shelling out to docker api if unicode characters are in any environment variable. This will convert to utf-8 if py2."""
+
+        if not (sys.version_info > (3, 0)):
+            environment = os.environ.copy()
+
+            clean_enviro = {}
+
+            for k in environment:
+                key = k
+                if isinstance(key, unicode):
+                    key = key.encode('utf-8')
+
+                if isinstance(environment[k], unicode):
+                    environment[k] = environment[k].encode('utf-8')
+
+                clean_enviro[key] = environment[k]
+        
+            os.environ = clean_enviro
+
     def backup_dotenv(self):
         dotenv_file = self.get_dotenv_file()
         dotenv_path = os.path.join(os.getcwd(), dotenv_file)
@@ -150,7 +170,10 @@ class EnvVars:
                 self.output.error("Variable that caused exception: " + str(ex))
                 sys.exit(-1)
 
+        self.clean()
+
         self.loaded = True
+
 
     def __getattribute__(self, name):
         try:
