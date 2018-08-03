@@ -244,7 +244,7 @@ class Docker:
                     os.system(command)
                 except Exception as ex:
                     self.output.error(
-                        "Error while trying to open module log '{0}' with command '{1}'. Try iotedgedev docker --save-logs instead.".format(module, command))
+                        "Error while trying to open module log '{0}' with command '{1}'. Try `iotedgedev docker logs --save` instead.".format(module, command))
                     self.output.error(str(ex))
             if save:
                 try:

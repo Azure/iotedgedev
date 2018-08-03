@@ -14,7 +14,7 @@ class Solution:
             dir_path = os.path.join(os.getcwd(), name)
 
         if not self.utility.is_dir_empty(dir_path):
-            self.output.prompt("Directory is not empty. Run 'iotedgedev azure' or clean the directory.")
+            self.output.prompt("Directory is not empty. Run 'iotedgedev iothub' or clean the directory.")
             return
 
         self.output.header("CREATING AZURE IOT EDGE SOLUTION: {0}".format(name))
@@ -33,7 +33,7 @@ class Solution:
 
         os.rename(os.path.join(name, ".env.tmp"), os.path.join(name, ".env"))
 
-        mod_cmd = "iotedgedev addmodule {0} --template {1}".format(module, template)
+        mod_cmd = "iotedgedev solution add {0} --template {1}".format(module, template)
         self.output.header(mod_cmd)
         self.utility.call_proc(mod_cmd.split(), cwd=name)
 

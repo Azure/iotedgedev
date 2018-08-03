@@ -1,12 +1,12 @@
-from .dockercls import Docker
 from .modules import Modules
+from .utility import Utility
 
 
 class iotedgehubdev:
-    def __init__(self, envvars, output, utility):
+    def __init__(self, envvars, output):
         self.envvars = envvars
         self.output = output
-        self.utility = utility
+        self.utility = Utility(self.envvars, self.output)
 
     def setup(self):
         self.output.header("Setting Up Edge Simulator")
@@ -19,8 +19,7 @@ class iotedgehubdev:
 
     def start_solution(self, verbose=True, no_build=False):
         if not no_build:
-            dock = Docker(self.envvars, self.utility, self.output)
-            mod = Modules(self.envvars, self.utility, self.output, dock)
+            mod = Modules(self.envvars, self.output)
             mod.build()
 
         self.output.header("Starting Edge Simulator in Solution Mode")
@@ -29,3 +28,6 @@ class iotedgehubdev:
     def stop(self):
         self.output.header("Stopping Edge Simulator")
         self.utility.exe_proc("iotedgehubdev stop".split())
+
+    def modulecred(self):
+        pass
