@@ -1,5 +1,6 @@
+import os
+import sys
 import pytest
-
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 
@@ -56,6 +57,17 @@ def test_set_envvar():
     assert setlevel == "debug"
     envvars.set_envvar("RUNTIME_LOG_LEVEL", loglevel)
 
+def test_envvar_clean():
+    output = Output()
+    envvars = EnvVars(output)
+    envvar_clean_name = u'IOTEDGEDEV_ENVVAR_CLEAN_TEST'
+    os.environ[envvar_clean_name] = u'test unicode string'
+
+    envvars.clean()
+
+    if not (sys.version_info > (3, 0)):
+        assert isinstance(os.environ[envvar_clean_name], str)
+
 def test_default_container_registry_server_key_exists():
     output = Output()
     envvars = EnvVars(output)
@@ -80,3 +92,4 @@ def test_container_registry_map_has_val():
     envvars.load()
     result = envvars.verify_envvar_has_val("CONTAINER_REGISTRY_MAP", envvars.CONTAINER_REGISTRY_MAP)
     assert not result
+    

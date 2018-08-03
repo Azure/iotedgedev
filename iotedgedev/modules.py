@@ -3,20 +3,22 @@ import re
 import sys
 
 from .deploymentmanifest import DeploymentManifest
+from .dockercls import Docker
 from .dotnet import DotNet
 from .module import Module
+from .utility import Utility
 
 
 class Modules:
-    def __init__(self, envvars, utility, output, dock):
+    def __init__(self, envvars, output):
         self.envvars = envvars
-        self.utility = utility
         self.output = output
-        self.dock = dock
+        self.utility = Utility(self.envvars, self.output)
+        self.dock = Docker(self.envvars, self.utility, self.output)
         self.dock.init_registry()
 
     def add(self, name, template):
-        self.output.header("ADDING MODULE")
+        self.output.header("ADDING MODULE {0}".format(name))
 
         cwd = self.envvars.MODULES_PATH
         if name.startswith("_") or name.endswith("_"):
