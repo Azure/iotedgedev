@@ -7,7 +7,8 @@ from iotedgedev.deploymentmanifest import DeploymentManifest
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 from iotedgedev.utility import Utility
-from utility import assert_list_equal
+
+from .utility import assert_list_equal
 
 pytestmark = pytest.mark.unit
 
@@ -29,6 +30,36 @@ def deployment_manifest():
         return DeploymentManifest(envvars, output, utility, path, True)
 
     return _deployment_manifest
+
+
+def test_get_desired_property(deployment_manifest):
+    deployment_manifest = deployment_manifest(test_file_1)
+    props = deployment_manifest.get_desired_property("$edgeHub", "schemaVersion")
+    assert props == "1.0"
+
+
+def test_get_desired_property_nonexistent_module(deployment_manifest):
+    deployment_manifest = deployment_manifest(test_file_1)
+    with pytest.raises(KeyError):
+        deployment_manifest.get_desired_property("nonexistentModule", "schemaVersion")
+
+
+def test_get_desired_property_nonexistent_prop(deployment_manifest):
+    deployment_manifest = deployment_manifest(test_file_1)
+    with pytest.raises(KeyError):
+        deployment_manifest.get_desired_property("$edgeHub", "nonexistentProp")
+
+
+def test_get_user_modules(deployment_manifest):
+    deployment_manifest = deployment_manifest(test_file_1)
+    user_modules = deployment_manifest.get_user_modules()
+    assert_list_equal(user_modules, ["tempSensor", "csharpmodule", "csharpfunction"])
+
+
+def test_get_system_modules(deployment_manifest):
+    deployment_manifest = deployment_manifest(test_file_1)
+    system_modules = deployment_manifest.get_system_modules()
+    assert_list_equal(system_modules, ["edgeAgent", "edgeHub"])
 
 
 def test_get_modules_to_process(deployment_manifest):

@@ -8,6 +8,7 @@ from hashlib import sha256
 from hmac import HMAC
 from time import time
 
+from .deploymentmanifest import DeploymentManifest
 from .moduletype import ModuleType
 
 if sys.version_info.major >= 3:
@@ -107,12 +108,10 @@ class Utility:
         return len(asterisk_list) > 0 and (asterisk_list[0] == "*" or item in asterisk_list)
 
     def get_modules_in_config(self, moduleType):
-        modules_config = json.load(open(self.envvars.DEPLOYMENT_CONFIG_FILE_PATH))
+        deployment_manifest = DeploymentManifest(self.envvars, self.output, self, self.envvars.DEPLOYMENT_CONFIG_FILE_PATH, False)
 
-        props = modules_config["moduleContent"]["$edgeAgent"]["properties.desired"]
-
-        system_modules = props["systemModules"]
-        user_modules = props["modules"]
+        system_modules = deployment_manifest.get_system_modules()
+        user_modules = deployment_manifest.get_user_modules()
 
         if moduleType == ModuleType.System:
             return system_modules

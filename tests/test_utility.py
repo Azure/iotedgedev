@@ -5,7 +5,8 @@ import pytest
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 from iotedgedev.utility import Utility
-from utility import assert_json_file_equal
+
+from .utility import assert_json_file_equal
 
 pytestmark = pytest.mark.unit
 
