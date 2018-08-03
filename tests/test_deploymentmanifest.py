@@ -32,6 +32,24 @@ def deployment_manifest():
     return _deployment_manifest
 
 
+def test_get_desired_property(deployment_manifest):
+    deployment_manifest = deployment_manifest(test_file_1)
+    props = deployment_manifest.get_desired_property("$edgeHub", "schemaVersion")
+    assert props == "1.0"
+
+
+def test_get_desired_property_nonexistent_module(deployment_manifest):
+    deployment_manifest = deployment_manifest(test_file_1)
+    with pytest.raises(KeyError):
+        deployment_manifest.get_desired_property("nonexistentModule", "schemaVersion")
+
+
+def test_get_desired_property_nonexistent_prop(deployment_manifest):
+    deployment_manifest = deployment_manifest(test_file_1)
+    with pytest.raises(KeyError):
+        deployment_manifest.get_desired_property("$edgeHub", "nonexistentProp")
+
+
 def test_get_user_modules(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_1)
     user_modules = deployment_manifest.get_user_modules()
