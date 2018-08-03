@@ -18,7 +18,7 @@ class Modules:
         self.dock.init_registry()
 
     def add(self, name, template):
-        self.output.header("ADDING MODULE")
+        self.output.header("ADDING MODULE {0}".format(name))
 
         cwd = self.envvars.MODULES_PATH
         if name.startswith("_") or name.endswith("_"):

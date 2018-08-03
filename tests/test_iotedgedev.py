@@ -251,4 +251,4 @@ def add_module_and_verify(main, runner, template):
     print(result.output)
     assert 'ADD COMPLETE' in result.output
     assert os.path.exists(os.path.join(os.environ["MODULES_PATH"], module_name))
-    assert module_name in json.load(open(os.environ["DEPLOYMENT_CONFIG_TEMPLATE_FILE"]))["moduleContent"]["$edgeAgent"]["properties.desired"]["modules"]
+    assert module_name in json.load(open(os.environ["DEPLOYMENT_CONFIG_TEMPLATE_FILE"]))["modulesContent"]["$edgeAgent"]["properties.desired"]["modules"]
