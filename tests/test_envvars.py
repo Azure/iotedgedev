@@ -1,5 +1,6 @@
+import os
+import sys
 import pytest
-
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 
@@ -55,3 +56,15 @@ def test_set_envvar():
     setlevel = envvars.get_envvar("RUNTIME_LOG_LEVEL")
     assert setlevel == "debug"
     envvars.set_envvar("RUNTIME_LOG_LEVEL", loglevel)
+
+
+def test_envvar_clean():
+    output = Output()
+    envvars = EnvVars(output)
+    envvar_clean_name = u'IOTEDGEDEV_ENVVAR_CLEAN_TEST'
+    os.environ[envvar_clean_name] = u'test unicode string'
+
+    envvars.clean()
+
+    if not (sys.version_info > (3, 0)):
+        assert isinstance(os.environ[envvar_clean_name], str)
