@@ -1,5 +1,5 @@
 {
-  "modulesContent": {
+  "moduleContent": {
     "$edgeAgent": {
       "properties.desired": {
         "schemaVersion": "1.0",
