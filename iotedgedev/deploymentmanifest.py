@@ -65,7 +65,7 @@ class DeploymentManifest:
     def get_user_modules(self):
         """Get user modules from deployment manifest"""
         try:
-            modules = self.get_module_content()["$edgeAgent"]["properties.desired"]["modules"]
+            modules = self.get_desired_property("$edgeAgent", "modules")
             return list(modules.keys())
         except KeyError as err:
             self.output.error("Missing key {0} in file {1}".format(err, self.path))
@@ -74,7 +74,7 @@ class DeploymentManifest:
     def get_system_modules(self):
         """Get system modules from deployment manifest"""
         try:
-            modules = self.get_module_content()["$edgeAgent"]["properties.desired"]["systemModules"]
+            modules = self.get_desired_property("$edgeAgent", "systemModules")
             return list(modules.keys())
         except KeyError as err:
             self.output.error("Missing key {0} in file {1}".format(err, self.path))
@@ -83,7 +83,7 @@ class DeploymentManifest:
     def get_modules_to_process(self):
         """Get modules to process from deployment manifest template"""
         try:
-            user_modules = self.get_module_content()["$edgeAgent"]["properties.desired"]["modules"]
+            user_modules = self.get_desired_property("$edgeAgent", "modules")
             modules_to_process = []
             for _, module_info in user_modules.items():
                 image = module_info["settings"]["image"]
@@ -98,6 +98,9 @@ class DeploymentManifest:
         except KeyError as err:
             self.output.error("Missing key {0} in file {1}".format(err, self.path))
             sys.exit(1)
+
+    def get_desired_property(self, module, prop):
+        return self.get_module_content()[module]["properties.desired"][prop]
 
     def save(self):
         """Dump the JSON to the disk"""
