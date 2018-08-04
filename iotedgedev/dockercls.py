@@ -16,10 +16,8 @@ class Docker:
         self.output = output
 
         if self.envvars.DOCKER_HOST:
-            self.docker_client = docker.DockerClient(
-                base_url=self.envvars.DOCKER_HOST)
-            self.docker_api = docker.APIClient(
-                base_url=self.envvars.DOCKER_HOST)
+            self.docker_client = docker.DockerClient(base_url=self.envvars.DOCKER_HOST)
+            self.docker_api = docker.APIClient(base_url=self.envvars.DOCKER_HOST)
         else:
             self.docker_client = docker.from_env()
             self.docker_api = docker.APIClient()
@@ -35,8 +33,6 @@ class Docker:
         if "localhost" in self.envvars.CONTAINER_REGISTRY_SERVER:
             self.init_local_registry()
 
-        # removing call to login because I don't think it is actually needed anymore. It could have been left over from before we started using auth_config in the push calls.
-        # self.login_registry()
         self.output.line()
 
     def init_local_registry(self):
@@ -44,8 +40,7 @@ class Docker:
         parts = self.envvars.CONTAINER_REGISTRY_SERVER.split(":")
 
         if len(parts) < 2:
-            self.output.error("You must specific a port for your local registry server. Expected: 'localhost:5000'. Found: " +
-                              self.envvars.CONTAINER_REGISTRY_SERVER)
+            self.output.error("You must specific a port for your local registry server. Expected: 'localhost:5000'. Found: " + self.envvars.CONTAINER_REGISTRY_SERVER)
             sys.exit()
 
         port = parts[1]
@@ -68,18 +63,14 @@ class Docker:
                 self.docker_client.images.pull("registry", tag="2")
 
             self.output.info("Running registry container")
-            self.docker_client.containers.run(
-                "registry:2", detach=True, name="registry", ports=ports, restart_policy={"Name": "always"})
+            self.docker_client.containers.run("registry:2", detach=True, name="registry", ports=ports, restart_policy={"Name": "always"})
 
     def login_registry(self):
         try:
 
             if "localhost" in self.envvars.CONTAINER_REGISTRY_SERVER:
-                client_login_status = self.docker_client.login(
-                    self.envvars.CONTAINER_REGISTRY_SERVER)
-
-                api_login_status = self.docker_api.login(
-                    self.envvars.CONTAINER_REGISTRY_SERVER)
+                client_login_status = self.docker_client.login(self.envvars.CONTAINER_REGISTRY_SERVER)
+                api_login_status = self.docker_api.login(self.envvars.CONTAINER_REGISTRY_SERVER)
             else:
 
                 client_login_status = self.docker_client.login(registry=self.envvars.CONTAINER_REGISTRY_SERVER,
@@ -90,8 +81,7 @@ class Docker:
                                                          username=self.envvars.CONTAINER_REGISTRY_USERNAME,
                                                          password=self.envvars.CONTAINER_REGISTRY_PASSWORD)
 
-            self.output.info("Successfully logged into container registry: " +
-                             self.envvars.CONTAINER_REGISTRY_SERVER)
+            self.output.info("Successfully logged into container registry: " + self.envvars.CONTAINER_REGISTRY_SERVER)
 
         except Exception as ex:
             self.output.error(
@@ -106,8 +96,7 @@ class Docker:
         self.output.header("SETTING UP CONTAINER REGISTRY")
         self.init_registry()
         self.output.info("PUSHING EDGE IMAGES TO CONTAINER REGISTRY")
-        image_names = ["azureiotedge-agent", "azureiotedge-hub",
-                       "azureiotedge-simulated-temperature-sensor"]
+        image_names = ["azureiotedge-agent", "azureiotedge-hub", "azureiotedge-simulated-temperature-sensor"]
 
         for image_name in image_names:
 

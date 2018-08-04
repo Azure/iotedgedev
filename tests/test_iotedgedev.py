@@ -15,9 +15,7 @@ root_dir = os.getcwd()
 tests_dir = os.path.join(root_dir, "tests")
 env_file = os.path.join(root_dir, ".env")
 test_solution = "test_solution"
-node_solution = "node_solution"
 test_solution_dir = os.path.join(tests_dir, test_solution)
-node_solution_dir = os.path.join(tests_dir, node_solution)
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -30,7 +28,7 @@ def create_solution(request):
 
     runner = CliRunner()
     os.chdir(tests_dir)
-    result = runner.invoke(cli.main, ['solution', test_solution])
+    result = runner.invoke(cli.main, ['solution', 'create', test_solution])
     print(result.output)
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
 
@@ -51,7 +49,7 @@ def test_solution_create_in_non_empty_current_path(request):
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['solution', '.'])
+    result = runner.invoke(cli.main, ['solution', 'create', '.'])
     print(result.output)
 
     assert "Directory is not empty" in result.output
@@ -68,7 +66,7 @@ def test_solution_create_in_empty_current_path(request):
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['solution', '.'])
+    result = runner.invoke(cli.main, ['solution', 'create', '.'])
     print(result.output)
 
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
@@ -81,7 +79,7 @@ def test_solution_create_in_non_empty_dir(request):
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['solution', test_solution])
+    result = runner.invoke(cli.main, ['solution', 'create', test_solution])
     print(result.output)
 
     assert "Directory is not empty" in result.output
@@ -97,7 +95,7 @@ def test_solution_create_in_empty_child_dir(request):
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['solution', dirname])
+    result = runner.invoke(cli.main, ['solution', 'create', dirname])
     print(result.output)
 
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
@@ -121,19 +119,19 @@ def test_module_add_invalid_name():
     cli = __import__("iotedgedev.cli", fromlist=["main"])
     runner = CliRunner()
 
-    result = runner.invoke(cli.main, ["addmodule", "_csharpmodule", "--template", "csharp"])
+    result = runner.invoke(cli.main, ["solution", "add", "_csharpmodule", "--template", "csharp"])
     print(result.output)
     assert "Module name cannot start or end with the symbol _" in result.output
 
-    result = runner.invoke(cli.main, ["addmodule", "csharpmodule_", "--template", "csharp"])
+    result = runner.invoke(cli.main, ["solution", "add", "csharpmodule_", "--template", "csharp"])
     print(result.output)
     assert "Module name cannot start or end with the symbol _" in result.output
 
-    result = runner.invoke(cli.main, ["addmodule", "csharp-module", "--template", "csharp"])
+    result = runner.invoke(cli.main, ["solution", "add", "csharp-module", "--template", "csharp"])
     print(result.output)
     assert "Module name can only contain alphanumeric characters and the symbol _" in result.output
 
-    result = runner.invoke(cli.main, ["addmodule", "filtermodule", "--template", "csharp"])
+    result = runner.invoke(cli.main, ["solution", "add", "filtermodule", "--template", "csharp"])
     print(result.output)
     assert "already exists under" in result.output
 
@@ -211,22 +209,6 @@ def test_e2e(test_push_modules, test_deploy_modules):
     print('Testing E2E')
 
 
-@pytest.fixture
-def setup_node_solution(request):
-
-    shutil.copyfile(env_file, os.path.join(node_solution_dir, '.env'))
-    os.chdir(node_solution_dir)
-
-    def clean():
-        os.chdir(root_dir)
-    request.addfinalizer(clean)
-    return
-
-
-def test_node(setup_node_solution, test_push_modules, test_deploy_modules):
-    print('Testing Node Solution')
-
-
 def test_valid_env_iothub_connectionstring():
     load_dotenv(".env")
     env_iothub_connectionstring = os.getenv("IOTHUB_CONNECTION_STRING")
@@ -265,7 +247,7 @@ def test_load_no_dotenv():
 
 def add_module_and_verify(main, runner, template):
     module_name = template + "module"
-    result = runner.invoke(main, ['addmodule', module_name, '--template', template])
+    result = runner.invoke(main, ["solution", "add", module_name, '--template', template])
     print(result.output)
     assert 'ADD COMPLETE' in result.output
     assert os.path.exists(os.path.join(os.environ["MODULES_PATH"], module_name))
