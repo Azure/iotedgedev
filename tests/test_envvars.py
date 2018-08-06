@@ -70,16 +70,28 @@ def test_envvar_clean():
         assert isinstance(os.environ[envvar_clean_name], str)
 
 
-def test_in_command_list():
+def test_in_command_list_true_1():
     output = Output()
     envvars = EnvVars(output)
     assert envvars.in_command_list("solution create test_solution", ["init", "e2e", "solution create", "create", "simulator stop"])
 
 
-def test_in_command_list_false():
+def test_in_command_list_true_2():
+    output = Output()
+    envvars = EnvVars(output)
+    assert envvars.in_command_list("solution create", ["init", "e2e", "solution create", "create", "simulator stop"])
+
+
+def test_in_command_list_false_1():
     output = Output()
     envvars = EnvVars(output)
     assert not envvars.in_command_list("solution add filtermodule", ["init", "e2e", "solution create", "create", "simulator stop"])
+
+
+def test_in_command_list_false_2():
+    output = Output()
+    envvars = EnvVars(output)
+    assert not envvars.in_command_list("solution addotherstuff filtermodule", ["init", "e2e", "solution add", "create", "simulator stop"])
 
 
 def test_in_command_list_empty_1():

@@ -7,7 +7,7 @@ import sys
 class Args():
     def get_current_command(self):
         if sys.argv and len(sys.argv) > 1 and not self.is_info_command():
-            return ' '.join(sys.argv[1:])
+            return ' '.join(sys.argv[1:]).strip()
         else:
             return ''
 

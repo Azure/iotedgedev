@@ -265,5 +265,8 @@ class EnvVars:
                     continue
 
             if command.startswith(cmd):
-                return True
+                if len(command) == len(cmd) or command[len(cmd)] == ' ':
+                    return True
+                else:
+                    continue
         return False
