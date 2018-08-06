@@ -1,6 +1,8 @@
 import os
 import sys
+
 import pytest
+
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 
@@ -61,10 +63,88 @@ def test_set_envvar():
 def test_envvar_clean():
     output = Output()
     envvars = EnvVars(output)
-    envvar_clean_name = u'IOTEDGEDEV_ENVVAR_CLEAN_TEST'
-    os.environ[envvar_clean_name] = u'test unicode string'
+    envvar_clean_name = u"IOTEDGEDEV_ENVVAR_CLEAN_TEST"
+    os.environ[envvar_clean_name] = u"test unicode string"
 
     envvars.clean()
 
     if not (sys.version_info > (3, 0)):
         assert isinstance(os.environ[envvar_clean_name], str)
+
+
+def test_in_command_list_true_1():
+    output = Output()
+    envvars = EnvVars(output)
+    assert envvars.in_command_list("solution create test_solution", ["init", "e2e", "solution create", "create", "simulator stop"])
+
+
+def test_in_command_list_true_2():
+    output = Output()
+    envvars = EnvVars(output)
+    assert envvars.in_command_list("solution create", ["init", "e2e", "solution create", "create", "simulator stop"])
+
+
+def test_in_command_list_false_1():
+    output = Output()
+    envvars = EnvVars(output)
+    assert not envvars.in_command_list("solution add filtermodule", ["init", "e2e", "solution create", "create", "simulator stop"])
+
+
+def test_in_command_list_false_2():
+    output = Output()
+    envvars = EnvVars(output)
+    assert not envvars.in_command_list("solution addotherstuff filtermodule", ["init", "e2e", "solution add", "create", "simulator stop"])
+
+
+def test_in_command_list_empty_1():
+    output = Output()
+    envvars = EnvVars(output)
+    assert not envvars.in_command_list("", ["init", "e2e", "solution create", "create", "simulator stop"])
+
+
+def test_in_command_list_empty_2():
+    output = Output()
+    envvars = EnvVars(output)
+    assert not envvars.in_command_list("solution create test_solution", ["init", "e2e", "", "create", "simulator stop"])
+
+
+def test_in_command_list_empty_3():
+    output = Output()
+    envvars = EnvVars(output)
+    assert envvars.in_command_list("", ["init", "e2e", "", "create", "simulator stop"])
+
+
+def test_is_bypass_command_true():
+    output = Output()
+    envvars = EnvVars(output)
+    assert envvars.is_bypass_command("solution create EdgeSolution")
+
+
+def test_is_bypass_command_false():
+    output = Output()
+    envvars = EnvVars(output)
+    assert not envvars.is_bypass_command("solution add")
+
+
+def test_is_bypass_command_empty():
+    output = Output()
+    envvars = EnvVars(output)
+    assert not envvars.is_bypass_command("")
+
+
+def test_is_terse_command_true():
+    output = Output()
+    envvars = EnvVars(output)
+    assert envvars.is_terse_command("iothub setup --update-dotenv")
+
+
+def test_is_terse_command_false():
+    output = Output()
+    envvars = EnvVars(output)
+    assert not envvars.is_terse_command("solution create")
+
+
+def test_is_terse_command_empty():
+    output = Output()
+    envvars = EnvVars(output)
+    assert envvars.is_terse_command("")
