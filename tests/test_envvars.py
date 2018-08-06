@@ -1,6 +1,8 @@
 import os
 import sys
+
 import pytest
+
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 
@@ -110,3 +112,39 @@ def test_in_command_list_empty_3():
     output = Output()
     envvars = EnvVars(output)
     assert envvars.in_command_list("", ["init", "e2e", "", "create", "simulator stop"])
+
+
+def test_is_bypass_command_true():
+    output = Output()
+    envvars = EnvVars(output)
+    assert envvars.is_bypass_command("solution create EdgeSolution")
+
+
+def test_is_bypass_command_false():
+    output = Output()
+    envvars = EnvVars(output)
+    assert not envvars.is_bypass_command("solution add")
+
+
+def test_is_bypass_command_empty():
+    output = Output()
+    envvars = EnvVars(output)
+    assert not envvars.is_bypass_command("")
+
+
+def test_is_terse_command_true():
+    output = Output()
+    envvars = EnvVars(output)
+    assert envvars.is_terse_command("iothub setup --update-dotenv")
+
+
+def test_is_terse_command_false():
+    output = Output()
+    envvars = EnvVars(output)
+    assert not envvars.is_terse_command("solution create")
+
+
+def test_is_terse_command_empty():
+    output = Output()
+    envvars = EnvVars(output)
+    assert envvars.is_terse_command("")

@@ -19,11 +19,11 @@ class EnvVars:
         current_command = Args().get_current_command()
         # for some commands we don't want to load dotenv
         # TODO: temporary hack. A more grace solution would be a decorator on the command to indicate whether to bypass env
-        self.bypass_dotenv_load_commands = ['init', 'e2e', 'solution create', 'create', 'simulator stop']
+        self.bypass_dotenv_load_commands = ['solution init', 'solution e2e', 'solution create', 'create', 'simulator stop']
         self.bypass = self.is_bypass_command(current_command)
         # for some commands we don't want verbose dotenv load output
-        self.terse_commands = ['', 'azure']
-        self.verbose = self.is_terse_command(current_command)
+        self.terse_commands = ['', 'iothub setup']
+        self.verbose = not self.is_terse_command(current_command)
 
     def clean(self):
         """docker-py had py2 issues with shelling out to docker api if unicode characters are in any environment variable. This will convert to utf-8 if py2."""
