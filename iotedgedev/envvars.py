@@ -78,7 +78,7 @@ class EnvVars:
             try:
                 try:
                     self.IOTHUB_CONNECTION_STRING = self.get_envvar("IOTHUB_CONNECTION_STRING")
-
+                    self.IOTHUB_CONNECTION_INFO = None;
                     if self.IOTHUB_CONNECTION_STRING:
                         self.IOTHUB_CONNECTION_INFO = IoTHubConnectionString(self.IOTHUB_CONNECTION_STRING)
 
@@ -89,7 +89,7 @@ class EnvVars:
 
                 try:
                     self.DEVICE_CONNECTION_STRING = self.get_envvar("DEVICE_CONNECTION_STRING")
-
+                    self.DEVICE_CONNECTION_INFO = None;
                     if self.DEVICE_CONNECTION_STRING:
                         self.DEVICE_CONNECTION_INFO = DeviceConnectionString(self.DEVICE_CONNECTION_STRING)
 
