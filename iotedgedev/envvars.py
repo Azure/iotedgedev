@@ -15,13 +15,35 @@ class EnvVars:
     def __init__(self, output):
         self.output = output
         self.loaded = False
-        self.args = Args()
-        self.current_command = self.args.get_current_command()
-        self.terse_commands = ['', 'azure']
-        self.bypass_dotenv_load_commands = ['init', 'e2e']
 
+        current_command = Args().get_current_command()
+        # for some commands we don't want to load dotenv
+        # TODO: temporary hack. A more grace solution would be a decorator on the command to indicate whether to bypass env
+        self.bypass_dotenv_load_commands = ['solution init', 'solution e2e', 'solution create', 'create', 'simulator stop', 'simulator modulecred']
+        self.bypass = self.is_bypass_command(current_command)
         # for some commands we don't want verbose dotenv load output
-        self.verbose = self.current_command not in self.terse_commands
+        self.terse_commands = ['', 'iothub setup']
+        self.verbose = not self.is_terse_command(current_command)
+
+    def clean(self):
+        """docker-py had py2 issues with shelling out to docker api if unicode characters are in any environment variable. This will convert to utf-8 if py2."""
+
+        if not (sys.version_info > (3, 0)):
+            environment = os.environ.copy()
+
+            clean_enviro = {}
+
+            for k in environment:
+                key = k
+                if isinstance(key, unicode):
+                    key = key.encode('utf-8')
+
+                if isinstance(environment[k], unicode):
+                    environment[k] = environment[k].encode('utf-8')
+
+                clean_enviro[key] = environment[k]
+
+            os.environ = clean_enviro
 
     def backup_dotenv(self):
         dotenv_file = self.get_dotenv_file()
@@ -66,7 +88,7 @@ class EnvVars:
     def load(self, force=False):
 
         # for some commands we don't want to load dotenv
-        if self.current_command in self.bypass_dotenv_load_commands and not force:
+        if self.bypass and not force:
             return
 
         if not self.loaded or force:
@@ -78,7 +100,7 @@ class EnvVars:
             try:
                 try:
                     self.IOTHUB_CONNECTION_STRING = self.get_envvar("IOTHUB_CONNECTION_STRING")
-
+                    self.IOTHUB_CONNECTION_INFO = None;
                     if self.IOTHUB_CONNECTION_STRING:
                         self.IOTHUB_CONNECTION_INFO = IoTHubConnectionString(self.IOTHUB_CONNECTION_STRING)
 
@@ -89,7 +111,7 @@ class EnvVars:
 
                 try:
                     self.DEVICE_CONNECTION_STRING = self.get_envvar("DEVICE_CONNECTION_STRING")
-
+                    self.DEVICE_CONNECTION_INFO = None;
                     if self.DEVICE_CONNECTION_STRING:
                         self.DEVICE_CONNECTION_INFO = DeviceConnectionString(self.DEVICE_CONNECTION_STRING)
 
@@ -149,6 +171,8 @@ class EnvVars:
                     "Please see README for variable configuration options. Tip: You might just need to restart your command prompt to refresh your Environment Variables.")
                 self.output.error("Variable that caused exception: " + str(ex))
                 sys.exit(-1)
+
+        self.clean()
 
         self.loaded = True
 
@@ -225,3 +249,24 @@ class EnvVars:
     def is_posix(self):
         plat = platform.system().lower()
         return plat == "linux" or plat == "darwin"
+
+    def is_bypass_command(self, command):
+        return self.in_command_list(command, self.bypass_dotenv_load_commands)
+
+    def is_terse_command(self, command):
+        return self.in_command_list(command, self.terse_commands)
+
+    def in_command_list(self, command, command_list):
+        for cmd in command_list:
+            if cmd == '':
+                if command == '':
+                    return True
+                else:
+                    continue
+
+            if command.startswith(cmd):
+                if len(command) == len(cmd) or command[len(cmd)] == ' ':
+                    return True
+                else:
+                    continue
+        return False
