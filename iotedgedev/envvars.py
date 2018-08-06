@@ -40,7 +40,7 @@ class EnvVars:
                     environment[k] = environment[k].encode('utf-8')
 
                 clean_enviro[key] = environment[k]
-        
+
             os.environ = clean_enviro
 
     def backup_dotenv(self):
@@ -173,7 +173,6 @@ class EnvVars:
         self.clean()
 
         self.loaded = True
-
 
     def __getattribute__(self, name):
         try:

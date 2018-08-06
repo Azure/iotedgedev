@@ -268,7 +268,7 @@ def status_runtime():
                    help="Setup IoT Edge simulator")
 @click.option("--gateway-host",
               "-g",
-              help="GatewayHostName value for the module to connect",
+              help="GatewayHostName value for the module to connect.",
               required=False,
               default=socket.getfqdn(),
               show_default=True)
@@ -279,10 +279,46 @@ def setup_simulator(gateway_host):
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
                    name="start",
-                   help="Start IoT Edge simulator")
-def start_simulator():
+                   short_help="Start IoT Edge simulator",
+                   help="Start IoT Edge simulator. To start in solution mode, use `iotedgdev simulator start -s [-v] [-b]`. "
+                        "To start in single module mode, use `iotedgedev simulator start -i input1,input2 [-p 53000]`")
+@click.option("--solution",
+              "-s",
+              is_flag=True,
+              default=False,
+              show_default=True,
+              help="Start IoT Edge simulator in solution mode using the deployment.json in config folder.")
+@click.option("--verbose",
+              "-v",
+              required=False,
+              is_flag=True,
+              default=False,
+              show_default=True,
+              help="Show the solution container logs.")
+@click.option("--build",
+              "-b",
+              required=False,
+              is_flag=True,
+              default=False,
+              show_default=True,
+              help="Build the solution before starting IoT Edge simulator in solution mode.")
+@click.option("--inputs",
+              "-i",
+              required=False,
+              help="Start IoT Edge simulator in single module mode "
+                   "using the specified comma-separated inputs of the target module, e.g., `input1,input2`.")
+@click.option("--port",
+              "-p",
+              required=False,
+              default=53000,
+              show_default=True,
+              help="Port of the service for sending message.")
+def start_simulator(solution, build, verbose, inputs, port):
     sim = Simulator(envvars, output)
-    sim.start()
+    if solution or not inputs:
+        sim.start_solution(verbose, build)
+    else:
+        sim.start_single(inputs, port)
 
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
@@ -295,18 +331,18 @@ def stop_simulator():
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
                    # short_help hack to prevent Click truncating help text (https://github.com/pallets/click/issues/486)
-                   short_help='Get the credentials of target module such as connection string and certificate file path',
-                   help='Get the credentials of target module such as connection string and certificate file path')
+                   short_help="Get the credentials of target module such as connection string and certificate file path.",
+                   help="Get the credentials of target module such as connection string and certificate file path.")
 @click.option("--local",
               "-l",
-              help="Set `localhost` to `GatewayHostName` for module to run on host natively",
+              help="Set `localhost` to `GatewayHostName` for module to run on host natively.",
               is_flag=True,
               required=False,
               default=False,
               show_default=True)
 @click.option("--output-file",
               "-o",
-              help="Specify the output file to save the credentials. If the file exists, its content will be overwritten",
+              help="Specify the output file to save the credentials. If the file exists, its content will be overwritten.",
               required=False)
 def modulecred(local, output_file):
     sim = Simulator(envvars, output)

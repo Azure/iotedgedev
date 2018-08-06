@@ -9,24 +9,24 @@ class Simulator:
         self.utility = Utility(self.envvars, self.output)
 
     def setup(self, gateway_host):
-        self.output.header("Setting Up Edge Simulator")
+        self.output.header("Setting Up IoT Edge Simulator")
         self.envvars.verify_envvar_has_val("DEVICE_CONNECTION_STRING", self.envvars.DEVICE_CONNECTION_STRING)
         self.utility.exe_proc("iotedgehubdev setup -c {0} {1}".format(self.envvars.DEVICE_CONNECTION_STRING, "-g " + gateway_host if gateway_host else "").split())
 
-    def start_single(self, inputs):
-        self.output.header("Starting Edge Simulator in Single Mode")
-        self.utility.call_proc("iotedgehubdev start -i {0}".format(inputs).split())
+    def start_single(self, inputs, port):
+        self.output.header("Starting IoT Edge Simulator in Single Mode")
+        self.utility.call_proc("iotedgehubdev start -i {0} {1}".format(inputs, "-p " + str(port) if port else "").split())
 
     def start_solution(self, verbose=True, build=False):
         if build:
             mod = Modules(self.envvars, self.output)
             mod.build()
 
-        self.output.header("Starting Edge Simulator in Solution Mode")
+        self.output.header("Starting IoT Edge Simulator in Solution Mode")
         self.utility.call_proc("iotedgehubdev start -d {0} {1}".format(self.envvars.DEPLOYMENT_CONFIG_FILE_PATH, "-v" if verbose else "").split())
 
     def stop(self):
-        self.output.header("Stopping Edge Simulator")
+        self.output.header("Stopping IoT Edge Simulator")
         self.utility.exe_proc("iotedgehubdev stop".split())
 
     def modulecred(self, local, output_file):
