@@ -1,6 +1,6 @@
 import os
 import sys
-
+from iotedgedev.compat import PY2
 import pytest
 
 from iotedgedev.envvars import EnvVars
@@ -68,7 +68,7 @@ def test_envvar_clean():
 
     envvars.clean()
 
-    if not (sys.version_info > (3, 0)):
+    if PY2:
         assert isinstance(os.environ[envvar_clean_name], str)
 
 

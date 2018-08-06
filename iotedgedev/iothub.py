@@ -1,6 +1,6 @@
 import os
 import sys
-
+from .compat import PY35
 
 class IoTHub:
     def __init__(self, envvars, utility, output, azure_cli):
@@ -21,12 +21,12 @@ class IoTHub:
         self.output.header("MONITOR EVENTS")
         self.output.status("It may take 1-2 minutes before you start to see messages below.")
 
-        if sys.version_info.major >= 3:
-            self.monitor_events_py3(timeout)
+        if PY35:
+            self.monitor_events_cli(timeout)
         else:
-            self.monitor_events_py2(timeout)    
+            self.monitor_events_node(timeout)    
 
-    def monitor_events_py2(self, timeout=0):
+    def monitor_events_node(self, timeout=0):
         try:
         
             if timeout == 0:
@@ -41,5 +41,5 @@ class IoTHub:
             self.output.error("Problem while trying to call iothub-explorer. Please ensure that you have installed the iothub-explorer npm package with: npm i -g iothub-explorer.")
             self.output.error(str(ex))
 
-    def monitor_events_py3(self, timeout=0):
+    def monitor_events_cli(self, timeout=0):
         self.azure_cli.monitor_events(self.envvars.DEVICE_CONNECTION_INFO.DeviceId, self.envvars.IOTHUB_CONNECTION_INFO.ConnectionString, self.envvars.IOTHUB_CONNECTION_INFO.HubName, timeout)

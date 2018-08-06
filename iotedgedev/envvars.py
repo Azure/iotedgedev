@@ -3,6 +3,7 @@ import platform
 import socket
 import sys
 from shutil import copyfile
+from .compat import PY2
 
 from dotenv import load_dotenv, set_key
 from fstrings import f
@@ -28,7 +29,7 @@ class EnvVars:
     def clean(self):
         """docker-py had py2 issues with shelling out to docker api if unicode characters are in any environment variable. This will convert to utf-8 if py2."""
 
-        if not (sys.version_info > (3, 0)):
+        if PY2:
             environment = os.environ.copy()
 
             clean_enviro = {}
