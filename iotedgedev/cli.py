@@ -13,12 +13,12 @@ from .azurecli import AzureCli
 from .dockercls import Docker
 from .edge import Edge
 from .envvars import EnvVars
-from .iotedgehubdev import iotedgehubdev
 from .iothub import IoTHub
 from .modules import Modules
 from .organizedgroup import OrganizedGroup
 from .output import Output
 from .runtime import Runtime
+from .simulator import Simulator
 from .solution import Solution
 from .utility import Utility
 
@@ -266,7 +266,7 @@ def status_runtime():
                    name="setup",
                    help="Setup IoT Edge simulator")
 def setup_simulator():
-    sim = iotedgehubdev(envvars, output)
+    sim = Simulator(envvars, output)
     sim.setup()
 
 
@@ -274,7 +274,7 @@ def setup_simulator():
                    name="start",
                    help="Start IoT Edge simulator")
 def start_simulator():
-    sim = iotedgehubdev(envvars, output)
+    sim = Simulator(envvars, output)
     sim.start()
 
 
@@ -282,7 +282,7 @@ def start_simulator():
                    name="stop",
                    help="Stop IoT Edge simulator")
 def stop_simulator():
-    sim = iotedgehubdev(envvars, output)
+    sim = Simulator(envvars, output)
     sim.stop()
 
 
@@ -290,9 +290,20 @@ def stop_simulator():
                    # short_help hack to prevent Click truncating help text (https://github.com/pallets/click/issues/486)
                    short_help='Get the credentials of target module such as connection string and certificate file path.',
                    help='Get the credentials of target module such as connection string and certificate file path.')
-def modulecred():
-    sim = iotedgehubdev(envvars, output)
-    sim.module_cred()
+@click.option("--local",
+              "-l",
+              help="Set `localhost` to `GatewayHostName` for module to run on host natively",
+              is_flag=True,
+              required=False,
+              default=False,
+              show_default=True)
+@click.option("--output-file",
+              "-o",
+              help="Specify the output file to save the credentials. If the file exists, its content will be overwritten",
+              required=False)
+def modulecred(local, output_file):
+    sim = Simulator(envvars, output)
+    sim.modulecred(local, output_file)
 
 
 @iothub.command(context_settings=CONTEXT_SETTINGS,

@@ -2,7 +2,7 @@ from .modules import Modules
 from .utility import Utility
 
 
-class iotedgehubdev:
+class Simulator:
     def __init__(self, envvars, output):
         self.envvars = envvars
         self.output = output
@@ -29,5 +29,6 @@ class iotedgehubdev:
         self.output.header("Stopping Edge Simulator")
         self.utility.exe_proc("iotedgehubdev stop".split())
 
-    def modulecred(self):
-        pass
+    def modulecred(self, local, output_file):
+        self.output.header("Getting target module credentials")
+        self.utility.exe_proc("iotedgehubdev modulecred {0} {1}".format("-l" if local else "", "-o " + output_file if output_file else "").split())
