@@ -4,6 +4,7 @@ from __future__ import absolute_import
 
 import hashlib
 import os
+import socket
 import sys
 
 import click
@@ -265,9 +266,15 @@ def status_runtime():
 @simulator.command(context_settings=CONTEXT_SETTINGS,
                    name="setup",
                    help="Setup IoT Edge simulator")
-def setup_simulator():
+@click.option("--gateway-host",
+              "-g",
+              help="GatewayHostName value for the module to connect",
+              required=False,
+              default=socket.getfqdn(),
+              show_default=True)
+def setup_simulator(gateway_host):
     sim = Simulator(envvars, output)
-    sim.setup()
+    sim.setup(gateway_host)
 
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
@@ -288,8 +295,8 @@ def stop_simulator():
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
                    # short_help hack to prevent Click truncating help text (https://github.com/pallets/click/issues/486)
-                   short_help='Get the credentials of target module such as connection string and certificate file path.',
-                   help='Get the credentials of target module such as connection string and certificate file path.')
+                   short_help='Get the credentials of target module such as connection string and certificate file path',
+                   help='Get the credentials of target module such as connection string and certificate file path')
 @click.option("--local",
               "-l",
               help="Set `localhost` to `GatewayHostName` for module to run on host natively",
