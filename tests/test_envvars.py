@@ -61,10 +61,40 @@ def test_set_envvar():
 def test_envvar_clean():
     output = Output()
     envvars = EnvVars(output)
-    envvar_clean_name = u'IOTEDGEDEV_ENVVAR_CLEAN_TEST'
-    os.environ[envvar_clean_name] = u'test unicode string'
+    envvar_clean_name = u"IOTEDGEDEV_ENVVAR_CLEAN_TEST"
+    os.environ[envvar_clean_name] = u"test unicode string"
 
     envvars.clean()
 
     if not (sys.version_info > (3, 0)):
         assert isinstance(os.environ[envvar_clean_name], str)
+
+
+def test_in_command_list():
+    output = Output()
+    envvars = EnvVars(output)
+    assert envvars.in_command_list("solution create test_solution", ["init", "e2e", "solution create", "create", "simulator stop"])
+
+
+def test_in_command_list_false():
+    output = Output()
+    envvars = EnvVars(output)
+    assert not envvars.in_command_list("solution add filtermodule", ["init", "e2e", "solution create", "create", "simulator stop"])
+
+
+def test_in_command_list_empty_1():
+    output = Output()
+    envvars = EnvVars(output)
+    assert not envvars.in_command_list("", ["init", "e2e", "solution create", "create", "simulator stop"])
+
+
+def test_in_command_list_empty_2():
+    output = Output()
+    envvars = EnvVars(output)
+    assert not envvars.in_command_list("solution create test_solution", ["init", "e2e", "", "create", "simulator stop"])
+
+
+def test_in_command_list_empty_3():
+    output = Output()
+    envvars = EnvVars(output)
+    assert envvars.in_command_list("", ["init", "e2e", "", "create", "simulator stop"])
