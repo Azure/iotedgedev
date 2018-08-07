@@ -1,3 +1,6 @@
+import os
+import sys
+
 from .modules import Modules
 from .utility import Utility
 
@@ -21,6 +24,10 @@ class Simulator:
         if build:
             mod = Modules(self.envvars, self.output)
             mod.build()
+
+        if not os.path.exists(self.envvars.DEPLOYMENT_CONFIG_FILE_PATH):
+            self.output.error("Deployment manifest {0} not found. Please build the solution before starting IoT Edge simulator.".format(self.envvars.DEPLOYMENT_CONFIG_FILE_PATH))
+            sys.exit(1)
 
         self.output.header("Starting IoT Edge Simulator in Solution Mode")
         self.utility.call_proc("iotedgehubdev start -d {0} {1}".format(self.envvars.DEPLOYMENT_CONFIG_FILE_PATH, "-v" if verbose else "").split())
