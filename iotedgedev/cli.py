@@ -214,7 +214,8 @@ main.add_command(genconfig)
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
                    name="setup",
-                   help="Setup IoT Edge simulator")
+                   short_help="Setup IoT Edge simulator. This must be done before starting",
+                   help="Setup IoT Edge simulator. This must be done before starting")
 @click.option("--gateway-host",
               "-g",
               help="GatewayHostName value for the module to connect.",
