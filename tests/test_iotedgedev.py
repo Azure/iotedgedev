@@ -5,6 +5,7 @@ import shutil
 import pytest
 from click.testing import CliRunner
 from dotenv import load_dotenv
+from iotedgedev.compat import PY35
 
 from iotedgedev.connectionstring import (DeviceConnectionString,
                                          IoTHubConnectionString)
@@ -176,21 +177,24 @@ def test_deploy_modules(request):
 #     assert 'Runtime started' in result.output
 
 
-# @pytest.fixture
-# def test_monitor(request, capfd):
+def test_monitor(request, capfd):
 
-#     os.chdir(test_solution_dir)
+    os.chdir(test_solution_dir)
 
-#     cli = __import__("iotedgedev.cli", fromlist=['main'])
-#     runner = CliRunner()
-#     result = runner.invoke(cli.main, ['monitor', '--timeout', '60000'])
-#     out, err = capfd.readouterr()
-#     print(out)
-#     print(err)
-#     print(result.output)
+    cli = __import__("iotedgedev.cli", fromlist=['main'])
+    runner = CliRunner()
+    result = runner.invoke(cli.main, ['monitor', '--timeout', '2'])
+    out, err = capfd.readouterr()
+    print(out)
+    print(err)
+    print(result.output)
 
-#     assert 'timeCreated' in out
+    if PY35:
+        assert 'Starting event monitor' in out
+    else:
+        assert 'Monitoring events from device' in out
 
+    
 
 # @pytest.fixture
 # def test_stop(request):
