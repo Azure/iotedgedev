@@ -14,8 +14,6 @@ class Modules:
         self.envvars = envvars
         self.output = output
         self.utility = Utility(self.envvars, self.output)
-        self.dock = Docker(self.envvars, self.utility, self.output)
-        self.dock.init_registry()
 
     def add(self, name, template):
         self.output.header("ADDING MODULE {0}".format(name))
@@ -122,6 +120,7 @@ class Modules:
                 self.output.info("PROCESSING DOCKERFILE: {0}".format(dockerfile), suppress=no_build)
                 self.output.info("BUILDING DOCKER IMAGE: {0}".format(tag), suppress=no_build)
 
+                docker = Docker(self.envvars, self.utility, self.output)
                 # BUILD DOCKER IMAGE
                 if not no_build:
                     # TODO: apply build options
@@ -130,19 +129,21 @@ class Modules:
                     context_path = os.path.abspath(os.path.join(self.envvars.MODULES_PATH, module))
                     dockerfile_relative = os.path.relpath(dockerfile, context_path)
                     # a hack to workaround Python Docker SDK's bug with Linux container mode on Windows
-                    if self.dock.get_os_type() == "linux" and sys.platform == "win32":
+                    if docker.get_os_type() == "linux" and sys.platform == "win32":
                         dockerfile = dockerfile.replace("\\", "/")
                         dockerfile_relative = dockerfile_relative.replace("\\", "/")
 
-                    build_result = self.dock.docker_client.images.build(tag=tag, path=context_path, dockerfile=dockerfile_relative)
+                    build_result = docker.docker_client.images.build(tag=tag, path=context_path, dockerfile=dockerfile_relative)
 
                     self.output.info("DOCKER IMAGE DETAILS: {0}".format(build_result))
 
                 if not no_push:
+                    docker.init_registry()
+
                     # PUSH TO CONTAINER REGISTRY
                     self.output.info("PUSHING DOCKER IMAGE: " + tag)
 
-                    for line in self.dock.docker_client.images.push(repository=tag, stream=True, auth_config={
+                    for line in docker.docker_client.images.push(repository=tag, stream=True, auth_config={
                             "username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
                         self.output.procout(self.utility.decode(line).replace("\\u003e", ">"))
             self.output.footer("BUILD COMPLETE", suppress=no_build)
