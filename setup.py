@@ -35,6 +35,7 @@ requirements = [
     'python-dotenv',
     'requests',
     'fstrings',
+    'msrestazure~=0.4.32',
     'azure-cli-iot',
     'azure-cli-profile',
     'azure-cli-extension',
