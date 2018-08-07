@@ -18,7 +18,7 @@ class Simulator:
 
     def start_single(self, inputs, port):
         self.output.header("Starting IoT Edge Simulator in Single Mode")
-        self.utility.call_proc("iotedgehubdev start -i {0} {1}".format(inputs, "-p " + str(port) if port else "").split())
+        self.utility.exe_proc("iotedgehubdev start -i {0} {1}".format(inputs, "-p " + str(port) if port else "").split())
 
     def start_solution(self, verbose=True, build=False):
         if build:
@@ -34,7 +34,7 @@ class Simulator:
 
     def stop(self):
         self.output.header("Stopping IoT Edge Simulator")
-        self.utility.exe_proc("iotedgehubdev stop".split())
+        self.utility.call_proc("iotedgehubdev stop".split())
 
     def modulecred(self, local, output_file):
         self.output.header("Getting Target Module Credentials")

@@ -5,8 +5,8 @@ import shutil
 import pytest
 from click.testing import CliRunner
 from dotenv import load_dotenv
-from iotedgedev.compat import PY35
 
+from iotedgedev.compat import PY35
 from iotedgedev.connectionstring import (DeviceConnectionString,
                                          IoTHubConnectionString)
 

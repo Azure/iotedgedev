@@ -1,6 +1,7 @@
 import os
-import sys
+
 from .compat import PY35
+
 
 class IoTHub:
     def __init__(self, envvars, utility, output, azure_cli):
@@ -9,13 +10,12 @@ class IoTHub:
         self.utility = utility
         self.azure_cli = azure_cli
 
-
     def monitor_events(self, timeout=0):
 
         self.envvars.verify_envvar_has_val("IOTHUB_CONNECTION_STRING", self.envvars.IOTHUB_CONNECTION_STRING)
         self.envvars.verify_envvar_has_val("DEVICE_CONNECTION_STRING", self.envvars.DEVICE_CONNECTION_STRING)
 
-        if timeout == None:
+        if timeout is None:
             timeout = 0
 
         self.output.header("MONITOR EVENTS")
@@ -24,11 +24,11 @@ class IoTHub:
         if PY35:
             self.monitor_events_cli(timeout)
         else:
-            self.monitor_events_node(timeout)    
+            self.monitor_events_node(timeout)
 
     def monitor_events_node(self, timeout=0):
         try:
-        
+
             if timeout == 0:
                 self.utility.call_proc(['iothub-explorer', '--login', self.envvars.IOTHUB_CONNECTION_STRING,
                                         'monitor-events', self.envvars.DEVICE_CONNECTION_INFO.DeviceId], shell=not self.envvars.is_posix())
