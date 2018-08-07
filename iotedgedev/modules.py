@@ -21,6 +21,9 @@ class Modules:
         self.output.header("ADDING MODULE {0}".format(name))
 
         cwd = self.envvars.MODULES_PATH
+        if not os.path.exists(cwd):
+            os.makedirs(cwd)
+
         if name.startswith("_") or name.endswith("_"):
             self.output.error("Module name cannot start or end with the symbol _")
             return
