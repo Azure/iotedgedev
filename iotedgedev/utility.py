@@ -7,11 +7,12 @@ from base64 import b64decode, b64encode
 from hashlib import sha256
 from hmac import HMAC
 from time import time
+from .compat import PY3
 
 from .deploymentmanifest import DeploymentManifest
 from .moduletype import ModuleType
 
-if sys.version_info.major >= 3:
+if PY3:
     from urllib.parse import quote, urlencode
 else:
     from urllib import quote, urlencode

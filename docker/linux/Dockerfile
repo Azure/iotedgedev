@@ -16,7 +16,7 @@ RUN AZ_REPO=$(lsb_release -cs) && \
     apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893 && \   
     apt-get update && apt-get install azure-cli
 RUN az extension add --name azure-cli-iot-ext && \
-    npm i -g iothub-explorer && npm i -g tree-kill && \
+    npm i -g iothub-explorer && \
     apt-get update && \
     apt-get install -y --no-install-recommends python-dev build-essential libssl-dev libffi-dev libxml2-dev libxslt1-dev zlib1g-dev && \
     rm -rf /var/lib/apt/lists/*
