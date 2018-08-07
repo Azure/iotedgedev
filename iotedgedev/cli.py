@@ -18,7 +18,6 @@ from .iothub import IoTHub
 from .modules import Modules
 from .organizedgroup import OrganizedGroup
 from .output import Output
-from .runtime import Runtime
 from .simulator import Simulator
 from .solution import Solution
 from .utility import Utility
@@ -42,11 +41,6 @@ def main():
 
 @main.group(context_settings=CONTEXT_SETTINGS, help="Manage IoT Edge solutions", order=1)
 def solution():
-    pass
-
-
-@main.group(context_settings=CONTEXT_SETTINGS, help="Manage IoT Edge runtime", order=1)
-def runtime():
     pass
 
 
@@ -118,7 +112,6 @@ def e2e(ctx):
     envvars.load(force=True)
     ctx.invoke(push)
     ctx.invoke(deploy)
-    ctx.invoke(start_runtime)
     ctx.invoke(monitor)
 
 
@@ -217,50 +210,6 @@ def genconfig():
 
 
 main.add_command(genconfig)
-
-
-@runtime.command(context_settings=CONTEXT_SETTINGS,
-                 name="start",
-                 help="Start IoT Edge runtime")
-def start_runtime():
-    utility = Utility(envvars, output)
-    dock = Docker(envvars, utility, output)
-    run = Runtime(envvars, utility, output, dock)
-
-    run.start()
-
-
-@runtime.command(context_settings=CONTEXT_SETTINGS,
-                 name="restart",
-                 help="Restart IoT Edge runtime")
-def restart_runtime():
-    utility = Utility(envvars, output)
-    dock = Docker(envvars, utility, output)
-    run = Runtime(envvars, utility, output, dock)
-
-    run.restart()
-
-
-@runtime.command(context_settings=CONTEXT_SETTINGS,
-                 name="stop",
-                 help="Stop IoT Edge runtime")
-def stop_runtime():
-    utility = Utility(envvars, output)
-    dock = Docker(envvars, utility, output)
-    run = Runtime(envvars, utility, output, dock)
-
-    run.stop()
-
-
-@runtime.command(context_settings=CONTEXT_SETTINGS,
-                 name="status",
-                 help="Show IoT Edge runtime status")
-def status_runtime():
-    utility = Utility(envvars, output)
-    dock = Docker(envvars, utility, output)
-    run = Runtime(envvars, utility, output, dock)
-
-    run.status()
 
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
