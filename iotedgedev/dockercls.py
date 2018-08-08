@@ -68,38 +68,12 @@ class Docker:
             self.output.info("Running registry container")
             self.docker_client.containers.run("registry:2", detach=True, name="registry", ports=ports, restart_policy={"Name": "always"})
 
-<<<<<<< HEAD
-=======
-    def login_registry(self):
-        try:
-
-            if "localhost" in self.envvars.CONTAINER_REGISTRY_SERVER:
-                client_login_status = self.docker_client.login(self.envvars.CONTAINER_REGISTRY_SERVER)
-                api_login_status = self.docker_api.login(self.envvars.CONTAINER_REGISTRY_SERVER)
-            else:
-
-                client_login_status = self.docker_client.login(registry=self.envvars.CONTAINER_REGISTRY_SERVER,
-                                                               username=self.envvars.CONTAINER_REGISTRY_USERNAME,
-                                                               password=self.envvars.CONTAINER_REGISTRY_PASSWORD)
-
-                api_login_status = self.docker_api.login(registry=self.envvars.CONTAINER_REGISTRY_SERVER,
-                                                         username=self.envvars.CONTAINER_REGISTRY_USERNAME,
-                                                         password=self.envvars.CONTAINER_REGISTRY_PASSWORD)
-
-            self.output.info("Successfully logged into container registry: " + self.envvars.CONTAINER_REGISTRY_SERVER)
-
-        except Exception as ex:
-            self.output.error(
-                "Could not login to Container Registry. 1. Make sure Docker is running locally. 2. Verify your credentials in CONTAINER_REGISTRY_ environment variables. 2. If you are using WSL, then please set DOCKER_HOST Environment Variable. See the Azure IoT Edge Dev readme at https://aka.ms/iotedgedev for full instructions.")
-            self.output.error(str(ex))
-            sys.exit(-1)
-
->>>>>>> 79bcd51b6ac99381fa0ab624f88ef173d4bccff9
     def setup_registry(self):
         self.output.header("SETTING UP CONTAINER REGISTRY")
         self.init_registry()
         self.output.info("PUSHING EDGE IMAGES TO CONTAINER REGISTRY")
         image_names = ["azureiotedge-agent", "azureiotedge-hub", "azureiotedge-simulated-temperature-sensor"]
+        default_cr = self.envvars.CONTAINER_REGISTRY_MAP['']
 
         for image_name in image_names:
 
@@ -107,7 +81,7 @@ class Docker:
                 image_name, self.envvars.RUNTIME_TAG)
 
             container_registry_image_name = "{0}/{1}:{2}".format(
-                self.envvars.CONTAINER_REGISTRY_MAP[''].server, image_name, self.envvars.RUNTIME_TAG)
+                default_cr.server, image_name, self.envvars.RUNTIME_TAG)
 
             # Pull image from Microsoft Docker Hub
             try:
@@ -137,7 +111,7 @@ class Docker:
                 self.output.info("PUSHING IMAGE: '{0}'".format(
                     container_registry_image_name))
 
-                for line in self.docker_client.images.push(repository=container_registry_image_name, tag=self.envvars.RUNTIME_TAG, stream=True, auth_config={"username": self.envvars.CONTAINER_REGISTRY_MAP[''].username, "password": self.envvars.CONTAINER_REGISTRY_MAP[''].password}):
+                for line in self.docker_client.images.push(repository=container_registry_image_name, tag=self.envvars.RUNTIME_TAG, stream=True, auth_config={"username": default_cr.username, "password": default_cr.password}):
                     self.output.procout(self.utility.decode(line).replace("\\u003e", ">"))
                 self.output.info("SUCCESSFULLY PUSHED IMAGE: '{0}'".format(
                     container_registry_image_name))

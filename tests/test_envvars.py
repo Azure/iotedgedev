@@ -165,9 +165,94 @@ def test_default_container_registry_password_key_exists():
     password = envvars.get_envvar("CONTAINER_REGISTRY_PASSWORD")
     assert password is not None
 
+def test_unique_container_registry_server_tokens():
+    unique = set()
+    length_container_registry_server = len('container_registry_server')
+    is_unique = True
+    output = Output()
+    envvars = EnvVars(output)
+    envvars.load_dotenv()
+    for key in os.environ:
+        key = key.lower()
+        if key.startswith('container_registry_server'):
+            token = key[length_container_registry_server:]
+            if token not in unique:
+                unique.add(token)
+            else:
+                is_unique = False
+    assert is_unique
+
+def test_unique_container_registry_username_tokens():
+    unique = set()
+    length_container_registry_username = len('container_registry_username')
+    is_unique = True
+    output = Output()
+    envvars = EnvVars(output)
+    envvars.load_dotenv()
+    for key in os.environ:
+        key = key.lower()
+        if key.startswith('container_registry_username'):
+            token = key[length_container_registry_username:]
+            if token not in unique:
+                unique.add(token)
+            else:
+                is_unique = False
+    assert is_unique
+
+def test_unique_container_registry_password_tokens():
+    unique = set()
+    length_container_registry_password = len('container_registry_password')
+    is_unique = True
+    output = Output()
+    envvars = EnvVars(output)
+    envvars.load_dotenv()
+    for key in os.environ:
+        key = key.lower()
+        if key.startswith('container_registry_password'):
+            token = key[length_container_registry_password:]
+            if token not in unique:
+                unique.add(token)
+            else:
+                is_unique = False
+    assert is_unique
+
 def test_container_registry_map_has_val():
     output = Output()
     envvars = EnvVars(output)
     envvars.load()
     result = envvars.verify_envvar_has_val("CONTAINER_REGISTRY_MAP", envvars.CONTAINER_REGISTRY_MAP)
     assert not result
+
+def test_additional_container_registry_server_has_val():
+    output = Output()
+    envvars = EnvVars(output)
+    envvars.load()
+    if len(envvars.CONTAINER_REGISTRY_MAP) > 1:
+        keys = envvars.CONTAINER_REGISTRY_MAP.keys()
+        for key in keys:
+            if key != '':
+                token = key
+        assert envvars.CONTAINER_REGISTRY_MAP[token].server is not None
+
+def test_additional_container_registry_username_has_val():
+    output = Output()
+    envvars = EnvVars(output)
+    envvars.load()
+    if len(envvars.CONTAINER_REGISTRY_MAP) > 1:
+        keys = envvars.CONTAINER_REGISTRY_MAP.keys()
+        for key in keys:
+            if key != '':
+                token = key
+        assert envvars.CONTAINER_REGISTRY_MAP[token].username is not None
+
+def test_additional_container_registry_password_has_val():
+    output = Output()
+    envvars = EnvVars(output)
+    envvars.load()
+    if len(envvars.CONTAINER_REGISTRY_MAP) > 1:
+        keys = envvars.CONTAINER_REGISTRY_MAP.keys()
+        for key in keys:
+            if key != '':
+                token = key
+        assert envvars.CONTAINER_REGISTRY_MAP[token].password is not None
+        

@@ -140,6 +140,7 @@ class Modules:
                     self.output.info("PUSHING DOCKER IMAGE: " + tag)
                     registry_key = None
                     for key, registry in self.envvars.CONTAINER_REGISTRY_MAP.items():
+                        #Split the repository tag in the module.json (ex: Localhost:5000/filtermodule)
                         if registry.server.lower() == tag.split('/')[0].lower():
                             registry_key = key
                             break

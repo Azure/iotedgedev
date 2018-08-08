@@ -240,21 +240,27 @@ class EnvVars:
         self.CONTAINER_REGISTRY_MAP = {}
         length_container_registry_server = len('container_registry_server')
         length_container_registry_username_or_password = len('container_registry_username')
-        length_container_registry_ = len('container_registry_')
+        length_container_registry = len('container_registry_')
+        # loops through .env file for key matching container_registry_server, container_registry_username, container_registry_password
         for key in os.environ:
             key = key.lower()
+            # get token for container_registry_server key
             if key.startswith('container_registry_server'):
                 token = key[length_container_registry_server:]
+                # if the token doesn't already exist as an item in the dictionary, add it. if it does, add the server value  
                 if token not in registries:
                     registries[token] = {}
-                registries[token]['server'] = os.environ[key]
+                registries[token]['server'] = self.get_envvar(key)
+            # get token for container_registry_username or container_registry_password key and get subkey (username or password)
             elif key.startswith(('container_registry_username', 'container_registry_password')):
                 token = key[length_container_registry_username_or_password:]
-                subkey = key[length_container_registry_:length_container_registry_username_or_password]
+                subkey = key[length_container_registry:length_container_registry_username_or_password]
+                # if the token doesn't already exist as an item in the dictionary, add it. if it does, add the subkey(username/password) value  
                 if token not in registries:
                     registries[token] = {}
-                registries[token][subkey] = os.environ[key]
+                registries[token][subkey] = self.get_envvar(key)
 
+        # store parsed values as a dicitonary of containerregistry objects
         for key, value in registries.items():
             self.CONTAINER_REGISTRY_MAP[key] = ContainerRegistry(value['server'], value['username'], value['password'])
 
