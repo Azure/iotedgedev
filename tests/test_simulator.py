@@ -100,7 +100,7 @@ def test_start_solution(capfd):
 def test_monitor(capfd):
     cli = __import__('iotedgedev.cli', fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['monitor', '--timeout', '5'])
+    result = runner.invoke(cli.main, ['monitor', '--timeout', '10'])
     out, err = capfd.readouterr()
     print(out)
     print(err)
