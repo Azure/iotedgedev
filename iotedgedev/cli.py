@@ -304,7 +304,7 @@ def stop_simulator():
               help="Specify number of milliseconds to monitor for messages")
 def monitor(timeout):
     utility = Utility(envvars, output)
-    ih = IoTHub(envvars, utility, output)
+    ih = IoTHub(envvars, utility, output, azure_cli)
     ih.monitor_events(timeout)
 
 
