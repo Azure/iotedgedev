@@ -314,7 +314,7 @@ def modulecred(local, output_file):
 @click.option("--timeout",
               "-t",
               required=False,
-              help="Specify number of milliseconds to monitor for messages")
+              help="Specify number of seconds to monitor for messages")
 def monitor(timeout):
     utility = Utility(envvars, output)
     ih = IoTHub(envvars, utility, output, azure_cli)
