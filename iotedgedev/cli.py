@@ -192,8 +192,7 @@ main.add_command(push)
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Deploy solution to IoT Edge device")
 def deploy():
-    utility = Utility(envvars, output)
-    edge = Edge(envvars, utility, output, azure_cli)
+    edge = Edge(envvars, output, azure_cli)
     edge.deploy()
 
 
