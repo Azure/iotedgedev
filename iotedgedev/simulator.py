@@ -14,11 +14,19 @@ class Simulator:
     def setup(self, gateway_host):
         self.output.header("Setting Up IoT Edge Simulator")
         self.envvars.verify_envvar_has_val("DEVICE_CONNECTION_STRING", self.envvars.DEVICE_CONNECTION_STRING)
-        self.utility.exe_proc("iotedgehubdev setup -c {0} {1}".format(self.envvars.DEVICE_CONNECTION_STRING, "-g " + gateway_host if gateway_host else "").split())
+
+        cmd = ["iotedgehubdev", "setup", "-c", self.envvars.DEVICE_CONNECTION_STRING]
+        if gateway_host:
+            cmd.extend(["-g", gateway_host])
+        self.utility.exe_proc(cmd)
 
     def start_single(self, inputs, port):
         self.output.header("Starting IoT Edge Simulator in Single Mode")
-        self.utility.exe_proc("iotedgehubdev start -i {0} {1}".format(inputs, "-p " + str(port) if port else "").split())
+
+        cmd = ["iotedgehubdev", "start", "-i", inputs]
+        if port:
+            cmd.extend(["-p", str(port)])
+        self.utility.exe_proc(cmd)
 
     def start_solution(self, verbose=True, build=False):
         if build:
@@ -30,12 +38,22 @@ class Simulator:
             sys.exit(1)
 
         self.output.header("Starting IoT Edge Simulator in Solution Mode")
-        self.utility.call_proc("iotedgehubdev start -d {0} {1}".format(self.envvars.DEPLOYMENT_CONFIG_FILE_PATH, "-v" if verbose else "").split())
+
+        cmd = ["iotedgehubdev", "start", "-d", self.envvars.DEPLOYMENT_CONFIG_FILE_PATH]
+        if verbose:
+            cmd.append("-v")
+        self.utility.call_proc(cmd)
 
     def stop(self):
         self.output.header("Stopping IoT Edge Simulator")
-        self.utility.call_proc("iotedgehubdev stop".split())
+        self.utility.call_proc(["iotedgehubdev", "stop"])
 
     def modulecred(self, local, output_file):
         self.output.header("Getting Target Module Credentials")
-        self.utility.exe_proc("iotedgehubdev modulecred {0} {1}".format("-l" if local else "", "-o " + output_file if output_file else "").split())
+
+        cmd = ["iotedgehubdev", "modulecred"]
+        if local:
+            cmd.append("-l")
+        if output_file:
+            cmd.extend(["-o", output_file])
+        self.utility.exe_proc(cmd)
