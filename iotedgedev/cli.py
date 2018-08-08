@@ -226,6 +226,9 @@ def setup_simulator(gateway_host):
     sim.setup(gateway_host)
 
 
+main.add_command(setup_simulator)
+
+
 @simulator.command(context_settings=CONTEXT_SETTINGS,
                    name="start",
                    short_help="Start IoT Edge simulator",
@@ -270,12 +273,18 @@ def start_simulator(solution, build, verbose, inputs, port):
         sim.start_single(inputs, port)
 
 
+main.add_command(start_simulator)
+
+
 @simulator.command(context_settings=CONTEXT_SETTINGS,
                    name="stop",
                    help="Stop IoT Edge simulator")
 def stop_simulator():
     sim = Simulator(envvars, output)
     sim.stop()
+
+
+main.add_command(stop_simulator)
 
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
