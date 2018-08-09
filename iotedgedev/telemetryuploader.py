@@ -14,7 +14,7 @@ from applicationinsights.channel import (SynchronousQueue, SynchronousSender,
                                          TelemetryChannel)
 from applicationinsights.exceptions import enable
 
-from .decorators import suppress_all_exceptions
+from iotedgedev.decorators import suppress_all_exceptions
 
 
 class LimitedRetrySender(SynchronousSender):

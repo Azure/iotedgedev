@@ -52,11 +52,11 @@ class Config(object):
 
     @suppress_all_exceptions()
     def get(self, direct, section):
-        self.config_parser.get(direct, section)
+        return self.config_parser.get(direct, section)
 
     @suppress_all_exceptions()
     def get_boolean(self, direct, section):
-        self.config_parser.getboolean(direct, section)
+        return self.config_parser.getboolean(direct, section)
 
     @suppress_all_exceptions()
     def set(self, direct, section, val):

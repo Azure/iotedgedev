@@ -2,13 +2,13 @@ import hashlib
 import sys
 from functools import wraps
 
-from . import telemetry
-from .config import Config
-
 
 def with_telemetry(func):
     @wraps(func)
     def _wrapper(*args, **kwargs):
+        from . import telemetry
+        from .config import Config
+
         config = Config()
         config.check_firsttime()
         params = parse_params(*args, **kwargs)
@@ -19,7 +19,8 @@ def with_telemetry(func):
             telemetry.flush()
             return value
         except Exception as e:
-            output.error('Error: {0}'.format(str(e)))
+            from .output import Output
+            Output().error('Error: {0}'.format(str(e)))
             telemetry.fail(str(e), 'Command failed')
             telemetry.flush()
             sys.exit(1)
