@@ -150,20 +150,50 @@ def test_is_terse_command_empty():
 def test_default_container_registry_server_key_exists():
     output = Output()
     envvars = EnvVars(output)
+    envvars.load_dotenv()
+    assert "CONTAINER_REGISTRY_SERVER" in os.environ
+
+def test_default_container_registry_server_value_exists():
+    output = Output()
+    envvars = EnvVars(output)
     server = envvars.get_envvar("CONTAINER_REGISTRY_SERVER")
     assert server is not None
 
-def test_default_container_registry_username_key_exists():
+def test_default_container_registry_username_value_exists_or_returns_empty_string():
     output = Output()
     envvars = EnvVars(output)
     username = envvars.get_envvar("CONTAINER_REGISTRY_USERNAME")
     assert username is not None
 
-def test_default_container_registry_password_key_exists():
+def test_default_container_registry_password_value_exists_or_returns_empty_string():
     output = Output()
     envvars = EnvVars(output)
     password = envvars.get_envvar("CONTAINER_REGISTRY_PASSWORD")
     assert password is not None
+
+def test_container_registry_server_key_missing_sys_exit():
+    with pytest.raises(SystemExit):
+        output = Output()
+        envvars = EnvVars(output)
+        envvars.get_envvar("CONTAINER_REGISTRY_SERVERUNITTEST", required=True)
+
+@pytest.fixture
+def setup_test_env(request):
+    output = Output()
+    envvars = EnvVars(output)
+    envvars.set_envvar("CONTAINER_REGISTRY_SERVERUNITTEST", '')
+
+    def clean():
+        os.environ.pop("CONTAINER_REGISTRY_SERVERUNITTEST")
+    request.addfinalizer(clean)
+
+    return
+
+def test_container_registry_server_value_missing_sys_exit(setup_test_env):
+    with pytest.raises(SystemExit):
+        output = Output()
+        envvars = EnvVars(output)
+        envvars.get_envvar("CONTAINER_REGISTRY_SERVERUNITTEST", required=True)
 
 def test_unique_container_registry_server_tokens():
     unique = set()
