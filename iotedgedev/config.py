@@ -1,5 +1,4 @@
 import os
-import platform
 
 from six.moves import configparser
 
@@ -14,7 +13,7 @@ The iotedgedev collects usage data in order to improve your experience.
 The data is anonymous and does not include commandline argument values.
 The data is collected by Microsoft.
 
-You can change your telemetry settings by updating 'collect_telemetry' to 'no' in {0}
+You can change your telemetry settings by updating '{0}' to 'no' in {1}
 """
 
 
@@ -69,7 +68,7 @@ class Config(object):
     def check_firsttime(self):
         if self.get(self.DEFAULT_DIRECT, self.FIRSTTIME_SECTION) != 'no':
             self.set(self.DEFAULT_DIRECT, self.FIRSTTIME_SECTION, 'no')
-            print(PRIVACY_STATEMENT.format(self.get_config_path()))
+            print(PRIVACY_STATEMENT.format(self.TELEMETRY_SECTION, self.get_config_path()))
             self.set(self.DEFAULT_DIRECT, self.TELEMETRY_SECTION, 'yes')
             self.dump()
 
@@ -82,9 +81,4 @@ class Config(object):
 
     @suppress_all_exceptions()
     def get_config_folder(self):
-        host = platform.system()
-        return {
-            'linux': '/etc/iotedgedev',
-            'windows': os.path.join(os.getenv('PROGRAMDATA', '%%PROGRAMDATA%%'), 'iotedgedev', 'config'),
-            'darwin': '/etc/iotedgedev',
-        }.get(host, None)
+        return os.path.join(os.path.expanduser("~"), '.iotedgedev')
