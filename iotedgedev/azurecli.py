@@ -1,4 +1,6 @@
 import sys
+import os
+import signal
 import subprocess
 import json
 
@@ -22,15 +24,13 @@ class AzureCli:
         return val.decode("utf-8").strip()
 
     def is_posix(self):
-        self.envvars.is_posix()
+        return self.envvars.is_posix()
 
     def prepare_az_cli_args(self, args, suppress_output=False):
         if suppress_output:
             args.extend(["--query", "\"[?n]|[0]\""])
 
         az_args = ["az"]+args
-        if self.is_posix():
-            return [" ".join(az_args)]
         return az_args
 
     def invoke_az_cli_outproc(self, args, error_message=None, stdout_io=None, stderr_io=None, suppress_output=False, timeout=None):
@@ -38,11 +38,17 @@ class AzureCli:
             if timeout:
                 timeout = int(timeout)
 
+            # Consider using functools
             if stdout_io or stderr_io:
-                process = subprocess.Popen(self.prepare_az_cli_args(args, suppress_output), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=not self.envvars.is_posix())
+                process = subprocess.Popen(self.prepare_az_cli_args(args, suppress_output),
+                                           stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                           shell=not self.is_posix(),
+                                           preexec_fn=os.setsid if self.is_posix() and 'monitor-events' in args else None)
             else:
-                process = subprocess.Popen(self.prepare_az_cli_args(args, suppress_output), shell=not self.envvars.is_posix())
-                
+                process = subprocess.Popen(self.prepare_az_cli_args(args, suppress_output),
+                                           shell=not self.is_posix(),
+                                           preexec_fn=os.setsid if self.is_posix() and 'monitor-events' in args else None)
+
             stdout_data, stderr_data = process.communicate(timeout=timeout)
 
             if stderr_data and b"invalid_grant" in stderr_data:
@@ -67,7 +73,18 @@ class AzureCli:
             if not stdout_io and not stderr_io:
                 self.output.line()
         except subprocess.TimeoutExpired:
-            process.kill()
+            try:
+                # Suppress sys.excepthook errors from things like C extension forced deallocation
+                _eh = sys.excepthook
+                sys.excepthook = lambda type, value, traceback: 0
+                if self.is_posix():
+                    os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+                else:
+                    os.kill(process.pid, signal.CTRL_C_EVENT)
+                    process.kill()
+            finally:
+                sys.excepthook = _eh
+
             if timeout:
                 self.output.info("Timeout set to {0} seconds, which expired as expected.".format(timeout))
                 self.output.line()
