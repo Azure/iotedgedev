@@ -150,7 +150,7 @@ def test_is_terse_command_empty():
 def test_default_container_registry_server_key_exists():
     output = Output()
     envvars = EnvVars(output)
-    envvars.load_dotenv()
+    envvars.load()
     assert "CONTAINER_REGISTRY_SERVER" in os.environ
 
 def test_default_container_registry_server_value_exists():
@@ -201,7 +201,7 @@ def test_unique_container_registry_server_tokens():
     is_unique = True
     output = Output()
     envvars = EnvVars(output)
-    envvars.load_dotenv()
+    envvars.load()
     for key in os.environ:
         key = key.lower()
         if key.startswith('container_registry_server'):
@@ -218,7 +218,7 @@ def test_unique_container_registry_username_tokens():
     is_unique = True
     output = Output()
     envvars = EnvVars(output)
-    envvars.load_dotenv()
+    envvars.load()
     for key in os.environ:
         key = key.lower()
         if key.startswith('container_registry_username'):
@@ -235,7 +235,7 @@ def test_unique_container_registry_password_tokens():
     is_unique = True
     output = Output()
     envvars = EnvVars(output)
-    envvars.load_dotenv()
+    envvars.load()
     for key in os.environ:
         key = key.lower()
         if key.startswith('container_registry_password'):
