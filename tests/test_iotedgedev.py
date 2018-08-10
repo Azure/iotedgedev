@@ -1,17 +1,22 @@
 import json
 import os
 import shutil
-import pytest
 
+import pytest
 from click.testing import CliRunner
+from dotenv import load_dotenv
+from iotedgedev.compat import PY35
+
+from iotedgedev.connectionstring import (DeviceConnectionString,
+                                         IoTHubConnectionString)
+
+pytestmark = pytest.mark.e2e
 
 root_dir = os.getcwd()
 tests_dir = os.path.join(root_dir, "tests")
 env_file = os.path.join(root_dir, ".env")
 test_solution = "test_solution"
-node_solution = "node_solution"
 test_solution_dir = os.path.join(tests_dir, test_solution)
-node_solution_dir = os.path.join(tests_dir, node_solution)
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -24,7 +29,7 @@ def create_solution(request):
 
     runner = CliRunner()
     os.chdir(tests_dir)
-    result = runner.invoke(cli.main, ['solution', test_solution])
+    result = runner.invoke(cli.main, ['solution', 'create', test_solution])
     print(result.output)
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
 
@@ -45,7 +50,7 @@ def test_solution_create_in_non_empty_current_path(request):
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['solution', '.'])
+    result = runner.invoke(cli.main, ['solution', 'create', '.'])
     print(result.output)
 
     assert "Directory is not empty" in result.output
@@ -62,7 +67,7 @@ def test_solution_create_in_empty_current_path(request):
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['solution', '.'])
+    result = runner.invoke(cli.main, ['solution', 'create', '.'])
     print(result.output)
 
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
@@ -75,7 +80,7 @@ def test_solution_create_in_non_empty_dir(request):
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['solution', test_solution])
+    result = runner.invoke(cli.main, ['solution', 'create', test_solution])
     print(result.output)
 
     assert "Directory is not empty" in result.output
@@ -91,7 +96,7 @@ def test_solution_create_in_empty_child_dir(request):
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['solution', dirname])
+    result = runner.invoke(cli.main, ['solution', 'create', dirname])
     print(result.output)
 
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
@@ -104,7 +109,7 @@ def test_module_add():
     runner = CliRunner()
 
     add_module_and_verify(cli.main, runner, "csharp")
-    # add_module_and_verify(cli.main, runner, "nodejs")
+    add_module_and_verify(cli.main, runner, "nodejs")
     add_module_and_verify(cli.main, runner, "python")
     add_module_and_verify(cli.main, runner, "csharpfunction")
 
@@ -115,19 +120,19 @@ def test_module_add_invalid_name():
     cli = __import__("iotedgedev.cli", fromlist=["main"])
     runner = CliRunner()
 
-    result = runner.invoke(cli.main, ["addmodule", "_csharpmodule", "--template", "csharp"])
+    result = runner.invoke(cli.main, ["solution", "add", "_csharpmodule", "--template", "csharp"])
     print(result.output)
     assert "Module name cannot start or end with the symbol _" in result.output
 
-    result = runner.invoke(cli.main, ["addmodule", "csharpmodule_", "--template", "csharp"])
+    result = runner.invoke(cli.main, ["solution", "add", "csharpmodule_", "--template", "csharp"])
     print(result.output)
     assert "Module name cannot start or end with the symbol _" in result.output
 
-    result = runner.invoke(cli.main, ["addmodule", "csharp-module", "--template", "csharp"])
+    result = runner.invoke(cli.main, ["solution", "add", "csharp-module", "--template", "csharp"])
     print(result.output)
     assert "Module name can only contain alphanumeric characters and the symbol _" in result.output
 
-    result = runner.invoke(cli.main, ["addmodule", "filtermodule", "--template", "csharp"])
+    result = runner.invoke(cli.main, ["solution", "add", "filtermodule", "--template", "csharp"])
     print(result.output)
     assert "already exists under" in result.output
 
@@ -159,66 +164,73 @@ def test_deploy_modules(request):
     assert 'DEPLOYMENT COMPLETE' in result.output
 
 
-@pytest.fixture
-def test_start_runtime(request):
+# @pytest.fixture
+# def test_start_runtime(request):
 
-    os.chdir(test_solution_dir)
+#     os.chdir(test_solution_dir)
 
-    cli = __import__("iotedgedev.cli", fromlist=['main'])
-    runner = CliRunner()
-    result = runner.invoke(cli.main, ['start'])
-    print(result.output)
+#     cli = __import__("iotedgedev.cli", fromlist=['main'])
+#     runner = CliRunner()
+#     result = runner.invoke(cli.main, ['start'])
+#     print(result.output)
 
-    assert 'Runtime started' in result.output
+#     assert 'Runtime started' in result.output
 
 
-@pytest.fixture
 def test_monitor(request, capfd):
 
     os.chdir(test_solution_dir)
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['monitor', '--timeout', '60000'])
+    result = runner.invoke(cli.main, ['monitor', '--timeout', '2'])
     out, err = capfd.readouterr()
     print(out)
     print(err)
     print(result.output)
 
-    assert 'timeCreated' in out
+    if PY35:
+        assert 'Starting event monitor' in out
+    else:
+        assert 'Monitoring events from device' in out
+
+    
+
+# @pytest.fixture
+# def test_stop(request):
+
+#     os.chdir(test_solution_dir)
+
+#     cli = __import__("iotedgedev.cli", fromlist=['main'])
+#     runner = CliRunner()
+#     result = runner.invoke(cli.main, ['stop'])
+#     print(result.output)
+
+#     assert 'Runtime stopped' in result.output
 
 
-@pytest.fixture
-def test_stop(request):
-
-    os.chdir(test_solution_dir)
-
-    cli = __import__("iotedgedev.cli", fromlist=['main'])
-    runner = CliRunner()
-    result = runner.invoke(cli.main, ['stop'])
-    print(result.output)
-
-    assert 'Runtime stopped' in result.output
-
-
-def test_e2e(test_push_modules, test_deploy_modules, test_start_runtime, test_monitor, test_stop):
+def test_e2e(test_push_modules, test_deploy_modules):
     print('Testing E2E')
 
 
-@pytest.fixture
-def setup_node_solution(request):
-
-    shutil.copyfile(env_file, os.path.join(node_solution_dir, '.env'))
-    os.chdir(node_solution_dir)
-
-    def clean():
-        os.chdir(root_dir)
-    request.addfinalizer(clean)
-    return
+def test_valid_env_iothub_connectionstring():
+    load_dotenv(".env")
+    env_iothub_connectionstring = os.getenv("IOTHUB_CONNECTION_STRING")
+    connectionstring = IoTHubConnectionString(env_iothub_connectionstring)
+    assert connectionstring.HostName
+    assert connectionstring.HubName
+    assert connectionstring.SharedAccessKey
+    assert connectionstring.SharedAccessKeyName
 
 
-def test_node(setup_node_solution, test_push_modules, test_deploy_modules, test_start_runtime, test_monitor, test_stop):
-    print('Testing Node Solution')
+def test_valid_env_device_connectionstring():
+    load_dotenv(".env")
+    env_device_connectionstring = os.getenv("DEVICE_CONNECTION_STRING")
+    connectionstring = DeviceConnectionString(env_device_connectionstring)
+    assert connectionstring.HostName
+    assert connectionstring.HubName
+    assert connectionstring.SharedAccessKey
+    assert connectionstring.DeviceId
 
 
 '''
@@ -239,8 +251,8 @@ def test_load_no_dotenv():
 
 def add_module_and_verify(main, runner, template):
     module_name = template + "module"
-    result = runner.invoke(main, ['addmodule', module_name, '--template', template])
+    result = runner.invoke(main, ["solution", "add", module_name, '--template', template])
     print(result.output)
     assert 'ADD COMPLETE' in result.output
     assert os.path.exists(os.path.join(os.environ["MODULES_PATH"], module_name))
-    assert module_name in json.load(open(os.environ["DEPLOYMENT_CONFIG_TEMPLATE_FILE"]))["moduleContent"]["$edgeAgent"]["properties.desired"]["modules"]
+    assert module_name in json.load(open(os.environ["DEPLOYMENT_CONFIG_TEMPLATE_FILE"]))["modulesContent"]["$edgeAgent"]["properties.desired"]["modules"]

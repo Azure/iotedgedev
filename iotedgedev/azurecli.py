@@ -7,8 +7,10 @@ from azure.cli.core import get_default_cli
 from fstrings import f
 output_io_cls = StringIO
 
+
 def get_query_argument_for_id_and_name(token):
     return "[?starts_with(@.id,'{0}') || contains(@.name,'{1}')]".format(token.lower(), token)
+
 
 class AzureCli:
     def __init__(self,  output, envvars, cli=get_default_cli()):
@@ -33,17 +35,18 @@ class AzureCli:
 
     def invoke_az_cli_outproc(self, args, error_message=None, stdout_io=None, stderr_io=None, suppress_output=False):
         try:
+
             if stdout_io or stderr_io:
                 process = subprocess.Popen(self.prepare_az_cli_args(args, suppress_output), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=not self.envvars.is_posix())
             else:
                 process = subprocess.Popen(self.prepare_az_cli_args(args, suppress_output), shell=not self.envvars.is_posix())
-
+                
             stdout_data, stderr_data = process.communicate()
 
             if stderr_data and b"invalid_grant" in stderr_data:
                 self.output.error(self.decode(stderr_data))
                 self.output.info(
-                    "Your Azure CLI session has expired. Please re-run iotedgedev azure --setup to refresh your credentials.")
+                    "Your Azure CLI session has expired. Please re-run `iotedgedev iothub setup` to refresh your credentials.")
                 self.logout()
                 sys.exit()
 
@@ -168,7 +171,8 @@ class AzureCli:
                     if len(data) == 1:
                         return data[0]["id"]
                     elif len(data) > 1:
-                        self.output.error("Found multiple subscriptions for which the ids start with or names contain '{0}'. Please enter more characters to further refine your selection.".format(token))
+                        self.output.error(
+                            "Found multiple subscriptions for which the ids start with or names contain '{0}'. Please enter more characters to further refine your selection.".format(token))
                     else:
                         self.output.error("Could not find a subscription for which the id starts with or name contains '{0}'.".format(token))
 
@@ -183,8 +187,8 @@ class AzureCli:
             self.output.status(f("Setting Subscription to '{subscription}'..."))
 
             return self.invoke_az_cli_outproc(["account", "set", "--subscription", subscription],
-                                            "Error while trying to set Azure subscription.")
-        
+                                              "Error while trying to set Azure subscription.")
+
         return False
 
     def resource_group_exists(self, name):
@@ -237,16 +241,18 @@ class AzureCli:
 
         return result
 
-    def apply_configuration(self, device_id, connection_string, hub_name, config):
+    def set_modules(self, device_id, connection_string, hub_name, config):
         self.output.status(f("Deploying '{config}' to '{device_id}'..."))
 
-        return self.invoke_az_cli_outproc(["iot", "hub", "apply-configuration", "-d", device_id, "-n", hub_name, "-k", config, "-l", connection_string], error_message=f("Failed to deploy '{config}' to '{device_id}'..."), suppress_output=True)
+        return self.invoke_az_cli_outproc(["iot", "edge", "set-modules", "-d", device_id, "-n", hub_name, "-k", config, "-l", connection_string], error_message=f("Failed to deploy '{config}' to '{device_id}'..."), suppress_output=True)
+
+    def monitor_events(self, device_id, connection_string, hub_name, timeout=300):
+        return self.invoke_az_cli_outproc(["iot", "hub", "monitor-events", "-d", device_id, "-n", hub_name, "-l", connection_string, '-t', str(timeout)], error_message=f("Failed to start monitoring events."), suppress_output=False)
 
     def get_free_iothub(self):
         with output_io_cls() as io:
 
-            result = self.invoke_az_cli_outproc(["iot", "hub", "list"],
-                                                f("Could not list IoT Hubs in subscription."), stdout_io=io)
+            result = self.invoke_az_cli_outproc(["iot", "hub", "list"], f("Could not list IoT Hubs in subscription."), stdout_io=io)
             if result:
                 out_string = io.getvalue()
                 data = json.loads(out_string)

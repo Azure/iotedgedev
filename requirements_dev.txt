@@ -1,4 +1,5 @@
-bumpversion
+pip
+bumpversion==0.5.3
 wheel==0.30.0
 watchdog==0.8.3
 flake8==2.6.0
@@ -6,4 +7,5 @@ tox
 coverage==4.1
 Sphinx==1.4.8
 cryptography
-PyYAML==3.11
+cookiecutter
+PyYAML

@@ -31,11 +31,11 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'Click>=6.0',
-    'docker==3.0.0',
+    'docker>=3.4',
     'python-dotenv',
     'requests',
     'fstrings',
-    'azure-iot-edge-runtime-ctl==1.0.0rc22',
+    'msrestazure~=0.4.32',
     'azure-cli-iot',
     'azure-cli-profile',
     'azure-cli-extension',

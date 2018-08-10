@@ -1,6 +1,5 @@
-
-import os
 import json
+import os
 import sys
 
 
@@ -17,8 +16,7 @@ class Module(object):
     def load_module_json(self):
         if os.path.exists(self.module_json_file):
             try:
-                self.file_json_content = json.loads(
-                    self.utility.get_file_contents(self.module_json_file))
+                self.file_json_content = json.loads(self.utility.get_file_contents(self.module_json_file, expandvars=True))
 
                 self.module_language = self.file_json_content.get(
                     "language").lower()
@@ -37,15 +35,21 @@ class Module(object):
 
     @property
     def platforms(self):
-        return self.file_json_content.get("image").get("tag").get("platforms")
+        return self.file_json_content.get("image", {}).get("tag", {}).get("platforms", "")
 
     @property
     def tag_version(self):
-        tag = self.file_json_content.get("image").get("tag").get("version")
-        if tag == "":
-            tag = "0.0.0"
+        tag = self.file_json_content.get("image", {}).get("tag", {}).get("version", "0.0.0")
 
         return tag
 
-    def get_platform_by_key(self, platform):
-        return self.file_json_content.get("image").get("tag").get("platforms").get(platform)
+    @property
+    def repository(self):
+        return self.file_json_content.get("image", {}).get("repository", "")
+
+    @property
+    def build_options(self):
+        return self.file_json_content.get("image", {}).get("buildOptions", [])
+
+    def get_dockerfile_by_platform(self, platform):
+        return self.file_json_content.get("image", {}).get("tag", {}).get("platforms", {}).get(platform, "")

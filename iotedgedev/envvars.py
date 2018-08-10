@@ -3,6 +3,7 @@ import platform
 import socket
 import sys
 from shutil import copyfile
+from .compat import PY2
 
 from dotenv import load_dotenv, set_key
 from fstrings import f
@@ -15,13 +16,35 @@ class EnvVars:
     def __init__(self, output):
         self.output = output
         self.loaded = False
-        self.args = Args()
-        self.current_command = self.args.get_current_command()
-        self.terse_commands = ['', 'azure', 'solution']
-        self.bypass_dotenv_load_commands = ['init', 'e2e', 'solution']
 
+        current_command = Args().get_current_command()
+        # for some commands we don't want to load dotenv
+        # TODO: temporary hack. A more grace solution would be a decorator on the command to indicate whether to bypass env
+        self.bypass_dotenv_load_commands = ['solution init', 'solution e2e', 'solution create', 'create', 'simulator stop', 'simulator modulecred']
+        self.bypass = self.is_bypass_command(current_command)
         # for some commands we don't want verbose dotenv load output
-        self.verbose = self.current_command not in self.terse_commands
+        self.terse_commands = ['', 'iothub setup']
+        self.verbose = not self.is_terse_command(current_command)
+
+    def clean(self):
+        """docker-py had py2 issues with shelling out to docker api if unicode characters are in any environment variable. This will convert to utf-8 if py2."""
+
+        if PY2:
+            environment = os.environ.copy()
+
+            clean_enviro = {}
+
+            for k in environment:
+                key = k
+                if isinstance(key, unicode):
+                    key = key.encode('utf-8')
+
+                if isinstance(environment[k], unicode):
+                    environment[k] = environment[k].encode('utf-8')
+
+                clean_enviro[key] = environment[k]
+
+            os.environ = clean_enviro
 
     def backup_dotenv(self):
         dotenv_file = self.get_dotenv_file()
@@ -54,7 +77,7 @@ class EnvVars:
     def get_dotenv_file(self):
         default_dotenv_file = ".env"
 
-        if not "DOTENV_FILE" in os.environ:
+        if "DOTENV_FILE" not in os.environ:
             return default_dotenv_file
         else:
             dotenv_file_from_environ = os.environ["DOTENV_FILE"].strip("\"").strip("'")
@@ -66,7 +89,7 @@ class EnvVars:
     def load(self, force=False):
 
         # for some commands we don't want to load dotenv
-        if self.current_command in self.bypass_dotenv_load_commands and not force:
+        if self.bypass and not force:
             return
 
         if not self.loaded or force:
@@ -78,7 +101,7 @@ class EnvVars:
             try:
                 try:
                     self.IOTHUB_CONNECTION_STRING = self.get_envvar("IOTHUB_CONNECTION_STRING")
-
+                    self.IOTHUB_CONNECTION_INFO = None;
                     if self.IOTHUB_CONNECTION_STRING:
                         self.IOTHUB_CONNECTION_INFO = IoTHubConnectionString(self.IOTHUB_CONNECTION_STRING)
 
@@ -89,7 +112,7 @@ class EnvVars:
 
                 try:
                     self.DEVICE_CONNECTION_STRING = self.get_envvar("DEVICE_CONNECTION_STRING")
-
+                    self.DEVICE_CONNECTION_INFO = None;
                     if self.DEVICE_CONNECTION_STRING:
                         self.DEVICE_CONNECTION_INFO = DeviceConnectionString(self.DEVICE_CONNECTION_STRING)
 
@@ -109,7 +132,7 @@ class EnvVars:
                 self.RUNTIME_CONFIG_DIR = self.get_envvar("RUNTIME_CONFIG_DIR", default=".")
                 if self.RUNTIME_CONFIG_DIR == ".":
                     self.set_envvar("RUNTIME_CONFIG_DIR", self.get_runtime_config_dir())
-                self.ACTIVE_MODULES = self.get_envvar("ACTIVE_MODULES")
+                self.BYPASS_MODULES = self.get_envvar("BYPASS_MODULES")
                 self.ACTIVE_DOCKER_PLATFORMS = self.get_envvar("ACTIVE_DOCKER_PLATFORMS", altkeys=["ACTIVE_DOCKER_ARCH"])
                 self.CONTAINER_REGISTRY_SERVER = self.get_envvar("CONTAINER_REGISTRY_SERVER")
                 self.CONTAINER_REGISTRY_USERNAME = self.get_envvar("CONTAINER_REGISTRY_USERNAME")
@@ -145,9 +168,12 @@ class EnvVars:
                     self.DOCKER_HOST = None
             except Exception as ex:
                 self.output.error(
-                    "Environment variables not configured correctly. Run `iotedgedev solution --create [name]` to create a new solution with sample .env file. Please see README for variable configuration options. Tip: You might just need to restart your command prompt to refresh your Environment Variables.")
+                    "Environment variables not configured correctly. Run `iotedgedev solution create` to create a new solution with sample .env file. "
+                    "Please see README for variable configuration options. Tip: You might just need to restart your command prompt to refresh your Environment Variables.")
                 self.output.error("Variable that caused exception: " + str(ex))
                 sys.exit(-1)
+
+        self.clean()
 
         self.loaded = True
 
@@ -224,3 +250,24 @@ class EnvVars:
     def is_posix(self):
         plat = platform.system().lower()
         return plat == "linux" or plat == "darwin"
+
+    def is_bypass_command(self, command):
+        return self.in_command_list(command, self.bypass_dotenv_load_commands)
+
+    def is_terse_command(self, command):
+        return self.in_command_list(command, self.terse_commands)
+
+    def in_command_list(self, command, command_list):
+        for cmd in command_list:
+            if cmd == '':
+                if command == '':
+                    return True
+                else:
+                    continue
+
+            if command.startswith(cmd):
+                if len(command) == len(cmd) or command[len(cmd)] == ' ':
+                    return True
+                else:
+                    continue
+        return False
