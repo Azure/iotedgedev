@@ -1,7 +1,7 @@
+import json
 import os
 import sys
 import zipfile
-from enum import Enum
 
 import docker
 
@@ -111,8 +111,9 @@ class Docker:
                 self.output.info("PUSHING IMAGE: '{0}'".format(
                     container_registry_image_name))
 
-                for line in self.docker_client.images.push(repository=container_registry_image_name, tag=self.envvars.RUNTIME_TAG, stream=True, auth_config={"username": default_cr.username, "password": default_cr.password}):
-                    self.output.procout(self.utility.decode(line).replace("\\u003e", ">"))
+                response = self.docker_client.images.push(repository=container_registry_image_name, tag=self.envvars.RUNTIME_TAG, stream=True, auth_config={
+                                                          "username": default_cr.username, "password": default_cr.password})
+                self.process_api_response(response)
                 self.output.info("SUCCESSFULLY PUSHED IMAGE: '{0}'".format(
                     container_registry_image_name))
             except docker.errors.APIError as e:
@@ -236,3 +237,18 @@ class Docker:
         zipf.close()
 
         self.output.info("Log files successfully saved to: " + zip_path)
+
+    def process_api_response(self, response):
+        for line in response:
+            decoded = self.utility.decode(line).replace('\\u003e', '>')
+            self.output.procout(decoded)
+            try:
+                decoded_json = json.loads(decoded)
+            except ValueError:
+                continue
+
+            # Docker SDK won't throw exceptions for some failures.
+            # We have to check the response ourselves.
+            # Related issue: https://github.com/docker/docker-py/issues/1772
+            if 'error' in decoded_json:
+                raise ValueError(decoded_json['error'])

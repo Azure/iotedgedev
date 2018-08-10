@@ -148,9 +148,10 @@ class Modules:
                         self.output.error("Could not find registry server with name {0}. Please make sure your envvar is set.".format(tag.split('/')[0].lower()))
                     self.output.info("module json reading {0}".format(tag))
 
-                    for line in self.dock.docker_client.images.push(repository=tag, stream=True, auth_config={
-                            "username": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].username, "password": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].password}):
-                        self.output.procout(self.utility.decode(line).replace("\\u003e", ">"))
+                    response = self.dock.docker_client.images.push(repository=tag, stream=True, auth_config={
+                        "username": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].username,
+                        "password": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].password})
+                    self.dock.process_api_response(response)
             self.output.footer("BUILD COMPLETE", suppress=no_build)
             self.output.footer("PUSH COMPLETE", suppress=no_push)
         self.utility.set_config(force=True, replacements=replacements)
