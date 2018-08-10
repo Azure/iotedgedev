@@ -265,11 +265,12 @@ class Docker:
             decoded = self.utility.decode(line).replace('\\u003e', '>')
             self.output.procout(decoded)
             try:
-                # Docker SDK won't throw exceptions for some failures.
-                # We have to check the response ourselves.
-                # Related issue: https://github.com/docker/docker-py/issues/1772
                 decoded_json = json.loads(decoded)
-                if 'error' in decoded_json:
-                    raise ValueError(decoded_json['error'])
-            except json.decoder.JSONDecodeError:
-                pass
+            except ValueError:
+                continue
+
+            # Docker SDK won't throw exceptions for some failures.
+            # We have to check the response ourselves.
+            # Related issue: https://github.com/docker/docker-py/issues/1772
+            if 'error' in decoded_json:
+                raise ValueError(decoded_json['error'])
