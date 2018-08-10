@@ -1,7 +1,6 @@
 import fnmatch
 import os
 import subprocess
-import sys
 from base64 import b64decode, b64encode
 from hashlib import sha256
 from hmac import HMAC
@@ -32,8 +31,7 @@ class Utility:
             self.output.procout(self.decode(stdout_data))
 
         if proc.returncode != 0:
-            self.output.error(self.decode(stderr_data))
-            sys.exit()
+            raise Exception(self.decode(stderr_data))
 
     def call_proc(self, params, shell=False, cwd=None):
         try:
@@ -47,8 +45,7 @@ class Utility:
         try:
             self.exe_proc(params, shell=shell, suppress_out=True)
         except FileNotFoundError:
-            self.output.error("{0} is required by the Azure IoT Edge Dev Tool. For installation instructions, see https://aka.ms/iotedgedevwiki.".format(description))
-            sys.exit(-1)
+            raise FileNotFoundError("{0} is required by the Azure IoT Edge Dev Tool. For installation instructions, see https://aka.ms/iotedgedevwiki.".format(description))
 
     def is_dir_empty(self, name):
         if os.path.exists(name):
@@ -135,9 +132,7 @@ class Utility:
             config_files = self.get_config_files()
 
             if len(config_files) == 0:
-                self.output.info(
-                    "Unable to find config files in solution root directory")
-                sys.exit()
+                raise FileNotFoundError("Unable to find config files in solution root directory")
 
             # Expand envars and rewrite to config/
             for config_file in config_files:
