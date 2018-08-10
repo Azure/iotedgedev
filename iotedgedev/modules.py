@@ -143,9 +143,10 @@ class Modules:
                     # PUSH TO CONTAINER REGISTRY
                     self.output.info("PUSHING DOCKER IMAGE: " + tag)
 
-                    for line in docker.docker_client.images.push(repository=tag, stream=True, auth_config={
-                            "username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD}):
-                        self.output.procout(self.utility.decode(line).replace("\\u003e", ">"))
+                    response = docker.docker_client.images.push(repository=tag, stream=True, auth_config={
+                        "username": self.envvars.CONTAINER_REGISTRY_USERNAME,
+                        "password": self.envvars.CONTAINER_REGISTRY_PASSWORD})
+                    self.dock.process_api_response(response)
             self.output.footer("BUILD COMPLETE", suppress=no_build)
             self.output.footer("PUSH COMPLETE", suppress=no_push)
         self.utility.set_config(force=True, replacements=replacements)
