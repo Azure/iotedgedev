@@ -2,8 +2,6 @@
 This module provides interfaces to interact with dotnet CLI
 """
 
-import sys
-
 
 class DotNet:
     def __init__(self, envvars, output, utility):
@@ -32,18 +30,3 @@ class DotNet:
         cmd = "dotnet new aziotedgefunction -n {0} -r {1}".format(name, repo)
         self.output.header(cmd)
         self.utility.exe_proc(cmd.split(), cwd=cwd)
-
-    def build_module(self, project_file):
-        if project_file is None or project_file == "":
-            return False
-
-        self.utility.exe_proc(["dotnet", "build", project_file, "-v", self.envvars.DOTNET_VERBOSITY])
-        return True
-
-    def publish_module(self, project_file):
-        if project_file is None or project_file == "":
-            return False
-
-        self.utility.exe_proc(["dotnet", "publish", project_file, "-f", "netcoreapp2.0",
-                               "-v", self.envvars.DOTNET_VERBOSITY])
-        return True

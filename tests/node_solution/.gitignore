@@ -1,8 +1,0 @@
-**/.vs
-**/bin
-**/obj
-**/out
-build
-.env
-venv
-logs
