@@ -17,6 +17,7 @@ def test_firsttime(request):
     request.addfinalizer(clean)
 
     clean()
+    config = Config()
 
     assert config.get(config.DEFAULT_DIRECT, config.FIRSTTIME_SECTION) == 'yes'
     assert config.get(config.DEFAULT_DIRECT, config.TELEMETRY_SECTION) is None
