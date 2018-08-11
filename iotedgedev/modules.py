@@ -139,10 +139,19 @@ class Modules:
 
                     # PUSH TO CONTAINER REGISTRY
                     self.output.info("PUSHING DOCKER IMAGE: " + tag)
+                    registry_key = None
+                    for key, registry in self.envvars.CONTAINER_REGISTRY_MAP.items():
+                        #Split the repository tag in the module.json (ex: Localhost:5000/filtermodule)
+                        if registry.server.lower() == tag.split('/')[0].lower():
+                            registry_key = key
+                            break
+                    if registry_key is None:
+                        self.output.error("Could not find registry server with name {0}. Please make sure your envvar is set.".format(tag.split('/')[0].lower()))
+                    self.output.info("module json reading {0}".format(tag))
 
                     response = docker.docker_client.images.push(repository=tag, stream=True, auth_config={
-                        "username": self.envvars.CONTAINER_REGISTRY_USERNAME,
-                        "password": self.envvars.CONTAINER_REGISTRY_PASSWORD})
+                        "username": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].username,
+                        "password": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].password})
                     docker.process_api_response(response)
             self.output.footer("BUILD COMPLETE", suppress=no_build)
             self.output.footer("PUSH COMPLETE", suppress=no_push)
