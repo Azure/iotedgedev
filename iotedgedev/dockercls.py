@@ -28,20 +28,22 @@ class Docker:
 
     def init_registry(self):
 
-        self.output.header("INITIALIZING CONTAINER REGISTRY")
-        self.output.info("REGISTRY: " + self.envvars.CONTAINER_REGISTRY_SERVER)
+        for registry in self.envvars.CONTAINER_REGISTRY_MAP.values():
+            self.output.header("INITIALIZING CONTAINER REGISTRY")
+            self.output.info("REGISTRY: " + registry.server)
 
-        if "localhost" in self.envvars.CONTAINER_REGISTRY_SERVER:
-            self.init_local_registry()
+            if "localhost" in registry.server:
+                self.init_local_registry(registry.server)
 
         self.output.line()
 
-    def init_local_registry(self):
+    def init_local_registry(self, local_server):
 
-        parts = self.envvars.CONTAINER_REGISTRY_SERVER.split(":")
+        parts = local_server.split(":")
 
         if len(parts) < 2:
-            self.output.error("You must specific a port for your local registry server. Expected: 'localhost:5000'. Found: " + self.envvars.CONTAINER_REGISTRY_SERVER)
+            self.output.error("You must specific a port for your local registry server. Expected: 'localhost:5000'. Found: " +
+                              local_server)
             sys.exit()
 
         port = parts[1]
@@ -66,36 +68,12 @@ class Docker:
             self.output.info("Running registry container")
             self.docker_client.containers.run("registry:2", detach=True, name="registry", ports=ports, restart_policy={"Name": "always"})
 
-    def login_registry(self):
-        try:
-
-            if "localhost" in self.envvars.CONTAINER_REGISTRY_SERVER:
-                client_login_status = self.docker_client.login(self.envvars.CONTAINER_REGISTRY_SERVER)
-                api_login_status = self.docker_api.login(self.envvars.CONTAINER_REGISTRY_SERVER)
-            else:
-
-                client_login_status = self.docker_client.login(registry=self.envvars.CONTAINER_REGISTRY_SERVER,
-                                                               username=self.envvars.CONTAINER_REGISTRY_USERNAME,
-                                                               password=self.envvars.CONTAINER_REGISTRY_PASSWORD)
-
-                api_login_status = self.docker_api.login(registry=self.envvars.CONTAINER_REGISTRY_SERVER,
-                                                         username=self.envvars.CONTAINER_REGISTRY_USERNAME,
-                                                         password=self.envvars.CONTAINER_REGISTRY_PASSWORD)
-
-            self.output.info("Successfully logged into container registry: " + self.envvars.CONTAINER_REGISTRY_SERVER)
-
-        except Exception as ex:
-            self.output.error(
-                "Could not login to Container Registry. 1. Make sure Docker is running locally. 2. Verify your credentials in CONTAINER_REGISTRY_ environment variables. "
-                "3. If you are using WSL, then please set DOCKER_HOST Environment Variable. See the Azure IoT Edge Dev readme at https://aka.ms/iotedgedev for full instructions.")
-            self.output.error(str(ex))
-            sys.exit(-1)
-
     def setup_registry(self):
         self.output.header("SETTING UP CONTAINER REGISTRY")
         self.init_registry()
         self.output.info("PUSHING EDGE IMAGES TO CONTAINER REGISTRY")
         image_names = ["azureiotedge-agent", "azureiotedge-hub", "azureiotedge-simulated-temperature-sensor"]
+        default_cr = self.envvars.CONTAINER_REGISTRY_MAP['']
 
         for image_name in image_names:
 
@@ -103,7 +81,7 @@ class Docker:
                 image_name, self.envvars.RUNTIME_TAG)
 
             container_registry_image_name = "{0}/{1}:{2}".format(
-                self.envvars.CONTAINER_REGISTRY_SERVER, image_name, self.envvars.RUNTIME_TAG)
+                default_cr.server, image_name, self.envvars.RUNTIME_TAG)
 
             # Pull image from Microsoft Docker Hub
             try:
@@ -134,7 +112,7 @@ class Docker:
                     container_registry_image_name))
 
                 response = self.docker_client.images.push(repository=container_registry_image_name, tag=self.envvars.RUNTIME_TAG, stream=True, auth_config={
-                                                          "username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD})
+                                                          "username": default_cr.username, "password": default_cr.password})
                 self.process_api_response(response)
                 self.output.info("SUCCESSFULLY PUSHED IMAGE: '{0}'".format(
                     container_registry_image_name))
