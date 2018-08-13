@@ -1,9 +1,5 @@
 # Running Azure IoT Edge in a container
 
-## Notes
-
-The following procedure has been tested on Windows 10 machine only. To avoid unexpected application crashes, run everything from Powershell prompts.
-
 ## Usage
 
 ### Build docker image
@@ -22,7 +18,7 @@ Execute the `run-container.ps1` file. A container named `iotedgec` will be creat
 
 The deamon will use the default ip address assigned by Docker to the container (most probably will be 172.17.0.2). The discovery is automatically done in the `rund.sh` script. If you have changed your Docker network configuration this script may not work as expected, as it looks specifically for `eth0`.
 
-### Use IoT Edge tool
+### Use IoT Edge CLI
 
 Once the container is running, open another console and from there you can use 
 
