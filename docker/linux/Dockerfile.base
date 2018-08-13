@@ -1,0 +1,38 @@
+FROM ubuntu:18.04
+ENV DEBIAN_FRONTEND noninteractive
+ENV DOTNETCORESDK_VERSION 2.1.200
+ENV DOCKER_COMPOSE_VERSION 1.22.0
+RUN apt-get update
+RUN apt-get install gnupg gnupg2 gnupg1 -y && \
+    apt-get install -y --no-install-recommends dialog apt-utils curl apt-transport-https python-pip python3-pip libltdl-dev docker.io && \ 
+    curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
+    apt-get install -y nodejs 
+RUN apt-get install -y wget && \
+    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.asc.gpg && \
+    mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/ && \
+    wget -q https://packages.microsoft.com/config/ubuntu/18.04/prod.list && \
+    mv prod.list /etc/apt/sources.list.d/microsoft-prod.list && \
+    apt-get install -y apt-transport-https && \
+    apt-get update && \
+    apt-get install -y dotnet-sdk-$DOTNETCORESDK_VERSION
+RUN curl -L https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose && \
+    chmod +x /usr/local/bin/docker-compose
+RUN AZ_REPO=$(lsb_release -cs) && \
+    echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | \
+    tee /etc/apt/sources.list.d/azure-cli.list && \
+    apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893 && \   
+    apt-get update && apt-get install azure-cli
+RUN az extension add --name azure-cli-iot-ext && \
+    npm i npm@latest -g && \
+    npm i -g iothub-explorer && npm i -g tree-kill && \
+    apt-get install -y --no-install-recommends python-dev build-essential libssl-dev libffi-dev libxml2-dev libxslt1-dev zlib1g-dev && \
+    rm -rf /var/lib/apt/lists/*
+RUN python -m pip install --upgrade pip && \
+    alias python=python3 && \
+    alias pip=pip3 && \
+    python -m pip install --upgrade pip && \
+    pip install setuptools 
+WORKDIR /home/iotedge
+COPY install-dev.sh /scripts/install-dev.sh
+RUN sed -i 's/\r//' /scripts/install-dev.sh
+ENV DEBIAN_FRONTEND teletype

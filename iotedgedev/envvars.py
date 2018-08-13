@@ -10,6 +10,7 @@ from fstrings import f
 
 from .args import Args
 from .connectionstring import DeviceConnectionString, IoTHubConnectionString
+from .containerregistry import ContainerRegistry
 
 
 class EnvVars:
@@ -120,6 +121,8 @@ class EnvVars:
                     self.output.error("Unable to parse DEVICE_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set.")
                     self.output.error(str(ex))
                     sys.exit(-1)
+                
+                self.get_registries()
 
                 self.RUNTIME_HOST_NAME = self.get_envvar("RUNTIME_HOST_NAME", default=".")
                 if self.RUNTIME_HOST_NAME == ".":
@@ -134,9 +137,6 @@ class EnvVars:
                     self.set_envvar("RUNTIME_CONFIG_DIR", self.get_runtime_config_dir())
                 self.BYPASS_MODULES = self.get_envvar("BYPASS_MODULES")
                 self.ACTIVE_DOCKER_PLATFORMS = self.get_envvar("ACTIVE_DOCKER_PLATFORMS", altkeys=["ACTIVE_DOCKER_ARCH"])
-                self.CONTAINER_REGISTRY_SERVER = self.get_envvar("CONTAINER_REGISTRY_SERVER")
-                self.CONTAINER_REGISTRY_USERNAME = self.get_envvar("CONTAINER_REGISTRY_USERNAME")
-                self.CONTAINER_REGISTRY_PASSWORD = self.get_envvar("CONTAINER_REGISTRY_PASSWORD")
                 self.CONTAINER_TAG = self.get_envvar("CONTAINER_TAG")
                 self.RUNTIME_TAG = self.get_envvar("RUNTIME_TAG")
                 self.RUNTIME_VERBOSITY = self.get_envvar("RUNTIME_VERBOSITY")
@@ -234,6 +234,35 @@ class EnvVars:
         except Exception:
             self.output.error(f("Could not update the environment variable {key} in file {dotenv_path}"))
             sys.exit(-1)
+
+    def get_registries(self):
+        registries = {}
+        self.CONTAINER_REGISTRY_MAP = {}
+        length_container_registry_server = len('container_registry_server')
+        length_container_registry_username_or_password = len('container_registry_username')
+        length_container_registry = len('container_registry_')
+        # loops through .env file for key matching container_registry_server, container_registry_username, container_registry_password
+        for key in os.environ:
+            key = key.upper()
+            # get token for container_registry_server key
+            if key.startswith('CONTAINER_REGISTRY_SERVER'):
+                token = key[length_container_registry_server:]
+                # if the token doesn't already exist as an item in the dictionary, add it. if it does, add the server value
+                if token not in registries:
+                    registries[token] = {'username': '', 'password': ''}
+                registries[token]['server'] = self.get_envvar(key, required=True)
+            # get token for container_registry_username or container_registry_password key and get subkey (username or password)
+            elif key.startswith(('CONTAINER_REGISTRY_USERNAME', 'CONTAINER_REGISTRY_PASSWORD')):
+                token = key[length_container_registry_username_or_password:]
+                subkey = key[length_container_registry:length_container_registry_username_or_password]
+                # if the token doesn't already exist as an item in the dictionary, add it. if it does, add the subkey(username/password) value
+                if token not in registries:
+                    registries[token] = {'username': '', 'password': ''}
+                registries[token][subkey] = self.get_envvar(key)
+
+        # store parsed values as a dicitonary of containerregistry objects
+        for key, value in registries.items():               
+            self.CONTAINER_REGISTRY_MAP[key] = ContainerRegistry(value['server'], value['username'], value['password'])
 
     def get_runtime_home_dir(self):
         if self.is_posix():
