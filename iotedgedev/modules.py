@@ -7,6 +7,7 @@ from .dockercls import Docker
 from .dotnet import DotNet
 from .module import Module
 from .utility import Utility
+from .buildoptions import BuildOptions
 
 
 class Modules:
@@ -121,8 +122,9 @@ class Modules:
 
                 # BUILD DOCKER IMAGE
                 if not no_build:
-                    # TODO: apply build options
-                    build_options = self.filter_build_options(tag_build_options_map.get(tag, None))
+                    build_options = tag_build_options_map.get(tag, None)
+                    build_options_parser = BuildOptions(build_options)
+                    sdk_options = build_options_parser.parse_build_options()
 
                     context_path = os.path.abspath(os.path.join(self.envvars.MODULES_PATH, module))
                     dockerfile_relative = os.path.relpath(dockerfile, context_path)
@@ -131,7 +133,7 @@ class Modules:
                         dockerfile = dockerfile.replace("\\", "/")
                         dockerfile_relative = dockerfile_relative.replace("\\", "/")
 
-                    build_result = self.dock.docker_client.images.build(tag=tag, path=context_path, dockerfile=dockerfile_relative)
+                    build_result = self.dock.docker_client.images.build(tag=tag, path=context_path, dockerfile=dockerfile_relative, **sdk_options)
 
                     self.output.info("DOCKER IMAGE DETAILS: {0}".format(build_result))
 
@@ -155,18 +157,3 @@ class Modules:
             self.output.footer("BUILD COMPLETE", suppress=no_build)
             self.output.footer("PUSH COMPLETE", suppress=no_push)
         self.utility.set_config(force=True, replacements=replacements)
-
-    @staticmethod
-    def filter_build_options(build_options):
-        """Remove build options which will be ignored"""
-        if build_options is None:
-            return None
-
-        filtered_build_options = []
-        for build_option in build_options:
-            build_option = build_option.strip()
-            parsed_option = re.compile(r"\s+").split(build_option)
-            if parsed_option and ["--rm", "--tag", "-t", "--file", "-f"].index(parsed_option[0]) < 0:
-                filtered_build_options.append(build_option)
-
-        return filtered_build_options

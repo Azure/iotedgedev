@@ -98,13 +98,33 @@ cli_sdk_mapping = {
 }
 
 
-def parse_build_options(build_options):
-    sdk_options = {}
-    for build_option in build_options:
-        cli_key, cli_val = split_build_option(build_option)
-        if cli_key not in cli_sdk_mapping:
-            raise KeyError('Not supported build option.')
-        sdk_key = cli_sdk_mapping[cli_key][0]
-        parse_func = cli_sdk_mapping[cli_key][1]
-        parse_func(sdk_options, sdk_key, cli_val)
-    return sdk_options
+class BuildOptions(object):
+    def __init__(self, build_options):
+        self.build_options = build_options
+        self.sdk_options = {}
+
+    def filter_build_options(self, build_options):
+        """Remove build options which will be ignored"""
+        if build_options is None:
+            return None
+
+        filtered_build_options = []
+        for build_option in build_options:
+            build_option = build_option.strip()
+            parsed_option = re.compile(r"\s+").split(build_option)
+            if parsed_option and parsed_option[0] not in ["--rm", "--tag", "-t", "--file", "-f"]:
+                filtered_build_options.append(build_option)
+
+        return filtered_build_options
+
+    def parse_build_options(self):
+        """Parse build options to python SDK"""
+        filtered_build_options = self.filter_build_options(self.build_options)
+        for build_option in filtered_build_options:
+            cli_key, cli_val = split_build_option(build_option)
+            if cli_key not in cli_sdk_mapping:
+                raise KeyError('Not supported build option.')
+            sdk_key = cli_sdk_mapping[cli_key][0]
+            parse_func = cli_sdk_mapping[cli_key][1]
+            parse_func(self.sdk_options, sdk_key, cli_val)
+        return self.sdk_options

@@ -1,7 +1,19 @@
 import pytest
-from iotedgedev.buildoptions import parse_build_options
+from iotedgedev.buildoptions import BuildOptions
 
 pytestmark = pytest.mark.unit
+
+
+def test_filter_build_options():
+    build_options = [
+        "--rm",
+        "-f test",
+        "--file test",
+        "-t image",
+        "--tag image",
+    ]
+    build_options_parser = BuildOptions(build_options)
+    assert build_options_parser.filter_build_options(build_options) == []
 
 
 def test_parse_build_options():
@@ -25,9 +37,6 @@ def test_parse_build_options():
             'github.com': '192.30.255.112',
             'ports.ubuntu.com': '91.189.88.150'
         },
-        'rm': True,
-        'dockerfile': 'test',
-        'tag': 'image',
         'buildargs': {
             'a': 'b',
             'c': 'd'
@@ -38,4 +47,5 @@ def test_parse_build_options():
         },
         'cache_from': ['a', 'b']
     }
-    assert sdk_options == parse_build_options(build_options)
+    build_options_parser = BuildOptions(build_options)
+    assert sdk_options == build_options_parser.parse_build_options()
