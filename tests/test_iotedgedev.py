@@ -183,18 +183,17 @@ def test_monitor(request, capfd):
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['monitor', '--timeout', '2'])
+    result = runner.invoke(cli.main, ['monitor', '--timeout', '5'])
     out, err = capfd.readouterr()
     print(out)
     print(err)
     print(result.output)
 
-    if PY35:
-        assert 'Starting event monitor' in out
-    else:
+    if not PY35:
         assert 'Monitoring events from device' in out
+    else:
+        assert not err
 
-    
 
 # @pytest.fixture
 # def test_stop(request):
