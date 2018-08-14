@@ -15,7 +15,7 @@ class IoTHub:
         self.envvars.verify_envvar_has_val("IOTHUB_CONNECTION_STRING", self.envvars.IOTHUB_CONNECTION_STRING)
         self.envvars.verify_envvar_has_val("DEVICE_CONNECTION_STRING", self.envvars.DEVICE_CONNECTION_STRING)
 
-        if timeout == None:
+        if not timeout:
             timeout = 0
 
         self.output.header("MONITOR EVENTS")
@@ -42,4 +42,7 @@ class IoTHub:
             self.output.error(str(ex))
 
     def monitor_events_cli(self, timeout=0):
-        self.azure_cli.monitor_events(self.envvars.DEVICE_CONNECTION_INFO.DeviceId, self.envvars.IOTHUB_CONNECTION_INFO.ConnectionString, self.envvars.IOTHUB_CONNECTION_INFO.HubName, timeout)
+        self.azure_cli.monitor_events(self.envvars.DEVICE_CONNECTION_INFO.DeviceId,
+                                      self.envvars.IOTHUB_CONNECTION_INFO.ConnectionString,
+                                      self.envvars.IOTHUB_CONNECTION_INFO.HubName,
+                                      timeout)

@@ -38,18 +38,29 @@ class AzureCli:
             if timeout:
                 timeout = int(timeout)
 
+            monitor_events = False
+            if 'monitor-events' in args:
+                monitor_events = True
+
             # Consider using functools
-            if stdout_io or stderr_io:
+            if monitor_events:
                 process = subprocess.Popen(self.prepare_az_cli_args(args, suppress_output),
-                                           stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                            shell=not self.is_posix(),
-                                           preexec_fn=os.setsid if self.is_posix() and 'monitor-events' in args else None)
+                                           preexec_fn=os.setsid if self.is_posix() else None,
+                                           creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if not self.is_posix() else 0)
+            elif stdout_io or stderr_io:
+                process = subprocess.Popen(self.prepare_az_cli_args(args, suppress_output),
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE,
+                                           shell=not self.is_posix())
             else:
                 process = subprocess.Popen(self.prepare_az_cli_args(args, suppress_output),
-                                           shell=not self.is_posix(),
-                                           preexec_fn=os.setsid if self.is_posix() and 'monitor-events' in args else None)
+                                           shell=not self.is_posix())
 
-            stdout_data, stderr_data = process.communicate(timeout=timeout)
+            if timeout:
+                stdout_data, stderr_data = process.communicate(timeout=timeout)
+            else:
+                stdout_data, stderr_data = process.communicate()
 
             if stderr_data and b"invalid_grant" in stderr_data:
                 self.output.error(self.decode(stderr_data))
@@ -72,26 +83,21 @@ class AzureCli:
 
             if not stdout_io and not stderr_io:
                 self.output.line()
-        except subprocess.TimeoutExpired:
-            try:
-                # Suppress sys.excepthook errors from things like C extension forced deallocation
-                _eh = sys.excepthook
-                sys.excepthook = lambda type, value, traceback: 0
+        except Exception as e:
+            if hasattr(e, 'timeout') and isinstance(e, subprocess.TimeoutExpired):
                 if self.is_posix():
                     os.killpg(os.getpgid(process.pid), signal.SIGTERM)
                 else:
-                    os.kill(process.pid, signal.CTRL_C_EVENT)
+                    process.send_signal(signal.CTRL_BREAK_EVENT)
                     process.kill()
-            finally:
-                sys.excepthook = _eh
 
-            if timeout:
-                self.output.info("Timeout set to {0} seconds, which expired as expected.".format(timeout))
-                self.output.line()
-                return True
-            else:
-                raise
-        except Exception as e:
+                if timeout:
+                    self.output.info("Timeout set to {0} seconds, which expired as expected.".format(timeout))
+                    self.output.line()
+                    return True
+                else:
+                    raise
+
             if error_message:
                 self.output.error(error_message)
             self.output.error(str(e))
@@ -269,11 +275,12 @@ class AzureCli:
 
     def set_modules(self, device_id, connection_string, hub_name, config):
         self.output.status(f("Deploying '{config}' to '{device_id}'..."))
+        config = os.path.join(os.getcwd(), config)
 
         return self.invoke_az_cli_outproc(["iot", "edge", "set-modules", "-d", device_id, "-n", hub_name, "-k", config, "-l", connection_string], error_message=f("Failed to deploy '{config}' to '{device_id}'..."), suppress_output=True)
 
     def monitor_events(self, device_id, connection_string, hub_name, timeout=300):
-        return self.invoke_az_cli_outproc(["iot", "hub", "monitor-events", "-d", device_id, "-n", hub_name, "-l", connection_string, '-t', str(timeout)], error_message=f("Failed to start monitoring events."), suppress_output=False, timeout=timeout)
+        return self.invoke_az_cli_outproc(["iot", "hub", "monitor-events", "-d", device_id, "-n", hub_name, "-l", connection_string, '-t', str(timeout), '-y'], error_message=f("Failed to start monitoring events."), suppress_output=False, timeout=timeout)
 
     def get_free_iothub(self):
         with output_io_cls() as io:
