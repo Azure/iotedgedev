@@ -94,6 +94,7 @@ node_modules
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+!.vscode/snippets/
 
 # rope
 .vscode/.ropeproject/
