@@ -3,12 +3,12 @@ import platform
 import socket
 import sys
 from shutil import copyfile
-from .compat import PY2
 
 from dotenv import load_dotenv, set_key
 from fstrings import f
 
 from .args import Args
+from .compat import PY2
 from .connectionstring import DeviceConnectionString, IoTHubConnectionString
 from .containerregistry import ContainerRegistry
 
@@ -117,7 +117,7 @@ class EnvVars:
 
                 except Exception as ex:
                     raise ValueError("Unable to parse DEVICE_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set. {0}".format(str(ex)))
-                
+
                 self.get_registries()
 
                 self.RUNTIME_HOST_NAME = self.get_envvar("RUNTIME_HOST_NAME", default=".")
@@ -255,7 +255,7 @@ class EnvVars:
                 registries[token][subkey] = self.get_envvar(key)
 
         # store parsed values as a dicitonary of containerregistry objects
-        for key, value in registries.items():               
+        for key, value in registries.items():
             self.CONTAINER_REGISTRY_MAP[key] = ContainerRegistry(value['server'], value['username'], value['password'])
 
     def get_runtime_home_dir(self):
