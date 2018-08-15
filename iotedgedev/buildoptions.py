@@ -26,7 +26,16 @@ def parse_container_limits(sdk_options, sdk_key, build_option_val):
 
 
 def parse_flag(sdk_options, sdk_key, build_option_val):
-    sdk_options[sdk_key] = True
+    if not build_option_val:
+        sdk_options[sdk_key] = True
+    else:
+        build_option_val = build_option_val.lower()
+        if build_option_val == 'true':
+            sdk_options[sdk_key] = True
+        elif build_option_val == 'false':
+            sdk_options[sdk_key] = False
+        else:
+            raise ValueError("Bool value should be 'True' or 'False'.")
 
 
 def split_build_option(build_option_str):
@@ -69,7 +78,7 @@ cli_sdk_mapping = {
     # '--cpu-quota' : ['sdk_key', parse_func],
     '--cpu-shares': ['cpushares', parse_container_limits],
     '-c': ['cpushares', parse_container_limits],
-    '--cpuset-cpus	': ['cpusetcpus', parse_container_limits],
+    '--cpuset-cpus': ['cpusetcpus', parse_container_limits],
     # '--cpuset-mems' : ['sdk_key', parse_func],
     # '--disable-content-trust' : ['sdk_key', parse_func],
     '--file': ['dockerfile', parse_val],
@@ -85,7 +94,7 @@ cli_sdk_mapping = {
     '--platform': ['platform', parse_val],
     '--pull': ['pull', parse_flag],
     '--quiet': ['quiet', parse_flag],
-    '-q': ['quiet', parse_val],
+    '-q': ['quiet', parse_flag],
     '--rm': ['rm', parse_flag],
     # '--security-opt' : ['sdk_key', parse_func],
     '--shm-size': ['shmsize', parse_val],
@@ -123,7 +132,7 @@ class BuildOptions(object):
         for build_option in filtered_build_options:
             cli_key, cli_val = split_build_option(build_option)
             if cli_key not in cli_sdk_mapping:
-                raise KeyError('Not supported build option.')
+                raise KeyError('Not supported build option {0}.'.format(cli_key))
             sdk_key = cli_sdk_mapping[cli_key][0]
             parse_func = cli_sdk_mapping[cli_key][1]
             parse_func(self.sdk_options, sdk_key, cli_val)
