@@ -68,6 +68,9 @@ def split_kv(kvpair):
         return kvpair, ''
 
 
+# Mapping docker build cli command to docker python sdk.
+# Format: cli_key : [sdk_key, parse_func]
+# The commented items are cli build options not supported in python sdk.
 cli_sdk_mapping = {
     '--add-host': ['extra_hosts', functools.partial(parse_to_dict, split_host)],
     '--build-arg': ['buildargs', functools.partial(parse_to_dict, split_arg)],
@@ -105,6 +108,8 @@ cli_sdk_mapping = {
     '--target': ['target', parse_val],
     # '--ulimit' : ['sdk_key', parse_func]
 }
+
+# Class BuildOptions parse docker cli build commands to python sdk dict.
 
 
 class BuildOptions(object):
