@@ -254,7 +254,7 @@ class EnvVars:
                     registries[token] = {'username': '', 'password': ''}
                 registries[token][subkey] = self.get_envvar(key)
 
-        # store parsed values as a dicitonary of containerregistry objects
+        # store parsed values as a dictionary of containerregistry objects
         for key, value in registries.items():
             self.CONTAINER_REGISTRY_MAP[key] = ContainerRegistry(value['server'], value['username'], value['password'])
 

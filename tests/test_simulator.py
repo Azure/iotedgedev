@@ -100,14 +100,14 @@ def test_start_solution(capfd):
 def test_monitor(capfd):
     cli = __import__('iotedgedev.cli', fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['monitor', '--timeout', '10'])
+    result = runner.invoke(cli.main, ['monitor', '--timeout', '20'])
     out, err = capfd.readouterr()
     print(out)
     print(err)
     print(result.output)
 
-    if PY35:
-        assert 'Starting event monitor' in out
-    else:
+    if not PY35:
         assert 'Monitoring events from device' in out
+    else:
+        assert not err
     assert 'timeCreated' in out
