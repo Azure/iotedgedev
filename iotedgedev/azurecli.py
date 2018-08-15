@@ -1,12 +1,13 @@
-import sys
+import json
 import os
 import signal
 import subprocess
-import json
-
+import sys
 from io import StringIO
+
 from azure.cli.core import get_default_cli
 from fstrings import f
+
 output_io_cls = StringIO
 
 

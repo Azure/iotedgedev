@@ -1,5 +1,4 @@
 import fnmatch
-import json
 import os
 import subprocess
 import sys
@@ -47,7 +46,7 @@ class Utility:
     def check_dependency(self, params, description, shell=False):
         try:
             self.exe_proc(params, shell=shell, suppress_out=True)
-        except:
+        except FileNotFoundError:
             self.output.error("{0} is required by the Azure IoT Edge Dev Tool. For installation instructions, see https://aka.ms/iotedgedevwiki.".format(description))
             sys.exit(-1)
 
