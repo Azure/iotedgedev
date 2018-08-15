@@ -3,7 +3,7 @@ class ConnectionString:
         self.ConnectionString = value
         self.data = dict()
 
-        if self.ConnectionString: 
+        if self.ConnectionString:
             parts = self.ConnectionString.split(';')
             if len(parts) > 0:
                 for part in parts:

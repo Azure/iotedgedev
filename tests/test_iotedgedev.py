@@ -5,8 +5,8 @@ import shutil
 import pytest
 from click.testing import CliRunner
 from dotenv import load_dotenv
-from iotedgedev.compat import PY35
 
+from iotedgedev.compat import PY35
 from iotedgedev.connectionstring import (DeviceConnectionString,
                                          IoTHubConnectionString)
 
@@ -164,49 +164,22 @@ def test_deploy_modules(request):
     assert 'DEPLOYMENT COMPLETE' in result.output
 
 
-# @pytest.fixture
-# def test_start_runtime(request):
-
-#     os.chdir(test_solution_dir)
-
-#     cli = __import__("iotedgedev.cli", fromlist=['main'])
-#     runner = CliRunner()
-#     result = runner.invoke(cli.main, ['start'])
-#     print(result.output)
-
-#     assert 'Runtime started' in result.output
-
-
 def test_monitor(request, capfd):
 
     os.chdir(test_solution_dir)
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['monitor', '--timeout', '2'])
+    result = runner.invoke(cli.main, ['monitor', '--timeout', '5'])
     out, err = capfd.readouterr()
     print(out)
     print(err)
     print(result.output)
 
-    if PY35:
-        assert 'Starting event monitor' in out
-    else:
+    if not PY35:
         assert 'Monitoring events from device' in out
-
-    
-
-# @pytest.fixture
-# def test_stop(request):
-
-#     os.chdir(test_solution_dir)
-
-#     cli = __import__("iotedgedev.cli", fromlist=['main'])
-#     runner = CliRunner()
-#     result = runner.invoke(cli.main, ['stop'])
-#     print(result.output)
-
-#     assert 'Runtime stopped' in result.output
+    else:
+        assert not err
 
 
 def test_e2e(test_push_modules, test_deploy_modules):
