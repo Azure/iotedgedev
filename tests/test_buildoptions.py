@@ -10,10 +10,10 @@ def test_filter_build_options():
         "-f test",
         "--file test",
         "-t image",
-        "--tag image",
+        "--tag image"
     ]
     build_options_parser = BuildOptions(build_options)
-    assert build_options_parser.filter_build_options(build_options) == []
+    assert not build_options_parser.filter_build_options(build_options)
 
 
 def test_parse_build_options():
@@ -49,3 +49,15 @@ def test_parse_build_options():
     }
     build_options_parser = BuildOptions(build_options)
     assert sdk_options == build_options_parser.parse_build_options()
+
+
+def test_invalid_build_options():
+    with pytest.raises(KeyError):
+        build_options = [
+            "--cgroup-parent",
+            "--compress",
+            "--cpu-period",
+            "--cpuset-mems 10",
+        ]
+        build_options_parser = BuildOptions(build_options)
+        build_options_parser.parse_build_options()
