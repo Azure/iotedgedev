@@ -10,11 +10,17 @@ from iotedgedev.compat import PY35
 from iotedgedev.connectionstring import (DeviceConnectionString,
                                          IoTHubConnectionString)
 
+from iotedgedev.envvars import EnvVars
+from iotedgedev.output import Output
+
 pytestmark = pytest.mark.e2e
 
 root_dir = os.getcwd()
 tests_dir = os.path.join(root_dir, "tests")
-env_file = os.path.join(root_dir, ".env")
+envvars = EnvVars(Output())
+env_file_name = envvars.get_dotenv_file()
+env_file_path = envvars.get_dotenv_path(env_file_name)
+
 test_solution = "test_solution"
 test_solution_dir = os.path.join(tests_dir, test_solution)
 
@@ -33,7 +39,8 @@ def create_solution(request):
     print(result.output)
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
 
-    shutil.copyfile(env_file, os.path.join(test_solution_dir, '.env'))
+    shutil.copyfile(env_file_path, os.path.join(test_solution_dir, env_file_name))
+
     os.chdir(test_solution_dir)
 
     def clean():
@@ -187,7 +194,8 @@ def test_e2e(test_push_modules, test_deploy_modules):
 
 
 def test_valid_env_iothub_connectionstring():
-    load_dotenv(".env")
+    envvars.load_dotenv()
+
     env_iothub_connectionstring = os.getenv("IOTHUB_CONNECTION_STRING")
     connectionstring = IoTHubConnectionString(env_iothub_connectionstring)
     assert connectionstring.HostName
@@ -197,30 +205,13 @@ def test_valid_env_iothub_connectionstring():
 
 
 def test_valid_env_device_connectionstring():
-    load_dotenv(".env")
+    envvars.load_dotenv()
     env_device_connectionstring = os.getenv("DEVICE_CONNECTION_STRING")
     connectionstring = DeviceConnectionString(env_device_connectionstring)
     assert connectionstring.HostName
     assert connectionstring.HubName
     assert connectionstring.SharedAccessKey
     assert connectionstring.DeviceId
-
-
-'''
-def test_load_no_dotenv():
-
-    dotenv_file = ".env.nofile"
-    os.environ["DOTENV_FILE"] = dotenv_file
-
-    # cli_inst =
-    # runner = CliRunner()
-    # result = runner.invoke(cli.main, ['--set-config'])
-    # print result.output
-    # assert result.exit_code == 0
-    # assert '.env.test file not found on disk.' in result.output
-    # assert 'PROCESSING' in result.output
-'''
-
 
 def add_module_and_verify(main, runner, template):
     module_name = template + "module"
