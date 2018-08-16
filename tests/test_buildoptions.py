@@ -13,7 +13,7 @@ def test_filter_build_options():
         "--tag image"
     ]
     build_options_parser = BuildOptions(build_options)
-    assert not build_options_parser.filter_build_options(build_options)
+    assert not build_options_parser.parse_build_options()
 
 
 def test_parse_to_dict():
@@ -77,7 +77,7 @@ def test_parse_container_limits():
         "--cpu-shares 50",
         "--cpuset-cpus 0-1",
         "--memory 10000000",
-        "--memory-swap 2000000",
+        "--memory-swap 2000000"
     ]
     sdk_options = {
         'container_limits': {
@@ -116,3 +116,40 @@ def test_invalid_build_options():
         ]
         build_options_parser = BuildOptions(build_options)
         build_options_parser.parse_build_options()
+
+
+def test_filtered_valid_build_options():
+    build_options = [
+        "--rm",
+        "--file test",
+        "--tag image",
+        "--add-host=github.com:192.30.255.112",
+        "--add-host=ports.ubuntu.com:91.189.88.150",
+        "--cache-from a",
+        "--cache-from b",
+        "--network bridge",
+        "--platform Linux",
+        "--cpu-shares 50",
+        "--memory 10000000",
+        "--pull=true",
+        "-q=false",
+        "--no-cache"
+    ]
+    sdk_options = {
+        'extra_hosts': {
+            'github.com': '192.30.255.112',
+            'ports.ubuntu.com': '91.189.88.150'
+        },
+        'cache_from': ['a', 'b'],
+        'network_mode': 'bridge',
+        'platform': 'Linux',
+        'container_limits': {
+            'cpushares': '50',
+            'memory': '10000000',
+        },
+        'pull': True,
+        'quiet': False,
+        'nocache': True
+    }
+    build_options_parser = BuildOptions(build_options)
+    assert sdk_options == build_options_parser.parse_build_options()

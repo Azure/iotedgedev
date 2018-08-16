@@ -1,5 +1,6 @@
 import functools
 import re
+from .output import Output
 
 
 def parse_to_dict(split_func, sdk_options, sdk_key, build_option_val):
@@ -105,7 +106,7 @@ cli_sdk_mapping = {
     # '--stream' : ['sdk_key', parse_func],
     '--tag': ['tag', parse_val],
     '-t': ['tag', parse_val],
-    '--target': ['target', parse_val],
+    '--target': ['target', parse_val]
     # '--ulimit' : ['sdk_key', parse_func]
 }
 
@@ -113,29 +114,34 @@ cli_sdk_mapping = {
 
 
 class BuildOptions(object):
+    filter_set = ["--rm", "--tag", "-t", "--file", "-f"]
+
     def __init__(self, build_options):
         self.build_options = build_options
+        self.output = Output()
         self.sdk_options = {}
 
-    def filter_build_options(self, build_options):
+    def _filter_build_options(self):
         """Remove build options which will be ignored"""
-        if build_options is None:
+        if self.build_options is None:
             return None
 
         filtered_build_options = []
-        for build_option in build_options:
+        for build_option in self.build_options:
             build_option = build_option.strip()
-            parsed_option = re.compile(r"\s+").split(build_option)
-            if parsed_option and parsed_option[0] not in ["--rm", "--tag", "-t", "--file", "-f"]:
-                filtered_build_options.append(build_option)
+            cli_key, cli_val = split_build_option(build_option)
+            if cli_key:
+                if cli_key not in BuildOptions.filter_set:
+                    filtered_build_options.append((cli_key, cli_val))
+                else:
+                    self.output.info('Build option {0} will be ignored.'.format(cli_key))
 
         return filtered_build_options
 
     def parse_build_options(self):
         """Parse build options to python SDK"""
-        filtered_build_options = self.filter_build_options(self.build_options)
-        for build_option in filtered_build_options:
-            cli_key, cli_val = split_build_option(build_option)
+        filtered_build_options = self._filter_build_options()
+        for cli_key, cli_val in filtered_build_options:
             if cli_key not in cli_sdk_mapping:
                 raise KeyError('Not supported build option {0}.'.format(cli_key))
             sdk_key = cli_sdk_mapping[cli_key][0]
