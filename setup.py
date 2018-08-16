@@ -4,9 +4,10 @@
 """The setup script."""
 import atexit
 from subprocess import check_call
-from setuptools import setup, find_packages
-from setuptools.command.install import install
+
+from setuptools import find_packages, setup
 from setuptools.command.develop import develop
+from setuptools.command.install import install
 
 
 def _execute():

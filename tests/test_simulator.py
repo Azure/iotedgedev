@@ -5,12 +5,17 @@ import pytest
 from click.testing import CliRunner
 
 from iotedgedev.compat import PY35
+from iotedgedev.envvars import EnvVars
+from iotedgedev.output import Output
 
 pytestmark = pytest.mark.e2e
 
 root_dir = os.getcwd()
 tests_dir = os.path.join(root_dir, 'tests')
-env_file = os.path.join(root_dir, '.env')
+envvars = EnvVars(Output())
+env_file_name = envvars.get_dotenv_file()
+env_file_path = envvars.get_dotenv_path(env_file_name)
+
 test_solution = 'test_solution'
 test_solution_dir = os.path.join(tests_dir, test_solution)
 
@@ -26,7 +31,7 @@ def create_solution(request):
 
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
 
-    shutil.copyfile(env_file, os.path.join(test_solution_dir, '.env'))
+    shutil.copyfile(env_file_path, os.path.join(test_solution_dir, env_file_name))
     os.chdir(test_solution_dir)
 
     def clean():

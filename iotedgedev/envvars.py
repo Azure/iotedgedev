@@ -49,7 +49,7 @@ class EnvVars:
 
     def backup_dotenv(self):
         dotenv_file = self.get_dotenv_file()
-        dotenv_path = os.path.join(os.getcwd(), dotenv_file)
+        dotenv_path = self.get_dotenv_file_path(dotenv_file)
         dotenv_backup_path = dotenv_path + ".backup"
         try:
             copyfile(dotenv_path, dotenv_backup_path)
@@ -62,7 +62,7 @@ class EnvVars:
 
     def load_dotenv(self):
         dotenv_file = self.get_dotenv_file()
-        dotenv_path = os.path.join(os.getcwd(), dotenv_file)
+        dotenv_path = self.get_dotenv_path(dotenv_file)
 
         try:
             if os.path.exists(dotenv_path):
@@ -86,6 +86,12 @@ class EnvVars:
                 return dotenv_file_from_environ
 
         return default_dotenv_file
+
+    def get_dotenv_path(self, dotenv_file):
+        return os.path.join(os.getcwd(), dotenv_file)
+
+    def get_dotenv_file_path(self):
+        return self.get_dotenv_path(self.get_dotenv_file())
 
     def load(self, force=False):
 
