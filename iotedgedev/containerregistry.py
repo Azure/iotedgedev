@@ -3,5 +3,3 @@ class ContainerRegistry:
         self.server = server
         self.username = username
         self.password = password
-
-    
