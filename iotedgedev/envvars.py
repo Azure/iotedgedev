@@ -108,7 +108,7 @@ class EnvVars:
             try:
                 try:
                     self.IOTHUB_CONNECTION_STRING = self.get_envvar("IOTHUB_CONNECTION_STRING")
-                    self.IOTHUB_CONNECTION_INFO = None;
+                    self.IOTHUB_CONNECTION_INFO = None
                     if self.IOTHUB_CONNECTION_STRING:
                         self.IOTHUB_CONNECTION_INFO = IoTHubConnectionString(self.IOTHUB_CONNECTION_STRING)
 
@@ -119,7 +119,7 @@ class EnvVars:
 
                 try:
                     self.DEVICE_CONNECTION_STRING = self.get_envvar("DEVICE_CONNECTION_STRING")
-                    self.DEVICE_CONNECTION_INFO = None;
+                    self.DEVICE_CONNECTION_INFO = None
                     if self.DEVICE_CONNECTION_STRING:
                         self.DEVICE_CONNECTION_INFO = DeviceConnectionString(self.DEVICE_CONNECTION_STRING)
 
@@ -127,37 +127,20 @@ class EnvVars:
                     self.output.error("Unable to parse DEVICE_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set.")
                     self.output.error(str(ex))
                     sys.exit(-1)
-                
+
                 self.get_registries()
 
-                self.RUNTIME_HOST_NAME = self.get_envvar("RUNTIME_HOST_NAME", default=".")
-                if self.RUNTIME_HOST_NAME == ".":
-                    self.set_envvar("RUNTIME_HOST_NAME", socket.gethostname())
-
-                self.RUNTIME_HOME_DIR = self.get_envvar("RUNTIME_HOME_DIR", default=".")
-                if self.RUNTIME_HOME_DIR == ".":
-                    self.set_envvar("RUNTIME_HOME_DIR", self.get_runtime_home_dir())
-
-                self.RUNTIME_CONFIG_DIR = self.get_envvar("RUNTIME_CONFIG_DIR", default=".")
-                if self.RUNTIME_CONFIG_DIR == ".":
-                    self.set_envvar("RUNTIME_CONFIG_DIR", self.get_runtime_config_dir())
                 self.BYPASS_MODULES = self.get_envvar("BYPASS_MODULES")
                 self.ACTIVE_DOCKER_PLATFORMS = self.get_envvar("ACTIVE_DOCKER_PLATFORMS", altkeys=["ACTIVE_DOCKER_ARCH"])
                 self.CONTAINER_TAG = self.get_envvar("CONTAINER_TAG")
                 self.RUNTIME_TAG = self.get_envvar("RUNTIME_TAG")
-                self.RUNTIME_VERBOSITY = self.get_envvar("RUNTIME_VERBOSITY")
-                self.RUNTIME_LOG_LEVEL = self.get_envvar("RUNTIME_LOG_LEVEL", default="info")
                 self.CONFIG_OUTPUT_DIR = self.get_envvar("CONFIG_OUTPUT_DIR", default="config")
                 self.DEPLOYMENT_CONFIG_FILE = self.get_envvar("DEPLOYMENT_CONFIG_FILE", altkeys=['MODULES_CONFIG_FILE'])
                 self.DEPLOYMENT_CONFIG_FILE_PATH = os.path.join(self.CONFIG_OUTPUT_DIR, self.DEPLOYMENT_CONFIG_FILE)
                 self.DEPLOYMENT_CONFIG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", default="deployment.template.json")
-                self.RUNTIME_CONFIG_FILE = self.get_envvar("RUNTIME_CONFIG_FILE")
-                self.RUNTIME_CONFIG_FILE_PATH = os.path.join(self.CONFIG_OUTPUT_DIR, self.RUNTIME_CONFIG_FILE)
                 self.LOGS_PATH = self.get_envvar("LOGS_PATH")
                 self.MODULES_PATH = self.get_envvar("MODULES_PATH")
-                self.IOT_REST_API_VERSION = self.get_envvar("IOT_REST_API_VERSION")
                 self.DOTNET_VERBOSITY = self.get_envvar("DOTNET_VERBOSITY")
-                self.DOTNET_EXE_DIR = self.get_envvar("DOTNET_EXE_DIR")
                 self.LOGS_CMD = self.get_envvar("LOGS_CMD")
                 self.SUBSCRIPTION_ID = self.get_envvar("SUBSCRIPTION_ID")
                 self.RESOURCE_GROUP_NAME = self.get_envvar("RESOURCE_GROUP_NAME")
@@ -267,20 +250,8 @@ class EnvVars:
                 registries[token][subkey] = self.get_envvar(key)
 
         # store parsed values as a dicitonary of containerregistry objects
-        for key, value in registries.items():               
+        for key, value in registries.items():
             self.CONTAINER_REGISTRY_MAP[key] = ContainerRegistry(value['server'], value['username'], value['password'])
-
-    def get_runtime_home_dir(self):
-        if self.is_posix():
-            return "/var/lib/azure-iot-edge"
-        else:
-            return os.environ["PROGRAMDATA"].replace("\\", "\\\\") + "\\\\azure-iot-edge\\\data"
-
-    def get_runtime_config_dir(self):
-        if self.is_posix():
-            return "/etc/azure-iot-edge"
-        else:
-            return os.environ["PROGRAMDATA"].replace("\\", "\\\\") + "\\\\azure-iot-edge\\\\config"
 
     def is_posix(self):
         plat = platform.system().lower()
