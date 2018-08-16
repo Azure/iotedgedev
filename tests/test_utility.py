@@ -6,7 +6,7 @@ from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 from iotedgedev.utility import Utility
 
-from .utility import assert_json_file_equal
+from .utility import assert_list_equal, assert_file_equal, assert_json_file_equal
 
 pytestmark = pytest.mark.unit
 
@@ -14,6 +14,7 @@ tests_dir = os.path.join(os.getcwd(), "tests")
 test_assets_dir = os.path.join(tests_dir, "assets")
 test_file_1 = os.path.join(test_assets_dir, "deployment.template_1.json")
 test_file_2 = os.path.join(test_assets_dir, "deployment.template_2.json")
+test_file_4 = os.path.join(test_assets_dir, "deployment.template_4.json")
 
 
 @pytest.fixture
@@ -22,6 +23,31 @@ def utility():
     envvars = EnvVars(output)
     envvars.load()
     return Utility(envvars, output)
+
+
+def test_ensure_dir(request, utility):
+    before_ensure = os.listdir(tests_dir)
+    utility.ensure_dir(test_assets_dir)
+    after_ensure = os.listdir(tests_dir)
+    assert_list_equal(before_ensure, after_ensure)
+
+    new_dir = "new_dir"
+    utility.ensure_dir(new_dir)
+    assert os.path.exists(new_dir)
+
+    def clean():
+        if os.path.exists(new_dir):
+            os.rmdir(new_dir)
+    request.addfinalizer(clean)
+
+
+def test_copy_from_template_dir(utility, tmpdir):
+    src_file = "deployment.template.json"
+    dest_dir = tmpdir.strpath
+    print(dest_dir)
+    dest_file = tmpdir.join(src_file).strpath
+    utility.copy_from_template_dir(src_file, dest_dir, replacements={"%MODULE%": "filtermodule"})
+    assert_file_equal(dest_file, test_file_4)
 
 
 def test_copy_template(utility, tmpdir):

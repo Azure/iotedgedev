@@ -196,8 +196,8 @@ class Docker:
     def handle_logs_cmd(self, show, save):
 
         # Create LOGS_PATH dir if it doesn't exist
-        if save and not os.path.exists(self.envvars.LOGS_PATH):
-            os.makedirs(self.envvars.LOGS_PATH)
+        if save:
+            self.utility.ensure_dir(self.envvars.LOGS_PATH)
 
         modules_in_config = self.utility.get_modules_in_config(ModuleType.Both)
 
