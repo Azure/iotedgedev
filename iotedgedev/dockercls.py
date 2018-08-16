@@ -77,13 +77,13 @@ class Docker:
 
         for image_name in image_names:
 
-            microsoft_image_name = "microsoft/{0}:{1}".format(
+            microsoft_image_name = "mcr.microsoft.com/{0}:{1}".format(
                 image_name, self.envvars.RUNTIME_TAG)
 
             container_registry_image_name = "{0}/{1}:{2}".format(
                 default_cr.server, image_name, self.envvars.RUNTIME_TAG)
 
-            # Pull image from Microsoft Docker Hub
+            # Pull image from MCR
             try:
                 self.output.info(
                     "PULLING IMAGE: '{0}'".format(microsoft_image_name))
@@ -99,7 +99,7 @@ class Docker:
 
             # Tagging Image with Container Registry Name
             try:
-                tag_result = self.docker_api.tag(
+                self.docker_api.tag(
                     image=microsoft_image_name, repository=container_registry_image_name)
             except docker.errors.APIError as e:
                 self.output.error(
