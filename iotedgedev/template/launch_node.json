@@ -1,0 +1,36 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "%MODULE% Remote Debug (Node.js)",
+            "type": "node",
+            "request": "attach",
+            "port": 9229,
+            "address": "localhost",
+            "localRoot": "${workspaceRoot}/modules/%MODULE_FOLDER%",
+            "remoteRoot": "/app",
+            "protocol": "inspector"
+        },
+        {
+          "name": "%MODULE% Remote Debug (Node.js in Windows Container)",
+          "type": "node",
+          "request": "attach",
+          "port": 9229,
+          "address": "localhost",
+          "localRoot": "${workspaceRoot}/modules/%MODULE_FOLDER%",
+          "remoteRoot": "C:\\app",
+          "protocol": "inspector"
+        },
+        {
+            "name": "%MODULE% Local Debug (Node.js)",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/modules/%MODULE_FOLDER%/app.js",
+            "console": "integratedTerminal",
+            "env": {
+                "EdgeHubConnectionString": "${config:azure-iot-edge.EdgeHubConnectionString}",
+                "EdgeModuleCACertificateFile": "${config:azure-iot-edge.EdgeModuleCACertificateFile}"
+            }
+        }
+    ]
+  }

@@ -4,14 +4,14 @@ import shutil
 
 import pytest
 from click.testing import CliRunner
-from dotenv import load_dotenv
 
 from iotedgedev.compat import PY35
 from iotedgedev.connectionstring import (DeviceConnectionString,
                                          IoTHubConnectionString)
-
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
+
+from .utility import assert_json_file_equal
 
 pytestmark = pytest.mark.e2e
 
@@ -23,6 +23,7 @@ env_file_path = envvars.get_dotenv_path(env_file_name)
 
 test_solution = "test_solution"
 test_solution_dir = os.path.join(tests_dir, test_solution)
+launch_json_file = os.path.join(tests_dir, "assets", "launch.json")
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -120,6 +121,8 @@ def test_module_add():
     add_module_and_verify(cli.main, runner, "python")
     add_module_and_verify(cli.main, runner, "csharpfunction")
 
+    assert_json_file_equal(os.path.join(os.getcwd(), ".vscode", "launch.json"), launch_json_file)
+
 
 def test_module_add_invalid_name():
     """Test the addmodule command with invalid module name"""
@@ -171,22 +174,22 @@ def test_deploy_modules(request):
     assert 'DEPLOYMENT COMPLETE' in result.output
 
 
-def test_monitor(request, capfd):
+# def test_monitor(request, capfd):
 
-    os.chdir(test_solution_dir)
+#     os.chdir(test_solution_dir)
 
-    cli = __import__("iotedgedev.cli", fromlist=['main'])
-    runner = CliRunner()
-    result = runner.invoke(cli.main, ['monitor', '--timeout', '5'])
-    out, err = capfd.readouterr()
-    print(out)
-    print(err)
-    print(result.output)
+#     cli = __import__("iotedgedev.cli", fromlist=['main'])
+#     runner = CliRunner()
+#     result = runner.invoke(cli.main, ['monitor', '--timeout', '5'])
+#     out, err = capfd.readouterr()
+#     print(out)
+#     print(err)
+#     print(result.output)
 
-    if not PY35:
-        assert 'Monitoring events from device' in out
-    else:
-        assert not err
+#     if not PY35:
+#         assert 'Monitoring events from device' in out
+#     else:
+#         assert not err
 
 
 def test_e2e(test_push_modules, test_deploy_modules):
@@ -212,6 +215,7 @@ def test_valid_env_device_connectionstring():
     assert connectionstring.HubName
     assert connectionstring.SharedAccessKey
     assert connectionstring.DeviceId
+
 
 def add_module_and_verify(main, runner, template):
     module_name = template + "module"
