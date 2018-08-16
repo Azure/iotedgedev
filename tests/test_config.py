@@ -2,13 +2,13 @@ import os
 
 import pytest
 
-from iotedgedev.config import Config
+from iotedgedev.telemetryconfig import TelemetryConfig
 
 pytestmark = pytest.mark.unit
 
 
 def test_firsttime(request):
-    config = Config()
+    config = TelemetryConfig()
 
     def clean():
         config_path = config.get_config_path()
@@ -17,7 +17,7 @@ def test_firsttime(request):
     request.addfinalizer(clean)
 
     clean()
-    config = Config()
+    config = TelemetryConfig()
 
     assert config.get(config.DEFAULT_DIRECT, config.FIRSTTIME_SECTION) == 'yes'
     assert config.get(config.DEFAULT_DIRECT, config.TELEMETRY_SECTION) is None

@@ -7,9 +7,9 @@ def with_telemetry(func):
     @wraps(func)
     def _wrapper(*args, **kwargs):
         from . import telemetry
-        from .config import Config
+        from .telemetryconfig import TelemetryConfig
 
-        config = Config()
+        config = TelemetryConfig()
         config.check_firsttime()
         params = parse_params(*args, **kwargs)
         telemetry.start(func.__name__, params)

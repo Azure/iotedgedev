@@ -17,7 +17,7 @@ You can change your telemetry settings by updating '{0}' to 'no' in {1}
 """
 
 
-class Config(object):
+class TelemetryConfig(object):
     DEFAULT_DIRECT = 'DEFAULT'
     FIRSTTIME_SECTION = 'firsttime'
     TELEMETRY_SECTION = 'collect_telemetry'

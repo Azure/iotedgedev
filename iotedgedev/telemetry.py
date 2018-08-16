@@ -9,7 +9,7 @@ from collections import defaultdict
 from functools import wraps
 
 from . import telemetryuploader
-from .config import Config
+from .telemetryconfig import TelemetryConfig
 from .decorators import hash256_result, suppress_all_exceptions
 
 PRODUCT_NAME = 'iotedgedev'
@@ -78,7 +78,7 @@ _session = TelemetrySession()
 def _user_agrees_to_telemetry(func):
     @wraps(func)
     def _wrapper(*args, **kwargs):
-        config = Config()
+        config = TelemetryConfig()
         if not config.get_boolean(config.DEFAULT_DIRECT, config.TELEMETRY_SECTION):
             return None
         return func(*args, **kwargs)
