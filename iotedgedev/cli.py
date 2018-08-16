@@ -4,6 +4,7 @@ from __future__ import absolute_import
 
 import hashlib
 import os
+import socket
 import sys
 
 import click
@@ -17,7 +18,7 @@ from .iothub import IoTHub
 from .modules import Modules
 from .organizedgroup import OrganizedGroup
 from .output import Output
-from .runtime import Runtime
+from .simulator import Simulator
 from .solution import Solution
 from .utility import Utility
 
@@ -40,11 +41,6 @@ def main():
 
 @main.group(context_settings=CONTEXT_SETTINGS, help="Manage IoT Edge solutions", order=1)
 def solution():
-    pass
-
-
-@main.group(context_settings=CONTEXT_SETTINGS, help="Manage IoT Edge runtime", order=1)
-def runtime():
     pass
 
 
@@ -116,7 +112,6 @@ def e2e(ctx):
     envvars.load(force=True)
     ctx.invoke(push)
     ctx.invoke(deploy)
-    ctx.invoke(start_runtime)
     ctx.invoke(monitor)
 
 
@@ -197,8 +192,7 @@ main.add_command(push)
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Deploy solution to IoT Edge device")
 def deploy():
-    utility = Utility(envvars, output)
-    edge = Edge(envvars, utility, output, azure_cli)
+    edge = Edge(envvars, output, azure_cli)
     edge.deploy()
 
 
@@ -217,81 +211,100 @@ def genconfig():
 main.add_command(genconfig)
 
 
-@runtime.command(context_settings=CONTEXT_SETTINGS,
-                 name="start",
-                 help="Start IoT Edge runtime")
-def start_runtime():
-    utility = Utility(envvars, output)
-    dock = Docker(envvars, utility, output)
-    run = Runtime(envvars, utility, output, dock)
-
-    run.start()
-
-
-@runtime.command(context_settings=CONTEXT_SETTINGS,
-                 name="restart",
-                 help="Restart IoT Edge runtime")
-def restart_runtime():
-    utility = Utility(envvars, output)
-    dock = Docker(envvars, utility, output)
-    run = Runtime(envvars, utility, output, dock)
-
-    run.restart()
+@simulator.command(context_settings=CONTEXT_SETTINGS,
+                   name="setup",
+                   short_help="Setup IoT Edge simulator. This must be done before starting",
+                   help="Setup IoT Edge simulator. This must be done before starting")
+@click.option("--gateway-host",
+              "-g",
+              help="GatewayHostName value for the module to connect.",
+              required=False,
+              default=socket.getfqdn(),
+              show_default=True)
+def setup_simulator(gateway_host):
+    sim = Simulator(envvars, output)
+    sim.setup(gateway_host)
 
 
-@runtime.command(context_settings=CONTEXT_SETTINGS,
-                 name="stop",
-                 help="Stop IoT Edge runtime")
-def stop_runtime():
-    utility = Utility(envvars, output)
-    dock = Docker(envvars, utility, output)
-    run = Runtime(envvars, utility, output, dock)
-
-    run.stop()
-
-
-@runtime.command(context_settings=CONTEXT_SETTINGS,
-                 name="status",
-                 help="Show IoT Edge runtime status")
-def status_runtime():
-    utility = Utility(envvars, output)
-    dock = Docker(envvars, utility, output)
-    run = Runtime(envvars, utility, output, dock)
-
-    run.status()
+main.add_command(setup_simulator)
 
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
                    name="start",
-                   help="Start IoT Edge simulator")
-def start_simulator():
-    utility = Utility(envvars, output)
-    dock = Docker(envvars, utility, output)
-    run = Runtime(envvars, utility, output, dock)
+                   short_help="Start IoT Edge simulator",
+                   help="Start IoT Edge simulator. To start in solution mode, use `iotedgdev simulator start -s [-v] [-b]`. "
+                        "To start in single module mode, use `iotedgedev simulator start -i input1,input2 [-p 53000]`")
+@click.option("--solution",
+              "-s",
+              is_flag=True,
+              default=False,
+              show_default=True,
+              help="Start IoT Edge simulator in solution mode using the deployment.json in config folder.")
+@click.option("--verbose",
+              "-v",
+              required=False,
+              is_flag=True,
+              default=False,
+              show_default=True,
+              help="Show the solution container logs.")
+@click.option("--build",
+              "-b",
+              required=False,
+              is_flag=True,
+              default=False,
+              show_default=True,
+              help="Build the solution before starting IoT Edge simulator in solution mode.")
+@click.option("--inputs",
+              "-i",
+              required=False,
+              help="Start IoT Edge simulator in single module mode "
+                   "using the specified comma-separated inputs of the target module, e.g., `input1,input2`.")
+@click.option("--port",
+              "-p",
+              required=False,
+              default=53000,
+              show_default=True,
+              help="Port of the service for sending message.")
+def start_simulator(solution, build, verbose, inputs, port):
+    sim = Simulator(envvars, output)
+    if solution or not inputs:
+        sim.start_solution(verbose, build)
+    else:
+        sim.start_single(inputs, port)
 
-    run.start()
 
-
-@simulator.command(context_settings=CONTEXT_SETTINGS,
-                   name="restart",
-                   help="Restart IoT Edge simulator")
-def restart_simulator():
-    utility = Utility(envvars, output)
-    dock = Docker(envvars, utility, output)
-    run = Runtime(envvars, utility, output, dock)
-
-    run.restart()
+main.add_command(start_simulator)
 
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
                    name="stop",
                    help="Stop IoT Edge simulator")
 def stop_simulator():
-    utility = Utility(envvars, output)
-    dock = Docker(envvars, utility, output)
-    run = Runtime(envvars, utility, output, dock)
+    sim = Simulator(envvars, output)
+    sim.stop()
 
-    run.stop()
+
+main.add_command(stop_simulator)
+
+
+@simulator.command(context_settings=CONTEXT_SETTINGS,
+                   # short_help hack to prevent Click truncating help text (https://github.com/pallets/click/issues/486)
+                   short_help="Get the credentials of target module such as connection string and certificate file path.",
+                   help="Get the credentials of target module such as connection string and certificate file path.")
+@click.option("--local",
+              "-l",
+              help="Set `localhost` to `GatewayHostName` for module to run on host natively.",
+              is_flag=True,
+              required=False,
+              default=False,
+              show_default=True)
+@click.option("--output-file",
+              "-o",
+              help="Specify the output file to save the credentials. If the file exists, its content will be overwritten.",
+              required=False)
+def modulecred(local, output_file):
+    sim = Simulator(envvars, output)
+    sim.modulecred(local, output_file)
 
 
 @iothub.command(context_settings=CONTEXT_SETTINGS,
@@ -301,7 +314,7 @@ def stop_simulator():
 @click.option("--timeout",
               "-t",
               required=False,
-              help="Specify number of milliseconds to monitor for messages")
+              help="Specify number of seconds to monitor for messages")
 def monitor(timeout):
     utility = Utility(envvars, output)
     ih = IoTHub(envvars, utility, output, azure_cli)
@@ -375,7 +388,8 @@ def validate_option(ctx, param, value):
             if envvars.IOTHUB_SKU == "F1":
                 free_iot_name, free_iot_rg = azure_cli.get_free_iothub()
                 if free_iot_name:
-                    output.info("You already have a Free IoT Hub SKU in your subscription, so you must either use that existing IoT Hub or create a new S1 IoT Hub. "
+                    output.info("You already have a Free IoT Hub SKU in your subscription, "
+                                "so you must either use that existing IoT Hub or create a new S1 IoT Hub. "
                                 "Enter (F) to use the existing Free IoT Hub or enter (S) to create a new S1 IoT Hub:")
                     user_response = sys.stdin.readline().strip().upper()
                     if user_response == "S":

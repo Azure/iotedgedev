@@ -12,10 +12,12 @@ from setuptools.command.develop import develop
 def _execute():
     check_call("pip install azure-cli --no-deps".split())
 
+
 class PostInstall(install):
     def run(self):
         atexit.register(_execute)
         install.run(self)
+
 
 class PostDevelop(develop):
     def run(self):
@@ -41,7 +43,8 @@ requirements = [
     'azure-cli-extension',
     'azure-cli-configure',
     'azure-cli-resource',
-    'azure-cli-cloud'
+    'azure-cli-cloud',
+    'iotedgehubdev'
 ]
 
 setup_requirements = [
@@ -54,7 +57,8 @@ test_requirements = [
 setup(
     name='iotedgedev',
     version='0.81.0',
-    description="The Azure IoT Edge Dev Tool greatly simplifies the IoT Edge development process by automating many routine manual tasks, such as building, deploying, pushing modules and configuring the IoT Edge Runtime.",
+    description="The Azure IoT Edge Dev Tool greatly simplifies the IoT Edge development process by automating many routine manual tasks, "
+                "such as building, deploying, pushing modules and configuring the IoT Edge Runtime.",
     long_description="See https://github.com/azure/iotedgedev for usage instructions.",
     author="Jon Gallant",
     author_email='info@jongallant.com',
