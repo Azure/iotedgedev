@@ -1,14 +1,13 @@
 import os
 import platform
-import socket
 import sys
 from shutil import copyfile
-from .compat import PY2
 
 from dotenv import load_dotenv, set_key
 from fstrings import f
 
 from .args import Args
+from .compat import PY2
 from .connectionstring import DeviceConnectionString, IoTHubConnectionString
 from .containerregistry import ContainerRegistry
 
