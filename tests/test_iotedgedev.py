@@ -174,22 +174,22 @@ def test_deploy_modules(request):
     assert 'DEPLOYMENT COMPLETE' in result.output
 
 
-# def test_monitor(request, capfd):
+def test_monitor(request, capfd):
 
-#     os.chdir(test_solution_dir)
+    os.chdir(test_solution_dir)
 
-#     cli = __import__("iotedgedev.cli", fromlist=['main'])
-#     runner = CliRunner()
-#     result = runner.invoke(cli.main, ['monitor', '--timeout', '5'])
-#     out, err = capfd.readouterr()
-#     print(out)
-#     print(err)
-#     print(result.output)
+    cli = __import__("iotedgedev.cli", fromlist=['main'])
+    runner = CliRunner()
+    result = runner.invoke(cli.main, ['monitor', '--timeout', '5'])
+    out, err = capfd.readouterr()
+    print(out)
+    print(err)
+    print(result.output)
 
-#     if not PY35:
-#         assert 'Monitoring events from device' in out
-#     else:
-#         assert not err
+    if not PY35:
+        assert 'Monitoring events from device' in out
+    else:
+        assert not err
 
 
 def test_e2e(test_push_modules, test_deploy_modules):
