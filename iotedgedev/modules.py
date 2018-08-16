@@ -135,7 +135,7 @@ class Modules:
                         dockerfile = dockerfile.replace("\\", "/")
                         dockerfile_relative = dockerfile_relative.replace("\\", "/")
 
-                    build_result = self.dock.docker_client.images.build(tag=tag, path=context_path, dockerfile=dockerfile_relative, **sdk_options)
+                    build_result = docker.docker_client.images.build(tag=tag, path=context_path, dockerfile=dockerfile_relative, **sdk_options)
 
                     self.output.info("DOCKER IMAGE DETAILS: {0}".format(build_result))
 
