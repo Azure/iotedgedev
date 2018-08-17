@@ -2,6 +2,8 @@ import os
 import re
 import sys
 
+import commentjson
+
 from .deploymentmanifest import DeploymentManifest
 from .dockercls import Docker
 from .dotnet import DotNet
@@ -20,8 +22,7 @@ class Modules:
         self.output.header("ADDING MODULE {0}".format(name))
 
         cwd = self.envvars.MODULES_PATH
-        if not os.path.exists(cwd):
-            os.makedirs(cwd)
+        self.utility.ensure_dir(cwd)
 
         if name.startswith("_") or name.endswith("_"):
             self.output.error("Module name cannot start or end with the symbol _")
@@ -41,10 +42,11 @@ class Modules:
             dotnet.install_module_template()
             dotnet.create_custom_module(name, repo, cwd)
         elif template == "nodejs":
-            self.utility.check_dependency("yo azure-iot-edge-module --help".split(), "To add new Node.js modules, the Yeoman tool and Azure IoT Edge Node.js module generator", shell=True)
+            self.utility.check_dependency("yo azure-iot-edge-module --help".split(), "To add new Node.js modules, the Yeoman tool and Azure IoT Edge Node.js module generator",
+                                          shell=not self.envvars.is_posix())
             cmd = "yo azure-iot-edge-module -n {0} -r {1}".format(name, repo)
             self.output.header(cmd)
-            self.utility.exe_proc(cmd.split(), shell=True, cwd=cwd)
+            self.utility.exe_proc(cmd.split(), shell=not self.envvars.is_posix(), cwd=cwd)
         elif template == "python":
             self.utility.check_dependency("cookiecutter --help".split(), "To add new Python modules, the Cookiecutter tool")
             github_source = "https://github.com/Azure/cookiecutter-azure-iot-edge-module"
@@ -59,6 +61,8 @@ class Modules:
 
         deployment_manifest.add_module_template(name)
         deployment_manifest.save()
+
+        self._update_launch_json(name, template)
 
         self.output.footer("ADD COMPLETE")
 
@@ -161,3 +165,49 @@ class Modules:
             self.output.footer("BUILD COMPLETE", suppress=no_build)
             self.output.footer("PUSH COMPLETE", suppress=no_push)
         self.utility.set_config(force=True, replacements=replacements)
+
+    def _update_launch_json(self, name, template):
+        new_launch_json = self._get_launch_json(name, template)
+        if new_launch_json is not None:
+            self._merge_launch_json(new_launch_json)
+
+    def _get_launch_json(self, name, template):
+        replacements = {}
+        replacements["%MODULE%"] = name
+        replacements["%MODULE_FOLDER%"] = name
+
+        launch_json_file = None
+        is_function = False
+        if template == "csharp":
+            launch_json_file = "launch_csharp.json"
+            replacements["%APP_FOLDER%"] = "/app"
+        elif template == "nodejs":
+            launch_json_file = "launch_node.json"
+        elif template == "csharpfunction":
+            launch_json_file = "launch_csharp.json"
+            replacements["%APP_FOLDER%"] = "/app"
+            is_function = True
+
+        if launch_json_file is not None:
+            launch_json_file = os.path.join(os.path.split(__file__)[0], "template", launch_json_file)
+            launch_json_content = self.utility.get_file_contents(launch_json_file)
+            for key, value in replacements.items():
+                launch_json_content = launch_json_content.replace(key, value)
+            launch_json = commentjson.loads(launch_json_content)
+            if is_function and launch_json is not None and "configurations" in launch_json:
+                # for Function modules, there shouldn't be launch config for local debug
+                launch_json["configurations"] = list(filter(lambda x: x["request"] != "launch", launch_json["configurations"]))
+            return launch_json
+
+    def _merge_launch_json(self, new_launch_json):
+        vscode_dir = os.path.join(os.getcwd(), ".vscode")
+        self.utility.ensure_dir(vscode_dir)
+        launch_json_file = os.path.join(vscode_dir, "launch.json")
+        if os.path.exists(launch_json_file):
+            launch_json = commentjson.loads(self.utility.get_file_contents(launch_json_file))
+            launch_json['configurations'].extend(new_launch_json['configurations'])
+            with open(launch_json_file, "w") as f:
+                commentjson.dump(launch_json, f, indent=2)
+        else:
+            with open(launch_json_file, "w") as f:
+                commentjson.dump(new_launch_json, f, indent=2)

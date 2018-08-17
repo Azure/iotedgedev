@@ -1,5 +1,4 @@
 import os
-import zipfile
 
 
 class Solution:
@@ -19,19 +18,11 @@ class Solution:
 
         self.output.header("CREATING AZURE IOT EDGE SOLUTION: {0}".format(name))
 
-        try:
-            template_zip = os.path.join(os.path.split(
-                __file__)[0], "template", "template.zip")
-        except Exception as ex:
-            self.output.error("Error while trying to load template.zip")
-            self.output.error(str(ex))
+        self.utility.ensure_dir(dir_path)
 
-        zipf = zipfile.ZipFile(template_zip)
-        zipf.extractall(name)
-
-        self.utility.copy_template(os.path.join(dir_path, "deployment.template.json"), None, {"%MODULE%": module}, False)
-
-        os.rename(os.path.join(name, ".env.tmp"), os.path.join(name, ".env"))
+        self.utility.copy_from_template_dir("deployment.template.json", dir_path, replacements={"%MODULE%": module})
+        self.utility.copy_from_template_dir(".gitignore", dir_path)
+        self.utility.copy_from_template_dir(".env.tmp", dir_path, dest_file=".env")
 
         mod_cmd = "iotedgedev solution add {0} --template {1}".format(module, template)
         self.output.header(mod_cmd)

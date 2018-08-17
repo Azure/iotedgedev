@@ -6,15 +6,15 @@ set -e
 # make sure we're in docker folder
 original_folder=$PWD
 
-if [ ! -z "$(echo $PWD | grep /docker$)" ]; then 
+if [ ! -z "$(echo $PWD | grep /docker/tool$)" ]; then 
     in_docker_folder=1
 else
     in_docker_folder=0
-    cd docker
+    cd docker/tool
 fi
 
 # read IoTEdgeDev version from python __init__ file
-export VERSION=$(cat ../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+export VERSION=$(cat ../../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
 
 PYTHON2="2.7.14" #TODO READ FROM deps.txt
 PYTHON3="3.6.5"
@@ -55,7 +55,7 @@ function build_linux
 
     rm iotedgedev-$VERSION-py2.py3-none-any.whl --force
     
-    cp ../../dist/iotedgedev-$VERSION-py2.py3-none-any.whl iotedgedev-$VERSION-py2.py3-none-any.whl
+    cp ../../../dist/iotedgedev-$VERSION-py2.py3-none-any.whl iotedgedev-$VERSION-py2.py3-none-any.whl
 
     docker build \
         -f Dockerfile.base \
@@ -84,7 +84,7 @@ function build_windows
 
     rm iotedgedev-$VERSION-py2.py3-none-any.whl --force
     
-    cp ../../dist/iotedgedev-$VERSION-py2.py3-none-any.whl iotedgedev-$VERSION-py2.py3-none-any.whl
+    cp ../../../dist/iotedgedev-$VERSION-py2.py3-none-any.whl iotedgedev-$VERSION-py2.py3-none-any.whl
 
     docker build \
         -f Dockerfile.base \

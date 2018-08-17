@@ -80,12 +80,12 @@ function run_twine
 
 function run_build_docker
 {
-    ./docker/build-docker.sh $PLATFORM
+    ./docker/tool/build-docker.sh $PLATFORM
 }
 
 function run_push_docker 
 {
-    ./docker/push-docker.sh $1 $2
+    ./docker/tool/push-docker.sh $1 $2
 }
 
 
