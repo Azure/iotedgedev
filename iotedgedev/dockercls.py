@@ -42,9 +42,7 @@ class Docker:
         parts = local_server.split(":")
 
         if len(parts) < 2:
-            self.output.error("You must specific a port for your local registry server. Expected: 'localhost:5000'. Found: " +
-                              local_server)
-            sys.exit()
+            raise ValueError("You must specific a port for your local registry server. Expected: 'localhost:5000'. Found: " + local_server)
 
         port = parts[1]
         ports = {'{0}/tcp'.format(port): int(port)}

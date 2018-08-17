@@ -11,6 +11,7 @@ import click
 from fstrings import f
 
 from .azurecli import AzureCli
+from .decorators import with_telemetry
 from .dockercls import Docker
 from .edge import Edge
 from .envvars import EnvVars
@@ -35,26 +36,31 @@ azure_cli_processing_complete = False
 
 @click.group(context_settings=CONTEXT_SETTINGS, cls=OrganizedGroup)
 @click.version_option()
+@with_telemetry
 def main():
     pass
 
 
 @main.group(context_settings=CONTEXT_SETTINGS, help="Manage IoT Edge solutions", order=1)
+@with_telemetry
 def solution():
     pass
 
 
 @main.group(context_settings=CONTEXT_SETTINGS, help="Manage IoT Edge simulator", order=1)
+@with_telemetry
 def simulator():
     pass
 
 
 @main.group(context_settings=CONTEXT_SETTINGS, help="Manage IoT Hub and IoT Edge devices", order=1)
+@with_telemetry
 def iothub():
     pass
 
 
 @main.group(context_settings=CONTEXT_SETTINGS, help="Manage Docker", order=1)
+@with_telemetry
 def docker():
     pass
 
@@ -78,6 +84,7 @@ def docker():
               required=False,
               type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]),
               help="Specify the template used to create the default module")
+@with_telemetry
 def create(name, module, template):
     utility = Utility(envvars, output)
     sol = Solution(output, utility)
@@ -91,6 +98,7 @@ main.add_command(create)
                   help="Create a new IoT Edge solution and provision Azure resources",
                   # hack to prevent Click truncating help messages
                   short_help="Create a new IoT Edge solution and provision Azure resources")
+@with_telemetry
 def init():
     utility = Utility(envvars, output)
 
@@ -107,6 +115,7 @@ def init():
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Push, deploy, start, monitor")
 @click.pass_context
+@with_telemetry
 def e2e(ctx):
     ctx.invoke(init)
     envvars.load(force=True)
@@ -127,6 +136,7 @@ def e2e(ctx):
               default="csharp",
               show_default=True,
               help="Specify the template used to create the new module")
+@with_telemetry
 def add(name, template):
     mod = Modules(envvars, output)
     mod.add(name, template)
@@ -152,6 +162,7 @@ main.add_command(add)
               is_flag=True,
               help="Deploy modules to Edge device using deployment.json in the config folder")
 @click.pass_context
+@with_telemetry
 def build(ctx, push, do_deploy):
     mod = Modules(envvars, output)
     mod.build_push(no_push=not push)
@@ -179,6 +190,7 @@ main.add_command(build)
               is_flag=True,
               help="Inform the push command to not build modules images before pushing to container registry")
 @click.pass_context
+@with_telemetry
 def push(ctx, do_deploy, no_build):
     mod = Modules(envvars, output)
     mod.push(no_build=no_build)
@@ -191,6 +203,7 @@ main.add_command(push)
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Deploy solution to IoT Edge device")
+@with_telemetry
 def deploy():
     edge = Edge(envvars, output, azure_cli)
     edge.deploy()
@@ -203,6 +216,7 @@ main.add_command(deploy)
                   help="Expand environment variables and placeholders in *.template.json and copy to config folder",
                   # hack to prevent Click truncating help messages
                   short_help="Expand environment variables and placeholders in *.template.json and copy to config folder")
+@with_telemetry
 def genconfig():
     mod = Modules(envvars, output)
     mod.build_push(no_build=True, no_push=True)
@@ -221,6 +235,7 @@ main.add_command(genconfig)
               required=False,
               default=socket.getfqdn(),
               show_default=True)
+@with_telemetry
 def setup_simulator(gateway_host):
     sim = Simulator(envvars, output)
     sim.setup(gateway_host)
@@ -265,6 +280,7 @@ main.add_command(setup_simulator)
               default=53000,
               show_default=True,
               help="Port of the service for sending message.")
+@with_telemetry
 def start_simulator(solution, build, verbose, inputs, port):
     sim = Simulator(envvars, output)
     if solution or not inputs:
@@ -279,6 +295,7 @@ main.add_command(start_simulator)
 @simulator.command(context_settings=CONTEXT_SETTINGS,
                    name="stop",
                    help="Stop IoT Edge simulator")
+@with_telemetry
 def stop_simulator():
     sim = Simulator(envvars, output)
     sim.stop()
@@ -302,6 +319,7 @@ main.add_command(stop_simulator)
               "-o",
               help="Specify the output file to save the credentials. If the file exists, its content will be overwritten.",
               required=False)
+@with_telemetry
 def modulecred(local, output_file):
     sim = Simulator(envvars, output)
     sim.modulecred(local, output_file)
@@ -315,6 +333,7 @@ def modulecred(local, output_file):
               "-t",
               required=False,
               help="Specify number of seconds to monitor for messages")
+@with_telemetry
 def monitor(timeout):
     utility = Utility(envvars, output)
     ih = IoTHub(envvars, utility, output, azure_cli)
@@ -550,6 +569,7 @@ def header_and_default(header, default, default2=None):
               is_flag=True,
               prompt='Update the .env file with connection strings?',
               help='If True, the current .env will be updated with the IoT Hub and Device connection strings.')
+@with_telemetry
 def setup_iothub(credentials,
                  service_principal,
                  subscription,
@@ -571,6 +591,7 @@ def setup_iothub(credentials,
                      "Also, update config files to use CONTAINER_REGISTRY_* instead of the Microsoft Container Registry. See CONTAINER_REGISTRY environment variables.",
                 short_help="Pull Edge runtime images from MCR and push to your specified container registry",
                 name="setup")
+@with_telemetry
 def setup_registry():
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
@@ -600,6 +621,7 @@ def setup_registry():
               required=False,
               is_flag=True,
               help="Remove all the images")
+@with_telemetry
 def clean(module, container, image):
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)
@@ -632,6 +654,7 @@ def clean(module, container, image):
               required=False,
               is_flag=True,
               help="Save EdgeAgent, EdgeHub and each Edge module logs to LOGS_PATH.")
+@with_telemetry
 def log(show, save):
     utility = Utility(envvars, output)
     dock = Docker(envvars, utility, output)

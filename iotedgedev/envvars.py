@@ -112,9 +112,7 @@ class EnvVars:
                         self.IOTHUB_CONNECTION_INFO = IoTHubConnectionString(self.IOTHUB_CONNECTION_STRING)
 
                 except Exception as ex:
-                    self.output.error("Unable to parse IOTHUB_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set.")
-                    self.output.error(str(ex))
-                    sys.exit(-1)
+                    raise ValueError("Unable to parse IOTHUB_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set. {0}".format(str(ex)))
 
                 try:
                     self.DEVICE_CONNECTION_STRING = self.get_envvar("DEVICE_CONNECTION_STRING")
@@ -123,9 +121,7 @@ class EnvVars:
                         self.DEVICE_CONNECTION_INFO = DeviceConnectionString(self.DEVICE_CONNECTION_STRING)
 
                 except Exception as ex:
-                    self.output.error("Unable to parse DEVICE_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set.")
-                    self.output.error(str(ex))
-                    sys.exit(-1)
+                    raise ValueError("Unable to parse DEVICE_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set. {0}".format(str(ex)))
 
                 self.get_registries()
 
@@ -155,11 +151,10 @@ class EnvVars:
                 else:
                     self.DOCKER_HOST = None
             except Exception as ex:
-                self.output.error(
-                    "Environment variables not configured correctly. Run `iotedgedev solution create` to create a new solution with sample .env file. "
-                    "Please see README for variable configuration options. Tip: You might just need to restart your command prompt to refresh your Environment Variables.")
-                self.output.error("Variable that caused exception: " + str(ex))
-                sys.exit(-1)
+                msg = "Environment variables not configured correctly. Run `iotedgedev solution create` to create a new solution with sample .env file. "
+                "Please see README for variable configuration options. Tip: You might just need to restart your command prompt to refresh your Environment Variables. "
+                "Variable that caused exception: {0}".format(str(ex))
+                raise ValueError(msg)
 
         self.clean()
 
@@ -188,8 +183,7 @@ class EnvVars:
                     break
 
         if required and not val:
-            self.output.error("Environment Variable {0} not set. Either add to .env file or to your system's Environment Variables".format(key))
-            sys.exit(-1)
+            raise ValueError("Environment Variable {0} not set. Either add to .env file or to your system's Environment Variables".format(key))
 
         # if we have a val return it, if not and we have a default then return default, otherwise return None.
         if val:
@@ -202,8 +196,7 @@ class EnvVars:
 
     def verify_envvar_has_val(self, key, value):
         if not value:
-            self.output.error("Environment Variable {0} not set. Either add to .env file or to your system's Environment Variables".format(key))
-            sys.exit(-1)
+            raise ValueError("Environment Variable {0} not set. Either add to .env file or to your system's Environment Variables".format(key))
 
     def get_envvar_key_if_val(self, key):
         if key in os.environ and os.environ.get(key):
@@ -220,8 +213,7 @@ class EnvVars:
             dotenv_path = os.path.join(os.getcwd(), dotenv_file)
             set_key(dotenv_path, key, value)
         except Exception:
-            self.output.error(f("Could not update the environment variable {key} in file {dotenv_path}"))
-            sys.exit(-1)
+            raise IOError(f("Could not update the environment variable {key} in file {dotenv_path}"))
 
     def get_registries(self):
         registries = {}
@@ -248,7 +240,7 @@ class EnvVars:
                     registries[token] = {'username': '', 'password': ''}
                 registries[token][subkey] = self.get_envvar(key)
 
-        # store parsed values as a dicitonary of containerregistry objects
+        # store parsed values as a dictionary of containerregistry objects
         for key, value in registries.items():
             self.CONTAINER_REGISTRY_MAP[key] = ContainerRegistry(value['server'], value['username'], value['password'])
 

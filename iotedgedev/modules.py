@@ -24,14 +24,11 @@ class Modules:
         self.utility.ensure_dir(cwd)
 
         if name.startswith("_") or name.endswith("_"):
-            self.output.error("Module name cannot start or end with the symbol _")
-            return
+            raise ValueError("Module name cannot start or end with the symbol _")
         elif not re.match("^[a-zA-Z0-9_]+$", name):
-            self.output.error("Module name can only contain alphanumeric characters and the symbol _")
-            return
+            raise ValueError("Module name can only contain alphanumeric characters and the symbol _")
         elif os.path.exists(os.path.join(cwd, name)):
-            self.output.error("Module \"{0}\" already exists under {1}".format(name, os.path.abspath(self.envvars.MODULES_PATH)))
-            return
+            raise ValueError("Module \"{0}\" already exists under {1}".format(name, os.path.abspath(self.envvars.MODULES_PATH)))
 
         deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
 

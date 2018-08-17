@@ -47,7 +47,7 @@ class Output:
     def echo(self, text, color="", dim=False):
         try:
             click.secho(text, fg=color, dim=dim)
-        except:
+        except Exception:
             print(text)
 
     def confirm(self, text, default=False, abort=True):
