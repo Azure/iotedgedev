@@ -85,13 +85,13 @@ def docker():
               type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]),
               help="Specify the template used to create the default module")
 @with_telemetry
-def create(name, module, template):
+def new(name, module, template):
     utility = Utility(envvars, output)
     sol = Solution(output, utility)
     sol.create(name, module, template)
 
 
-main.add_command(create)
+main.add_command(new)
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS,
@@ -103,7 +103,7 @@ def init():
     utility = Utility(envvars, output)
 
     if len(os.listdir(os.getcwd())) == 0:
-        solcmd = "iotedgedev solution create ."
+        solcmd = "iotedgedev new ."
         output.header(solcmd)
         utility.call_proc(solcmd.split())
 
