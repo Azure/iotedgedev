@@ -47,7 +47,8 @@ requirements = [
     'azure-cli-cloud',
     'iotedgehubdev',
     'six',
-    'applicationinsights'
+    'applicationinsights',
+    'commentjson'
 ]
 
 setup_requirements = [

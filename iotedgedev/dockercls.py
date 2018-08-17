@@ -77,13 +77,13 @@ class Docker:
 
         for image_name in image_names:
 
-            microsoft_image_name = "microsoft/{0}:{1}".format(
+            microsoft_image_name = "mcr.microsoft.com/{0}:{1}".format(
                 image_name, self.envvars.RUNTIME_TAG)
 
             container_registry_image_name = "{0}/{1}:{2}".format(
                 default_cr.server, image_name, self.envvars.RUNTIME_TAG)
 
-            # Pull image from Microsoft Docker Hub
+            # Pull image from MCR
             try:
                 self.output.info(
                     "PULLING IMAGE: '{0}'".format(microsoft_image_name))
@@ -99,7 +99,7 @@ class Docker:
 
             # Tagging Image with Container Registry Name
             try:
-                tag_result = self.docker_api.tag(
+                self.docker_api.tag(
                     image=microsoft_image_name, repository=container_registry_image_name)
             except docker.errors.APIError as e:
                 self.output.error(
@@ -129,14 +129,14 @@ class Docker:
 
     def setup_registry_in_config(self, image_names):
         self.output.info(
-            "Replacing 'microsoft/' with '{CONTAINER_REGISTRY_SERVER}/' in config files.")
+            "Replacing 'mcr.microsoft.com/' with '{CONTAINER_REGISTRY_SERVER}/' in config files.")
 
-        # Replace microsoft/ with ${CONTAINER_REGISTRY_SERVER}
+        # Replace mcr.microsoft.com/ with ${CONTAINER_REGISTRY_SERVER}
         for config_file in self.utility.get_config_files():
             config_file_contents = self.utility.get_file_contents(config_file)
             for image_name in image_names:
                 config_file_contents = config_file_contents.replace(
-                    "microsoft/" + image_name, "${CONTAINER_REGISTRY_SERVER}/" + image_name)
+                    "mcr.microsoft.com/" + image_name, "${CONTAINER_REGISTRY_SERVER}/" + image_name)
 
             with open(config_file, "w") as config_file_build:
                 config_file_build.write(config_file_contents)
@@ -196,8 +196,8 @@ class Docker:
     def handle_logs_cmd(self, show, save):
 
         # Create LOGS_PATH dir if it doesn't exist
-        if save and not os.path.exists(self.envvars.LOGS_PATH):
-            os.makedirs(self.envvars.LOGS_PATH)
+        if save:
+            self.utility.ensure_dir(self.envvars.LOGS_PATH)
 
         modules_in_config = self.utility.get_modules_in_config(ModuleType.Both)
 

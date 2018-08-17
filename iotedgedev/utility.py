@@ -53,6 +53,10 @@ class Utility:
         else:
             return True
 
+    def ensure_dir(self, name):
+        if not os.path.exists(name):
+            os.makedirs(name)
+
     def find_files(self, directory, pattern):
         # find all files in directory that match the pattern.
         for root, dirs, files in os.walk(directory):
@@ -125,9 +129,7 @@ class Utility:
         if not self.config_set or force:
             self.output.header("PROCESSING CONFIG FILES")
 
-            # Create config dir if it doesn't exist
-            if not os.path.exists(self.envvars.CONFIG_OUTPUT_DIR):
-                os.makedirs(self.envvars.CONFIG_OUTPUT_DIR)
+            self.ensure_dir(self.envvars.CONFIG_OUTPUT_DIR)
 
             config_files = self.get_config_files()
 
@@ -148,6 +150,13 @@ class Utility:
             self.output.line()
 
         self.config_set = True
+
+    def copy_from_template_dir(self, src_file, dest_dir, dest_file=None, replacements=None):
+        if dest_file is None:
+            dest_file = src_file
+
+        template_dir = os.path.join(os.path.split(__file__)[0], "template")
+        self.copy_template(os.path.join(template_dir, src_file), os.path.join(dest_dir, dest_file), replacements, expandvars=False)
 
     def copy_template(self, src, dest=None, replacements=None, expandvars=True):
         """Read file at src, replace the keys in replacements with their values, optionally expand environment variables, and save to dest"""

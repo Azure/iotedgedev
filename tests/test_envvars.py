@@ -1,8 +1,8 @@
 import os
-import sys
-from iotedgedev.compat import PY2
+
 import pytest
 
+from iotedgedev.compat import PY2
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 
@@ -12,8 +12,8 @@ pytestmark = pytest.mark.unit
 def test_valid_get_envvar():
     output = Output()
     envvars = EnvVars(output)
-    loglevel = envvars.get_envvar("RUNTIME_LOG_LEVEL")
-    assert loglevel == "info" or "debug"
+    deployment_template = envvars.get_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE")
+    assert deployment_template is not None
 
 
 def test_invalid_get_envvar():
@@ -27,21 +27,21 @@ def test_valid_load():
     output = Output()
     envvars = EnvVars(output)
     envvars.load()
-    assert envvars.RUNTIME_LOG_LEVEL == "info" or "debug"
+    assert envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE == "deployment.template.json"
 
 
 def test_valid_verify_envvar_has_val():
     output = Output()
     envvars = EnvVars(output)
     envvars.load()
-    result = envvars.verify_envvar_has_val("RUNTIME_LOG_LEVEL", envvars.RUNTIME_LOG_LEVEL)
+    result = envvars.verify_envvar_has_val("DEPLOYMENT_CONFIG_TEMPLATE_FILE", envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE)
     assert not result
 
 
 def test_valid_get_envvar_key_if_val():
     output = Output()
     envvars = EnvVars(output)
-    assert envvars.get_envvar_key_if_val("RUNTIME_LOG_LEVEL")
+    assert envvars.get_envvar_key_if_val("DEPLOYMENT_CONFIG_TEMPLATE_FILE")
 
 
 def test_invalid_get_envvar_key_if_val():
@@ -53,11 +53,12 @@ def test_invalid_get_envvar_key_if_val():
 def test_set_envvar():
     output = Output()
     envvars = EnvVars(output)
-    loglevel = envvars.get_envvar("RUNTIME_LOG_LEVEL")
-    envvars.set_envvar("RUNTIME_LOG_LEVEL", "debug")
-    setlevel = envvars.get_envvar("RUNTIME_LOG_LEVEL")
-    assert setlevel == "debug"
-    envvars.set_envvar("RUNTIME_LOG_LEVEL", loglevel)
+    registry_server = envvars.get_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE")
+    envvars.set_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", "deployment.template_new.json")
+    new_registry_server = envvars.get_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE")
+    assert new_registry_server == "deployment.template_new.json"
+    envvars.set_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", registry_server)
+
 
 def test_envvar_clean():
     output = Output()
@@ -69,6 +70,7 @@ def test_envvar_clean():
 
     if PY2:
         assert isinstance(os.environ[envvar_clean_name], str)
+
 
 def test_in_command_list_true_1():
     output = Output()
@@ -147,11 +149,13 @@ def test_is_terse_command_empty():
     envvars = EnvVars(output)
     assert envvars.is_terse_command("")
 
+
 def test_default_container_registry_server_key_exists():
     output = Output()
     envvars = EnvVars(output)
     envvars.load()
     assert "CONTAINER_REGISTRY_SERVER" in os.environ
+
 
 def test_default_container_registry_server_value_exists():
     output = Output()
@@ -159,11 +163,13 @@ def test_default_container_registry_server_value_exists():
     server = envvars.get_envvar("CONTAINER_REGISTRY_SERVER")
     assert server is not None
 
+
 def test_default_container_registry_username_value_exists_or_returns_empty_string():
     output = Output()
     envvars = EnvVars(output)
     username = envvars.get_envvar("CONTAINER_REGISTRY_USERNAME")
     assert username is not None
+
 
 def test_default_container_registry_password_value_exists_or_returns_empty_string():
     output = Output()
@@ -171,11 +177,13 @@ def test_default_container_registry_password_value_exists_or_returns_empty_strin
     password = envvars.get_envvar("CONTAINER_REGISTRY_PASSWORD")
     assert password is not None
 
+
 def test_container_registry_server_key_missing_sys_exit():
     with pytest.raises(SystemExit):
         output = Output()
         envvars = EnvVars(output)
         envvars.get_envvar("CONTAINER_REGISTRY_SERVERUNITTEST", required=True)
+
 
 @pytest.fixture
 def setup_test_env(request):
@@ -189,11 +197,13 @@ def setup_test_env(request):
 
     return
 
+
 def test_container_registry_server_value_missing_sys_exit(setup_test_env):
     with pytest.raises(SystemExit):
         output = Output()
         envvars = EnvVars(output)
         envvars.get_envvar("CONTAINER_REGISTRY_SERVERUNITTEST", required=True)
+
 
 def test_unique_container_registry_server_tokens():
     unique = set()
@@ -212,6 +222,7 @@ def test_unique_container_registry_server_tokens():
                 is_unique = False
     assert is_unique
 
+
 def test_unique_container_registry_username_tokens():
     unique = set()
     length_container_registry_username = len('container_registry_username')
@@ -228,6 +239,7 @@ def test_unique_container_registry_username_tokens():
             else:
                 is_unique = False
     assert is_unique
+
 
 def test_unique_container_registry_password_tokens():
     unique = set()
@@ -246,12 +258,14 @@ def test_unique_container_registry_password_tokens():
                 is_unique = False
     assert is_unique
 
+
 def test_container_registry_map_has_val():
     output = Output()
     envvars = EnvVars(output)
     envvars.load()
     result = envvars.verify_envvar_has_val("CONTAINER_REGISTRY_MAP", envvars.CONTAINER_REGISTRY_MAP)
     assert not result
+
 
 def test_additional_container_registry_server_has_val():
     output = Output()
@@ -264,6 +278,7 @@ def test_additional_container_registry_server_has_val():
                 token = key
         assert envvars.CONTAINER_REGISTRY_MAP[token].server is not None
 
+
 def test_additional_container_registry_username_has_val():
     output = Output()
     envvars = EnvVars(output)
@@ -275,6 +290,7 @@ def test_additional_container_registry_username_has_val():
                 token = key
         assert envvars.CONTAINER_REGISTRY_MAP[token].username is not None
 
+
 def test_additional_container_registry_password_has_val():
     output = Output()
     envvars = EnvVars(output)
@@ -285,4 +301,3 @@ def test_additional_container_registry_password_has_val():
             if key != '':
                 token = key
         assert envvars.CONTAINER_REGISTRY_MAP[token].password is not None
-        
