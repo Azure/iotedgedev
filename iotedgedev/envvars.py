@@ -183,8 +183,7 @@ class EnvVars:
                     break
 
         if required and not val:
-            self.output.error("Environment Variable {0} not set. Either add to .env file or to your system's Environment Variables".format(key))
-            sys.exit(-1)
+            raise ValueError("Environment Variable {0} not set. Either add to .env file or to your system's Environment Variables".format(key))
 
         # if we have a val return it, if not and we have a default then return default, otherwise return None.
         if val:
@@ -197,8 +196,7 @@ class EnvVars:
 
     def verify_envvar_has_val(self, key, value):
         if not value:
-            self.output.error("Environment Variable {0} not set. Either add to .env file or to your system's Environment Variables".format(key))
-            sys.exit(-1)
+            raise ValueError("Environment Variable {0} not set. Either add to .env file or to your system's Environment Variables".format(key))
 
     def get_envvar_key_if_val(self, key):
         if key in os.environ and os.environ.get(key):
