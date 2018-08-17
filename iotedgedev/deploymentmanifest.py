@@ -6,7 +6,6 @@ and deployment manifest template (deployment.template.json)
 import json
 import os
 import shutil
-import sys
 
 
 class DeploymentManifest:
@@ -18,17 +17,18 @@ class DeploymentManifest:
             self.is_template = is_template
             self.json = json.loads(self.utility.get_file_contents(path, expandvars=True))
         except FileNotFoundError:
-            self.output.error('Deployment manifest template file "{0}" not found'.format(path))
             if is_template:
                 deployment_manifest_path = envvars.DEPLOYMENT_CONFIG_FILE_PATH
                 if os.path.exists(deployment_manifest_path):
+                    self.output.error('Deployment manifest template file "{0}" not found'.format(path))
                     if output.confirm('Would you like to make a copy of the deployment manifest file "{0}" as the deployment template file?'.format(deployment_manifest_path), default=True):
                         shutil.copyfile(deployment_manifest_path, path)
                         self.json = json.load(open(envvars.DEPLOYMENT_CONFIG_FILE_PATH))
                         envvars.save_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", path)
+                else:
+                    raise FileNotFoundError('Deployment manifest file "{0}" not found'.format(path))
             else:
-                self.output.error('Deployment manifest file "{0}" not found'.format(path))
-                sys.exit(1)
+                raise FileNotFoundError('Deployment manifest file "{0}" not found'.format(path))
 
     def add_module_template(self, module_name):
         """Add a module template to the deployment manifest with amd64 as the default platform"""
@@ -46,8 +46,7 @@ class DeploymentManifest:
         try:
             self.utility.nested_set(self.get_module_content(), ["$edgeAgent", "properties.desired", "modules", module_name], json.loads(new_module))
         except KeyError as err:
-            self.output.error("Missing key {0} in file {1}".format(err, self.path))
-            sys.exit(1)
+            raise KeyError("Missing key {0} in file {1}".format(err, self.path))
 
         self.add_default_route(module_name)
 
@@ -59,8 +58,7 @@ class DeploymentManifest:
         try:
             self.utility.nested_set(self.get_module_content(), ["$edgeHub", "properties.desired", "routes", new_route_name], new_route)
         except KeyError as err:
-            self.output.error("Missing key {0} in file {1}".format(err, self.path))
-            sys.exit(1)
+            raise KeyError("Missing key {0} in file {1}".format(err, self.path))
 
     def get_user_modules(self):
         """Get user modules from deployment manifest"""
@@ -68,8 +66,7 @@ class DeploymentManifest:
             modules = self.get_desired_property("$edgeAgent", "modules")
             return list(modules.keys())
         except KeyError as err:
-            self.output.error("Missing key {0} in file {1}".format(err, self.path))
-            sys.exit(1)
+            raise KeyError("Missing key {0} in file {1}".format(err, self.path))
 
     def get_system_modules(self):
         """Get system modules from deployment manifest"""
@@ -77,8 +74,7 @@ class DeploymentManifest:
             modules = self.get_desired_property("$edgeAgent", "systemModules")
             return list(modules.keys())
         except KeyError as err:
-            self.output.error("Missing key {0} in file {1}".format(err, self.path))
-            sys.exit(1)
+            raise KeyError("Missing key {0} in file {1}".format(err, self.path))
 
     def get_modules_to_process(self):
         """Get modules to process from deployment manifest template"""
@@ -96,8 +92,7 @@ class DeploymentManifest:
                     modules_to_process.append((module_dir, module_platform))
             return modules_to_process
         except KeyError as err:
-            self.output.error("Missing key {0} in file {1}".format(err, self.path))
-            sys.exit(1)
+            raise KeyError("Missing key {0} in file {1}".format(err, self.path))
 
     def get_desired_property(self, module, prop):
         return self.get_module_content()[module]["properties.desired"][prop]

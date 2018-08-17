@@ -1,14 +1,12 @@
 import fnmatch
-import json
 import os
 import subprocess
-import sys
 from base64 import b64decode, b64encode
 from hashlib import sha256
 from hmac import HMAC
 from time import time
-from .compat import PY3
 
+from .compat import PY3
 from .deploymentmanifest import DeploymentManifest
 from .moduletype import ModuleType
 
@@ -33,8 +31,7 @@ class Utility:
             self.output.procout(self.decode(stdout_data))
 
         if proc.returncode != 0:
-            self.output.error(self.decode(stderr_data))
-            sys.exit()
+            raise Exception(self.decode(stderr_data))
 
     def call_proc(self, params, shell=False, cwd=None):
         try:
@@ -47,15 +44,18 @@ class Utility:
     def check_dependency(self, params, description, shell=False):
         try:
             self.exe_proc(params, shell=shell, suppress_out=True)
-        except:
-            self.output.error("{0} is required by the Azure IoT Edge Dev Tool. For installation instructions, see https://aka.ms/iotedgedevwiki.".format(description))
-            sys.exit(-1)
+        except FileNotFoundError:
+            raise FileNotFoundError("{0} is required by the Azure IoT Edge Dev Tool. For installation instructions, see https://aka.ms/iotedgedevwiki.".format(description))
 
     def is_dir_empty(self, name):
         if os.path.exists(name):
             return len(os.listdir(name)) == 0
         else:
             return True
+
+    def ensure_dir(self, name):
+        if not os.path.exists(name):
+            os.makedirs(name)
 
     def find_files(self, directory, pattern):
         # find all files in directory that match the pattern.
@@ -129,16 +129,12 @@ class Utility:
         if not self.config_set or force:
             self.output.header("PROCESSING CONFIG FILES")
 
-            # Create config dir if it doesn't exist
-            if not os.path.exists(self.envvars.CONFIG_OUTPUT_DIR):
-                os.makedirs(self.envvars.CONFIG_OUTPUT_DIR)
+            self.ensure_dir(self.envvars.CONFIG_OUTPUT_DIR)
 
             config_files = self.get_config_files()
 
             if len(config_files) == 0:
-                self.output.info(
-                    "Unable to find config files in solution root directory")
-                sys.exit()
+                raise FileNotFoundError("Unable to find config files in solution root directory")
 
             # Expand envars and rewrite to config/
             for config_file in config_files:
@@ -154,6 +150,13 @@ class Utility:
             self.output.line()
 
         self.config_set = True
+
+    def copy_from_template_dir(self, src_file, dest_dir, dest_file=None, replacements=None):
+        if dest_file is None:
+            dest_file = src_file
+
+        template_dir = os.path.join(os.path.split(__file__)[0], "template")
+        self.copy_template(os.path.join(template_dir, src_file), os.path.join(dest_dir, dest_file), replacements, expandvars=False)
 
     def copy_template(self, src, dest=None, replacements=None, expandvars=True):
         """Read file at src, replace the keys in replacements with their values, optionally expand environment variables, and save to dest"""

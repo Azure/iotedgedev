@@ -1,6 +1,5 @@
 import json
 import os
-import sys
 
 
 class Module(object):
@@ -17,17 +16,13 @@ class Module(object):
         if os.path.exists(self.module_json_file):
             try:
                 self.file_json_content = json.loads(self.utility.get_file_contents(self.module_json_file, expandvars=True))
-
-                self.module_language = self.file_json_content.get(
-                    "language").lower()
-            except:
-                self.output.error(
-                    "Error while loading module.json file : {0}".format(self.module_json_file))
-
+                self.module_language = self.file_json_content.get("language").lower()
+            except KeyError as e:
+                raise KeyError("Error parsing {0} from module.json file : {1}".format(str(e), self.module_json_file))
+            except IOError:
+                raise IOError("Error loading module.json file : {0}".format(self.module_json_file))
         else:
-            self.output.error(
-                "No module.json file found. module.json file is required in the root of your module folder")
-            sys.exit()
+            raise FileNotFoundError("No module.json file found. module.json file is required in the root of your module folder")
 
     @property
     def language(self):

@@ -2,11 +2,14 @@ import os
 import re
 import sys
 
+import commentjson
+
 from .deploymentmanifest import DeploymentManifest
 from .dockercls import Docker
 from .dotnet import DotNet
 from .module import Module
 from .utility import Utility
+from .buildoptions import BuildOptions
 
 
 class Modules:
@@ -14,22 +17,19 @@ class Modules:
         self.envvars = envvars
         self.output = output
         self.utility = Utility(self.envvars, self.output)
-        self.dock = Docker(self.envvars, self.utility, self.output)
-        self.dock.init_registry()
 
     def add(self, name, template):
         self.output.header("ADDING MODULE {0}".format(name))
 
         cwd = self.envvars.MODULES_PATH
+        self.utility.ensure_dir(cwd)
+
         if name.startswith("_") or name.endswith("_"):
-            self.output.error("Module name cannot start or end with the symbol _")
-            return
+            raise ValueError("Module name cannot start or end with the symbol _")
         elif not re.match("^[a-zA-Z0-9_]+$", name):
-            self.output.error("Module name can only contain alphanumeric characters and the symbol _")
-            return
+            raise ValueError("Module name can only contain alphanumeric characters and the symbol _")
         elif os.path.exists(os.path.join(cwd, name)):
-            self.output.error("Module \"{0}\" already exists under {1}".format(name, os.path.abspath(self.envvars.MODULES_PATH)))
-            return
+            raise ValueError("Module \"{0}\" already exists under {1}".format(name, os.path.abspath(self.envvars.MODULES_PATH)))
 
         deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
 
@@ -39,10 +39,11 @@ class Modules:
             dotnet.install_module_template()
             dotnet.create_custom_module(name, repo, cwd)
         elif template == "nodejs":
-            self.utility.check_dependency("yo azure-iot-edge-module --help".split(), "To add new Node.js modules, the Yeoman tool and Azure IoT Edge Node.js module generator", shell=True)
+            self.utility.check_dependency("yo azure-iot-edge-module --help".split(), "To add new Node.js modules, the Yeoman tool and Azure IoT Edge Node.js module generator",
+                                          shell=not self.envvars.is_posix())
             cmd = "yo azure-iot-edge-module -n {0} -r {1}".format(name, repo)
             self.output.header(cmd)
-            self.utility.exe_proc(cmd.split(), shell=True, cwd=cwd)
+            self.utility.exe_proc(cmd.split(), shell=not self.envvars.is_posix(), cwd=cwd)
         elif template == "python":
             self.utility.check_dependency("cookiecutter --help".split(), "To add new Python modules, the Cookiecutter tool")
             github_source = "https://github.com/Azure/cookiecutter-azure-iot-edge-module"
@@ -57,6 +58,8 @@ class Modules:
 
         deployment_manifest.add_module_template(name)
         deployment_manifest.save()
+
+        self._update_launch_json(name, template)
 
         self.output.footer("ADD COMPLETE")
 
@@ -119,45 +122,89 @@ class Modules:
                 self.output.info("PROCESSING DOCKERFILE: {0}".format(dockerfile), suppress=no_build)
                 self.output.info("BUILDING DOCKER IMAGE: {0}".format(tag), suppress=no_build)
 
+                docker = Docker(self.envvars, self.utility, self.output)
                 # BUILD DOCKER IMAGE
                 if not no_build:
-                    # TODO: apply build options
-                    build_options = self.filter_build_options(tag_build_options_map.get(tag, None))
+                    build_options = tag_build_options_map.get(tag, None)
+                    build_options_parser = BuildOptions(build_options)
+                    sdk_options = build_options_parser.parse_build_options()
 
                     context_path = os.path.abspath(os.path.join(self.envvars.MODULES_PATH, module))
                     dockerfile_relative = os.path.relpath(dockerfile, context_path)
                     # a hack to workaround Python Docker SDK's bug with Linux container mode on Windows
-                    if self.dock.get_os_type() == "linux" and sys.platform == "win32":
+                    if docker.get_os_type() == "linux" and sys.platform == "win32":
                         dockerfile = dockerfile.replace("\\", "/")
                         dockerfile_relative = dockerfile_relative.replace("\\", "/")
 
-                    build_result = self.dock.docker_client.images.build(tag=tag, path=context_path, dockerfile=dockerfile_relative)
+                    build_result = docker.docker_client.images.build(tag=tag, path=context_path, dockerfile=dockerfile_relative, **sdk_options)
 
                     self.output.info("DOCKER IMAGE DETAILS: {0}".format(build_result))
 
                 if not no_push:
+                    docker.init_registry()
+
                     # PUSH TO CONTAINER REGISTRY
                     self.output.info("PUSHING DOCKER IMAGE: " + tag)
+                    registry_key = None
+                    for key, registry in self.envvars.CONTAINER_REGISTRY_MAP.items():
+                        # Split the repository tag in the module.json (ex: Localhost:5000/filtermodule)
+                        if registry.server.lower() == tag.split('/')[0].lower():
+                            registry_key = key
+                            break
+                    if registry_key is None:
+                        self.output.error("Could not find registry server with name {0}. Please make sure your envvar is set.".format(tag.split('/')[0].lower()))
+                    self.output.info("module json reading {0}".format(tag))
 
-                    response = self.dock.docker_client.images.push(repository=tag, stream=True, auth_config={
-                        "username": self.envvars.CONTAINER_REGISTRY_USERNAME,
-                        "password": self.envvars.CONTAINER_REGISTRY_PASSWORD})
-                    self.dock.process_api_response(response)
+                    response = docker.docker_client.images.push(repository=tag, stream=True, auth_config={
+                        "username": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].username,
+                        "password": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].password})
+                    docker.process_api_response(response)
             self.output.footer("BUILD COMPLETE", suppress=no_build)
             self.output.footer("PUSH COMPLETE", suppress=no_push)
         self.utility.set_config(force=True, replacements=replacements)
 
-    @staticmethod
-    def filter_build_options(build_options):
-        """Remove build options which will be ignored"""
-        if build_options is None:
-            return None
+    def _update_launch_json(self, name, template):
+        new_launch_json = self._get_launch_json(name, template)
+        if new_launch_json is not None:
+            self._merge_launch_json(new_launch_json)
 
-        filtered_build_options = []
-        for build_option in build_options:
-            build_option = build_option.strip()
-            parsed_option = re.compile(r"\s+").split(build_option)
-            if parsed_option and ["--rm", "--tag", "-t", "--file", "-f"].index(parsed_option[0]) < 0:
-                filtered_build_options.append(build_option)
+    def _get_launch_json(self, name, template):
+        replacements = {}
+        replacements["%MODULE%"] = name
+        replacements["%MODULE_FOLDER%"] = name
 
-        return filtered_build_options
+        launch_json_file = None
+        is_function = False
+        if template == "csharp":
+            launch_json_file = "launch_csharp.json"
+            replacements["%APP_FOLDER%"] = "/app"
+        elif template == "nodejs":
+            launch_json_file = "launch_node.json"
+        elif template == "csharpfunction":
+            launch_json_file = "launch_csharp.json"
+            replacements["%APP_FOLDER%"] = "/app"
+            is_function = True
+
+        if launch_json_file is not None:
+            launch_json_file = os.path.join(os.path.split(__file__)[0], "template", launch_json_file)
+            launch_json_content = self.utility.get_file_contents(launch_json_file)
+            for key, value in replacements.items():
+                launch_json_content = launch_json_content.replace(key, value)
+            launch_json = commentjson.loads(launch_json_content)
+            if is_function and launch_json is not None and "configurations" in launch_json:
+                # for Function modules, there shouldn't be launch config for local debug
+                launch_json["configurations"] = list(filter(lambda x: x["request"] != "launch", launch_json["configurations"]))
+            return launch_json
+
+    def _merge_launch_json(self, new_launch_json):
+        vscode_dir = os.path.join(os.getcwd(), ".vscode")
+        self.utility.ensure_dir(vscode_dir)
+        launch_json_file = os.path.join(vscode_dir, "launch.json")
+        if os.path.exists(launch_json_file):
+            launch_json = commentjson.loads(self.utility.get_file_contents(launch_json_file))
+            launch_json['configurations'].extend(new_launch_json['configurations'])
+            with open(launch_json_file, "w") as f:
+                commentjson.dump(launch_json, f, indent=2)
+        else:
+            with open(launch_json_file, "w") as f:
+                commentjson.dump(new_launch_json, f, indent=2)

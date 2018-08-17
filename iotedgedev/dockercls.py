@@ -28,21 +28,21 @@ class Docker:
 
     def init_registry(self):
 
-        self.output.header("INITIALIZING CONTAINER REGISTRY")
-        self.output.info("REGISTRY: " + self.envvars.CONTAINER_REGISTRY_SERVER)
+        for registry in self.envvars.CONTAINER_REGISTRY_MAP.values():
+            self.output.header("INITIALIZING CONTAINER REGISTRY")
+            self.output.info("REGISTRY: " + registry.server)
 
-        if "localhost" in self.envvars.CONTAINER_REGISTRY_SERVER:
-            self.init_local_registry()
+            if "localhost" in registry.server:
+                self.init_local_registry(registry.server)
 
         self.output.line()
 
-    def init_local_registry(self):
+    def init_local_registry(self, local_server):
 
-        parts = self.envvars.CONTAINER_REGISTRY_SERVER.split(":")
+        parts = local_server.split(":")
 
         if len(parts) < 2:
-            self.output.error("You must specific a port for your local registry server. Expected: 'localhost:5000'. Found: " + self.envvars.CONTAINER_REGISTRY_SERVER)
-            sys.exit()
+            raise ValueError("You must specific a port for your local registry server. Expected: 'localhost:5000'. Found: " + local_server)
 
         port = parts[1]
         ports = {'{0}/tcp'.format(port): int(port)}
@@ -66,46 +66,22 @@ class Docker:
             self.output.info("Running registry container")
             self.docker_client.containers.run("registry:2", detach=True, name="registry", ports=ports, restart_policy={"Name": "always"})
 
-    def login_registry(self):
-        try:
-
-            if "localhost" in self.envvars.CONTAINER_REGISTRY_SERVER:
-                client_login_status = self.docker_client.login(self.envvars.CONTAINER_REGISTRY_SERVER)
-                api_login_status = self.docker_api.login(self.envvars.CONTAINER_REGISTRY_SERVER)
-            else:
-
-                client_login_status = self.docker_client.login(registry=self.envvars.CONTAINER_REGISTRY_SERVER,
-                                                               username=self.envvars.CONTAINER_REGISTRY_USERNAME,
-                                                               password=self.envvars.CONTAINER_REGISTRY_PASSWORD)
-
-                api_login_status = self.docker_api.login(registry=self.envvars.CONTAINER_REGISTRY_SERVER,
-                                                         username=self.envvars.CONTAINER_REGISTRY_USERNAME,
-                                                         password=self.envvars.CONTAINER_REGISTRY_PASSWORD)
-
-            self.output.info("Successfully logged into container registry: " + self.envvars.CONTAINER_REGISTRY_SERVER)
-
-        except Exception as ex:
-            self.output.error(
-                "Could not login to Container Registry. 1. Make sure Docker is running locally. 2. Verify your credentials in CONTAINER_REGISTRY_ environment variables. "
-                "3. If you are using WSL, then please set DOCKER_HOST Environment Variable. See the Azure IoT Edge Dev readme at https://aka.ms/iotedgedev for full instructions.")
-            self.output.error(str(ex))
-            sys.exit(-1)
-
     def setup_registry(self):
         self.output.header("SETTING UP CONTAINER REGISTRY")
         self.init_registry()
         self.output.info("PUSHING EDGE IMAGES TO CONTAINER REGISTRY")
         image_names = ["azureiotedge-agent", "azureiotedge-hub", "azureiotedge-simulated-temperature-sensor"]
+        default_cr = self.envvars.CONTAINER_REGISTRY_MAP['']
 
         for image_name in image_names:
 
-            microsoft_image_name = "microsoft/{0}:{1}".format(
+            microsoft_image_name = "mcr.microsoft.com/{0}:{1}".format(
                 image_name, self.envvars.RUNTIME_TAG)
 
             container_registry_image_name = "{0}/{1}:{2}".format(
-                self.envvars.CONTAINER_REGISTRY_SERVER, image_name, self.envvars.RUNTIME_TAG)
+                default_cr.server, image_name, self.envvars.RUNTIME_TAG)
 
-            # Pull image from Microsoft Docker Hub
+            # Pull image from MCR
             try:
                 self.output.info(
                     "PULLING IMAGE: '{0}'".format(microsoft_image_name))
@@ -121,7 +97,7 @@ class Docker:
 
             # Tagging Image with Container Registry Name
             try:
-                tag_result = self.docker_api.tag(
+                self.docker_api.tag(
                     image=microsoft_image_name, repository=container_registry_image_name)
             except docker.errors.APIError as e:
                 self.output.error(
@@ -134,7 +110,7 @@ class Docker:
                     container_registry_image_name))
 
                 response = self.docker_client.images.push(repository=container_registry_image_name, tag=self.envvars.RUNTIME_TAG, stream=True, auth_config={
-                                                          "username": self.envvars.CONTAINER_REGISTRY_USERNAME, "password": self.envvars.CONTAINER_REGISTRY_PASSWORD})
+                                                          "username": default_cr.username, "password": default_cr.password})
                 self.process_api_response(response)
                 self.output.info("SUCCESSFULLY PUSHED IMAGE: '{0}'".format(
                     container_registry_image_name))
@@ -151,14 +127,14 @@ class Docker:
 
     def setup_registry_in_config(self, image_names):
         self.output.info(
-            "Replacing 'microsoft/' with '{CONTAINER_REGISTRY_SERVER}/' in config files.")
+            "Replacing 'mcr.microsoft.com/' with '{CONTAINER_REGISTRY_SERVER}/' in config files.")
 
-        # Replace microsoft/ with ${CONTAINER_REGISTRY_SERVER}
+        # Replace mcr.microsoft.com/ with ${CONTAINER_REGISTRY_SERVER}
         for config_file in self.utility.get_config_files():
             config_file_contents = self.utility.get_file_contents(config_file)
             for image_name in image_names:
                 config_file_contents = config_file_contents.replace(
-                    "microsoft/" + image_name, "${CONTAINER_REGISTRY_SERVER}/" + image_name)
+                    "mcr.microsoft.com/" + image_name, "${CONTAINER_REGISTRY_SERVER}/" + image_name)
 
             with open(config_file, "w") as config_file_build:
                 config_file_build.write(config_file_contents)
@@ -218,8 +194,8 @@ class Docker:
     def handle_logs_cmd(self, show, save):
 
         # Create LOGS_PATH dir if it doesn't exist
-        if save and not os.path.exists(self.envvars.LOGS_PATH):
-            os.makedirs(self.envvars.LOGS_PATH)
+        if save:
+            self.utility.ensure_dir(self.envvars.LOGS_PATH)
 
         modules_in_config = self.utility.get_modules_in_config(ModuleType.Both)
 

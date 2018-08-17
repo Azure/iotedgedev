@@ -4,19 +4,26 @@ import shutil
 
 import pytest
 from click.testing import CliRunner
-from dotenv import load_dotenv
-from iotedgedev.compat import PY35
 
+from iotedgedev.compat import PY35
 from iotedgedev.connectionstring import (DeviceConnectionString,
                                          IoTHubConnectionString)
+from iotedgedev.envvars import EnvVars
+from iotedgedev.output import Output
+
+from .utility import assert_json_file_equal
 
 pytestmark = pytest.mark.e2e
 
 root_dir = os.getcwd()
 tests_dir = os.path.join(root_dir, "tests")
-env_file = os.path.join(root_dir, ".env")
+envvars = EnvVars(Output())
+env_file_name = envvars.get_dotenv_file()
+env_file_path = envvars.get_dotenv_path(env_file_name)
+
 test_solution = "test_solution"
 test_solution_dir = os.path.join(tests_dir, test_solution)
+launch_json_file = os.path.join(tests_dir, "assets", "launch.json")
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -33,7 +40,8 @@ def create_solution(request):
     print(result.output)
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
 
-    shutil.copyfile(env_file, os.path.join(test_solution_dir, '.env'))
+    shutil.copyfile(env_file_path, os.path.join(test_solution_dir, env_file_name))
+
     os.chdir(test_solution_dir)
 
     def clean():
@@ -113,6 +121,8 @@ def test_module_add():
     add_module_and_verify(cli.main, runner, "python")
     add_module_and_verify(cli.main, runner, "csharpfunction")
 
+    assert_json_file_equal(os.path.join(os.getcwd(), ".vscode", "launch.json"), launch_json_file)
+
 
 def test_module_add_invalid_name():
     """Test the addmodule command with invalid module name"""
@@ -164,49 +174,22 @@ def test_deploy_modules(request):
     assert 'DEPLOYMENT COMPLETE' in result.output
 
 
-# @pytest.fixture
-# def test_start_runtime(request):
-
-#     os.chdir(test_solution_dir)
-
-#     cli = __import__("iotedgedev.cli", fromlist=['main'])
-#     runner = CliRunner()
-#     result = runner.invoke(cli.main, ['start'])
-#     print(result.output)
-
-#     assert 'Runtime started' in result.output
-
-
 def test_monitor(request, capfd):
 
     os.chdir(test_solution_dir)
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['monitor', '--timeout', '2'])
+    result = runner.invoke(cli.main, ['monitor', '--timeout', '5'])
     out, err = capfd.readouterr()
     print(out)
     print(err)
     print(result.output)
 
-    if PY35:
-        assert 'Starting event monitor' in out
-    else:
+    if not PY35:
         assert 'Monitoring events from device' in out
-
-    
-
-# @pytest.fixture
-# def test_stop(request):
-
-#     os.chdir(test_solution_dir)
-
-#     cli = __import__("iotedgedev.cli", fromlist=['main'])
-#     runner = CliRunner()
-#     result = runner.invoke(cli.main, ['stop'])
-#     print(result.output)
-
-#     assert 'Runtime stopped' in result.output
+    else:
+        assert not err
 
 
 def test_e2e(test_push_modules, test_deploy_modules):
@@ -214,7 +197,8 @@ def test_e2e(test_push_modules, test_deploy_modules):
 
 
 def test_valid_env_iothub_connectionstring():
-    load_dotenv(".env")
+    envvars.load_dotenv()
+
     env_iothub_connectionstring = os.getenv("IOTHUB_CONNECTION_STRING")
     connectionstring = IoTHubConnectionString(env_iothub_connectionstring)
     assert connectionstring.HostName
@@ -224,29 +208,13 @@ def test_valid_env_iothub_connectionstring():
 
 
 def test_valid_env_device_connectionstring():
-    load_dotenv(".env")
+    envvars.load_dotenv()
     env_device_connectionstring = os.getenv("DEVICE_CONNECTION_STRING")
     connectionstring = DeviceConnectionString(env_device_connectionstring)
     assert connectionstring.HostName
     assert connectionstring.HubName
     assert connectionstring.SharedAccessKey
     assert connectionstring.DeviceId
-
-
-'''
-def test_load_no_dotenv():
-
-    dotenv_file = ".env.nofile"
-    os.environ["DOTENV_FILE"] = dotenv_file
-
-    # cli_inst =
-    # runner = CliRunner()
-    # result = runner.invoke(cli.main, ['--set-config'])
-    # print result.output
-    # assert result.exit_code == 0
-    # assert '.env.test file not found on disk.' in result.output
-    # assert 'PROCESSING' in result.output
-'''
 
 
 def add_module_and_verify(main, runner, template):

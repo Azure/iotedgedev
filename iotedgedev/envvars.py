@@ -1,15 +1,15 @@
 import os
 import platform
-import socket
 import sys
 from shutil import copyfile
-from .compat import PY2
 
 from dotenv import load_dotenv, set_key
 from fstrings import f
 
 from .args import Args
+from .compat import PY2
 from .connectionstring import DeviceConnectionString, IoTHubConnectionString
+from .containerregistry import ContainerRegistry
 
 
 class EnvVars:
@@ -48,7 +48,7 @@ class EnvVars:
 
     def backup_dotenv(self):
         dotenv_file = self.get_dotenv_file()
-        dotenv_path = os.path.join(os.getcwd(), dotenv_file)
+        dotenv_path = self.get_dotenv_file_path(dotenv_file)
         dotenv_backup_path = dotenv_path + ".backup"
         try:
             copyfile(dotenv_path, dotenv_backup_path)
@@ -61,7 +61,7 @@ class EnvVars:
 
     def load_dotenv(self):
         dotenv_file = self.get_dotenv_file()
-        dotenv_path = os.path.join(os.getcwd(), dotenv_file)
+        dotenv_path = self.get_dotenv_path(dotenv_file)
 
         try:
             if os.path.exists(dotenv_path):
@@ -86,6 +86,12 @@ class EnvVars:
 
         return default_dotenv_file
 
+    def get_dotenv_path(self, dotenv_file):
+        return os.path.join(os.getcwd(), dotenv_file)
+
+    def get_dotenv_file_path(self):
+        return self.get_dotenv_path(self.get_dotenv_file())
+
     def load(self, force=False):
 
         # for some commands we don't want to load dotenv
@@ -101,57 +107,35 @@ class EnvVars:
             try:
                 try:
                     self.IOTHUB_CONNECTION_STRING = self.get_envvar("IOTHUB_CONNECTION_STRING")
-                    self.IOTHUB_CONNECTION_INFO = None;
+                    self.IOTHUB_CONNECTION_INFO = None
                     if self.IOTHUB_CONNECTION_STRING:
                         self.IOTHUB_CONNECTION_INFO = IoTHubConnectionString(self.IOTHUB_CONNECTION_STRING)
 
                 except Exception as ex:
-                    self.output.error("Unable to parse IOTHUB_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set.")
-                    self.output.error(str(ex))
-                    sys.exit(-1)
+                    raise ValueError("Unable to parse IOTHUB_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set. {0}".format(str(ex)))
 
                 try:
                     self.DEVICE_CONNECTION_STRING = self.get_envvar("DEVICE_CONNECTION_STRING")
-                    self.DEVICE_CONNECTION_INFO = None;
+                    self.DEVICE_CONNECTION_INFO = None
                     if self.DEVICE_CONNECTION_STRING:
                         self.DEVICE_CONNECTION_INFO = DeviceConnectionString(self.DEVICE_CONNECTION_STRING)
 
                 except Exception as ex:
-                    self.output.error("Unable to parse DEVICE_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set.")
-                    self.output.error(str(ex))
-                    sys.exit(-1)
+                    raise ValueError("Unable to parse DEVICE_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set. {0}".format(str(ex)))
 
-                self.RUNTIME_HOST_NAME = self.get_envvar("RUNTIME_HOST_NAME", default=".")
-                if self.RUNTIME_HOST_NAME == ".":
-                    self.set_envvar("RUNTIME_HOST_NAME", socket.gethostname())
+                self.get_registries()
 
-                self.RUNTIME_HOME_DIR = self.get_envvar("RUNTIME_HOME_DIR", default=".")
-                if self.RUNTIME_HOME_DIR == ".":
-                    self.set_envvar("RUNTIME_HOME_DIR", self.get_runtime_home_dir())
-
-                self.RUNTIME_CONFIG_DIR = self.get_envvar("RUNTIME_CONFIG_DIR", default=".")
-                if self.RUNTIME_CONFIG_DIR == ".":
-                    self.set_envvar("RUNTIME_CONFIG_DIR", self.get_runtime_config_dir())
                 self.BYPASS_MODULES = self.get_envvar("BYPASS_MODULES")
                 self.ACTIVE_DOCKER_PLATFORMS = self.get_envvar("ACTIVE_DOCKER_PLATFORMS", altkeys=["ACTIVE_DOCKER_ARCH"])
-                self.CONTAINER_REGISTRY_SERVER = self.get_envvar("CONTAINER_REGISTRY_SERVER")
-                self.CONTAINER_REGISTRY_USERNAME = self.get_envvar("CONTAINER_REGISTRY_USERNAME")
-                self.CONTAINER_REGISTRY_PASSWORD = self.get_envvar("CONTAINER_REGISTRY_PASSWORD")
                 self.CONTAINER_TAG = self.get_envvar("CONTAINER_TAG")
                 self.RUNTIME_TAG = self.get_envvar("RUNTIME_TAG")
-                self.RUNTIME_VERBOSITY = self.get_envvar("RUNTIME_VERBOSITY")
-                self.RUNTIME_LOG_LEVEL = self.get_envvar("RUNTIME_LOG_LEVEL", default="info")
                 self.CONFIG_OUTPUT_DIR = self.get_envvar("CONFIG_OUTPUT_DIR", default="config")
                 self.DEPLOYMENT_CONFIG_FILE = self.get_envvar("DEPLOYMENT_CONFIG_FILE", altkeys=['MODULES_CONFIG_FILE'])
                 self.DEPLOYMENT_CONFIG_FILE_PATH = os.path.join(self.CONFIG_OUTPUT_DIR, self.DEPLOYMENT_CONFIG_FILE)
                 self.DEPLOYMENT_CONFIG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", default="deployment.template.json")
-                self.RUNTIME_CONFIG_FILE = self.get_envvar("RUNTIME_CONFIG_FILE")
-                self.RUNTIME_CONFIG_FILE_PATH = os.path.join(self.CONFIG_OUTPUT_DIR, self.RUNTIME_CONFIG_FILE)
                 self.LOGS_PATH = self.get_envvar("LOGS_PATH")
                 self.MODULES_PATH = self.get_envvar("MODULES_PATH")
-                self.IOT_REST_API_VERSION = self.get_envvar("IOT_REST_API_VERSION")
                 self.DOTNET_VERBOSITY = self.get_envvar("DOTNET_VERBOSITY")
-                self.DOTNET_EXE_DIR = self.get_envvar("DOTNET_EXE_DIR")
                 self.LOGS_CMD = self.get_envvar("LOGS_CMD")
                 self.SUBSCRIPTION_ID = self.get_envvar("SUBSCRIPTION_ID")
                 self.RESOURCE_GROUP_NAME = self.get_envvar("RESOURCE_GROUP_NAME")
@@ -167,11 +151,10 @@ class EnvVars:
                 else:
                     self.DOCKER_HOST = None
             except Exception as ex:
-                self.output.error(
-                    "Environment variables not configured correctly. Run `iotedgedev solution create` to create a new solution with sample .env file. "
-                    "Please see README for variable configuration options. Tip: You might just need to restart your command prompt to refresh your Environment Variables.")
-                self.output.error("Variable that caused exception: " + str(ex))
-                sys.exit(-1)
+                msg = "Environment variables not configured correctly. Run `iotedgedev solution create` to create a new solution with sample .env file. "
+                "Please see README for variable configuration options. Tip: You might just need to restart your command prompt to refresh your Environment Variables. "
+                "Variable that caused exception: {0}".format(str(ex))
+                raise ValueError(msg)
 
         self.clean()
 
@@ -200,8 +183,7 @@ class EnvVars:
                     break
 
         if required and not val:
-            self.output.error("Environment Variable {0} not set. Either add to .env file or to your system's Environment Variables".format(key))
-            sys.exit(-1)
+            raise ValueError("Environment Variable {0} not set. Either add to .env file or to your system's Environment Variables".format(key))
 
         # if we have a val return it, if not and we have a default then return default, otherwise return None.
         if val:
@@ -214,8 +196,7 @@ class EnvVars:
 
     def verify_envvar_has_val(self, key, value):
         if not value:
-            self.output.error("Environment Variable {0} not set. Either add to .env file or to your system's Environment Variables".format(key))
-            sys.exit(-1)
+            raise ValueError("Environment Variable {0} not set. Either add to .env file or to your system's Environment Variables".format(key))
 
     def get_envvar_key_if_val(self, key):
         if key in os.environ and os.environ.get(key):
@@ -232,20 +213,36 @@ class EnvVars:
             dotenv_path = os.path.join(os.getcwd(), dotenv_file)
             set_key(dotenv_path, key, value)
         except Exception:
-            self.output.error(f("Could not update the environment variable {key} in file {dotenv_path}"))
-            sys.exit(-1)
+            raise IOError(f("Could not update the environment variable {key} in file {dotenv_path}"))
 
-    def get_runtime_home_dir(self):
-        if self.is_posix():
-            return "/var/lib/azure-iot-edge"
-        else:
-            return os.environ["PROGRAMDATA"].replace("\\", "\\\\") + "\\\\azure-iot-edge\\\data"
+    def get_registries(self):
+        registries = {}
+        self.CONTAINER_REGISTRY_MAP = {}
+        length_container_registry_server = len('container_registry_server')
+        length_container_registry_username_or_password = len('container_registry_username')
+        length_container_registry = len('container_registry_')
+        # loops through .env file for key matching container_registry_server, container_registry_username, container_registry_password
+        for key in os.environ:
+            key = key.upper()
+            # get token for container_registry_server key
+            if key.startswith('CONTAINER_REGISTRY_SERVER'):
+                token = key[length_container_registry_server:]
+                # if the token doesn't already exist as an item in the dictionary, add it. if it does, add the server value
+                if token not in registries:
+                    registries[token] = {'username': '', 'password': ''}
+                registries[token]['server'] = self.get_envvar(key, required=True)
+            # get token for container_registry_username or container_registry_password key and get subkey (username or password)
+            elif key.startswith(('CONTAINER_REGISTRY_USERNAME', 'CONTAINER_REGISTRY_PASSWORD')):
+                token = key[length_container_registry_username_or_password:]
+                subkey = key[length_container_registry:length_container_registry_username_or_password]
+                # if the token doesn't already exist as an item in the dictionary, add it. if it does, add the subkey(username/password) value
+                if token not in registries:
+                    registries[token] = {'username': '', 'password': ''}
+                registries[token][subkey] = self.get_envvar(key)
 
-    def get_runtime_config_dir(self):
-        if self.is_posix():
-            return "/etc/azure-iot-edge"
-        else:
-            return os.environ["PROGRAMDATA"].replace("\\", "\\\\") + "\\\\azure-iot-edge\\\\config"
+        # store parsed values as a dictionary of containerregistry objects
+        for key, value in registries.items():
+            self.CONTAINER_REGISTRY_MAP[key] = ContainerRegistry(value['server'], value['username'], value['password'])
 
     def is_posix(self):
         plat = platform.system().lower()

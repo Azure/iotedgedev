@@ -46,7 +46,7 @@
       "properties.desired": {
         "schemaVersion": "1.0",
         "routes": {
-          "sensorTo%MODULE%": "FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/%MODULE%/inputs/input1\")"
+          "sensorTofiltermodule": "FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/filtermodule/inputs/input1\")"
         },
         "storeAndForwardConfiguration": {
           "timeToLiveSecs": 7200
