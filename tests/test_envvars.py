@@ -179,9 +179,9 @@ def test_default_container_registry_password_value_exists_or_returns_empty_strin
 
 
 def test_container_registry_server_key_missing_sys_exit():
-    with pytest.raises(SystemExit):
-        output = Output()
-        envvars = EnvVars(output)
+    output = Output()
+    envvars = EnvVars(output)
+    with pytest.raises(ValueError):
         envvars.get_envvar("CONTAINER_REGISTRY_SERVERUNITTEST", required=True)
 
 
@@ -199,9 +199,9 @@ def setup_test_env(request):
 
 
 def test_container_registry_server_value_missing_sys_exit(setup_test_env):
-    with pytest.raises(SystemExit):
-        output = Output()
-        envvars = EnvVars(output)
+    output = Output()
+    envvars = EnvVars(output)
+    with pytest.raises(ValueError):
         envvars.get_envvar("CONTAINER_REGISTRY_SERVERUNITTEST", required=True)
 
 
