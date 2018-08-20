@@ -261,5 +261,5 @@ class EnvVars:
                 token = env_key[add_key_prefix_length:]
 
             if token not in self.CONTAINER_REGISTRY_MAP:
-                self.CONTAINER_REGISTRY_MAP[token] = ContainerRegistry(None, None, None)
+                self.CONTAINER_REGISTRY_MAP[token] = ContainerRegistry('', '', '')
             setattr(self.CONTAINER_REGISTRY_MAP[token], subkey.lower(), self.get_envvar(env_key))
