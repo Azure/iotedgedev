@@ -278,10 +278,12 @@ class AzureCli:
         self.output.status(f("Deploying '{config}' to '{device_id}'..."))
         config = os.path.join(os.getcwd(), config)
 
-        return self.invoke_az_cli_outproc(["iot", "edge", "set-modules", "-d", device_id, "-n", hub_name, "-k", config, "-l", connection_string], error_message=f("Failed to deploy '{config}' to '{device_id}'..."), suppress_output=True)
+        return self.invoke_az_cli_outproc(["iot", "edge", "set-modules", "-d", device_id, "-n", hub_name, "-k", config, "-l", connection_string],
+                                          error_message=f("Failed to deploy '{config}' to '{device_id}'..."), suppress_output=True)
 
     def monitor_events(self, device_id, connection_string, hub_name, timeout=300):
-        return self.invoke_az_cli_outproc(["iot", "hub", "monitor-events", "-d", device_id, "-n", hub_name, "-l", connection_string, '-t', str(timeout), '-y'], error_message=f("Failed to start monitoring events."), suppress_output=False, timeout=timeout)
+        return self.invoke_az_cli_outproc(["iot", "hub", "monitor-events", "-d", device_id, "-n", hub_name, "-l", connection_string, '-t', str(timeout), '-y'],
+                                          error_message=f("Failed to start monitoring events."), suppress_output=False, timeout=timeout)
 
     def get_free_iothub(self):
         with output_io_cls() as io:
@@ -312,7 +314,8 @@ class AzureCli:
         self.output.header("IOT HUB")
         self.output.status(f("Retrieving IoT Hubs in '{resource_group}'..."))
 
-        return self.invoke_az_cli_outproc(["iot", "hub", "list", "--resource-group", resource_group, "--query", "[].{\"IoT Hub\":name}", "--out", "table"], f("Could not list the IoT Hubs in {resource_group}."))
+        return self.invoke_az_cli_outproc(["iot", "hub", "list", "--resource-group", resource_group, "--query", "[].{\"IoT Hub\":name}", "--out", "table"],
+                                          f("Could not list the IoT Hubs in {resource_group}."))
 
     def iothub_exists(self, value, resource_group):
         self.output.status(

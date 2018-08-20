@@ -152,7 +152,7 @@ class Modules:
                             registry_key = key
                             break
                     if registry_key is None:
-                        self.output.error("Could not find registry server with name {0}. Please make sure your envvar is set.".format(tag.split('/')[0].lower()))
+                        raise ValueError("Could not find registry server with name {0}. Please make sure your envvar is set.".format(tag.split('/')[0].lower()))
                     self.output.info("module json reading {0}".format(tag))
 
                     response = docker.docker_client.images.push(repository=tag, stream=True, auth_config={

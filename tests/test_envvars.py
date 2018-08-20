@@ -182,27 +182,24 @@ def test_container_registry_server_key_missing_sys_exit():
     output = Output()
     envvars = EnvVars(output)
     with pytest.raises(ValueError):
-        envvars.get_envvar("CONTAINER_REGISTRY_SERVERUNITTEST", required=True)
+        envvars.get_envvar("CONTAINER_REGISTRY_SERVER_UNITTEST", required=True)
 
 
 @pytest.fixture
 def setup_test_env(request):
     output = Output()
     envvars = EnvVars(output)
-    envvars.set_envvar("CONTAINER_REGISTRY_SERVERUNITTEST", '')
+    envvars.set_envvar("CONTAINER_REGISTRY_SERVER_UNITTEST", 'unittest.azurecr.io')
+    envvars.set_envvar("CONTAINER_REGISTRY_USERNAME_UNITTEST", 'username')
+    envvars.set_envvar("CONTAINER_REGISTRY_PASSWORD_UNITTEST", 'password')
 
     def clean():
-        os.environ.pop("CONTAINER_REGISTRY_SERVERUNITTEST")
+        os.environ.pop("CONTAINER_REGISTRY_SERVER_UNITTEST")
+        os.environ.pop("CONTAINER_REGISTRY_USERNAME_UNITTEST")
+        os.environ.pop("CONTAINER_REGISTRY_PASSWORD_UNITTEST")
     request.addfinalizer(clean)
 
     return
-
-
-def test_container_registry_server_value_missing_sys_exit(setup_test_env):
-    output = Output()
-    envvars = EnvVars(output)
-    with pytest.raises(ValueError):
-        envvars.get_envvar("CONTAINER_REGISTRY_SERVERUNITTEST", required=True)
 
 
 def test_unique_container_registry_server_tokens():
@@ -259,45 +256,12 @@ def test_unique_container_registry_password_tokens():
     assert is_unique
 
 
-def test_container_registry_map_has_val():
+def test_additional_container_registry_map_has_val(setup_test_env):
     output = Output()
     envvars = EnvVars(output)
     envvars.load()
-    result = envvars.verify_envvar_has_val("CONTAINER_REGISTRY_MAP", envvars.CONTAINER_REGISTRY_MAP)
-    assert not result
-
-
-def test_additional_container_registry_server_has_val():
-    output = Output()
-    envvars = EnvVars(output)
-    envvars.load()
-    if len(envvars.CONTAINER_REGISTRY_MAP) > 1:
-        keys = envvars.CONTAINER_REGISTRY_MAP.keys()
-        for key in keys:
-            if key != '':
-                token = key
-        assert envvars.CONTAINER_REGISTRY_MAP[token].server is not None
-
-
-def test_additional_container_registry_username_has_val():
-    output = Output()
-    envvars = EnvVars(output)
-    envvars.load()
-    if len(envvars.CONTAINER_REGISTRY_MAP) > 1:
-        keys = envvars.CONTAINER_REGISTRY_MAP.keys()
-        for key in keys:
-            if key != '':
-                token = key
-        assert envvars.CONTAINER_REGISTRY_MAP[token].username is not None
-
-
-def test_additional_container_registry_password_has_val():
-    output = Output()
-    envvars = EnvVars(output)
-    envvars.load()
-    if len(envvars.CONTAINER_REGISTRY_MAP) > 1:
-        keys = envvars.CONTAINER_REGISTRY_MAP.keys()
-        for key in keys:
-            if key != '':
-                token = key
-        assert envvars.CONTAINER_REGISTRY_MAP[token].password is not None
+    assert len(envvars.CONTAINER_REGISTRY_MAP) == 2
+    assert 'UNITTEST' in envvars.CONTAINER_REGISTRY_MAP.keys()
+    assert envvars.CONTAINER_REGISTRY_MAP['UNITTEST'].server == 'unittest.azurecr.io'
+    assert envvars.CONTAINER_REGISTRY_MAP['UNITTEST'].username == 'username'
+    assert envvars.CONTAINER_REGISTRY_MAP['UNITTEST'].password == 'password'
