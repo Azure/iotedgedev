@@ -256,9 +256,12 @@ class EnvVars:
         add_key_prefix_length = len(add_key_prefix)
 
         if env_key.startswith(default_key_prefix):
-            token = ''
-            if env_key != default_key_prefix and env_key[add_key_prefix_length - 1] == '_':
+            if env_key == default_key_prefix:
+                token = ''
+            elif env_key.startswith(add_key_prefix):
                 token = env_key[add_key_prefix_length:]
+            else:
+                return
 
             if token not in self.CONTAINER_REGISTRY_MAP:
                 self.CONTAINER_REGISTRY_MAP[token] = ContainerRegistry('', '', '')
