@@ -20,7 +20,7 @@ class EnvVars:
         current_command = Args().get_current_command()
         # for some commands we don't want to load dotenv
         # TODO: temporary hack. A more grace solution would be a decorator on the command to indicate whether to bypass env
-        self.bypass_dotenv_load_commands = ['solution init', 'solution e2e', 'solution create', 'create', 'simulator stop', 'simulator modulecred']
+        self.bypass_dotenv_load_commands = ['solution init', 'solution e2e', 'solution new', 'new', 'simulator stop', 'simulator modulecred']
         self.bypass = self.is_bypass_command(current_command)
         # for some commands we don't want verbose dotenv load output
         self.terse_commands = ['', 'iothub setup']
@@ -151,7 +151,7 @@ class EnvVars:
                 else:
                     self.DOCKER_HOST = None
             except Exception as ex:
-                msg = "Environment variables not configured correctly. Run `iotedgedev solution create` to create a new solution with sample .env file. "
+                msg = "Environment variables not configured correctly. Run `iotedgedev new` to create a new solution with sample .env file. "
                 "Please see README for variable configuration options. Tip: You might just need to restart your command prompt to refresh your Environment Variables. "
                 "Variable that caused exception: {0}".format(str(ex))
                 raise ValueError(msg)

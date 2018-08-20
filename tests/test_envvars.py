@@ -75,49 +75,49 @@ def test_envvar_clean():
 def test_in_command_list_true_1():
     output = Output()
     envvars = EnvVars(output)
-    assert envvars.in_command_list("solution create test_solution", ["init", "e2e", "solution create", "create", "simulator stop"])
+    assert envvars.in_command_list("solution new test_solution", ["init", "e2e", "solution new", "new", "simulator stop"])
 
 
 def test_in_command_list_true_2():
     output = Output()
     envvars = EnvVars(output)
-    assert envvars.in_command_list("solution create", ["init", "e2e", "solution create", "create", "simulator stop"])
+    assert envvars.in_command_list("solution new", ["init", "e2e", "solution new", "new", "simulator stop"])
 
 
 def test_in_command_list_false_1():
     output = Output()
     envvars = EnvVars(output)
-    assert not envvars.in_command_list("solution add filtermodule", ["init", "e2e", "solution create", "create", "simulator stop"])
+    assert not envvars.in_command_list("solution add filtermodule", ["init", "e2e", "solution new", "new", "simulator stop"])
 
 
 def test_in_command_list_false_2():
     output = Output()
     envvars = EnvVars(output)
-    assert not envvars.in_command_list("solution addotherstuff filtermodule", ["init", "e2e", "solution add", "create", "simulator stop"])
+    assert not envvars.in_command_list("solution addotherstuff filtermodule", ["init", "e2e", "solution add", "new", "simulator stop"])
 
 
 def test_in_command_list_empty_1():
     output = Output()
     envvars = EnvVars(output)
-    assert not envvars.in_command_list("", ["init", "e2e", "solution create", "create", "simulator stop"])
+    assert not envvars.in_command_list("", ["init", "e2e", "solution new", "new", "simulator stop"])
 
 
 def test_in_command_list_empty_2():
     output = Output()
     envvars = EnvVars(output)
-    assert not envvars.in_command_list("solution create test_solution", ["init", "e2e", "", "create", "simulator stop"])
+    assert not envvars.in_command_list("solution new test_solution", ["init", "e2e", "", "new", "simulator stop"])
 
 
 def test_in_command_list_empty_3():
     output = Output()
     envvars = EnvVars(output)
-    assert envvars.in_command_list("", ["init", "e2e", "", "create", "simulator stop"])
+    assert envvars.in_command_list("", ["init", "e2e", "", "new", "simulator stop"])
 
 
 def test_is_bypass_command_true():
     output = Output()
     envvars = EnvVars(output)
-    assert envvars.is_bypass_command("solution create EdgeSolution")
+    assert envvars.is_bypass_command("solution new EdgeSolution")
 
 
 def test_is_bypass_command_false():
@@ -141,7 +141,7 @@ def test_is_terse_command_true():
 def test_is_terse_command_false():
     output = Output()
     envvars = EnvVars(output)
-    assert not envvars.is_terse_command("solution create")
+    assert not envvars.is_terse_command("solution new")
 
 
 def test_is_terse_command_empty():

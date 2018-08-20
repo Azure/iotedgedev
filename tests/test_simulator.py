@@ -26,7 +26,7 @@ def create_solution(request):
 
     runner = CliRunner()
     os.chdir(tests_dir)
-    result = runner.invoke(cli.main, ['solution', 'create', test_solution])
+    result = runner.invoke(cli.main, ['solution', 'new', test_solution])
     print(result.output)
 
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
