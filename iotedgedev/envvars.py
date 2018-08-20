@@ -1,6 +1,5 @@
 import os
 import platform
-import sys
 from shutil import copyfile
 
 from dotenv import load_dotenv, set_key
@@ -216,33 +215,12 @@ class EnvVars:
             raise IOError(f("Could not update the environment variable {key} in file {dotenv_path}"))
 
     def get_registries(self):
-        registries = {}
         self.CONTAINER_REGISTRY_MAP = {}
-        length_container_registry_server = len('container_registry_server')
-        length_container_registry_username_or_password = len('container_registry_username')
-        length_container_registry = len('container_registry_')
-        # loops through .env file for key matching container_registry_server, container_registry_username, container_registry_password
+        subkeys = ['server', 'username', 'password']
+        # loops through os.environ for key matching container_registry_server, container_registry_username, container_registry_password
         for key in os.environ:
-            key = key.upper()
-            # get token for container_registry_server key
-            if key.startswith('CONTAINER_REGISTRY_SERVER'):
-                token = key[length_container_registry_server:]
-                # if the token doesn't already exist as an item in the dictionary, add it. if it does, add the server value
-                if token not in registries:
-                    registries[token] = {'username': '', 'password': ''}
-                registries[token]['server'] = self.get_envvar(key, required=True)
-            # get token for container_registry_username or container_registry_password key and get subkey (username or password)
-            elif key.startswith(('CONTAINER_REGISTRY_USERNAME', 'CONTAINER_REGISTRY_PASSWORD')):
-                token = key[length_container_registry_username_or_password:]
-                subkey = key[length_container_registry:length_container_registry_username_or_password]
-                # if the token doesn't already exist as an item in the dictionary, add it. if it does, add the subkey(username/password) value
-                if token not in registries:
-                    registries[token] = {'username': '', 'password': ''}
-                registries[token][subkey] = self.get_envvar(key)
-
-        # store parsed values as a dictionary of containerregistry objects
-        for key, value in registries.items():
-            self.CONTAINER_REGISTRY_MAP[key] = ContainerRegistry(value['server'], value['username'], value['password'])
+            for subkey in subkeys:
+                self._set_registry_map(key, subkey)
 
     def is_posix(self):
         plat = platform.system().lower()
@@ -268,3 +246,20 @@ class EnvVars:
                 else:
                     continue
         return False
+
+    def _set_registry_map(self, env_key, subkey):
+        registry_key_prefix = 'CONTAINER_REGISTRY_'
+        default_key_prefix = registry_key_prefix + subkey.upper()
+
+        # The prefix for additional registries has an additional underscore
+        add_key_prefix = default_key_prefix + '_'
+        add_key_prefix_length = len(add_key_prefix)
+
+        if env_key.startswith(default_key_prefix):
+            token = ''
+            if env_key != default_key_prefix and env_key[add_key_prefix_length - 1] == '_':
+                token = env_key[add_key_prefix_length:]
+
+            if token not in self.CONTAINER_REGISTRY_MAP:
+                self.CONTAINER_REGISTRY_MAP[token] = ContainerRegistry(None, None, None)
+            setattr(self.CONTAINER_REGISTRY_MAP[token], subkey.lower(), self.get_envvar(env_key))
