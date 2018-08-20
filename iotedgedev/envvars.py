@@ -151,7 +151,7 @@ class EnvVars:
                 else:
                     self.DOCKER_HOST = None
             except Exception as ex:
-                msg = "Environment variables not configured correctly. Run `iotedgedev solution create` to create a new solution with sample .env file. "
+                msg = "Environment variables not configured correctly. Run `iotedgedev new` to create a new solution with sample .env file. "
                 "Please see README for variable configuration options. Tip: You might just need to restart your command prompt to refresh your Environment Variables. "
                 "Variable that caused exception: {0}".format(str(ex))
                 raise ValueError(msg)
