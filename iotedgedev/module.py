@@ -1,6 +1,8 @@
 import json
 import os
-
+from .compat import PY2
+if PY2:
+    from .compat import FileNotFoundError
 
 class Module(object):
     def __init__(self, output, utility, module_json_file):

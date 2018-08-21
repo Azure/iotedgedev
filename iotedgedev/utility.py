@@ -7,6 +7,9 @@ from hmac import HMAC
 from time import time
 
 from .compat import PY3
+from .compat import PY2
+if PY2:
+    from .compat import FileNotFoundError
 from .deploymentmanifest import DeploymentManifest
 from .moduletype import ModuleType
 
