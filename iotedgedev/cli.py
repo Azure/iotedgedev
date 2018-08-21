@@ -249,6 +249,12 @@ main.add_command(setup_simulator)
                    short_help="Start IoT Edge simulator",
                    help="Start IoT Edge simulator. To start in solution mode, use `iotedgdev simulator start -s [-v] [-b]`. "
                         "To start in single module mode, use `iotedgedev simulator start -i input1,input2 [-p 53000]`")
+@click.option("--setup",
+              "-u",
+              is_flag=True,
+              default=False,
+              show_default=True,
+              help="Setup IoT Edge simulator before starting.")
 @click.option("--solution",
               "-s",
               is_flag=True,
@@ -281,8 +287,12 @@ main.add_command(setup_simulator)
               show_default=True,
               help="Port of the service for sending message.")
 @with_telemetry
-def start_simulator(solution, build, verbose, inputs, port):
+def start_simulator(setup, solution, build, verbose, inputs, port):
     sim = Simulator(envvars, output)
+
+    if setup:
+        sim.setup(socket.getfqdn())
+
     if solution or not inputs:
         sim.start_solution(verbose, build)
     else:
