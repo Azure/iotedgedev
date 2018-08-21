@@ -48,9 +48,8 @@ USER ContainerAdministrator
 RUN setx /M PATH "%PATH%;C:\tools\dotnetcoresdk;C:\tools\node\;C:\tools\python3;C:\tools\python3\Scripts;c:\tools\docker\;"
 USER ContainerUser
 RUN python -m pip install --upgrade pip
-RUN pip install azure-cli
-RUN npm i -g iothub-explorer 
-RUN npm i -g tree-kill
+RUN pip install azure-cli cookiecutter
+RUN npm i -g iothub-explorer yo generator-azure-iot-edge-module
 RUN az extension add --name azure-cli-iot-ext
 WORKDIR /home/iotedge
 COPY install-dev.bat /scripts/install-dev.bat
