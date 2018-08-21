@@ -134,7 +134,6 @@ class EnvVars:
                 self.DEPLOYMENT_CONFIG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", default="deployment.template.json")
                 self.LOGS_PATH = self.get_envvar("LOGS_PATH")
                 self.MODULES_PATH = self.get_envvar("MODULES_PATH")
-                self.DOTNET_VERBOSITY = self.get_envvar("DOTNET_VERBOSITY")
                 self.LOGS_CMD = self.get_envvar("LOGS_CMD")
                 self.SUBSCRIPTION_ID = self.get_envvar("SUBSCRIPTION_ID")
                 self.RESOURCE_GROUP_NAME = self.get_envvar("RESOURCE_GROUP_NAME")
