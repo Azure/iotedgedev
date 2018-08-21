@@ -1,3 +1,4 @@
+Click>=6.0
 docker>=3.4
 python-dotenv
 requests
@@ -10,6 +11,8 @@ azure-cli-configure
 azure-cli-resource
 azure-cli-cloud
 iotedgehubdev
-
+six
+applicationinsights
+commentjson
 
 
