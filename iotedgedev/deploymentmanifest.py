@@ -8,6 +8,7 @@ import os
 import shutil
 
 from .compat import PY2
+
 if PY2:
     from .compat import FileNotFoundError
 

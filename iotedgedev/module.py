@@ -60,4 +60,4 @@ class Module(object):
         if platform not in platforms:
             raise KeyError("Dockerfile for {0} is not defined in {1}", platform, self.module_json_file)
 
-        return os.path.abspath(os.path.join(os.path.join(self.module_dir, platforms.get(platform))))
+        return os.path.abspath(os.path.join(self.module_dir, platforms.get(platform)))
