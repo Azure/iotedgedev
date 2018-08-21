@@ -6,12 +6,12 @@ from hashlib import sha256
 from hmac import HMAC
 from time import time
 
-from .compat import PY3
-from .compat import PY2
-if PY2:
-    from .compat import FileNotFoundError
+from .compat import PY2, PY3
 from .deploymentmanifest import DeploymentManifest
 from .moduletype import ModuleType
+
+if PY2:
+    from .compat import FileNotFoundError
 
 if PY3:
     from urllib.parse import quote, urlencode

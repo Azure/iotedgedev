@@ -1,15 +1,17 @@
 import json
 import os
+
 from .compat import PY2
+
 if PY2:
     from .compat import FileNotFoundError
 
-class Module(object):
-    def __init__(self, output, utility, module_json_file):
-        self.output = output
-        self.utility = utility
-        self.module_json_file = module_json_file
 
+class Module(object):
+    def __init__(self, envvars, utility, module_name):
+        self.utility = utility
+        self.module_dir = os.path.join(envvars.MODULES_PATH, module_name)
+        self.module_json_file = os.path.join(self.module_dir, "module.json")
         self.module_language = "csharp"
         self.file_json_content = None
         self.load_module_json()
@@ -48,5 +50,14 @@ class Module(object):
     def build_options(self):
         return self.file_json_content.get("image", {}).get("buildOptions", [])
 
+    @property
+    def context_path(self):
+        context_path = self.file_json_content.get("image", {}).get("contextPath", ".")
+        return os.path.abspath(os.path.join(self.module_dir, context_path))
+
     def get_dockerfile_by_platform(self, platform):
-        return self.file_json_content.get("image", {}).get("tag", {}).get("platforms", {}).get(platform, "")
+        platforms = self.file_json_content.get("image", {}).get("tag", {}).get("platforms", {})
+        if platform not in platforms:
+            raise KeyError("Dockerfile for {0} is not defined in {1}", platform, self.module_json_file)
+
+        return os.path.abspath(os.path.join(os.path.join(self.module_dir, platforms.get(platform))))

@@ -1,5 +1,6 @@
 import functools
 import re
+
 from .output import Output
 
 
@@ -110,10 +111,10 @@ cli_sdk_mapping = {
     # '--ulimit' : ['sdk_key', parse_func]
 }
 
-# Class BuildOptions parse docker cli build commands to python sdk dict.
+# Class BuildOptionsParser parses docker cli build commands to python sdk dict.
 
 
-class BuildOptions(object):
+class BuildOptionsParser(object):
     filter_set = ["--rm", "--tag", "-t", "--file", "-f"]
 
     def __init__(self, build_options):
@@ -131,7 +132,7 @@ class BuildOptions(object):
             build_option = build_option.strip()
             cli_key, cli_val = split_build_option(build_option)
             if cli_key:
-                if cli_key not in BuildOptions.filter_set:
+                if cli_key not in BuildOptionsParser.filter_set:
                     filtered_build_options.append((cli_key, cli_val))
                 else:
                     self.output.info('Build option {0} will be ignored.'.format(cli_key))

@@ -34,7 +34,7 @@ with open('HISTORY.rst') as history_file:
 
 requirements = [
     'Click>=6.0',
-    'docker>=3.4',
+    'docker>=3.5',
     'python-dotenv',
     'requests',
     'fstrings',

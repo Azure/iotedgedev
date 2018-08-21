@@ -4,12 +4,17 @@ import sys
 
 import commentjson
 
+from .buildoptionsparser import BuildOptionsParser
+from .buildprofile import BuildProfile
+from .compat import PY2
 from .deploymentmanifest import DeploymentManifest
 from .dockercls import Docker
 from .dotnet import DotNet
 from .module import Module
 from .utility import Utility
-from .buildoptions import BuildOptions
+
+if PY2:
+    from .compat import FileNotFoundError
 
 
 class Modules:
@@ -35,7 +40,7 @@ class Modules:
 
         repo = "{0}/{1}".format("${CONTAINER_REGISTRY_SERVER}", name.lower())
         if template == "csharp":
-            dotnet = DotNet(self.envvars, self.output, self.utility)
+            dotnet = DotNet(self.output, self.utility)
             dotnet.install_module_template()
             dotnet.create_custom_module(name, repo, cwd)
         elif template == "nodejs":
@@ -52,7 +57,7 @@ class Modules:
             self.output.header(cmd)
             self.utility.exe_proc(cmd.split(), cwd=cwd)
         elif template == "csharpfunction":
-            dotnet = DotNet(self.envvars, self.output, self.utility)
+            dotnet = DotNet(self.output, self.utility)
             dotnet.install_function_template()
             dotnet.create_function_module(name, repo, cwd)
 
@@ -78,62 +83,61 @@ class Modules:
         # map (module name, platform) tuple to tag.
         # sample: (('filtermodule', 'amd64'), 'localhost:5000/filtermodule:0.0.1-amd64')
         image_tag_map = {}
-        # map image tag to (module name, dockerfile) tuple
-        # sample: ('localhost:5000/filtermodule:0.0.1-amd64', ('filtermodule', '/test_solution/modules/filtermodule/Dockerfile.amd64'))
-        tag_dockerfile_map = {}
-        # map image tag to build options
-        # sample: ('localhost:5000/filtermodule:0.0.1-amd64', ["--add-host=github.com:192.30.255.112"])
-        tag_build_options_map = {}
+        # map image tag to BuildProfile object
+        tag_build_profile_map = {}
         # image tags to build
         # sample: 'localhost:5000/filtermodule:0.0.1-amd64'
         tags_to_build = set()
 
-        for module in os.listdir(self.envvars.MODULES_PATH):
-            module_dir = os.path.join(self.envvars.MODULES_PATH, module)
-            module_json = Module(self.output, self.utility, os.path.join(module_dir, "module.json"))
-            for platform in module_json.platforms:
-                # get the Dockerfile from module.json
-                dockerfile = os.path.abspath(os.path.join(module_dir, module_json.get_dockerfile_by_platform(platform)))
-                container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
-                tag = "{0}:{1}{2}-{3}".format(module_json.repository, module_json.tag_version, container_tag, platform).lower()
-                image_tag_map[(module, platform)] = tag
-                tag_dockerfile_map[tag] = (module, dockerfile)
-                tag_build_options_map[tag] = module_json.build_options
-                if not self.utility.in_asterisk_list(module, bypass_modules) and self.utility.in_asterisk_list(platform, active_platform):
-                    tags_to_build.add(tag)
+        for module_name in os.listdir(self.envvars.MODULES_PATH):
+            try:
+                module = Module(self.envvars, self.utility, module_name)
+                for platform in module.platforms:
+                    # get the Dockerfile from module.json
+                    dockerfile = module.get_dockerfile_by_platform(platform)
+                    container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
+                    tag = "{0}:{1}{2}-{3}".format(module.repository, module.tag_version, container_tag, platform).lower()
+                    image_tag_map[(module_name, platform)] = tag
+                    tag_build_profile_map[tag] = BuildProfile(module_name, dockerfile, module.context_path, module.build_options)
+                    if not self.utility.in_asterisk_list(module_name, bypass_modules) and self.utility.in_asterisk_list(platform, active_platform):
+                        tags_to_build.add(tag)
+            except FileNotFoundError:
+                pass
 
         deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
         modules_to_process = deployment_manifest.get_modules_to_process()
 
         replacements = {}
-        for module, platform in modules_to_process:
-            key = (module, platform)
+        for module_name, platform in modules_to_process:
+            key = (module_name, platform)
             if key in image_tag_map:
                 tag = image_tag_map.get(key)
-                replacements["${{MODULES.{0}.{1}}}".format(module, platform)] = tag
-                if not self.utility.in_asterisk_list(module, bypass_modules):
+                replacements["${{MODULES.{0}.{1}}}".format(module_name, platform)] = tag
+                if not self.utility.in_asterisk_list(module_name, bypass_modules):
                     tags_to_build.add(tag)
 
         for tag in tags_to_build:
-            if tag in tag_dockerfile_map:
-                module = tag_dockerfile_map.get(tag)[0]
-                dockerfile = tag_dockerfile_map.get(tag)[1]
-                self.output.info("BUILDING MODULE: {0}".format(module), suppress=no_build)
-                self.output.info("PROCESSING DOCKERFILE: {0}".format(dockerfile), suppress=no_build)
-                self.output.info("BUILDING DOCKER IMAGE: {0}".format(tag), suppress=no_build)
-
+            if tag in tag_build_profile_map:
                 docker = Docker(self.envvars, self.utility, self.output)
                 # BUILD DOCKER IMAGE
                 if not no_build:
-                    build_options = tag_build_options_map.get(tag, None)
-                    build_options_parser = BuildOptions(build_options)
+                    build_profile = tag_build_profile_map.get(tag)
+
+                    module_name = build_profile.module_name
+                    dockerfile = build_profile.dockerfile
+                    self.output.info("BUILDING MODULE: {0}".format(module_name))
+                    self.output.info("PROCESSING DOCKERFILE: {0}".format(dockerfile))
+                    self.output.info("BUILDING DOCKER IMAGE: {0}".format(tag))
+
+                    build_options = build_profile.extra_options
+                    build_options_parser = BuildOptionsParser(build_options)
                     sdk_options = build_options_parser.parse_build_options()
 
-                    context_path = os.path.abspath(os.path.join(self.envvars.MODULES_PATH, module))
-                    dockerfile_relative = os.path.relpath(dockerfile, context_path)
+                    context_path = build_profile.context_path
+
                     # a hack to workaround Python Docker SDK's bug with Linux container mode on Windows
+                    dockerfile_relative = os.path.relpath(dockerfile, context_path)
                     if docker.get_os_type() == "linux" and sys.platform == "win32":
-                        dockerfile = dockerfile.replace("\\", "/")
                         dockerfile_relative = dockerfile_relative.replace("\\", "/")
 
                     build_result = docker.docker_client.images.build(tag=tag, path=context_path, dockerfile=dockerfile_relative, **sdk_options)

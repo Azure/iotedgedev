@@ -7,5 +7,5 @@ PY2 = sys.version_info < (3, 0)
 try:
     FileNotFoundError
 except NameError:
-    #py2
+    # py2
     FileNotFoundError = IOError

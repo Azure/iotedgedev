@@ -4,8 +4,7 @@ This module provides interfaces to interact with dotnet CLI
 
 
 class DotNet:
-    def __init__(self, envvars, output, utility):
-        self.envvars = envvars
+    def __init__(self, output, utility):
         self.output = output
         self.utility = utility
         # Fail fast if dotnet is not on path
