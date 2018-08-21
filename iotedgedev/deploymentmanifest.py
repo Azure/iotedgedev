@@ -8,8 +8,10 @@ import os
 import shutil
 
 from .compat import PY2
+
 if PY2:
     from .compat import FileNotFoundError
+
 
 class DeploymentManifest:
     def __init__(self, envvars, output, utility, path, is_template):
