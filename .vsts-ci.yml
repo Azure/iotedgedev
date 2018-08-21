@@ -8,7 +8,7 @@ phases:
 - phase: 'Test'
   queue:
     name: 'Hosted Linux Preview'
-    parallel: 1
+    parallel: 4
     matrix:
       Python27:
         python.version: '2.7'
