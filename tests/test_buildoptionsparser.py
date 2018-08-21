@@ -1,5 +1,5 @@
 import pytest
-from iotedgedev.buildoptions import BuildOptions
+from iotedgedev.buildoptionsparser import BuildOptionsParser
 
 pytestmark = pytest.mark.unit
 
@@ -12,7 +12,7 @@ def test_filter_build_options():
         "-t image",
         "--tag image"
     ]
-    build_options_parser = BuildOptions(build_options)
+    build_options_parser = BuildOptionsParser(build_options)
     assert not build_options_parser.parse_build_options()
 
 
@@ -39,7 +39,7 @@ def test_parse_to_dict():
             'g': ''
         }
     }
-    build_options_parser = BuildOptions(build_options)
+    build_options_parser = BuildOptionsParser(build_options)
     assert sdk_options == build_options_parser.parse_build_options()
 
 
@@ -51,7 +51,7 @@ def test_parse_to_list():
     sdk_options = {
         'cache_from': ['a', 'b']
     }
-    build_options_parser = BuildOptions(build_options)
+    build_options_parser = BuildOptionsParser(build_options)
     assert sdk_options == build_options_parser.parse_build_options()
 
 
@@ -68,7 +68,7 @@ def test_parse_val():
         'shmsize': '1000000',
         'target': 'target'
     }
-    build_options_parser = BuildOptions(build_options)
+    build_options_parser = BuildOptionsParser(build_options)
     assert sdk_options == build_options_parser.parse_build_options()
 
 
@@ -87,7 +87,7 @@ def test_parse_container_limits():
             'memswap': '2000000'
         }
     }
-    build_options_parser = BuildOptions(build_options)
+    build_options_parser = BuildOptionsParser(build_options)
     assert sdk_options == build_options_parser.parse_build_options()
 
 
@@ -102,7 +102,7 @@ def test_parse_flag():
         'quiet': False,
         'nocache': True
     }
-    build_options_parser = BuildOptions(build_options)
+    build_options_parser = BuildOptionsParser(build_options)
     assert sdk_options == build_options_parser.parse_build_options()
 
 
@@ -114,7 +114,7 @@ def test_invalid_build_options():
             "--cpu-period",
             "--cpuset-mems 10",
         ]
-        build_options_parser = BuildOptions(build_options)
+        build_options_parser = BuildOptionsParser(build_options)
         build_options_parser.parse_build_options()
 
 
@@ -151,5 +151,5 @@ def test_filtered_valid_build_options():
         'quiet': False,
         'nocache': True
     }
-    build_options_parser = BuildOptions(build_options)
+    build_options_parser = BuildOptionsParser(build_options)
     assert sdk_options == build_options_parser.parse_build_options()

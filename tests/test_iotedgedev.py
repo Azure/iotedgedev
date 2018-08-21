@@ -25,9 +25,17 @@ test_solution = "test_solution"
 test_solution_dir = os.path.join(tests_dir, test_solution)
 launch_json_file = os.path.join(tests_dir, "assets", "launch.json")
 
+test_solution_shared_lib = "test_solution_shared_lib"
+test_solution_shared_lib_dir = os.path.join(tests_dir, "assets", test_solution_shared_lib)
+
 
 @pytest.fixture(scope="module", autouse=True)
 def create_solution(request):
+    def clean():
+        os.chdir(root_dir)
+        shutil.rmtree(test_solution_dir, ignore_errors=True)
+
+    clean()
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     # print cli
@@ -36,6 +44,7 @@ def create_solution(request):
 
     runner = CliRunner()
     os.chdir(tests_dir)
+
     result = runner.invoke(cli.main, ['solution', 'new', test_solution])
     print(result.output)
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
@@ -44,9 +53,6 @@ def create_solution(request):
 
     os.chdir(test_solution_dir)
 
-    def clean():
-        os.chdir(root_dir)
-        shutil.rmtree(test_solution_dir, ignore_errors=True)
     request.addfinalizer(clean)
     return
 
@@ -159,6 +165,7 @@ def test_push_modules(request):
 
     assert 'BUILD COMPLETE' in result.output
     assert 'PUSH COMPLETE' in result.output
+    assert 'ERROR' not in result.output
 
 
 @pytest.fixture
@@ -215,6 +222,18 @@ def test_valid_env_device_connectionstring():
     assert connectionstring.HubName
     assert connectionstring.SharedAccessKey
     assert connectionstring.DeviceId
+
+
+def test_shared_lib():
+    os.chdir(test_solution_shared_lib_dir)
+
+    cli = __import__("iotedgedev.cli", fromlist=['main'])
+    runner = CliRunner()
+    result = runner.invoke(cli.main, ['build'])
+    print(result.output)
+
+    assert 'BUILD COMPLETE' in result.output
+    assert 'ERROR' not in result.output
 
 
 def add_module_and_verify(main, runner, template):
