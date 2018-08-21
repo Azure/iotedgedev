@@ -8,8 +8,9 @@
             "stopOnEntry": true,
             "module": "iotedgedev.cli",
             "args": [
-                "azure",
-                "--update-dotenv"
+                "solution",
+                "new",
+                "test_solution"
             ],
             "debugOptions": [
                 "RedirectOutput"

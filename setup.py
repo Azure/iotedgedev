@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""The setup script."""
 import atexit
 from subprocess import check_call
 
@@ -11,7 +10,7 @@ from setuptools.command.install import install
 
 
 def _execute():
-    check_call("pip install azure-cli --no-deps".split())
+    check_call('pip install azure-cli --no-deps'.split())
 
 
 class PostInstall(install):
@@ -24,10 +23,6 @@ class PostDevelop(develop):
     def run(self):
         atexit.register(_execute)
         develop.run(self)
-
-
-# with open('README.rst') as readme_file:
-#    readme = readme_file.read()
 
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
@@ -61,10 +56,9 @@ test_requirements = [
 setup(
     name='iotedgedev',
     version='0.81.0',
-    description="The Azure IoT Edge Dev Tool greatly simplifies the IoT Edge development process by automating many routine manual tasks, "
-                "such as building, deploying, pushing modules and configuring the IoT Edge Runtime.",
-    long_description="See https://github.com/azure/iotedgedev for usage instructions.",
-    author="Jon Gallant",
+    description='The Azure IoT Edge Dev Tool greatly simplifies the IoT Edge development process by automating many routine manual tasks, such as building, deploying, pushing modules and configuring the IoT Edge Runtime.',
+    long_description='See https://github.com/azure/iotedgedev for usage instructions.',
+    author='Jon Gallant',
     author_email='info@jongallant.com',
     url='https://github.com/azure/iotedgedev',
     packages=find_packages(include=['iotedgedev']),
@@ -75,7 +69,7 @@ setup(
     },
     include_package_data=True,
     install_requires=requirements,
-    license="MIT license",
+    license='MIT license',
     zip_safe=False,
     keywords='azure iot edge dev tool',
     classifiers=[
@@ -83,13 +77,9 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        "Programming Language :: Python :: 2",
-        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6'
     ],
     test_suite='tests',
