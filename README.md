@@ -30,6 +30,8 @@ The only thing you need to install is Docker. All of the other dev dependencies 
 
     - Open Docker Settings and setup a Shared Drive that you'll use to store your IoT Edge Solution files.
 
+
+
 1. **Run the Azure IoT Edge Dev Container**
 
     Before you run the container, you will need to create a local folder to store your IoT Edge solution files.
