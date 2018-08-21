@@ -2,4 +2,3 @@
 pylint
 pytest
 setuptools
-click
