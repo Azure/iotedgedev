@@ -156,12 +156,12 @@ class Modules:
                             registry_key = key
                             break
                     if registry_key is None:
-                        raise ValueError("Could not find registry server with name {0}. Please make sure your envvar is set.".format(tag.split('/')[0].lower()))
-                    self.output.info("module json reading {0}".format(tag))
-
-                    response = docker.docker_client.images.push(repository=tag, stream=True, auth_config={
-                        "username": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].username,
-                        "password": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].password})
+                        self.output.info("Could not find registry credentials with name {0} in environment variable. Pushing anonymously.".format(tag.split('/')[0].lower()))
+                        response = docker.docker_client.images.push(repository=tag, stream=True)
+                    else:
+                        response = docker.docker_client.images.push(repository=tag, stream=True, auth_config={
+                            "username": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].username,
+                            "password": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].password})
                     docker.process_api_response(response)
             self.output.footer("BUILD COMPLETE", suppress=no_build)
             self.output.footer("PUSH COMPLETE", suppress=no_push)
