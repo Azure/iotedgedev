@@ -122,9 +122,9 @@ class Utility:
         elif moduleType == ModuleType.User:
             return user_modules
         else:
-            return_modules = {}
-            return_modules.update(system_modules)
-            return_modules.update(user_modules)
+            return_modules = []
+            return_modules.extend(system_modules)
+            return_modules.extend(user_modules)
             return return_modules
 
     def set_config(self, force=False, replacements=None):

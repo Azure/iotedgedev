@@ -647,16 +647,16 @@ def clean(module, container, image):
 
 
 @docker.command(context_settings=CONTEXT_SETTINGS,
-                help="Open a new terminal window for EdgeAgent, EdgeHub and each edge module and save to LOGS_PATH. "
+                help="Open a new terminal window for EdgeAgent, EdgeHub and each Edge module and save to LOGS_PATH. "
                      "You can configure the terminal command with LOGS_CMD.",
-                short_help="Open a new terminal window for EdgeAgent, EdgeHub and each edge module and save to LOGS_PATH")
+                short_help="Open a new terminal window for EdgeAgent, EdgeHub and each Edge module and save to LOGS_PATH")
 @click.option("--show",
               "-l",
               default=False,
               show_default=True,
               required=False,
               is_flag=True,
-              help="Open a new terminal window for EdgeAgent, EdgeHub and each edge module. You can configure the terminal command with LOGS_CMD.")
+              help="Open a new terminal window for EdgeAgent, EdgeHub and each Edge module. You can configure the terminal command with LOGS_CMD.")
 @click.option("--save",
               "-s",
               default=False,
