@@ -47,7 +47,7 @@ class EnvVars:
 
     def backup_dotenv(self):
         dotenv_file = self.get_dotenv_file()
-        dotenv_path = self.get_dotenv_file_path(dotenv_file)
+        dotenv_path = self.get_dotenv_file_path()
         dotenv_backup_path = dotenv_path + ".backup"
         try:
             copyfile(dotenv_path, dotenv_backup_path)
