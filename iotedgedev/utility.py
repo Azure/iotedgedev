@@ -39,10 +39,12 @@ class Utility:
     def call_proc(self, params, shell=False, cwd=None):
         try:
             subprocess.check_call(params, shell=shell, cwd=cwd)
+            return 0
         except KeyboardInterrupt as ki:
-            return
+            return 1
         except Exception as e:
             self.output.error("Error while executing command: {0}. {1}".format(' '.join(params), str(e)))
+            return 1
 
     def check_dependency(self, params, description, shell=False):
         try:

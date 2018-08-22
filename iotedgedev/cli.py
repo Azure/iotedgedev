@@ -115,15 +115,15 @@ main.add_command(new)
 def init(module, template):
     utility = Utility(envvars, output)
 
-    if len(os.listdir(os.getcwd())) == 0:
-        solcmd = "iotedgedev new . --module {0} --template {1}".format(module, template)
-        output.header(solcmd)
-        utility.call_proc(solcmd.split())
+    solcmd = "iotedgedev new . --module {0} --template {1}".format(module, template)
+    output.header(solcmd)
+    ret = utility.call_proc(solcmd.split())
 
-    azsetupcmd = "iotedgedev iothub setup --update-dotenv"
-    output.header(azsetupcmd)
-    # Had to use call_proc, because @click.invoke doesn't honor prompts
-    utility.call_proc(azsetupcmd.split())
+    if ret == 0:
+        azsetupcmd = "iotedgedev iothub setup --update-dotenv"
+        output.header(azsetupcmd)
+        # Had to use call_proc, because @click.invoke doesn't honor prompts
+        utility.call_proc(azsetupcmd.split())
 
 
 main.add_command(init)
