@@ -5,6 +5,7 @@ import subprocess
 import sys
 from io import StringIO
 
+from threading import Timer
 from azure.cli.core import get_default_cli
 from fstrings import f
 
@@ -20,6 +21,8 @@ class AzureCli:
         self.output = output
         self.envvars = envvars
         self.az_cli = cli
+        self.process = None
+        self._proc_terminated = False
 
     def decode(self, val):
         return val.decode("utf-8").strip()
@@ -47,6 +50,8 @@ class AzureCli:
             if monitor_events:
                 process = subprocess.Popen(self.prepare_az_cli_args(args, suppress_output),
                                            shell=not self.is_posix(),
+                                           stdout=subprocess.PIPE,
+                                           stderr=subprocess.PIPE,
                                            preexec_fn=os.setsid if self.is_posix() else None,
                                            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if not self.is_posix() else 0)
             elif stdout_io or stderr_io:
@@ -58,10 +63,26 @@ class AzureCli:
                 process = subprocess.Popen(self.prepare_az_cli_args(args, suppress_output),
                                            shell=not self.is_posix())
 
+            self.process = process
+
+            timer = None
             if timeout:
-                stdout_data, stderr_data = process.communicate(timeout=timeout)
-            else:
-                stdout_data, stderr_data = process.communicate()
+                # This Timer will attempt to be accurate but its not always the case in practice
+                timer = Timer(float(timeout),
+                              self._terminate_process_tree,
+                              args=['Timeout set to {0} seconds, which expired as expected.'.format(timeout)])
+            try:
+                if timer:
+                    timer.start()
+
+                if not monitor_events:
+                    stdout_data, stderr_data = process.communicate()
+                else:
+                    return self._handle_monitor_event_process(process)
+
+            finally:
+                if timer:
+                    timer.cancel()
 
             if stderr_data and b"invalid_grant" in stderr_data:
                 self.output.error(self.decode(stderr_data))
@@ -84,21 +105,8 @@ class AzureCli:
 
             if not stdout_io and not stderr_io:
                 self.output.line()
+
         except Exception as e:
-            if hasattr(e, 'timeout') and isinstance(e, subprocess.TimeoutExpired):
-                if self.is_posix():
-                    os.killpg(os.getpgid(process.pid), signal.SIGTERM)
-                else:
-                    process.send_signal(signal.CTRL_BREAK_EVENT)
-                    process.kill()
-
-                if timeout:
-                    self.output.info("Timeout set to {0} seconds, which expired as expected.".format(timeout))
-                    self.output.line()
-                    return True
-                else:
-                    raise
-
             if error_message:
                 self.output.error(error_message)
             self.output.error(str(e))
@@ -106,6 +114,44 @@ class AzureCli:
             return False
 
         return True
+
+    def _handle_monitor_event_process(self, process, error_message=None):
+        try:
+            while not self._proc_terminated:
+                if not process.poll():
+                    self.output.info(process.stdout.readline().decode('utf8').rstrip())
+                else:
+                    err = process.stderr.readline().decode('utf8').rstrip()
+                    # Avoid empty sys.excepthook errors from underlying future
+                    # There is already a uAMQP issue in work for this
+                    # https://github.com/Azure/azure-uamqp-python/issues/30
+                    if "sys.excepthook" not in err:
+                        err = err.lstrip()
+                        err = err.lstrip('ERROR:')
+                        if error_message:
+                            err = "{}: {}".format(error_message, err)
+                        self.output.error(err)
+                    return False
+        except KeyboardInterrupt:
+            self.output.info('Terminating process...')
+            self._terminate_process_tree()
+        return True
+
+    def _terminate_process_tree(self, msg=None):
+        try:
+            if self.process:
+                if self.is_posix():
+                    os.killpg(os.getpgid(self.process.pid), signal.SIGTERM)
+                else:
+                    self.process.send_signal(signal.CTRL_BREAK_EVENT)
+                    self.process.kill()
+                self._proc_terminated = True
+                if msg:
+                    self.output.info(msg)
+                    self.output.line()
+            return True
+        except Exception:
+            return False
 
     def invoke_az_cli(self, args, error_message=None, stdout_io=None):
         try:
