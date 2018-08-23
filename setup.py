@@ -43,7 +43,9 @@ requirements = [
     'iotedgehubdev',
     'six',
     'applicationinsights',
-    'commentjson'
+    'commentjson',
+    'pypiwin32==219; sys_platform == "win32" and python_version < "3.6"',
+    'pypiwin32==223; sys_platform == "win32" and python_version >= "3.6"'
 ]
 
 setup_requirements = [
