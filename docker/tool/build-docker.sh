@@ -14,10 +14,20 @@ else
 fi
 
 # read IoTEdgeDev version from python __init__ file
+
 export VERSION=$(cat ../../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
 
+IMAGE_NAME="$1"
+PLATFORM="$2"
+
+if [ "$IMAGE_NAME" = "--help" ]; then    
+    echo "Usage:"
+    echo "build-docker.sh imagename [linux|windows]"
+    exit 1
+fi
+
 PYTHON2="2.7.14" #TODO READ FROM deps.txt
-PYTHON3="3.6.5"
+PYTHON3="3.6.6"
 
 build_linux=1
 build_windows=1
@@ -39,8 +49,8 @@ function check_docker_expected_mode
 {
     local mode=$(get_docker_mode)    
 
-    if [ $mode != $1 ]; then
-        echo "===== ERROR: docker is not in expected mode: '$1'"
+    if [ $mode != $PLATFORM ]; then
+        echo "===== ERROR: docker is not in expected mode: '$PLATFORM'"
         exit 1
     fi    
 }
@@ -64,9 +74,13 @@ function build_linux
 
     docker build \
         -f Dockerfile \
-        -t microsoft/iotedgedev:$VERSION-linux \
-        -t microsoft/iotedgedev:latest-linux \
         --build-arg IOTEDGEDEV_VERSION=$VERSION \
+        -t microsoft/iotedgedev:$VERSION-amd64 \
+        -t microsoft/iotedgedev:latest-amd64 \
+        -t mcr.microsoft.com/public/iotedgedev:$VERSION-amd64 \
+        -t mcr.microsoft.com/public/iotedgedev:latest-amd64 \
+        -t $IMAGE_NAME:$VERSION-amd64 \
+        -t $IMAGE_NAME:latest-amd64 \
         .
 
     rm iotedgedev-$VERSION-py2.py3-none-any.whl --force
@@ -96,8 +110,12 @@ function build_windows
     docker build \
         -f Dockerfile \
         --build-arg IOTEDGEDEV_VERSION=$VERSION \
-        -t microsoft/iotedgedev:$VERSION-windows \
-        -t microsoft/iotedgedev:latest-windows \
+        -t microsoft/iotedgedev:$VERSION-windows-amd64 \
+        -t microsoft/iotedgedev:latest-windows-amd64 \
+        -t mcr.microsoft.com/public/iotedgedev:$VERSION-windows-amd64 \
+        -t mcr.microsoft.com/public/iotedgedev:latest-windows-amd64 \
+        -t $IMAGE_NAME:$VERSION-windows-amd64 \
+        -t $IMAGE_NAME:latest-windows-amd64 \
         .
 
     rm iotedgedev-$VERSION-py2.py3-none-any.whl --force
@@ -105,21 +123,17 @@ function build_windows
     cd ..
 }
 
-if [ ! -z "$1" ];  then
-    if [ "$1" = "--help" ]; then    
-        echo "Usage:"
-        echo "build-docker.sh [linux|windows]"
-        exit 1
-    fi
 
-    if [ "$1" = "linux" ]; then
+
+if [ ! -z "$PLATFORM" ];  then
+    if [ "$PLATFORM" = "linux" ]; then
         build_windows=0
         echo "===== Building Linux image only"
-    elif [ "$1" = "windows" ]; then
+    elif [ "$PLATFORM" = "windows" ]; then
         build_linux=0
         echo "===== Building Windows image only"
     else
-        echo "Unknown option: $1"
+        echo "Unknown option: $PLATFORM"
         echo "Use --help for help"
         exit 1
     fi
