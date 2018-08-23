@@ -13,3 +13,4 @@ PyYAML
 pylint
 pytest
 setuptools
+twine
