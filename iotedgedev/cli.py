@@ -98,19 +98,35 @@ main.add_command(new)
                   help="Create a new IoT Edge solution and provision Azure resources",
                   # hack to prevent Click truncating help messages
                   short_help="Create a new IoT Edge solution and provision Azure resources")
+@click.option("--module",
+              "-m",
+              required=False,
+              default=envvars.get_envvar("DEFAULT_MODULE_NAME", default="filtermodule"),
+              show_default=True,
+              help="Specify the name of the default module")
+@click.option("--template",
+              "-t",
+              default="csharp",
+              show_default=True,
+              required=False,
+              type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]),
+              help="Specify the template used to create the default module")
 @with_telemetry
-def init():
+def init(module, template):
     utility = Utility(envvars, output)
 
-    if len(os.listdir(os.getcwd())) == 0:
-        solcmd = "iotedgedev new ."
-        output.header(solcmd)
-        utility.call_proc(solcmd.split())
+    solcmd = "iotedgedev new . --module {0} --template {1}".format(module, template)
+    output.header(solcmd)
+    ret = utility.call_proc(solcmd.split())
 
-    azsetupcmd = "iotedgedev iothub setup --update-dotenv"
-    output.header(azsetupcmd)
-    # Had to use call_proc, because @click.invoke doesn't honor prompts
-    utility.call_proc(azsetupcmd.split())
+    if ret == 0:
+        azsetupcmd = "iotedgedev iothub setup --update-dotenv"
+        output.header(azsetupcmd)
+        # Had to use call_proc, because @click.invoke doesn't honor prompts
+        utility.call_proc(azsetupcmd.split())
+
+
+main.add_command(init)
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Push, deploy, start, monitor")
@@ -647,16 +663,16 @@ def clean(module, container, image):
 
 
 @docker.command(context_settings=CONTEXT_SETTINGS,
-                help="Open a new terminal window for EdgeAgent, EdgeHub and each edge module and save to LOGS_PATH. "
+                help="Open a new terminal window for EdgeAgent, EdgeHub and each Edge module and save to LOGS_PATH. "
                      "You can configure the terminal command with LOGS_CMD.",
-                short_help="Open a new terminal window for EdgeAgent, EdgeHub and each edge module and save to LOGS_PATH")
+                short_help="Open a new terminal window for EdgeAgent, EdgeHub and each Edge module and save to LOGS_PATH")
 @click.option("--show",
               "-l",
               default=False,
               show_default=True,
               required=False,
               is_flag=True,
-              help="Open a new terminal window for EdgeAgent, EdgeHub and each edge module. You can configure the terminal command with LOGS_CMD.")
+              help="Open a new terminal window for EdgeAgent, EdgeHub and each Edge module. You can configure the terminal command with LOGS_CMD.")
 @click.option("--save",
               "-s",
               default=False,
