@@ -1,0 +1,3 @@
+[submodule "docker/device"]
+	path = docker/device
+	url = https://github.com/toolboc/azure-iot-edge-device-container
