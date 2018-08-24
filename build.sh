@@ -6,26 +6,34 @@ set -e
 function show_help
 {
     echo "Usage:"
-    echo "build.sh <mode>"
-    echo ""
-    echo "mode: test|prod [windows|linux]"
+    echo "build.sh local|test|prod none|major|minor imagename [windows|linux]"
+    echo "local: don't upload to pypi, test: uses pypitest, prod: uses pypi"
+    echo "none: don't bumpversion, major: bumpversion major, minor: bumpversion minor --no-commit --no-tag"
+    echo "imagename: jongacr.azurecr.io/iotedgedev || microsoft/iotedgedev"
+    echo "windows: builds only windows container, linux: builds only linux container. omit to build both."
+    echo "NOTES: 1. You must have .pypirc in repo root with pypi and pypitest sections. 2. You must have .env file in root with connection strings set."
+    
     exit 1
 }
 
 MODE="$1"
-PLATFORM="$2"
+VERSION_BUMP="$2"
+IMAGE_NAME="$3"
+PLATFORM="$4"
 
-if [ -z "$MODE" ]; then
+if [ -z "$MODE" ] || [ -z "$VERSION_BUMP" ] || [ -z "$IMAGE_NAME" ]; then
     show_help
 fi
 
 echo -e "\n===== Setting up build environment"
-if [ "$MODE" = "test" ]; then
+if [ "$MODE" = "local" ]; then
+    echo "Environment: $MODE"
+elif [ "$MODE" = "prod" ]; then
     echo "Environment: $MODE"
 elif [ "$MODE" = "prod" ]; then
     echo "Environment: $MODE"
 else
-    echo "ERROR> Build mode parameter not known. must be 'prod' or 'test'"
+    echo "ERROR> Build mode parameter not known. must be 'local', 'prod' or 'test'"
     exit 1
 fi
 
@@ -57,47 +65,72 @@ function run_tox {
     rm .pytest_cache -rf
     rm tests/__pycache__ -rf
 
-    echo -e "\n===== Running smoke tests"
+    echo -e "\n===== Running Tox"
     tox
 }
 
-function run_bumpversion {
-    echo -e "\n===== Bumping version"
-    bumpversion minor
+function get_version
+{
+    VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+    echo ${VERSION}
 }
 
-function run_build
+function run_bumpversion {
+
+    if [ "$VERSION_BUMP" = "none" ]; then
+        return
+    fi
+
+    echo -e "\n===== Bumping version"
+
+    if [ "$MODE" = "prod" ]; then
+        bumpversion $VERSION_BUMP
+    else
+        bumpversion $VERSION_BUMP --no-commit --no-tag --allow-dirty
+    fi
+}
+
+function run_build_wheel
 {
     echo -e "\n===== Building Python Wheel"
     python setup.py bdist_wheel 
 }
 
-function run_twine
+function run_upload_pypi
 {
-    echo -e "\n===== Uploading to PyPi"
-    twine upload -u $PIPYUSER --repository-url $PIPYREPO dist/iotedgedev-$VERSION-py2.py3-none-any.whl
+    if [ "$MODE" != "local" ]; then
+        echo -e "\n===== Uploading to PyPi"
+        PYPI=$([ "$MODE" = "prod" ] && echo "pypi" || echo "pypitest")
+        twine upload -r ${PYPI} --config-file .pypirc dist/iotedgedev-$(get_version)-py2.py3-none-any.whl
+    fi
 }
 
 function run_build_docker
 {
-    ./docker/tool/build-docker.sh $PLATFORM
+    echo -e "\n===== Building Docker Containers"
+    ./docker/tool/build-docker.sh $IMAGE_NAME $PLATFORM
 }
 
 function run_push_docker 
 {
-    ./docker/tool/push-docker.sh $1 $2
+    echo -e "\n===== Pushing Docker Containers"
+    ./docker/tool/push-docker.sh $IMAGE_NAME $PLATFORM
 }
 
+function run_push_git
+{
+    if [ "$MODE" = "prod" ]; then
+        echo -e "\n===== Pushing Tags to Git"
+        git push --tags && git push
+    fi
+}
 
-#run_tox
-if [ "$MODE" = "prod" ]; then
-    run_bumpversion
-fi
-run_build
-#run_twine
+run_bumpversion
+run_tox
+run_build_wheel
 run_build_docker
-#run_push_docker
-
-#./docker/push-docker.sh $DOCKERHUB
+run_upload_pypi
+run_push_docker
+run_push_git
 
 echo -e "\n===== All done"

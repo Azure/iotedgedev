@@ -16,42 +16,43 @@ fi
 function show_help
 {
     echo "Usage:"
-    echo "push-docker.sh <dockerhub> [<version>]"
+    echo "push-docker.sh <dockerhub> <platform> [<version>]"
     echo ""
     echo "dockerhub: docker hub name (eg:microsoft/iotedgedev) used for pushing created images"    
+    echo "platform: linux|windows|empty"
     echo "version: version to push. Automatically detected if not specified"
     exit 1
 }
 
-if [ "$1" = "--help" ]; then
-    show_help
+IMAGE_NAME="$1"
+PLATFORM="$2"
+VERSION="$3"
+
+if [ "$IMAGE_NAME" = "--help" ]; then    
+    echo "Usage:"
+    echo "push-docker.sh imagename [linux|windows]"
+    exit 1
 fi
 
-DOCKERHUB="$1"
-
-if [ -z "$DOCKERHUB" ]; then
-    show_help
-fi
-
-if [ -z "$2" ]; then
+if [ -z "$VERSION" ]; then
     echo -e "\n===== Detecting version"
-    VERSION=$(cat ../../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+    VERSION=$(cat ../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
     echo "Detected version $VERSION"
-else
-    VERSION="$2"
 fi
 
-echo -e "\n===== Pushing Docker images"
-docker push $DOCKERHUB:$VERSION-linux 
-docker push $DOCKERHUB:latest-linux 
-docker push $DOCKERHUB:$VERSION-windows 
-docker push $DOCKERHUB:latest-windows 
+docker push $IMAGE_NAME:$VERSION-amd64 
+docker push $IMAGE_NAME:latest-amd64 
+
+#TODO add windows container support.  For now we only push linux.
+#docker push $IMAGE_NAME:$VERSION-windows-amd64
+#docker push $IMAGE_NAME:latest-windows-amd64
 
 echo -e "\n===== Creating Multi-Arch Docker image"
-docker manifest create $DOCKERHUB:latest $DOCKERHUB:latest-linux $DOCKERHUB:latest-windows 
+#docker manifest create $IMAGE_NAME:latest $IMAGE_NAME:latest-amd64 $IMAGE_NAME:latest-windows-amd64 
+docker manifest create --insecure $IMAGE_NAME:latest $IMAGE_NAME:latest-amd64 
 
 echo -e "\n===== Pushing Docker Multi-Arch image"
-docker manifest push
+docker manifest push --purge $IMAGE_NAME:latest
 
 if [ in_docker_folder = 0 ]; then
     cd original_folder
