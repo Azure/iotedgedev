@@ -3,9 +3,14 @@ import os
 import signal
 import subprocess
 import sys
-from io import StringIO
 
-from threading import Timer
+try:
+    from queue import Queue, Empty
+except ImportError:
+    from Queue import Queue, Empty  # python 2.x
+
+from io import StringIO
+from threading import Timer, Thread
 from azure.cli.core import get_default_cli
 from fstrings import f
 
@@ -115,17 +120,42 @@ class AzureCli:
 
         return True
 
+    def _enqueue_stream(self, stream, queue):
+        try:
+            while not self._proc_terminated:
+                queue.put(stream.readline().decode('utf8').rstrip())
+        finally:
+            stream.close()
+
     def _handle_monitor_event_process(self, process, error_message=None):
+        stdout_queue = Queue()
+        stderr_queue = Queue()
+
+        stream_thread_map = {
+            'stdout': Thread(target=self._enqueue_stream, args=(process.stdout, stdout_queue), daemon=True),
+            'stderr': Thread(target=self._enqueue_stream, args=(process.stderr, stderr_queue), daemon=True)
+        }
+
+        stream_thread_map['stdout'].start()
+        stream_thread_map['stderr'].start()
+
         try:
             while not self._proc_terminated:
                 if not process.poll():
-                    self.output.info(process.stdout.readline().decode('utf8').rstrip())
+                    try:
+                        self.output.echo(stdout_queue.get_nowait())
+                    except Empty:
+                        pass
                 else:
-                    err = process.stderr.readline().decode('utf8').rstrip()
+                    err = None
+                    try:
+                        err = stderr_queue.get_nowait()
+                    except Empty:
+                        pass
                     # Avoid empty sys.excepthook errors from underlying future
                     # There is already a uAMQP issue in work for this
                     # https://github.com/Azure/azure-uamqp-python/issues/30
-                    if "sys.excepthook" not in err:
+                    if err and "sys.excepthook" not in err:
                         err = err.lstrip()
                         err = err.lstrip('ERROR:')
                         if error_message:
@@ -135,6 +165,7 @@ class AzureCli:
         except KeyboardInterrupt:
             self.output.info('Terminating process...')
             self._terminate_process_tree()
+
         return True
 
     def _terminate_process_tree(self, msg=None):

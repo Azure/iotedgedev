@@ -111,10 +111,12 @@ def test_monitor(capfd):
     print(err)
     print(result.output)
 
+    # Assert output from simulator
+    sim_match = 'timeCreated'
+
     if not PY35:
         assert 'Monitoring events from device' in out
+        assert sim_match in out
     else:
         assert not err
-
-    # TODO: This assertion seems out of place
-    # assert 'timeCreated' in out
+        assert sim_match in result.output
