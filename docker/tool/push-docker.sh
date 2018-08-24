@@ -50,7 +50,6 @@ docker push $IMAGE_NAME:latest-amd64
 echo -e "\n===== Creating Multi-Arch Docker image"
 #docker manifest create $IMAGE_NAME:latest $IMAGE_NAME:latest-amd64 $IMAGE_NAME:latest-windows-amd64 
 docker manifest create --insecure $IMAGE_NAME:latest $IMAGE_NAME:latest-amd64 
-#docker manifest create jongacr.azurecr.io/iotedgedev:latest jongacr.azurecr.io/iotedgedev:latest-amd64
 
 echo -e "\n===== Pushing Docker Multi-Arch image"
 docker manifest push --purge $IMAGE_NAME:latest
