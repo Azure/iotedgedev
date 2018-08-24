@@ -50,6 +50,7 @@ class AzureCli:
             monitor_events = False
             if 'monitor-events' in args:
                 monitor_events = True
+                self._proc_terminated = False
 
             # Consider using functools
             if monitor_events:
