@@ -26,6 +26,12 @@ def test_suppress_all_exceptions():
 
 def test_hash256_result():
     @hash256_result
+    def test_valid():
+        return "test"
+    expect_hash = hashlib.sha256("test".encode('utf-8'))
+    assert str(expect_hash.hexdigest()) == test_valid()
+
+    @hash256_result
     def test_none():
         return None
     with pytest.raises(ValueError):
@@ -36,9 +42,3 @@ def test_hash256_result():
         return 0
     with pytest.raises(ValueError):
         test_nostring()
-
-    @hash256_result
-    def test_valid():
-        return "test"
-    expect_hash = hashlib.sha256("test".encode('utf-8'))
-    assert str(expect_hash.hexdigest()) == test_valid()
