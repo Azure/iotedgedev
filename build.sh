@@ -6,10 +6,10 @@ set -e
 function show_help
 {
     echo "Usage:"
-    echo "build.sh local|test|prod none|major|minor imagename [windows|linux]"
+    echo "build.sh local|test|prod none|minor|major imagename [windows|linux]"
     echo "local: don't upload to pypi, test: uses pypitest, prod: uses pypi"
-    echo "none: don't bumpversion, major: bumpversion major, minor: bumpversion minor --no-commit --no-tag"
-    echo "imagename: jongacr.azurecr.io/iotedgedev || microsoft/iotedgedev"
+    echo "none: don't bumpversion, minor: bumpversion minor --no-commit --no-tag, major: bumpversion major"
+    echo "imagename: localhost:5000, jongacr.azurecr.io/iotedgedev, microsoft/iotedgedev"
     echo "windows: builds only windows container, linux: builds only linux container. omit to build both."
     echo "NOTES: 1. You must have .pypirc in repo root with pypi and pypitest sections. 2. You must have .env file in root with connection strings set."
     
@@ -28,7 +28,7 @@ fi
 echo -e "\n===== Setting up build environment"
 if [ "$MODE" = "local" ]; then
     echo "Environment: $MODE"
-elif [ "$MODE" = "prod" ]; then
+elif [ "$MODE" = "test" ]; then
     echo "Environment: $MODE"
 elif [ "$MODE" = "prod" ]; then
     echo "Environment: $MODE"
