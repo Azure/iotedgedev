@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
-## [0.82.0] - 2017-08-28
+## [0.82.0] - 2018-08-28
 ### Added
 - New command to add modules to solution
 - Support for adding and building Node.js and Python modules
