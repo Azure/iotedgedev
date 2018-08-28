@@ -5,7 +5,7 @@
 
 The **IoT Edge Dev Tool** greatly simplifies [Azure IoT Edge](https:/azure.microsoft.com/en-us/services/iot-edge/) development down to simple commands driven by environment variables.
 
- - It gets you started with IoT Edge development with the [IoT Edge Dev Container](quickstart) and IoT Edge solution scaffolding that contains a default module and all the required configuration files.
+ - It gets you started with IoT Edge development with the [IoT Edge Dev Container](quickstart) (coming soon for iotedgedev 0.82.0) and IoT Edge solution scaffolding that contains a default module and all the required configuration files.
  - It speeds up your inner-loop dev (dev, debug, test) by reducing multi-step build & deploy processes into one-line CLI commands as well as drives your outer-loop CI/CD pipeline. _You can use all the same commands in both stages of your development life-cycle._
 
 ## Overview
@@ -13,12 +13,15 @@ For the absolute fastest way to get started with IoT Edge Dev, please see the [Q
 
 For a more detailed overview of IoT Edge Dev Tool including setup and commands, please see the [Wiki](https://github.com/Azure/iotedgedev/wiki).
 
-## Quickstart
+## Quickstart (coming soon for iotedgedev 0.82.0)
+
+> The quickstart requires IoT Edge Dev Container with iotedgedev 0.82.0, which will be coming soon. Please stay tuned. To set up development machines manually instead of using the IoT Edge Dev Container, please see the [Manual Development Machine Setup Wiki](https://github.com/Azure/iotedgedev/wiki/manual-dev-machine-setup).
+
 This quickstart will run a container, create a solution, setup Azure resources, build and deploy modules to your device, setup and start the Edge simulator and then monitor messages flowing into IoT Hub.
 
-Here's a 3 minute video walk-through of this Quickstart:
+<!-- Here's a 3 minute video walk-through of this Quickstart:
 
-[![Azure IoT Edge Dev Tool: Quickstart](assets/edgedevtoolquickstartsmall.png)](https://aka.ms/iotedgedevquickstart)
+[![Azure IoT Edge Dev Tool: Quickstart](assets/edgedevtoolquickstartsmall.png)](https://aka.ms/iotedgedevquickstart) -->
 
 The only thing you need to install is Docker. All of the other dev dependencies are included in the container. 
 

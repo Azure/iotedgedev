@@ -1,9 +1,10 @@
 # Changelog
-All notable changes to this project since 1.0.0 will be documented in this file.
+All notable changes to this project since 0.82.0 will be documented in this file.
 
-## [1.0.0] - 2017-08-23
+## [0.82.0] - 2017-08-28
 ### Added
 - New command to add modules to solution
+- Support for adding and building Node.js and Python modules
 - Integration with IoT Edge Simulator provided by the [iotedgehubdev CLI](https://pypi.org/project/iotedgehubdev/)
 - Allow specifying name and template of the default module when creating new solutions
 - Support for build options in `module.json` file
