@@ -1,11 +1,13 @@
 import os
 
+from .compat import PY2
 from .modules import Modules
 from .utility import Utility
-from .compat import PY2
+
 if PY2:
     from .compat import FileNotFoundError
-    
+
+
 class Simulator:
     def __init__(self, envvars, output):
         self.envvars = envvars

@@ -22,16 +22,17 @@ RUN AZ_REPO=$(lsb_release -cs) && \
     tee /etc/apt/sources.list.d/azure-cli.list && \
     apt-key adv --keyserver packages.microsoft.com --recv-keys 52E16F86FEE04B979B07E28DB02C46DF417A0893 && \   
     apt-get update && apt-get install azure-cli
-RUN az extension add --name azure-cli-iot-ext && \
+RUN apt-get update && az extension add --name azure-cli-iot-ext && \
     npm i npm@latest -g && \
-    npm i -g iothub-explorer && npm i -g tree-kill && \
+    npm i -g iothub-explorer yo generator-azure-iot-edge-module && \
     apt-get install -y --no-install-recommends python-dev build-essential libssl-dev libffi-dev libxml2-dev libxslt1-dev zlib1g-dev && \
     rm -rf /var/lib/apt/lists/*
 RUN python -m pip install --upgrade pip && \
     alias python=python3 && \
     alias pip=pip3 && \
     python -m pip install --upgrade pip && \
-    pip install setuptools 
+    pip install setuptools && \
+    pip install cookiecutter
 WORKDIR /home/iotedge
 COPY install-dev.sh /scripts/install-dev.sh
 RUN sed -i 's/\r//' /scripts/install-dev.sh

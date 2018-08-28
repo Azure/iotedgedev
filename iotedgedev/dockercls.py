@@ -12,7 +12,6 @@ class Docker:
     def __init__(self, envvars, utility, output):
         self.envvars = envvars
         self.utility = utility
-        self.utility.set_config()
         self.output = output
 
         if self.envvars.DOCKER_HOST:
@@ -120,8 +119,6 @@ class Docker:
 
         self.setup_registry_in_config(image_names)
 
-        self.utility.set_config(force=True)
-
         self.output.footer("Container Registry Setup Complete")
 
     def setup_registry_in_config(self, image_names):
@@ -205,7 +202,7 @@ class Docker:
                     os.system(command)
                 except Exception as ex:
                     self.output.error(
-                        "Error while trying to open module log '{0}' with command '{1}'. Try `iotedgedev docker logs --save` instead.".format(module, command))
+                        "Error while trying to open module log '{0}' with command '{1}'. Try `iotedgedev docker log --save` instead.".format(module, command))
                     self.output.error(str(ex))
             if save:
                 try:

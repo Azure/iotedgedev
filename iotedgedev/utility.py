@@ -6,12 +6,12 @@ from hashlib import sha256
 from hmac import HMAC
 from time import time
 
-from .compat import PY3
-from .compat import PY2
-if PY2:
-    from .compat import FileNotFoundError
+from .compat import PY2, PY3
 from .deploymentmanifest import DeploymentManifest
 from .moduletype import ModuleType
+
+if PY2:
+    from .compat import FileNotFoundError
 
 if PY3:
     from urllib.parse import quote, urlencode
@@ -39,10 +39,12 @@ class Utility:
     def call_proc(self, params, shell=False, cwd=None):
         try:
             subprocess.check_call(params, shell=shell, cwd=cwd)
+            return 0
         except KeyboardInterrupt as ki:
-            return
+            return 1
         except Exception as e:
             self.output.error("Error while executing command: {0}. {1}".format(' '.join(params), str(e)))
+            return 1
 
     def check_dependency(self, params, description, shell=False):
         try:
@@ -122,9 +124,9 @@ class Utility:
         elif moduleType == ModuleType.User:
             return user_modules
         else:
-            return_modules = {}
-            return_modules.update(system_modules)
-            return_modules.update(user_modules)
+            return_modules = []
+            return_modules.extend(system_modules)
+            return_modules.extend(user_modules)
             return return_modules
 
     def set_config(self, force=False, replacements=None):

@@ -13,8 +13,7 @@ class Solution:
             dir_path = os.path.join(os.getcwd(), name)
 
         if not self.utility.is_dir_empty(dir_path):
-            self.output.prompt("Directory is not empty. Run 'iotedgedev iothub' or clean the directory.")
-            return
+            raise ValueError("Directory is not empty. Run `iotedgedev iothub setup` to retrieve or create required Azure resources or clean the directory.")
 
         self.output.header("CREATING AZURE IOT EDGE SOLUTION: {0}".format(name))
 

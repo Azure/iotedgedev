@@ -1,5 +1,6 @@
 import hashlib
 import sys
+import six
 from functools import wraps
 
 
@@ -68,7 +69,7 @@ def hash256_result(func):
         val = func(*args, **kwargs)
         if not val:
             raise ValueError('Return value is None')
-        elif not isinstance(val, str):
+        elif not isinstance(val, six.string_types):
             raise ValueError('Return value is not string')
         hash_object = hashlib.sha256(val.encode('utf-8'))
         return str(hash_object.hexdigest())

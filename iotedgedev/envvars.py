@@ -19,7 +19,7 @@ class EnvVars:
         current_command = Args().get_current_command()
         # for some commands we don't want to load dotenv
         # TODO: temporary hack. A more grace solution would be a decorator on the command to indicate whether to bypass env
-        self.bypass_dotenv_load_commands = ['solution init', 'solution e2e', 'solution new', 'new', 'simulator stop', 'simulator modulecred']
+        self.bypass_dotenv_load_commands = ['solution init', 'init', 'solution e2e', 'solution new', 'new', 'simulator stop', 'simulator modulecred']
         self.bypass = self.is_bypass_command(current_command)
         # for some commands we don't want verbose dotenv load output
         self.terse_commands = ['', 'iothub setup']
@@ -47,7 +47,7 @@ class EnvVars:
 
     def backup_dotenv(self):
         dotenv_file = self.get_dotenv_file()
-        dotenv_path = self.get_dotenv_file_path(dotenv_file)
+        dotenv_path = self.get_dotenv_file_path()
         dotenv_backup_path = dotenv_path + ".backup"
         try:
             copyfile(dotenv_path, dotenv_backup_path)
@@ -124,17 +124,17 @@ class EnvVars:
 
                 self.get_registries()
 
-                self.BYPASS_MODULES = self.get_envvar("BYPASS_MODULES")
-                self.ACTIVE_DOCKER_PLATFORMS = self.get_envvar("ACTIVE_DOCKER_PLATFORMS", altkeys=["ACTIVE_DOCKER_ARCH"])
-                self.CONTAINER_TAG = self.get_envvar("CONTAINER_TAG")
-                self.RUNTIME_TAG = self.get_envvar("RUNTIME_TAG")
+                self.BYPASS_MODULES = self.get_envvar("BYPASS_MODULES", default="")
+                self.ACTIVE_DOCKER_PLATFORMS = self.get_envvar("ACTIVE_DOCKER_PLATFORMS", altkeys=["ACTIVE_DOCKER_ARCH"], default="")
+                self.CONTAINER_TAG = self.get_envvar("CONTAINER_TAG", default="")
+                self.RUNTIME_TAG = self.get_envvar("RUNTIME_TAG", default="1.0")
                 self.CONFIG_OUTPUT_DIR = self.get_envvar("CONFIG_OUTPUT_DIR", default="config")
-                self.DEPLOYMENT_CONFIG_FILE = self.get_envvar("DEPLOYMENT_CONFIG_FILE", altkeys=['MODULES_CONFIG_FILE'])
+                self.DEPLOYMENT_CONFIG_FILE = self.get_envvar("DEPLOYMENT_CONFIG_FILE", altkeys=['MODULES_CONFIG_FILE'], default="deployment.json")
                 self.DEPLOYMENT_CONFIG_FILE_PATH = os.path.join(self.CONFIG_OUTPUT_DIR, self.DEPLOYMENT_CONFIG_FILE)
                 self.DEPLOYMENT_CONFIG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", default="deployment.template.json")
-                self.LOGS_PATH = self.get_envvar("LOGS_PATH")
-                self.MODULES_PATH = self.get_envvar("MODULES_PATH")
-                self.LOGS_CMD = self.get_envvar("LOGS_CMD")
+                self.LOGS_PATH = self.get_envvar("LOGS_PATH", default="logs")
+                self.MODULES_PATH = self.get_envvar("MODULES_PATH", default="modules")
+                self.LOGS_CMD = self.get_envvar("LOGS_CMD", default="start /B start cmd.exe @cmd /k docker logs {0} -f")
                 self.SUBSCRIPTION_ID = self.get_envvar("SUBSCRIPTION_ID")
                 self.RESOURCE_GROUP_NAME = self.get_envvar("RESOURCE_GROUP_NAME")
                 self.RESOURCE_GROUP_LOCATION = self.get_envvar("RESOURCE_GROUP_LOCATION")
