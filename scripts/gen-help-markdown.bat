@@ -26,6 +26,11 @@ ECHO ```
 iotedgedev genconfig -h
 ECHO ```
 
+ECHO **iotedgedev init**
+ECHO ```
+iotedgedev init -h
+ECHO ```
+
 ECHO **iotedgedev log**
 ECHO ```
 iotedgedev log -h

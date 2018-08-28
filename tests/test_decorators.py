@@ -1,8 +1,8 @@
-import pytest
 import hashlib
 
-from iotedgedev.decorators import suppress_all_exceptions
-from iotedgedev.decorators import hash256_result
+import pytest
+
+from iotedgedev.decorators import hash256_result, suppress_all_exceptions
 
 pytestmark = pytest.mark.unit
 

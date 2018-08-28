@@ -24,6 +24,7 @@ class PostDevelop(develop):
         atexit.register(_execute)
         develop.run(self)
 
+
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
