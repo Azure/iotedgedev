@@ -10,7 +10,7 @@ $ErrorActionPreference = "Stop"
 # and also make sure that 
 # "hosts": [ "tcp://0.0.0.0:2375" ]
 # is added to your 
-# C:\ProgramData\Docker\config\deamon.json
+# C:\ProgramData\Docker\config\daemon.json
 # file
 
 #  Make sure firewall allows comminication via TCP 2375

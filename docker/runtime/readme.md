@@ -14,9 +14,9 @@ Set the connection string to the IoT Edge device you want to connect to in the `
 
 Create and set the enviroment variable IOT_DEVICE_CONNSTR to your IoT Edge Device connection string.
 
-Execute the `run-container.ps1` file. A container named `iotedgec` will be created and inside the `iotedged` daemon will be started. If everything is working correctly you will see the deamon output log.
+Execute the `run-container.ps1` file. A container named `iotedgec` will be created and inside the `iotedged` daemon will be started. If everything is working correctly you will see the daemon output log.
 
-The deamon will use the default ip address assigned by Docker to the container (most probably will be 172.17.0.2). The discovery is automatically done in the `rund.sh` script. If you have changed your Docker network configuration this script may not work as expected, as it looks specifically for `eth0`.
+The daemon will use the default ip address assigned by Docker to the container (most probably will be 172.17.0.2). The discovery is automatically done in the `rund.sh` script. If you have changed your Docker network configuration this script may not work as expected, as it looks specifically for `eth0`.
 
 ### Use IoT Edge CLI
 

@@ -5,6 +5,7 @@ ARG PYTHON3_VERSION
 ENV NODEJS_VERSION 8.11.1
 ENV DOTNETCORESDK_VERSION 2.1.4
 ENV DOCKER_VERSION 17.09.0
+ENV GIT_VERSION 2.18.0
 ENV DESTINATION_FOLDER C:\\tools
 WORKDIR /tmp
 RUN $python_url = ('https://www.python.org/ftp/python/{0}/python-{0}.amd64.msi' -f $env:PYTHON2_VERSION); \
@@ -40,6 +41,13 @@ RUN $docker_url = ('https://download.docker.com/win/static/stable/x86_64/docker-
     $install_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath ''; \
     Expand-Archive -Path .\docker.zip -DestinationPath $install_folder; \
     Remove-Item ('{0}\docker\dockerd.exe' -f $env:DESTINATION_FOLDER)
+RUN $git_url = ('https://github.com/git-for-windows/git/releases/download/v{0}.windows.1/MinGit-{0}-64-bit.zip' -f $env:GIT_VERSION); \
+    Write-Host ('Downloading {0}...' -f $git_url); \
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
+    (New-Object System.Net.WebClient).DownloadFile($git_url, '/tmp/git.zip'); \
+    $unpack_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath 'git'; \
+    Write-Host ('Unpacking into {0}...' -f $unpack_folder); \
+    Expand-Archive .\git.zip -DestinationPath $unpack_folder;
     
 FROM microsoft/nanoserver:1709
 RUN mkdir c:\\tools 
@@ -48,7 +56,7 @@ USER ContainerAdministrator
 RUN setx /M PATH "%PATH%;C:\tools\dotnetcoresdk;C:\tools\node\;C:\tools\python3;C:\tools\python3\Scripts;c:\tools\docker\;"
 USER ContainerUser
 RUN python -m pip install --upgrade pip
-RUN pip install azure-cli cookiecutter
+RUN pip install azure-cli cookiecutter docker-compose
 RUN npm i -g iothub-explorer yo generator-azure-iot-edge-module
 RUN az extension add --name azure-cli-iot-ext
 WORKDIR /home/iotedge
