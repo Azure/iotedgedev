@@ -30,8 +30,7 @@ RUN AZ_REPO=$(lsb_release -cs) && \
 RUN apt-get update && az extension add --name azure-cli-iot-ext && \
     npm i npm@latest -g && \
     npm i -g iothub-explorer yo generator-azure-iot-edge-module && \
-    apt-get install -y --no-install-recommends python-dev build-essential libssl-dev libffi-dev libxml2-dev libxslt1-dev zlib1g-dev && \
-    sed -i -e '/rootCheck/d' $(npm root -g)/yo/lib/cli.js && \
+    apt-get install -y --no-install-recommends python-dev build-essential libssl-dev libffi-dev libxml2-dev libxslt1-dev zlib1g-dev sudo && \
     rm -rf /var/lib/apt/lists/*
 RUN python -m pip install --upgrade pip && \
     alias python=python3 && \
