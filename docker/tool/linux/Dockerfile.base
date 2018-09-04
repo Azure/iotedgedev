@@ -3,8 +3,13 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV DOTNETCORESDK_VERSION 2.1.200
 ENV DOCKER_COMPOSE_VERSION 1.22.0
 RUN apt-get update
-RUN apt-get install gnupg gnupg2 gnupg1 -y && \
-    apt-get install -y --no-install-recommends dialog apt-utils curl apt-transport-https python-pip python3-pip libltdl-dev docker.io && \ 
+RUN apt-get install -y apt-transport-https ca-certificates curl software-properties-common && \
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
+    apt-get update && \
+    apt-get install -y docker-ce
+RUN apt-get install git gnupg gnupg2 gnupg1 -y && \
+    apt-get install -y --no-install-recommends dialog apt-utils curl apt-transport-https python-pip python3-pip libltdl-dev && \ 
     curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
     apt-get install -y nodejs 
 RUN apt-get install -y wget && \
@@ -25,7 +30,7 @@ RUN AZ_REPO=$(lsb_release -cs) && \
 RUN apt-get update && az extension add --name azure-cli-iot-ext && \
     npm i npm@latest -g && \
     npm i -g iothub-explorer yo generator-azure-iot-edge-module && \
-    apt-get install -y --no-install-recommends python-dev build-essential libssl-dev libffi-dev libxml2-dev libxslt1-dev zlib1g-dev && \
+    apt-get install -y --no-install-recommends python-dev build-essential libssl-dev libffi-dev libxml2-dev libxslt1-dev zlib1g-dev sudo && \
     rm -rf /var/lib/apt/lists/*
 RUN python -m pip install --upgrade pip && \
     alias python=python3 && \
