@@ -32,8 +32,7 @@ RUN apt-get update && \
     npm i -g iothub-explorer yo generator-azure-iot-edge-module && \
     apt-get install -y --no-install-recommends python-dev build-essential libssl-dev libffi-dev libxml2-dev libxslt1-dev zlib1g-dev sudo && \
     rm -rf /var/lib/apt/lists/*
-RUN python -m pip install --upgrade pip && \
-    python3 -m pip install --upgrade pip && \
+RUN python3 -m pip install --upgrade pip && \
     pip3 install setuptools && \
     pip3 install cookiecutter
 WORKDIR /home/iotedge
