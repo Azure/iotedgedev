@@ -3,8 +3,8 @@ COPY iotedgedev/ iotedgedev/
 COPY tests/ tests/
 COPY .env HISTORY.rst MANIFEST.in pytest.ini requirements.txt requirements_dev.txt setup.cfg setup.py tox.ini ./
 RUN pip install -r requirements_dev.txt
-RUN export LC_ALL=C.UTF-8 && \
-    export LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
 
 RUN useradd -m iotedgedev && \
     echo 'iotedgedev ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers && \
