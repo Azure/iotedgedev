@@ -78,6 +78,8 @@ The only thing you need to install is Docker. All of the other dev dependencies 
 
     `sudo iotedgedev setup`
 
+    > IoT Edge Simulator does not support running Python and C modules yet. You'll need IoT Edge Runtime to run your Python and C modules.
+
     > You can avoid `sudo` if you are on Windows, and running IoT Edge Dev Tool outside Docker container.
 
 1. **Start the IoT Edge Simulator to run the solution**
