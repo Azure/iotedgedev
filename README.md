@@ -5,7 +5,7 @@
 
 The **IoT Edge Dev Tool** greatly simplifies [Azure IoT Edge](https:/azure.microsoft.com/en-us/services/iot-edge/) development down to simple commands driven by environment variables.
 
- - It gets you started with IoT Edge development with the [IoT Edge Dev Container](quickstart) (coming soon for iotedgedev 0.82.0) and IoT Edge solution scaffolding that contains a default module and all the required configuration files.
+ - It gets you started with IoT Edge development with the [IoT Edge Dev Container](quickstart) and IoT Edge solution scaffolding that contains a default module and all the required configuration files.
  - It speeds up your inner-loop dev (dev, debug, test) by reducing multi-step build & deploy processes into one-line CLI commands as well as drives your outer-loop CI/CD pipeline. _You can use all the same commands in both stages of your development life-cycle._
 
 ## Overview
@@ -13,9 +13,9 @@ For the absolute fastest way to get started with IoT Edge Dev, please see the [Q
 
 For a more detailed overview of IoT Edge Dev Tool including setup and commands, please see the [Wiki](https://github.com/Azure/iotedgedev/wiki).
 
-## Quickstart (coming soon for iotedgedev 0.82.0)
+## Quickstart
 
-> The quickstart requires IoT Edge Dev Container with iotedgedev 0.82.0, which will be coming soon. Please stay tuned. To set up development machines manually instead of using the IoT Edge Dev Container, please see the [Manual Development Machine Setup Wiki](https://github.com/Azure/iotedgedev/wiki/manual-dev-machine-setup).
+> To set up development machines manually instead of using the IoT Edge Dev Container, please see the [Manual Development Machine Setup Wiki](https://github.com/Azure/iotedgedev/wiki/manual-dev-machine-setup).
 
 This quickstart will run a container, create a solution, setup Azure resources, build and deploy modules to your device, setup and start the Edge simulator and then monitor messages flowing into IoT Hub.
 
@@ -70,12 +70,12 @@ The only thing you need to install is Docker. All of the other dev dependencies 
  
 1. **Setup the [IoT Edge Simulator]((https://pypi.org/project/iotedgehubdev/).)**
 
-    `iotedgedev setup`
+    `sudo iotedgedev setup`
 
 1. **Start the IoT Edge Simulator to run the solution**
 
-    `iotedgedev start`
-    > You can also combine setup and start with `iotedgedev start --setup`
+    `sudo iotedgedev start`
+    > You can also combine setup and start with `sudo iotedgedev start --setup`
 
 1. **Monitor messages sent from IoT Edge Simulator to IoT Hub**
 
@@ -83,11 +83,22 @@ The only thing you need to install is Docker. All of the other dev dependencies 
 
 1. **Stop the IoT Edge Simulator**
 
-    `iotedgedev stop`
+    `sudo iotedgedev stop`
+    
+    > You can avoid `sudo` if you are running IoT Edge Dev Tool outside Docker container, and:
+    > * You are on Windows or macOS.
+    > * You are on Linux, and you have followed the post-installation steps for Linux to allow running Docker commands without `sudo`.
+    > 
+    > This also applies to other IoT Edge Dev Tool commands.
+
+1. **Setup the IoT Edge Runtime**
+    
+    1. Copy the device connection string from the `DEVICE_CONNECTION_STRING` environment variable in the `.env` file, [Azure Portal](https://docs.microsoft.com/en-us/azure/iot-edge/how-to-register-device-portal#retrieve-the-connection-string), or [Azure CLI](https://docs.microsoft.com/en-us/azure/iot-edge/how-to-register-device-cli#retrieve-the-connection-string).
+    1. Follow [Edge Device Setup](edge-device-setup) to setup and start the IoT Edge Runtime with the copied device connection string
 
 1. **Push IoT Edge module images**
 
-    `iotedgedev push`
+    `sudo iotedgedev push`
 
 1. **Deploy modules to IoT Edge device**
 
