@@ -20,4 +20,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY rund.sh rund.sh 
 RUN sed -i 's/\r//' ./rund.sh && \
     chmod u+x rund.sh 
+#ENTRYPOINT [ "bash" ]
 ENTRYPOINT [ "./rund.sh" ]

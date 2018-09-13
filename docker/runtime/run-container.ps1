@@ -14,5 +14,5 @@ docker run `
     -p 15581:15581 `
     --network bridge `
     --name iotedgec `
-    -e IOT_DEVICE_CONNSTR=$IOT_DEVICE_CONNSTR `
+    -e IOT_DEVICE_CONNSTR=$env:IOT_DEVICE_CONNSTR `
     iot-edge-c
