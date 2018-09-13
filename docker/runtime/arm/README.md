@@ -1,7 +1,7 @@
 # Running IoT Edge Daemon on AARCH64/Arm64v8 devices
 
 In order to run the edge daemon on 64-bit arm devices, we must
-- Perform the edge daemon installation in a arm32v7 docker image
+- Perform the edge daemon installation in an arm32v7 docker image
 - run that container
 - configure your edge device to use the arm32v7 docker images for hub and agent
 
@@ -46,9 +46,9 @@ sudo docker manifest inspect mcr.microsoft.com/azureiotedge-simulated-temperatur
 ## Build the docker image
 
 ```bash
-./build.sh
+./build-container.sh
 # Edit run.sh with your edge device connection string
-./run.sh
+./run-container.sh
 ```
 
 For usage, see the main readme under "Use IoT Edge tool".
