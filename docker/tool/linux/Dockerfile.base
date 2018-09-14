@@ -2,8 +2,7 @@ FROM ubuntu:18.04
 ENV DEBIAN_FRONTEND noninteractive
 ENV DOTNETCORESDK_VERSION 2.1.200
 ENV DOCKER_COMPOSE_VERSION 1.22.0
-RUN apt-get update
-RUN apt-get install -y apt-transport-https ca-certificates curl software-properties-common && \
+RUN apt-get update && apt-get install -y apt-transport-https ca-certificates curl software-properties-common && \
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
     add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
     apt-get update && \

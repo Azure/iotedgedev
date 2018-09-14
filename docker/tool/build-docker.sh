@@ -77,8 +77,8 @@ function build_linux
         --build-arg IOTEDGEDEV_VERSION=$VERSION \
         -t microsoft/iotedgedev:$VERSION-amd64 \
         -t microsoft/iotedgedev:latest-amd64 \
-        -t mcr.microsoft.com/public/iotedgedev:$VERSION-amd64 \
-        -t mcr.microsoft.com/public/iotedgedev:latest-amd64 \
+        -t mcr.microsoft.com/public/iotedge/iotedgedev:$VERSION-amd64 \
+        -t mcr.microsoft.com/public/iotedge/iotedgedev:latest-amd64 \
         -t $IMAGE_NAME:$VERSION-amd64 \
         -t $IMAGE_NAME:latest-amd64 \
         .
@@ -112,8 +112,8 @@ function build_windows
         --build-arg IOTEDGEDEV_VERSION=$VERSION \
         -t microsoft/iotedgedev:$VERSION-windows-amd64 \
         -t microsoft/iotedgedev:latest-windows-amd64 \
-        -t mcr.microsoft.com/public/iotedgedev:$VERSION-windows-amd64 \
-        -t mcr.microsoft.com/public/iotedgedev:latest-windows-amd64 \
+        -t mcr.microsoft.com/public/iotedge/iotedgedev:$VERSION-windows-amd64 \
+        -t mcr.microsoft.com/public/iotedge/iotedgedev:latest-windows-amd64 \
         -t $IMAGE_NAME:$VERSION-windows-amd64 \
         -t $IMAGE_NAME:latest-windows-amd64 \
         .
