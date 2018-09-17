@@ -9,7 +9,7 @@ function show_help
     echo "build.sh local|test|prod none|minor|major imagename [windows|linux]"
     echo "local: don't upload to pypi, test: uses pypitest, prod: uses pypi"
     echo "none: don't bumpversion, minor: bumpversion minor --no-commit --no-tag, major: bumpversion major"
-    echo "imagename: localhost:5000, jongacr.azurecr.io/iotedgedev, microsoft/iotedgedev"
+    echo "imagename: localhost:5000/iotedgedev, jongacr.azurecr.io/iotedgedev, microsoft/iotedgedev"
     echo "windows: builds only windows container, linux: builds only linux container. omit to build both."
     echo "NOTES: 1. You must have .pypirc in repo root with pypi and pypitest sections. 2. You must have .env file in root with connection strings set."
     
@@ -120,11 +120,23 @@ function run_push_docker
 function run_push_git
 {
     if [ "$MODE" = "prod" ]; then
+        echo 'Resetting __init__ file'
+        git checkout ./iotedgedev/__init__.py
+
         echo -e "\n===== Pushing Tags to Git"
         git push --tags && git push
     fi
 }
 
+function set_analytics_key
+{
+    if [[ ${AIKEY//-/} =~ ^[[:xdigit:]]{32}$ ]]; then
+        echo 'Found AIKEY environment variable. Replacing __AIkey__'
+        sed -i "/__AIkey__/c __AIkey__ = '${AIKEY}'" ./iotedgedev/__init__.py
+    fi  
+}
+
+set_analytics_key
 run_bumpversion
 run_tox
 run_build_wheel
