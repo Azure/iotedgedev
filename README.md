@@ -25,14 +25,11 @@ This quickstart will run a container, create a solution, setup Azure resources, 
 
 The only thing you need to install is Docker. All of the other dev dependencies are included in the container. 
 
-1. **Install [Docker](https://docs.docker.com/engine/installation/)**
+1. **Install [Docker CE](https://docs.docker.com/install/)**
 
-    - Open Docker Settings and setup a Shared Drive that you'll use to store your IoT Edge Solution files.
-    - Windows    
-        - Be sure to check whether you are running in Linux container mode or Windows container mode. IoT Edge Dev Tool currently only supports Linux container mode.
-    - Linux
-        - We've seen some issues with docker.io. If IoT Edge doesn't run for you, then try installing Docker CE directly instead of via docker.io. Use the [CE install steps](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce), or use the [convenience script](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-using-the-convenience-script).
-        - By default, you need `sudo` to run `docker` commands. If you want to avoid this, please follow the [post-installation steps for Linux](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user).
+    - On Windows, only Linux containers are supported at this time. Windows container support is coming very soon! Please follow [the document](https://docs.docker.com/docker-for-windows/#shared-drives) to open Docker Settings and setup a Shared Drive.
+    - For macOS, please follow [the document](https://docs.docker.com/docker-for-mac/#file-sharing) to choose local directories to share with your containers.
+
 
 1. **Run the IoT Edge Dev Container**
 
@@ -47,6 +44,12 @@ The only thing you need to install is Docker. All of the other dev dependencies 
     **Linux**
     ```
     sudo mkdir /home/iotedge
+    sudo docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v /home/iotedge:/home/iotedge microsoft/iotedgedev
+    ```
+
+    **macOS**
+    ```
+    mkdir /home/iotedge
     docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v /home/iotedge:/home/iotedge microsoft/iotedgedev
     ```
 
@@ -54,77 +57,112 @@ The only thing you need to install is Docker. All of the other dev dependencies 
 
     `iotedgedev init`
 
-    > `iotedgedev init` will run both `iotedgedev new .` and `iotedgedev iothub setup`, which will create a new solution and setup your Azure resources in a single command.
-    
-    > If you want to use your existing IoT Hub and IoT Edge device, you can run `iotedgedev new .`, and update the `.env` file with the IoT Hub connection string and IoT Edge device connection string.
-    
-    > `iotedgedev init` and `iotedgedev new .` will add a default C# module named `filtermodule` to the solution. To customize this behavior, append the parameters ` --module <module-name> --template <template>`.
+    > `iotedgedev init` will create a solution and setup your Azure IoT Hub in a single command. The solution comes with a default C# module named `filtermodule`.
 
-1. **Add modules to IoT Edge solution**
+    <details>
+    <summary>More information</summary>
 
-    `iotedgedev add <module-name> --template <template>`
-    
-    > Currently the available template values are `csharp`, `nodejs`, `python`, `csharpfunction`. We are working on supporting more templates.
+    1. You will see structure of current folder like below:
+
+    ```
+        │  .env
+        │  .gitignore
+        │  deployment.template.json
+        │
+        ├─.vscode
+        │      launch.json
+        │
+        └─modules
+            └─filtermodule
+                │  .gitignore
+                │  Dockerfile.amd64
+                │  Dockerfile.amd64.debug
+                │  Dockerfile.arm32v7
+                │  Dockerfile.windows-amd64
+                │  filtermodule.csproj
+                │  module.json
+                │  Program.cs
+    ```
+
+    2. Open `.env` file, you will see the `IOTHUB_CONNECTION_STRING` and `DEVICE_CONNECTION_STRING` environment variables filled correctly.
+    3. Open `deployment.template.json` file   
+        1. You will see below section in the modules section:
+
+        ```
+        "filtermodule": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+                "image": "${MODULES.filtermodule.amd64}",
+                "createOptions": ""
+            }
+        }
+        ```
+
+        2. Two default routes are added:
+        
+        ```
+        "routes": {
+            "sensorTofiltermodule": "FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/filtermodule/inputs/input1\")",
+            "filtermoduleToIoTHub": "FROM /messages/modules/filtermodule/outputs/* INTO $upstream"
+        }
+        ```
+
+    4. You will see privacy statement like below:
+
+        ```
+        Welcome to iotedgedev!
+        -------------------------
+        Telemetry
+        ---------
+        The iotedgedev collects usage data in order to improve your experience.
+        The data is anonymous and does not include commandline argument values.
+        The data is collected by Microsoft.
+        
+        You can change your telemetry settings by updating 'collect_telemetry' to 'no' in ~/.iotedgedev/setting.ini
+        ```
+
+    </details>
 
 1. **Build IoT Edge module images**
 
     `sudo iotedgedev build`
 
-    > You can avoid `sudo` if you are running IoT Edge Dev Tool outside Docker container, and:
-    > * You are on Windows or macOS.
-    > * You are on Linux, and you have followed the [post-installation steps for Linux](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user) to allow running Docker commands without `sudo`.
- 
-1. **Setup the [IoT Edge Simulator]((https://pypi.org/project/iotedgehubdev/).)**
+    <details>
+    <summary>More information</summary>
 
-    `sudo iotedgedev setup`
+    1. You will see a "BUILD COMPLETE" for each module and no error messages in the terminal output.
+	2. Open `config/deployment.json` file, you will see the module image placeholders expanded correctly.
+    3. Run `sudo docker image ls`, you will see the module images you just built.
+
+    </details>
+
+1. **Setup and start the IoT Edge Simulator to run the solution**
+
+    `sudo iotedgedev start --setup`
 
     > IoT Edge Simulator does not support running Python and C modules yet. You'll need IoT Edge Runtime to run your Python and C modules.
 
-    > You can avoid `sudo` if you are on Windows, and running IoT Edge Dev Tool outside Docker container.
+    <details>
+    <summary>More information</summary>
 
-1. **Start the IoT Edge Simulator to run the solution**
+    1. You will see an "IoT Edge Simulator has been started in solution mode." message at the end of the terminal output
+    2. Run `sudo docker ps`, you will see your modules running as well as an edgeHubDev container
 
-    `sudo iotedgedev start`
-
-    > You can also combine setup and start with `sudo iotedgedev start --setup`
-
-    > You can avoid `sudo` if you are running IoT Edge Dev Tool outside Docker container, and:
-    > * You are on Windows or macOS.
-    > * You are on Linux, and you have followed the [post-installation steps for Linux](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user) to allow running Docker commands without `sudo`.
+    </details>
 
 1. **Monitor messages sent from IoT Edge Simulator to IoT Hub**
 
     `iotedgedev monitor`
 
-1. **Stop the IoT Edge Simulator**
+    <details>
+    <summary>More information</summary>
 
-    `sudo iotedgedev stop`
+    1. You will see your expected messages sending to IoT Hub
 
-    > You can avoid `sudo` if you are running IoT Edge Dev Tool outside Docker container, and:
-    > * You are on Windows or macOS.
-    > * You are on Linux, and you have followed the [post-installation steps for Linux](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user) to allow running Docker commands without `sudo`.
-
-1. **Setup the IoT Edge Runtime**
-    
-    1. Copy the device connection string from the `DEVICE_CONNECTION_STRING` environment variable in the `.env` file, [Azure Portal](https://docs.microsoft.com/en-us/azure/iot-edge/how-to-register-device-portal#retrieve-the-connection-string), or [Azure CLI](https://docs.microsoft.com/en-us/azure/iot-edge/how-to-register-device-cli#retrieve-the-connection-string).
-    1. Follow [Edge Device Setup](edge-device-setup) to setup and start the IoT Edge Runtime with the copied device connection string
-
-1. **Push IoT Edge module images**
-
-    `sudo iotedgedev push`
-
-    > You can avoid `sudo` if you are running IoT Edge Dev Tool outside Docker container, and:
-    > * You are on Windows or macOS.
-    > * You are on Linux, and you have followed the [post-installation steps for Linux](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user) to allow running Docker commands without `sudo`.
-
-1. **Deploy modules to IoT Edge device**
-
-    `iotedgedev deploy`
-    > You can also combine push and deploy with `iotedgedev push --deploy`
-
-1. **Monitor messages sent from IoT Edge Runtime to IoT Hub**
-
-    `iotedgedev monitor`
+    </details>
 
 ## Resources
 Please refer to the [Wiki](https://github.com/Azure/iotedgedev/wiki) for details on setup, usage, and troubleshooting.
