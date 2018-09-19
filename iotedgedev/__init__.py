@@ -2,8 +2,6 @@
 
 """Top-level package for Azure IoT Edge Dev Tool."""
 
-import os
-
 __author__ = 'Microsoft Corporation'
 __email__ = 'vsciet@microsoft.com'
 __version__ = '0.82.0'

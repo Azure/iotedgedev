@@ -284,6 +284,7 @@ class AzureCli:
                     elif len(data) > 1:
                         self.output.error(
                             "Found multiple subscriptions for which the ids start with or names contain '{0}'. Please enter more characters to further refine your selection.".format(token))
+                        return token
                     else:
                         self.output.error("Could not find a subscription for which the id starts with or name contains '{0}'.".format(token))
 
@@ -293,14 +294,18 @@ class AzureCli:
 
         if len(subscription) < 36:
             subscription = self.get_subscription_id_starts_with(subscription)
+            if len(subscription) < 36:
+                return subscription
 
         if len(subscription) == 36:
             self.output.status(f("Setting Subscription to '{subscription}'..."))
 
-            return self.invoke_az_cli_outproc(["account", "set", "--subscription", subscription],
-                                              "Error while trying to set Azure subscription.")
+            result = self.invoke_az_cli_outproc(["account", "set", "--subscription", subscription],
+                                                "Error while trying to set Azure subscription.")
+            if result:
+                return subscription
 
-        return False
+        return None
 
     def resource_group_exists(self, name):
         self.output.status(f("Checking if Resource Group '{name}' exists..."))
