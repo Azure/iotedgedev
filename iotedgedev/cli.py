@@ -396,8 +396,12 @@ def validate_option(ctx, param, value):
                 sys.exit()
 
         if default_subscriptionId != value:
-            if not azure_cli.set_subscription(value):
+            subscription = azure_cli.set_subscription(value)
+            if not subscription:
                 raise click.BadParameter(f('Please verify that your subscription Id or Name is correct'))
+            if len(subscription) < 36:
+                value = click.prompt(param.prompt, default=default_subscriptionId)
+                return validate_option(ctx, param, value)
 
     if param.name == "resource_group_name":
         output.param("RESOURCE GROUP NAME", value, f("Setting Resource Group Name to '{value}'..."), azure_cli_processing_complete)
