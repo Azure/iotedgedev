@@ -28,7 +28,7 @@
       "name": "sample_module Local Debug (.NET Core)",
       "type": "coreclr",
       "request": "launch",
-      "program": "${workspaceRoot}/modules/sample_module/bin/Debug/netcoreapp2.0/sample_module.dll",
+      "program": "${workspaceRoot}/modules/sample_module/bin/Debug/netcoreapp2.1/sample_module.dll",
       "args": [],
       "cwd": "${workspaceRoot}/modules/sample_module",
       "internalConsoleOptions": "openOnSessionStart",

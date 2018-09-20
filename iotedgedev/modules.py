@@ -188,6 +188,9 @@ class Modules:
             launch_json_file = "launch_csharp.json"
             replacements["%APP_FOLDER%"] = "/app"
             is_function = True
+        elif template == "python":
+            launch_json_file = "launch_python.json"
+            replacements["%APP_FOLDER%"] = "/app"
 
         if launch_json_file is not None:
             launch_json_file = os.path.join(os.path.split(__file__)[0], "template", launch_json_file)

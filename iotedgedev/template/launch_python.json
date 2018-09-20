@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [{
+        "name": "%MODULE% Remote Debug (Python)",
+        "type": "python",
+        "request": "attach",
+        "port": 5678,
+        "host": "localhost",
+        "logToFile": true,
+        "redirectOutput": true,
+        "pathMappings": [{
+            "localRoot": "${workspaceFolder}/modules/%MODULE_FOLDER%",
+            "remoteRoot": "%APP_FOLDER%"
+        }],
+        "windows": {
+            "pathMappings": [{
+                "localRoot": "${workspaceFolder}\\modules\\%MODULE_FOLDER%",
+                "remoteRoot": "%APP_FOLDER%"
+            }]
+        }
+    }]
+}

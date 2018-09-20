@@ -15,7 +15,7 @@
             "type": "docker",
             "settings": {
               "image": "mcr.microsoft.com/azureiotedge-agent:1.0",
-              "createOptions": ""
+              "createOptions": "{}"
             }
           },
           "edgeHub": {
@@ -36,7 +36,7 @@
             "restartPolicy": "always",
             "settings": {
               "image": "mcr.microsoft.com/azureiotedge-simulated-temperature-sensor:1.0",
-              "createOptions": ""
+              "createOptions": "{}"
             }
           },
           "csharpmodule": {
@@ -46,7 +46,7 @@
             "restartPolicy": "always",
             "settings": {
               "image": "localhost:5000/csharpmodule:0.0.1-amd64",
-              "createOptions": ""
+              "createOptions": "{}"
             }
           },
           "csharpfunction": {
@@ -56,7 +56,7 @@
             "restartPolicy": "always",
             "settings": {
               "image": "localhost:5000/csharpfunction:0.0.1-amd64.debug",
-              "createOptions": ""
+              "createOptions": "{}"
             }
           }
         }
