@@ -44,7 +44,7 @@ class DeploymentManifest:
             "restartPolicy": "always",
             "settings": {
               "image": \"${MODULES.""" + module_name + """.amd64}\",
-              "createOptions": ""
+              "createOptions": "{}"
             }
         }"""
 

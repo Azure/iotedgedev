@@ -28,7 +28,7 @@
       "name": "%MODULE% Local Debug (.NET Core)",
       "type": "coreclr",
       "request": "launch",
-      "program": "${workspaceRoot}/modules/%MODULE_FOLDER%/bin/Debug/netcoreapp2.0/%MODULE%.dll",
+      "program": "${workspaceRoot}/modules/%MODULE_FOLDER%/bin/Debug/netcoreapp2.1/%MODULE%.dll",
       "args": [],
       "cwd": "${workspaceRoot}/modules/%MODULE_FOLDER%",
       "internalConsoleOptions": "openOnSessionStart",

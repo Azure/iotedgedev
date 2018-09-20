@@ -15,7 +15,7 @@
             "type": "docker",
             "settings": {
               "image": "mcr.microsoft.com/azureiotedge-agent:${RUNTIME_TAG}",
-              "createOptions": ""
+              "createOptions": "{}"
             }
           },
           "edgeHub": {
@@ -36,7 +36,7 @@
             "restartPolicy": "always",
             "settings": {
               "image": "mcr.microsoft.com/azureiotedge-simulated-temperature-sensor:${RUNTIME_TAG}",
-              "createOptions": ""
+              "createOptions": "{}"
             }
           }
         }

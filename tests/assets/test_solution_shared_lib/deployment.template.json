@@ -16,7 +16,7 @@
             "type": "docker",
             "settings": {
               "image": "mcr.microsoft.com/azureiotedge-agent:1.0",
-              "createOptions": ""
+              "createOptions": "{}"
             }
           },
           "edgeHub": {
@@ -37,7 +37,7 @@
             "restartPolicy": "always",
             "settings": {
               "image": "mcr.microsoft.com/azureiotedge-simulated-temperature-sensor:1.0",
-              "createOptions": ""
+              "createOptions": "{}"
             }
           },
           "sample_module": {
@@ -47,7 +47,7 @@
             "restartPolicy": "always",
             "settings": {
               "image": "${MODULES.sample_module.amd64}",
-              "createOptions": ""
+              "createOptions": "{}"
             }
           }
         }

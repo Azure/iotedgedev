@@ -28,7 +28,7 @@
       "name": "filtermodule Local Debug (.NET Core)",
       "type": "coreclr",
       "request": "launch",
-      "program": "${workspaceRoot}/modules/filtermodule/bin/Debug/netcoreapp2.0/filtermodule.dll",
+      "program": "${workspaceRoot}/modules/filtermodule/bin/Debug/netcoreapp2.1/filtermodule.dll",
       "args": [],
       "cwd": "${workspaceRoot}/modules/filtermodule",
       "internalConsoleOptions": "openOnSessionStart",
@@ -66,7 +66,7 @@
       "name": "csharpmodule Local Debug (.NET Core)",
       "type": "coreclr",
       "request": "launch",
-      "program": "${workspaceRoot}/modules/csharpmodule/bin/Debug/netcoreapp2.0/csharpmodule.dll",
+      "program": "${workspaceRoot}/modules/csharpmodule/bin/Debug/netcoreapp2.1/csharpmodule.dll",
       "args": [],
       "cwd": "${workspaceRoot}/modules/csharpmodule",
       "internalConsoleOptions": "openOnSessionStart",
@@ -106,6 +106,29 @@
       "env": {
         "EdgeHubConnectionString": "${config:azure-iot-edge.EdgeHubConnectionString}",
         "EdgeModuleCACertificateFile": "${config:azure-iot-edge.EdgeModuleCACertificateFile}"
+      }
+    },
+    {
+      "name": "pythonmodule Remote Debug (Python)",
+      "type": "python",
+      "request": "attach",
+      "port": 5678,
+      "host": "localhost",
+      "logToFile": true,
+      "redirectOutput": true,
+      "pathMappings": [
+        {
+          "localRoot": "${workspaceFolder}/modules/pythonmodule",
+          "remoteRoot": "/app"
+        }
+      ],
+      "windows": {
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}\\modules\\pythonmodule",
+            "remoteRoot": "/app"
+          }
+        ]
       }
     },
     {
