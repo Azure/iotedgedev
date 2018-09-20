@@ -49,8 +49,8 @@ The only thing you need to install is Docker. All of the other dev dependencies 
 
     **macOS**
     ```
-    mkdir /home/iotedge
-    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v /home/iotedge:/home/iotedge microsoft/iotedgedev
+    mkdir ~/iotedge
+    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v ~/iotedge:/home/iotedge microsoft/iotedgedev
     ```
 
 1. **Initialize IoT Edge solution and setup Azure resources**

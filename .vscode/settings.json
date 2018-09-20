@@ -1,13 +1,13 @@
 {
-    "python.pythonPath": "${workspaceFolder}\\py36\\Scripts\\python.exe",
+    "python.pythonPath": "${workspaceFolder}/venv/bin/python",
     "cSpell.words": [
         "dotenv",
         "envvar"
     ],
-    "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
-    "python.linting.pylintUseMinimalCheckers": true,
-    "python.linting.pylintArgs": [
+    "python.linting.pylintEnabled": false,
+    "python.linting.flake8Enabled": true,
+    "python.linting.flake8Args": [
         "--max-line-length=200"
     ],
     "python.formatting.provider": "autopep8",
