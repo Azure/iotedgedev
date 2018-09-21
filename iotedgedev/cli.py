@@ -32,6 +32,8 @@ azure_cli = AzureCli(output, envvars)
 default_subscriptionId = None
 azure_cli_processing_complete = False
 
+supported_templates = ["c", "csharp", "nodejs", "python", "csharpfunction"]
+
 
 @click.group(context_settings=CONTEXT_SETTINGS, cls=OrganizedGroup)
 @click.version_option()
@@ -81,7 +83,7 @@ def docker():
               default="csharp",
               show_default=True,
               required=False,
-              type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]),
+              type=click.Choice(supported_templates),
               help="Specify the template used to create the default module")
 @with_telemetry
 def new(name, module, template):
@@ -108,7 +110,7 @@ main.add_command(new)
               default="csharp",
               show_default=True,
               required=False,
-              type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]),
+              type=click.Choice(supported_templates),
               help="Specify the template used to create the default module")
 @with_telemetry
 def init(module, template):
@@ -147,7 +149,7 @@ def e2e(ctx):
 @click.option("--template",
               "-t",
               required=True,
-              type=click.Choice(["csharp", "nodejs", "python", "csharpfunction"]),
+              type=click.Choice(supported_templates),
               default="csharp",
               show_default=True,
               help="Specify the template used to create the new module")

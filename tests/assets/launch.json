@@ -40,6 +40,51 @@
       }
     },
     {
+      "name": "cmodule Remote Debug (C)",
+      "type": "cppdbg",
+      "request": "attach",
+      "program": "./main",
+      "processId": "${command:pickRemoteProcess}",
+      "pipeTransport": {
+        "pipeCwd": "${workspaceFolder}",
+        "pipeProgram": "docker",
+        "pipeArgs": [
+          "exec",
+          "-i",
+          "cmodule",
+          "sh",
+          "-c"
+        ],
+        "debuggerPath": "/usr/bin/gdb"
+      },
+      "sourceFileMap": {
+        "/app": "${workspaceFolder}/modules/cmodule"
+      },
+      "linux": {
+        "MIMode": "gdb",
+        "setupCommands": [
+          {
+            "description": "Enable pretty-printing for gdb",
+            "text": "-enable-pretty-printing",
+            "ignoreFailures": true
+          }
+        ]
+      },
+      "osx": {
+        "MIMode": "lldb"
+      },
+      "windows": {
+        "MIMode": "gdb",
+        "setupCommands": [
+          {
+            "description": "Enable pretty-printing for gdb",
+            "text": "-enable-pretty-printing",
+            "ignoreFailures": true
+          }
+        ]
+      }
+    },
+    {
       "name": "csharpmodule Remote Debug (.NET Core)",
       "type": "coreclr",
       "request": "attach",

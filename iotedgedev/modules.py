@@ -1,8 +1,11 @@
 import os
 import re
 import sys
+from zipfile import ZipFile
 
 import commentjson
+from six import BytesIO
+from six.moves.urllib.request import urlopen
 
 from .buildoptionsparser import BuildOptionsParser
 from .buildprofile import BuildProfile
@@ -26,6 +29,8 @@ class Modules:
     def add(self, name, template):
         self.output.header("ADDING MODULE {0}".format(name))
 
+        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
+
         cwd = self.envvars.MODULES_PATH
         self.utility.ensure_dir(cwd)
 
@@ -36,10 +41,24 @@ class Modules:
         elif os.path.exists(os.path.join(cwd, name)):
             raise ValueError("Module \"{0}\" already exists under {1}".format(name, os.path.abspath(self.envvars.MODULES_PATH)))
 
-        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
-
         repo = "{0}/{1}".format("${CONTAINER_REGISTRY_SERVER}", name.lower())
-        if template == "csharp":
+        if template == "c":
+            github_prefix = "https://github.com/Azure"
+            git_repo = "azure-iot-edge-c-module"
+            branch = "master"
+            url = "{0}/{1}/archive/{2}.zip".format(github_prefix, git_repo, branch)
+            response = urlopen(url)
+
+            with ZipFile(BytesIO(response.read())) as zip_f:
+                zip_f.extractall(cwd)
+
+            zip_file_prefix = "{0}-{1}".format(git_repo, branch)
+            os.rename(os.path.join(cwd, zip_file_prefix), os.path.join(cwd, name))
+
+            module = Module(self.envvars, self.utility, name)
+            module.repository = repo
+            module.dump()
+        elif template == "csharp":
             dotnet = DotNet(self.output, self.utility)
             dotnet.install_module_template()
             dotnet.create_custom_module(name, repo, cwd)
@@ -62,7 +81,7 @@ class Modules:
             dotnet.create_function_module(name, repo, cwd)
 
         deployment_manifest.add_module_template(name)
-        deployment_manifest.save()
+        deployment_manifest.dump()
 
         self._update_launch_json(name, template)
 
@@ -179,7 +198,10 @@ class Modules:
 
         launch_json_file = None
         is_function = False
-        if template == "csharp":
+        if template == "c":
+            launch_json_file = "launch_c.json"
+            replacements["%APP_FOLDER%"] = "/app"
+        elif template == "csharp":
             launch_json_file = "launch_csharp.json"
             replacements["%APP_FOLDER%"] = "/app"
         elif template == "nodejs":
