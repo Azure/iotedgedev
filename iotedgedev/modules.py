@@ -1,5 +1,6 @@
 import os
 import re
+import shutil
 import sys
 from zipfile import ZipFile
 
@@ -49,11 +50,17 @@ class Modules:
             url = "{0}/{1}/archive/{2}.zip".format(github_prefix, git_repo, branch)
             response = urlopen(url)
 
-            with ZipFile(BytesIO(response.read())) as zip_f:
-                zip_f.extractall(cwd)
-
+            temp_dir = os.path.join(os.path.expanduser("~"), '.iotedgedev')
+            self.utility.ensure_dir(temp_dir)
             zip_file_prefix = "{0}-{1}".format(git_repo, branch)
-            os.rename(os.path.join(cwd, zip_file_prefix), os.path.join(cwd, name))
+            temp_template_dir = os.path.join(temp_dir, zip_file_prefix)
+            if os.path.exists(temp_template_dir):
+                shutil.rmtree(temp_template_dir)
+
+            with ZipFile(BytesIO(response.read())) as zip_f:
+                zip_f.extractall(temp_dir)
+
+            os.rename(temp_template_dir, os.path.join(cwd, name))
 
             module = Module(self.envvars, self.utility, name)
             module.repository = repo
