@@ -102,7 +102,7 @@ class DeploymentManifest:
     def get_desired_property(self, module, prop):
         return self.get_module_content()[module]["properties.desired"][prop]
 
-    def save(self):
+    def dump(self):
         """Dump the JSON to the disk"""
         with open(self.path, "w") as deployment_manifest:
             json.dump(self.json, deployment_manifest, indent=2)

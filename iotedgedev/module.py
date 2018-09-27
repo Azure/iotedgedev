@@ -46,6 +46,10 @@ class Module(object):
     def repository(self):
         return self.file_json_content.get("image", {}).get("repository", "")
 
+    @repository.setter
+    def repository(self, repo):
+        self.utility.nested_set(self.file_json_content, ["image", "repository"], repo)
+
     @property
     def build_options(self):
         return self.file_json_content.get("image", {}).get("buildOptions", [])
@@ -61,3 +65,7 @@ class Module(object):
             raise KeyError("Dockerfile for {0} is not defined in {1}", platform, self.module_json_file)
 
         return os.path.abspath(os.path.join(self.module_dir, platforms.get(platform)))
+
+    def dump(self):
+        with open(self.module_json_file, "w") as f:
+            json.dump(self.file_json_content, f, indent=2)
