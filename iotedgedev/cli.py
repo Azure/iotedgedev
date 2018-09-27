@@ -75,7 +75,7 @@ def docker():
 def new(name, module, template, group_id):
     utility = Utility(envvars, output)
     sol = Solution(output, utility)
-    sol.create(name, module, template)
+    sol.create(name, module, template, group_id)
 
 
 main.add_command(new)
@@ -90,7 +90,10 @@ main.add_command(new)
 def init(module, template, group_id):
     utility = Utility(envvars, output)
 
-    solcmd = "iotedgedev new . --module {0} --template {1}".format(module, template)
+    if template == "java":
+        solcmd = "iotedgedev new . --module {0} --template {1} --group-id {2}".format(module, template, group_id)
+    else:
+        solcmd = "iotedgedev new . --module {0} --template {1}".format(module, template)
     output.header(solcmd)
     ret = utility.call_proc(solcmd.split())
 
@@ -122,7 +125,7 @@ def e2e(ctx):
 @with_telemetry
 def add(name, template, group_id):
     mod = Modules(envvars, output)
-    mod.add(name, template)
+    mod.add(name, template, group_id)
 
 
 main.add_command(add)

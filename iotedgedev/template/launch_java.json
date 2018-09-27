@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "%MODULE% Local Debug (java)",
+            "request": "launch",
+            "cwd": "${workspaceRoot}/modules/%MODULE_FOLDER%",
+            "console": "internalConsole",
+            "stopOnEntry": false,
+            "mainClass": "%GROUP_ID%.App",
+            "args": "",
+            "projectName": "%MODULE%",
+            "env": {
+                "EdgeHubConnectionString": "${config:azure-iot-edge.EdgeHubConnectionString}",
+                "EdgeModuleCACertificateFile": "${config:azure-iot-edge.EdgeModuleCACertificateFile}"
+            }
+        },
+        {
+            "type": "java",
+            "name": "%MODULE% Remote Debug (java)",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": 5005
+        }
+    ]
+}
