@@ -27,7 +27,7 @@ class Modules:
         self.output = output
         self.utility = Utility(self.envvars, self.output)
 
-    def add(self, name, template):
+    def add(self, name, template, group_id):
         self.output.header("ADDING MODULE {0}".format(name))
 
         deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
@@ -69,6 +69,21 @@ class Modules:
             dotnet = DotNet(self.output, self.utility)
             dotnet.install_module_template()
             dotnet.create_custom_module(name, repo, cwd)
+        elif template == "java":
+            self.utility.check_dependency("mvn --help".split(), "To add new Java modules, the Maven tool")
+            cmd = ["mvn",
+                   "archetype:generate",
+                   "-DarchetypeGroupId=com.microsoft.azure",
+                   "-DarchetypeArtifactId=azure-iot-edge-archetype",
+                   "-DarchetypeVersion=1.0.0",
+                   "-DgroupId={0}".format(group_id),
+                   "-DartifactId={0}".format(name),
+                   "-Dversion=1.0.0-SNAPSHOT",
+                   "-Dpackage={0}".format(group_id),
+                   "-Drepository={0}".format(repo),
+                   "-B"]
+            self.output.header(" ".join(cmd))
+            self.utility.exe_proc(cmd, cwd=cwd)
         elif template == "nodejs":
             self.utility.check_dependency("yo azure-iot-edge-module --help".split(), "To add new Node.js modules, the Yeoman tool and Azure IoT Edge Node.js module generator",
                                           shell=not self.envvars.is_posix())
@@ -90,7 +105,7 @@ class Modules:
         deployment_manifest.add_module_template(name)
         deployment_manifest.dump()
 
-        self._update_launch_json(name, template)
+        self._update_launch_json(name, template, group_id)
 
         self.output.footer("ADD COMPLETE")
 
@@ -193,12 +208,12 @@ class Modules:
             self.output.footer("PUSH COMPLETE", suppress=no_push)
         self.utility.set_config(force=True, replacements=replacements)
 
-    def _update_launch_json(self, name, template):
-        new_launch_json = self._get_launch_json(name, template)
+    def _update_launch_json(self, name, template, group_id):
+        new_launch_json = self._get_launch_json(name, template, group_id)
         if new_launch_json is not None:
             self._merge_launch_json(new_launch_json)
 
-    def _get_launch_json(self, name, template):
+    def _get_launch_json(self, name, template, group_id):
         replacements = {}
         replacements["%MODULE%"] = name
         replacements["%MODULE_FOLDER%"] = name
@@ -211,6 +226,9 @@ class Modules:
         elif template == "csharp":
             launch_json_file = "launch_csharp.json"
             replacements["%APP_FOLDER%"] = "/app"
+        elif template == "java":
+            launch_json_file = "launch_java.json"
+            replacements["%GROUP_ID%"] = group_id
         elif template == "nodejs":
             launch_json_file = "launch_node.json"
         elif template == "csharpfunction":

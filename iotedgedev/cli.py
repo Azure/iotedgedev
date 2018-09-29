@@ -10,7 +10,7 @@ import click
 from fstrings import f
 
 from .azurecli import AzureCli
-from .decorators import with_telemetry
+from .decorators import add_module_options, with_telemetry
 from .dockercls import Docker
 from .edge import Edge
 from .envvars import EnvVars
@@ -31,8 +31,6 @@ envvars.load()
 azure_cli = AzureCli(output, envvars)
 default_subscriptionId = None
 azure_cli_processing_complete = False
-
-supported_templates = ["c", "csharp", "nodejs", "python", "csharpfunction"]
 
 
 @click.group(context_settings=CONTEXT_SETTINGS, cls=OrganizedGroup)
@@ -72,24 +70,12 @@ def docker():
                        "Use \".\" as NAME to create in the current folder.")
 @click.argument("name",
                 required=True)
-@click.option("--module",
-              "-m",
-              required=False,
-              default=envvars.get_envvar("DEFAULT_MODULE_NAME", default="filtermodule"),
-              show_default=True,
-              help="Specify the name of the default module")
-@click.option("--template",
-              "-t",
-              default="csharp",
-              show_default=True,
-              required=False,
-              type=click.Choice(supported_templates),
-              help="Specify the template used to create the default module")
+@add_module_options(envvars, init=True)
 @with_telemetry
-def new(name, module, template):
+def new(name, module, template, group_id):
     utility = Utility(envvars, output)
     sol = Solution(output, utility)
-    sol.create(name, module, template)
+    sol.create(name, module, template, group_id)
 
 
 main.add_command(new)
@@ -99,24 +85,15 @@ main.add_command(new)
                   help="Create a new IoT Edge solution and provision Azure resources",
                   # hack to prevent Click truncating help messages
                   short_help="Create a new IoT Edge solution and provision Azure resources")
-@click.option("--module",
-              "-m",
-              required=False,
-              default=envvars.get_envvar("DEFAULT_MODULE_NAME", default="filtermodule"),
-              show_default=True,
-              help="Specify the name of the default module")
-@click.option("--template",
-              "-t",
-              default="csharp",
-              show_default=True,
-              required=False,
-              type=click.Choice(supported_templates),
-              help="Specify the template used to create the default module")
+@add_module_options(envvars, init=True)
 @with_telemetry
-def init(module, template):
+def init(module, template, group_id):
     utility = Utility(envvars, output)
 
-    solcmd = "iotedgedev new . --module {0} --template {1}".format(module, template)
+    if template == "java":
+        solcmd = "iotedgedev new . --module {0} --template {1} --group-id {2}".format(module, template, group_id)
+    else:
+        solcmd = "iotedgedev new . --module {0} --template {1}".format(module, template)
     output.header(solcmd)
     ret = utility.call_proc(solcmd.split())
 
@@ -144,19 +121,11 @@ def e2e(ctx):
 @solution.command(context_settings=CONTEXT_SETTINGS,
                   short_help="Add a new module to the solution",
                   help="Add a new module to the solution, where NAME is the module name")
-@click.argument("name",
-                required=True)
-@click.option("--template",
-              "-t",
-              required=True,
-              type=click.Choice(supported_templates),
-              default="csharp",
-              show_default=True,
-              help="Specify the template used to create the new module")
+@add_module_options(envvars)
 @with_telemetry
-def add(name, template):
+def add(name, template, group_id):
     mod = Modules(envvars, output)
-    mod.add(name, template)
+    mod.add(name, template, group_id)
 
 
 main.add_command(add)

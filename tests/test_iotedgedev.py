@@ -124,6 +124,7 @@ def test_module_add():
 
     add_module_and_verify(cli.main, runner, "c")
     add_module_and_verify(cli.main, runner, "csharp")
+    add_module_and_verify(cli.main, runner, "java")
     add_module_and_verify(cli.main, runner, "nodejs")
     add_module_and_verify(cli.main, runner, "python")
     add_module_and_verify(cli.main, runner, "csharpfunction")
