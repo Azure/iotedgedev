@@ -6,8 +6,4 @@ RUN pip install -r requirements_dev.txt
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
-RUN useradd -m iotedgedev && \
-    echo 'iotedgedev ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers && \
-    chown -R iotedgedev:iotedgedev .
-
-USER iotedgedev
+RUN tox
