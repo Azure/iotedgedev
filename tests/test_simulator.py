@@ -58,7 +58,7 @@ def test_start_single():
     cli = __import__('iotedgedev.cli', fromlist=['main'])
     runner = CliRunner()
 
-    result = runner.invoke(cli.main, ['simulator', 'start', '-i', 'setup'])
+    result = runner.invoke(cli.main, ['simulator', 'start', '-i', 'input1'])
     print(result.output)
 
     assert 'IoT Edge Simulator has been started in single module mode.' in result.output

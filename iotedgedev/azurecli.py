@@ -3,16 +3,15 @@ import os
 import signal
 import subprocess
 import sys
-
-try:
-    from queue import Queue, Empty
-except ImportError:
-    from Queue import Queue, Empty  # python 2.x
-
 from io import StringIO
-from threading import Timer, Thread
+from threading import Thread, Timer
+
 from azure.cli.core import get_default_cli
 from fstrings import f
+from six.moves.queue import Empty, Queue
+
+from . import telemetry
+from .utility import Utility
 
 output_io_cls = StringIO
 
@@ -357,8 +356,12 @@ class AzureCli:
 
         return result
 
-    def set_modules(self, device_id, connection_string, hub_name, config):
+    def set_modules(self, device_id, connection_string, hub_name, config, hostname):
         self.output.status(f("Deploying '{config}' to '{device_id}'..."))
+
+        hostname_hash, suffix = Utility.hash_connection_str_hostname(hostname)
+        telemetry.add_extra_props({'iothubhostname': hostname_hash, 'iothubhostnamesuffix': suffix})
+
         config = os.path.join(os.getcwd(), config)
 
         return self.invoke_az_cli_outproc(["iot", "edge", "set-modules", "-d", device_id, "-n", hub_name, "-k", config, "-l", connection_string],

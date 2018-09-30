@@ -7,6 +7,7 @@ from hmac import HMAC
 from time import time
 
 from .compat import PY2, PY3
+from .decorators import suppress_all_exceptions
 from .deploymentmanifest import DeploymentManifest
 from .moduletype import ModuleType
 
@@ -188,3 +189,22 @@ class Utility:
             current = current.get(key)
 
         current[keys[-1]] = value
+
+    @staticmethod
+    @suppress_all_exceptions()
+    def hash_connection_str_hostname(connection_str_hostname):
+        """Hash connection string hostname to count distint IoT Hub number"""
+
+        # get hostname suffix (e.g., azure-devices.net) to distinguish national clouds
+        if "." in connection_str_hostname:
+            hostname_suffix = connection_str_hostname[connection_str_hostname.index(".")+1:]
+        else:
+            hostname_suffix = ""
+
+        return (Utility.get_sha256_hash(connection_str_hostname), hostname_suffix)
+
+    @staticmethod
+    def get_sha256_hash(val):
+        hash_object = sha256(val.encode('utf-8'))
+
+        return str(hash_object.hexdigest()).lower()
