@@ -194,6 +194,8 @@ class Utility:
     @suppress_all_exceptions()
     def hash_connection_str_hostname(connection_str_hostname):
         """Hash connection string hostname to count distint IoT Hub number"""
+        if not connection_str_hostname:
+            return ("", "")
 
         # get hostname suffix (e.g., azure-devices.net) to distinguish national clouds
         if "." in connection_str_hostname:
