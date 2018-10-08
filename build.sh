@@ -41,11 +41,13 @@ if [ ! -z $PLATFORM ]; then
     echo "Platform: $PLATFORM"
 fi
 
-echo -e "\n===== Checking pre-requisistes"
-IS_ADMIN=$(powershell '([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")')
-if [ "$IS_ADMIN" = "False" ]; then        
-    echo "ERROR> Build script must be run as administrator"
-    exit 1
+if [ "$OSTYPE" = "msys" ]; then
+    echo -e "\n===== Checking pre-requisistes"
+    IS_ADMIN=$(powershell '([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")')
+    if [ "$IS_ADMIN" = "False" ]; then        
+        echo "ERROR> Build script must be run as administrator"
+        exit 1
+    fi
 fi
 
 #TODO
