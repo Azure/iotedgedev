@@ -85,11 +85,3 @@ def test_in_asterisk_list_asterisk(utility):
 
 def test_get_sha256_hash():
     assert Utility.get_sha256_hash("foo") == "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae"
-
-
-def test_hash_connection_str_hostname():
-    connection_str_hostname = "ChaoyiTestIoT.azure-devices.net"
-    assert Utility.hash_connection_str_hostname(connection_str_hostname) == ("6b8fcfea09003d5f104771e83bd9ff54c592ec2277ec1815df91dd64d1633778", "azure-devices.net")
-
-    assert Utility.hash_connection_str_hostname(None) == ("", "")
-    assert Utility.hash_connection_str_hostname("") == ("", "")

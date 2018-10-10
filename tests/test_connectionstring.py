@@ -8,11 +8,12 @@ pytestmark = pytest.mark.unit
 
 emptystring = ""
 valid_connectionstring = "HostName=testhub.azure-devices.net;SharedAccessKey=gibberish"
-valid_iothub_connectionstring = "HostName=testhub.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=moregibberish"
+valid_iothub_connectionstring = "HostName=ChaoyiTestIoT.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=moregibberish"
 valid_device_connectionstring = "HostName=testhub.azure-devices.net;DeviceId=testdevice;SharedAccessKey=othergibberish"
 invalid_connectionstring = "HostName=azure-devices.net;SharedAccessKey=gibberish"
 invalid_iothub_connectionstring = "HostName=testhub.azure-devices.net;SharedAccessKey=moregibberish"
 invalid_device_connectionstring = "HostName=testhub.azure-devices.net;DeviceId=;SharedAccessKey=othergibberish"
+empty_hostname_iothub_connectionstring = "HostName=;SharedAccessKeyName=iothubowner;SharedAccessKey=moregibberish"
 
 
 def test_empty_connectionstring():
@@ -39,8 +40,8 @@ def test_valid_connectionstring():
 
 def test_valid_iothub_connectionstring():
     connectionstring = IoTHubConnectionString(valid_iothub_connectionstring)
-    assert connectionstring.HostName == "testhub.azure-devices.net"
-    assert connectionstring.HubName == "testhub"
+    assert connectionstring.HostName == "ChaoyiTestIoT.azure-devices.net"
+    assert connectionstring.HubName == "ChaoyiTestIoT"
     assert connectionstring.SharedAccessKeyName == "iothubowner"
     assert connectionstring.SharedAccessKey == "moregibberish"
 
@@ -69,3 +70,10 @@ def test_invalid_devicehub_connectionstring():
     assert connectionstring.HubName == "testhub"
     assert not connectionstring.DeviceId
     assert connectionstring.SharedAccessKey == "othergibberish"
+
+
+def test_hash_connection_str_hostname():
+    assert IoTHubConnectionString(valid_iothub_connectionstring).hash_hostname() \
+        == ("6b8fcfea09003d5f104771e83bd9ff54c592ec2277ec1815df91dd64d1633778", "azure-devices.net")
+    assert IoTHubConnectionString(emptystring).hash_hostname() == ("", "")
+    assert IoTHubConnectionString(empty_hostname_iothub_connectionstring).hash_hostname() == ("", "")

@@ -11,7 +11,6 @@ from fstrings import f
 from six.moves.queue import Empty, Queue
 
 from . import telemetry
-from .utility import Utility
 
 output_io_cls = StringIO
 
@@ -356,15 +355,15 @@ class AzureCli:
 
         return result
 
-    def set_modules(self, device_id, connection_string, hub_name, config, hostname):
+    def set_modules(self, device_id, connection_string, config):
         self.output.status(f("Deploying '{config}' to '{device_id}'..."))
 
-        hostname_hash, suffix = Utility.hash_connection_str_hostname(hostname)
+        hostname_hash, suffix = connection_string.hash_hostname()
         telemetry.add_extra_props({'iothubhostname': hostname_hash, 'iothubhostnamesuffix': suffix})
 
         config = os.path.join(os.getcwd(), config)
 
-        return self.invoke_az_cli_outproc(["iot", "edge", "set-modules", "-d", device_id, "-n", hub_name, "-k", config, "-l", connection_string],
+        return self.invoke_az_cli_outproc(["iot", "edge", "set-modules", "-d", device_id, "-n", connection_string.HubName, "-k", config, "-l", connection_string.ConnectionString],
                                           error_message=f("Failed to deploy '{config}' to '{device_id}'..."), suppress_output=True)
 
     def monitor_events(self, device_id, connection_string, hub_name, timeout=300):
