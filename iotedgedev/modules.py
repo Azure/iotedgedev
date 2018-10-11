@@ -181,10 +181,11 @@ class Modules:
                     if docker.get_os_type() == "linux" and sys.platform == "win32":
                         dockerfile_relative = dockerfile_relative.replace("\\", "/")
 
-                    build_result = docker.docker_client.images.build(tag=tag, path=context_path, dockerfile=dockerfile_relative, **sdk_options)
+                    build_args = {"tag": tag, "path": context_path, "dockerfile": dockerfile_relative}
+                    build_args.update(sdk_options)
 
-                    self.output.info("DOCKER IMAGE DETAILS: {0}".format(build_result))
-
+                    response = docker.docker_api.build(**build_args)
+                    docker.process_api_response(response)
                 if not no_push:
                     docker.init_registry()
 
