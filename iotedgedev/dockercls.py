@@ -1,8 +1,8 @@
-import json
 import os
 import zipfile
 
 import docker
+import six
 
 from .moduletype import ModuleType
 
@@ -233,16 +233,13 @@ class Docker:
         self.output.info("Log files successfully saved to: " + zip_path)
 
     def process_api_response(self, response):
-        for line in response:
-            decoded = self.utility.decode(line).replace('\\u003e', '>')
-            self.output.procout(decoded)
-            try:
-                decoded_json = json.loads(decoded)
-            except ValueError:
-                continue
+        for json_ in docker.utils.json_stream.json_stream(response):
+            for key in json_:
+                if key in {"status", "stream"} and isinstance(json_[key], six.string_types):
+                    self.output.procout(json_[key].rstrip())
 
             # Docker SDK won't throw exceptions for some failures.
             # We have to check the response ourselves.
             # Related issue: https://github.com/docker/docker-py/issues/1772
-            if 'error' in decoded_json:
-                raise ValueError(decoded_json['error'])
+            if "error" in json_:
+                raise ValueError(json_["error"])
