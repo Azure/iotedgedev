@@ -35,6 +35,10 @@ RUN python3 -m pip install --upgrade pip && \
     pip3 install setuptools && \
     pip3 install cookiecutter
 RUN apt-get -y install openjdk-8-jdk
+RUN apt-get update && \
+    apt-get install -y ca-certificates-java && \
+    update-ca-certificates -f && \
+    rm -rf /var/cache/oracle-jdk8-installer
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 ENV PATH $JAVA_HOME/bin:$PATH
 RUN mkdir -p /usr/share/maven /usr/share/maven/ref && \
@@ -42,7 +46,8 @@ RUN mkdir -p /usr/share/maven /usr/share/maven/ref && \
     tar -xzf /tmp/apache-maven.tar.gz -C /usr/share/maven --strip-components=1 && \
     rm -f /tmp/apache-maven.tar.gz && \
     ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
-RUN rm -rf /var/lib/apt/lists/*
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 WORKDIR /home/iotedge
 COPY install-dev.sh /scripts/install-dev.sh
 RUN sed -i 's/\r//' /scripts/install-dev.sh
