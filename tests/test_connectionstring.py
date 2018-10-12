@@ -21,6 +21,14 @@ def test_empty_connectionstring():
     assert not connectionstring.data
 
 
+def test_empty_hostname_iothub_connectionstring():
+    connectionstring = ConnectionString(empty_hostname_iothub_connectionstring)
+    assert connectionstring.HostName == ""
+    assert connectionstring.HubName == ""
+    assert connectionstring.SharedAccessKey == "moregibberish"
+    assert connectionstring.HostNameHashed == ""
+
+
 def test_empty_iothub_connectionstring():
     connectionstring = IoTHubConnectionString(emptystring)
     assert not connectionstring.data
@@ -44,6 +52,7 @@ def test_valid_iothub_connectionstring():
     assert connectionstring.HubName == "ChaoyiTestIoT"
     assert connectionstring.SharedAccessKeyName == "iothubowner"
     assert connectionstring.SharedAccessKey == "moregibberish"
+    assert connectionstring.HostNameHashed == "6b8fcfea09003d5f104771e83bd9ff54c592ec2277ec1815df91dd64d1633778"
 
 
 def test_valid_devicehub_connectionstring():
@@ -70,10 +79,3 @@ def test_invalid_devicehub_connectionstring():
     assert connectionstring.HubName == "testhub"
     assert not connectionstring.DeviceId
     assert connectionstring.SharedAccessKey == "othergibberish"
-
-
-def test_hash_connection_str_hostname():
-    assert IoTHubConnectionString(valid_iothub_connectionstring).hash_hostname() \
-        == ("6b8fcfea09003d5f104771e83bd9ff54c592ec2277ec1815df91dd64d1633778", "azure-devices.net")
-    assert IoTHubConnectionString(emptystring).hash_hostname() == ("", "")
-    assert IoTHubConnectionString(empty_hostname_iothub_connectionstring).hash_hostname() == ("", "")

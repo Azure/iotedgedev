@@ -358,8 +358,7 @@ class AzureCli:
     def set_modules(self, device_id, connection_string, config):
         self.output.status(f("Deploying '{config}' to '{device_id}'..."))
 
-        hostname_hash, suffix = connection_string.hash_hostname()
-        telemetry.add_extra_props({'iothubhostname': hostname_hash, 'iothubhostnamesuffix': suffix})
+        telemetry.add_extra_props({'iothubhostname': connection_string.HostNameHashed, 'iothubhostnamesuffix': connection_string.HostNameSuffix})
 
         config = os.path.join(os.getcwd(), config)
 
