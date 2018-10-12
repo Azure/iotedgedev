@@ -75,7 +75,7 @@ class Modules:
                    "archetype:generate",
                    "-DarchetypeGroupId=com.microsoft.azure",
                    "-DarchetypeArtifactId=azure-iot-edge-archetype",
-                   "-DarchetypeVersion=1.0.0",
+                   "-DarchetypeVersion=1.1.0",
                    "-DgroupId={0}".format(group_id),
                    "-DartifactId={0}".format(name),
                    "-Dversion=1.0.0-SNAPSHOT",
