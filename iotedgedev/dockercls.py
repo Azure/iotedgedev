@@ -236,7 +236,7 @@ class Docker:
         for json_ in docker.utils.json_stream.json_stream(response):
             for key in json_:
                 if key in {"status", "stream"} and isinstance(json_[key], six.string_types):
-                    self.output.procout(json_[key].rstrip())
+                    self.output.procout(json_[key], nl=False)
 
             # Docker SDK won't throw exceptions for some failures.
             # We have to check the response ourselves.

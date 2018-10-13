@@ -39,15 +39,15 @@ class Output:
             self.info(text.upper())
             self.line()
 
-    def procout(self, text):
-        self.echo(text, dim=True)
+    def procout(self, text, nl=True):
+        self.echo(text, dim=True, nl=nl)
 
     def line(self):
         self.echo(text="")
 
-    def echo(self, text, color="", dim=False):
+    def echo(self, text, color="", dim=False, nl=True):
         try:
-            click.secho(text, fg=color, dim=dim)
+            click.secho(text, fg=color, dim=dim, nl=nl)
         except Exception:
             six.print_(text)
 
