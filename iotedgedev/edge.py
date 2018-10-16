@@ -12,6 +12,6 @@ class Edge:
         self.envvars.verify_envvar_has_val("DEVICE_CONNECTION_STRING", self.envvars.DEVICE_CONNECTION_INFO)
         self.envvars.verify_envvar_has_val("DEPLOYMENT_CONFIG_FILE", self.envvars.DEPLOYMENT_CONFIG_FILE)
 
-        self.azure_cli.set_modules(self.envvars.DEVICE_CONNECTION_INFO.DeviceId, self.envvars.IOTHUB_CONNECTION_INFO, self.envvars.DEPLOYMENT_CONFIG_FILE_PATH)
+        self.azure_cli.set_modules(self.envvars.DEVICE_CONNECTION_INFO.device_id, self.envvars.IOTHUB_CONNECTION_INFO, self.envvars.DEPLOYMENT_CONFIG_FILE_PATH)
 
         self.output.footer("DEPLOYMENT COMPLETE")
