@@ -81,3 +81,7 @@ def test_in_asterisk_list_empty(utility):
 
 def test_in_asterisk_list_asterisk(utility):
     assert utility.in_asterisk_list("filtermodule", "*")
+
+
+def test_get_sha256_hash():
+    assert Utility.get_sha256_hash("foo") == "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae"

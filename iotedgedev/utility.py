@@ -188,3 +188,9 @@ class Utility:
             current = current.get(key)
 
         current[keys[-1]] = value
+
+    @staticmethod
+    def get_sha256_hash(val):
+        hash_object = sha256(val.encode('utf-8'))
+
+        return str(hash_object.hexdigest()).lower()

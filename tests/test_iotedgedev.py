@@ -210,20 +210,20 @@ def test_valid_env_iothub_connectionstring():
 
     env_iothub_connectionstring = os.getenv("IOTHUB_CONNECTION_STRING")
     connectionstring = IoTHubConnectionString(env_iothub_connectionstring)
-    assert connectionstring.HostName
-    assert connectionstring.HubName
-    assert connectionstring.SharedAccessKey
-    assert connectionstring.SharedAccessKeyName
+    assert connectionstring.iothub_host.name
+    assert connectionstring.iothub_host.hub_name
+    assert connectionstring.shared_access_key
+    assert connectionstring.shared_access_key_name
 
 
 def test_valid_env_device_connectionstring():
     envvars.load_dotenv()
     env_device_connectionstring = os.getenv("DEVICE_CONNECTION_STRING")
     connectionstring = DeviceConnectionString(env_device_connectionstring)
-    assert connectionstring.HostName
-    assert connectionstring.HubName
-    assert connectionstring.SharedAccessKey
-    assert connectionstring.DeviceId
+    assert connectionstring.iothub_host.name
+    assert connectionstring.iothub_host.hub_name
+    assert connectionstring.shared_access_key
+    assert connectionstring.device_id
 
 
 def test_shared_lib():

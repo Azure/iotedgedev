@@ -31,18 +31,18 @@ class IoTHub:
 
             if timeout == 0:
                 self.utility.call_proc(['iothub-explorer', '--login', self.envvars.IOTHUB_CONNECTION_STRING,
-                                        'monitor-events', self.envvars.DEVICE_CONNECTION_INFO.DeviceId], shell=not self.envvars.is_posix())
+                                        'monitor-events', self.envvars.DEVICE_CONNECTION_INFO.device_id], shell=not self.envvars.is_posix())
             else:
                 monitor_js = os.path.join(os.path.split(__file__)[0], "monitor.js")
 
                 self.utility.call_proc(['node', monitor_js, self.envvars.IOTHUB_CONNECTION_STRING,
-                                        self.envvars.DEVICE_CONNECTION_INFO.DeviceId, timeout], shell=not self.envvars.is_posix())
+                                        self.envvars.DEVICE_CONNECTION_INFO.device_id, timeout], shell=not self.envvars.is_posix())
         except Exception as ex:
             self.output.error("Problem while trying to call iothub-explorer. Please ensure that you have installed the iothub-explorer npm package with: npm i -g iothub-explorer.")
             self.output.error(str(ex))
 
     def monitor_events_cli(self, timeout=0):
-        self.azure_cli.monitor_events(self.envvars.DEVICE_CONNECTION_INFO.DeviceId,
-                                      self.envvars.IOTHUB_CONNECTION_INFO.ConnectionString,
-                                      self.envvars.IOTHUB_CONNECTION_INFO.HubName,
+        self.azure_cli.monitor_events(self.envvars.DEVICE_CONNECTION_INFO.device_id,
+                                      self.envvars.IOTHUB_CONNECTION_INFO.connection_string,
+                                      self.envvars.IOTHUB_CONNECTION_INFO.iothub_host.hub_name,
                                       timeout)

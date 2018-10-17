@@ -51,6 +51,8 @@ class TelemetrySession(object):
         if self.exception:
             props['Exception'] = self.exception
 
+        props.update(self.extra_props)
+
         self.events[_get_AI_key()].append({
             'name': '{}/command'.format(PRODUCT_NAME),
             'properties': props
@@ -104,6 +106,12 @@ def fail(exception, summary):
     _session.exception = exception
     _session.result = 'Fail'
     _session.result_summary = summary
+
+
+@suppress_all_exceptions()
+def add_extra_props(props):
+    if props is not None:
+        _session.extra_props.update(props)
 
 
 @_user_agrees_to_telemetry
