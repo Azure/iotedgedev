@@ -8,6 +8,7 @@ import commentjson
 from six import BytesIO
 from six.moves.urllib.request import urlopen
 
+from . import telemetry
 from .buildoptionsparser import BuildOptionsParser
 from .buildprofile import BuildProfile
 from .compat import PY2
@@ -42,6 +43,8 @@ class Modules:
         elif os.path.exists(os.path.join(cwd, name)):
             raise ValueError("Module \"{0}\" already exists under {1}".format(name, os.path.abspath(self.envvars.MODULES_PATH)))
 
+        telemetry.add_extra_props({"template": template})
+
         repo = "{0}/{1}".format("${CONTAINER_REGISTRY_SERVER}", name.lower())
         if template == "c":
             github_prefix = "https://github.com/Azure"
@@ -75,7 +78,6 @@ class Modules:
                    "archetype:generate",
                    "-DarchetypeGroupId=com.microsoft.azure",
                    "-DarchetypeArtifactId=azure-iot-edge-archetype",
-                   "-DarchetypeVersion=1.1.0",
                    "-DgroupId={0}".format(group_id),
                    "-DartifactId={0}".format(name),
                    "-Dversion=1.0.0-SNAPSHOT",
