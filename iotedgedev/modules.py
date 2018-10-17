@@ -8,6 +8,7 @@ import commentjson
 from six import BytesIO
 from six.moves.urllib.request import urlopen
 
+from . import telemetry
 from .buildoptionsparser import BuildOptionsParser
 from .buildprofile import BuildProfile
 from .compat import PY2
@@ -41,6 +42,8 @@ class Modules:
             raise ValueError("Module name can only contain alphanumeric characters and the symbol _")
         elif os.path.exists(os.path.join(cwd, name)):
             raise ValueError("Module \"{0}\" already exists under {1}".format(name, os.path.abspath(self.envvars.MODULES_PATH)))
+
+        telemetry.add_extra_props({"template": template})
 
         repo = "{0}/{1}".format("${CONTAINER_REGISTRY_SERVER}", name.lower())
         if template == "c":
