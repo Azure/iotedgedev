@@ -29,14 +29,13 @@ class IoTHub:
     def monitor_events_node(self, timeout=0):
         try:
 
-            if timeout == 0:
-                self.utility.call_proc(['iothub-explorer', '--login', self.envvars.IOTHUB_CONNECTION_STRING,
-                                        'monitor-events', self.envvars.DEVICE_CONNECTION_INFO.device_id], shell=not self.envvars.is_posix())
-            else:
-                monitor_js = os.path.join(os.path.split(__file__)[0], "monitor.js")
+            cmd = ['iothub-explorer', '--login', self.envvars.IOTHUB_CONNECTION_STRING, 'monitor-events', self.envvars.DEVICE_CONNECTION_INFO.device_id]
 
-                self.utility.call_proc(['node', monitor_js, self.envvars.IOTHUB_CONNECTION_STRING,
-                                        self.envvars.DEVICE_CONNECTION_INFO.device_id, timeout], shell=not self.envvars.is_posix())
+            if timeout != 0:
+                cmd.extend(['--duration', timeout])
+
+            self.utility.call_proc(cmd, shell=not self.envvars.is_posix())
+
         except Exception as ex:
             self.output.error("Problem while trying to call iothub-explorer. Please ensure that you have installed the iothub-explorer npm package with: npm i -g iothub-explorer.")
             self.output.error(str(ex))

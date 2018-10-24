@@ -1,7 +1,6 @@
 include HISTORY.rst
 include LICENSE
 include README.md
-include iotedgedev/monitor.js
 include iotedgedev/template/*.*
 recursive-include tests *
 recursive-exclude * __pycache__
