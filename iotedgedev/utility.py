@@ -46,9 +46,9 @@ class Utility:
             self.output.error("Error while executing command: {0}. {1}".format(' '.join(params), str(e)))
             return 1
 
-    def check_dependency(self, params, description, shell=False):
+    def check_dependency(self, params, description):
         try:
-            self.exe_proc(params, shell=shell, suppress_out=True)
+            self.exe_proc(params, shell=not self.envvars.is_posix(), suppress_out=True)
         except FileNotFoundError:
             raise FileNotFoundError("{0} is required by the Azure IoT Edge Dev Tool. For installation instructions, see https://aka.ms/iotedgedevwiki.".format(description))
 

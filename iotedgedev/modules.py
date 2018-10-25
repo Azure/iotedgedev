@@ -84,11 +84,11 @@ class Modules:
                    "-Dpackage={0}".format(group_id),
                    "-Drepository={0}".format(repo),
                    "-B"]
+
             self.output.header(" ".join(cmd))
-            self.utility.exe_proc(cmd, cwd=cwd)
+            self.utility.exe_proc(cmd, shell=not self.envvars.is_posix(), cwd=cwd)
         elif template == "nodejs":
-            self.utility.check_dependency("yo azure-iot-edge-module --help".split(), "To add new Node.js modules, the Yeoman tool and Azure IoT Edge Node.js module generator",
-                                          shell=not self.envvars.is_posix())
+            self.utility.check_dependency("yo azure-iot-edge-module --help".split(), "To add new Node.js modules, the Yeoman tool and Azure IoT Edge Node.js module generator")
             cmd = "yo azure-iot-edge-module -n {0} -r {1}".format(name, repo)
             self.output.header(cmd)
             self.utility.exe_proc(cmd.split(), shell=not self.envvars.is_posix(), cwd=cwd)
