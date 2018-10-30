@@ -18,6 +18,7 @@ Please fork, branch and pull-request any changes you'd like to make.
 1. Install **Python 2.7+**, **Python 3.6+**, and **pip**
     - Windows: [Install from Python's website](https://www.python.org/downloads/)
     - Linux: `sudo apt-get install python-pip python3-pip`
+    - macOS: The OpenSSL used by the system built-in Python is old and vulnerable. Please use Python installed with [Homebrew](https://docs.brew.sh/Homebrew-and-Python).
     
 1. Install **[Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)**
 
