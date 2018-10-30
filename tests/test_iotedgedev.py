@@ -181,6 +181,7 @@ def test_deploy_modules(request):
     print(result.output)
 
     assert 'DEPLOYMENT COMPLETE' in result.output
+    assert 'ERROR' not in result.output
 
 
 def test_monitor(request, capfd):

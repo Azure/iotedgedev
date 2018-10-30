@@ -358,9 +358,12 @@ class AzureCli:
     def set_modules(self, device_id, connection_string, config):
         self.output.status(f("Deploying '{config}' to '{device_id}'..."))
 
-        telemetry.add_extra_props({'iothubhostname': connection_string.iothub_host.name_hash, 'iothubhostnamesuffix': connection_string.iothub_host.name_suffix})
-
         config = os.path.join(os.getcwd(), config)
+
+        if not os.path.exists(config):
+            raise FileNotFoundError('Deployment manifest file "{0}" not found. Please run `iotedgedev build` first'.format(config))
+
+        telemetry.add_extra_props({'iothubhostname': connection_string.iothub_host.name_hash, 'iothubhostnamesuffix': connection_string.iothub_host.name_suffix})
 
         return self.invoke_az_cli_outproc(["iot", "edge", "set-modules", "-d", device_id, "-n", connection_string.iothub_host.hub_name, "-k", config, "-l", connection_string.connection_string],
                                           error_message=f("Failed to deploy '{config}' to '{device_id}'..."), suppress_output=True)
