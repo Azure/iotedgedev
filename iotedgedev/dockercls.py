@@ -1,4 +1,5 @@
 import os
+import time
 import zipfile
 
 import docker
@@ -63,6 +64,7 @@ class Docker:
 
             self.output.info("Running registry container")
             self.docker_client.containers.run("registry:2", detach=True, name="registry", ports=ports, restart_policy={"Name": "always"})
+            time.sleep(3)
 
     def setup_registry(self):
         self.output.header("SETTING UP CONTAINER REGISTRY")
