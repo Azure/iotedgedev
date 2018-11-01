@@ -43,7 +43,7 @@ class Docker:
             raise ValueError("You must specific a port for your local registry server. Expected: 'localhost:5000'. Found: " + local_server)
 
         port = parts[1]
-        ports = {'{0}/tcp'.format(port): int(port)}
+        ports = {'5000/tcp': int(port)}
 
         try:
             self.output.info("Looking for local 'registry' container")
