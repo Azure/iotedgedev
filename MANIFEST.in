@@ -1,4 +1,4 @@
-include HISTORY.rst
+include CHANGELOG.md
 include LICENSE
 include README.md
 include iotedgedev/template/*.*
