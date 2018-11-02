@@ -167,11 +167,11 @@ The only thing you need to install is Docker. All of the other dev dependencies 
 ## Resources
 Please refer to the [Wiki](https://github.com/Azure/iotedgedev/wiki) for details on setup, usage, and troubleshooting.
 
-# Data/Telemetry
+## Data/Telemetry
 This project collects usage data and sends it to Microsoft to help improve our products and services. Read our [privacy statement](http://go.microsoft.com/fwlink/?LinkId=521839) to learn more. 
 If you don’t wish to send usage data to Microsoft, you can change your telemetry settings by updating `collect_telemetry` to `no` in `~/.iotedgedev/settings.ini`.
 
-# Contributing
+## Contributing
 This project welcomes contributions and suggestions. Please refer to the [Contributing file](CONTRIBUTING.md) for details on contributing changes.
 
 Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to,
