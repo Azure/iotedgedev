@@ -1,5 +1,6 @@
 # Azure IoT Edge Dev Tool
 
+[![PyPI version](https://badge.fury.io/py/iotedgedev.svg)](https://badge.fury.io/py/iotedgedev)
 [![Travis Build Status](https://travis-ci.org/Azure/iotedgedev.svg?branch=master)](https://travis-ci.org/Azure/iotedgedev)
 [![VSTS Build Status](https://iotedgedev.visualstudio.com/iotedgedev-main/_apis/build/status/iotedgedev-master-ci)](https://iotedgedev.visualstudio.com/iotedgedev-main/_build/latest?definitionId=6)
 
