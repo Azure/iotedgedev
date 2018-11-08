@@ -97,7 +97,7 @@ The only thing you need to install is Docker. All of the other dev dependencies 
             "restartPolicy": "always",
             "settings": {
                 "image": "${MODULES.filtermodule.amd64}",
-                "createOptions": ""
+                "createOptions": {}
             }
         }
         ```

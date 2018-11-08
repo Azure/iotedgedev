@@ -16,7 +16,7 @@
             "type": "docker",
             "settings": {
               "image": "mcr.microsoft.com/azureiotedge-agent:1.0",
-              "createOptions": "{}"
+              "createOptions": {}
             }
           },
           "edgeHub": {
@@ -25,7 +25,27 @@
             "restartPolicy": "always",
             "settings": {
               "image": "mcr.microsoft.com/azureiotedge-hub:1.0",
-              "createOptions": "{\"HostConfig\":{\"PortBindings\":{\"8883/tcp\":[{\"HostPort\":\"8883\"}],\"443/tcp\":[{\"HostPort\":\"443\"}]}}}"
+              "createOptions": {
+                "HostConfig": {
+                  "PortBindings": {
+                    "5671/tcp": [
+                      {
+                        "HostPort": "5671"
+                      }
+                    ],
+                    "8883/tcp": [
+                      {
+                        "HostPort": "8883"
+                      }
+                    ],
+                    "443/tcp": [
+                      {
+                        "HostPort": "443"
+                      }
+                    ]
+                  }
+                }
+              }
             }
           }
         },
@@ -37,7 +57,70 @@
             "restartPolicy": "always",
             "settings": {
               "image": "mcr.microsoft.com/azureiotedge-simulated-temperature-sensor:1.0",
-              "createOptions": "{}"
+              "createOptions": {
+                "Env": [
+                  "abcdefghij0=00",
+                  "abcdefghij1=01",
+                  "abcdefghij2=02",
+                  "abcdefghij3=03",
+                  "abcdefghij4=04",
+                  "abcdefghij5=05",
+                  "abcdefghij6=06",
+                  "abcdefghij7=07",
+                  "abcdefghij8=08",
+                  "abcdefghij9=09",
+                  "abcdefghij10=10",
+                  "abcdefghij11=11",
+                  "abcdefghij12=12",
+                  "abcdefghij13=13",
+                  "abcdefghij14=14",
+                  "abcdefghij15=15",
+                  "abcdefghij16=16",
+                  "abcdefghij17=17",
+                  "abcdefghij18=18",
+                  "abcdefghij19=19",
+                  "abcdefghij20=20",
+                  "abcdefghij22=21",
+                  "abcdefghij22=22",
+                  "abcdefghij23=23",
+                  "abcdefghij24=24",
+                  "abcdefghij25=25",
+                  "abcdefghij26=26",
+                  "abcdefghij27=27",
+                  "abcdefghij28=28",
+                  "abcdefghij29=29",
+                  "abcdefghij30=30",
+                  "abcdefghij31=31",
+                  "abcdefghij32=32",
+                  "abcdefghij33=33",
+                  "abcdefghij34=34",
+                  "abcdefghij35=35",
+                  "abcdefghij36=36",
+                  "abcdefghij37=37",
+                  "abcdefghij38=38",
+                  "abcdefghij39=39",
+                  "abcdefghij40=40",
+                  "abcdefghij41=41",
+                  "abcdefghij42=42",
+                  "abcdefghij43=43",
+                  "abcdefghij44=44",
+                  "abcdefghij45=45",
+                  "abcdefghij46=46",
+                  "abcdefghij47=47",
+                  "abcdefghij48=48",
+                  "abcdefghij49=49",
+                  "abcdefghij50=50",
+                  "abcdefghij51=51",
+                  "abcdefghij52=52",
+                  "abcdefghij53=53",
+                  "abcdefghij54=54",
+                  "abcdefghij55=55",
+                  "abcdefghij56=56",
+                  "abcdefghij57=57",
+                  "abcdefghij58=58",
+                  "abcdefghij59=59"
+                ]
+              }
             }
           },
           "csharpmodule": {
@@ -47,7 +130,7 @@
             "restartPolicy": "always",
             "settings": {
               "image": "${MODULES.csharpmodule.amd64}",
-              "createOptions": "{}"
+              "createOptions": {}
             }
           },
           "csharpfunction": {
@@ -57,7 +140,7 @@
             "restartPolicy": "always",
             "settings": {
               "image": "${MODULES.csharpfunction.amd64.debug}",
-              "createOptions": "{}"
+              "createOptions": {}
             }
           }
         }

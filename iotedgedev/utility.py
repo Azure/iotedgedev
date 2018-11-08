@@ -21,7 +21,6 @@ class Utility:
     def __init__(self, envvars, output):
         self.envvars = envvars
         self.output = output
-        self.config_set = False
 
     def exe_proc(self, params, shell=False, cwd=None, suppress_out=False):
         proc = subprocess.Popen(
@@ -110,33 +109,6 @@ class Utility:
 
     def in_asterisk_list(self, item, asterisk_list):
         return len(asterisk_list) > 0 and (asterisk_list[0] == "*" or item in asterisk_list)
-
-    def set_config(self, force=False, replacements=None):
-
-        if not self.config_set or force:
-            self.output.header("PROCESSING CONFIG FILES")
-
-            self.ensure_dir(self.envvars.CONFIG_OUTPUT_DIR)
-
-            config_files = self.get_config_files()
-
-            if len(config_files) == 0:
-                raise FileNotFoundError("Unable to find config files in solution root directory")
-
-            # Expand envars and rewrite to config/
-            for config_file in config_files:
-
-                build_config_file = os.path.join(
-                    self.envvars.CONFIG_OUTPUT_DIR, os.path.basename(config_file).replace(".template", ""))
-
-                self.output.info("Expanding '{0}' to '{1}'".format(
-                    os.path.basename(config_file), build_config_file))
-
-                self.copy_template(config_file, build_config_file, replacements, True)
-
-            self.output.line()
-
-        self.config_set = True
 
     def copy_from_template_dir(self, src_file, dest_dir, dest_file=None, replacements=None):
         if dest_file is None:
