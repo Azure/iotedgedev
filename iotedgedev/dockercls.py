@@ -4,7 +4,7 @@ import zipfile
 import docker
 import six
 
-from .moduletype import ModuleType
+from .deploymentmanifest import DeploymentManifest
 
 
 class Docker:
@@ -139,7 +139,8 @@ class Docker:
         self.output.info(
             "Removing Edge Modules Containers and Images from Docker")
 
-        modules_in_config = self.utility.get_modules_in_config(ModuleType.User)
+        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_FILE_PATH, False)
+        modules_in_config = list(deployment_manifest.get_user_modules().keys())
 
         for module in modules_in_config:
             self.output.info("Searching for {0} Containers".format(module))
@@ -193,7 +194,8 @@ class Docker:
         if save:
             self.utility.ensure_dir(self.envvars.LOGS_PATH)
 
-        modules_in_config = self.utility.get_modules_in_config(ModuleType.Both)
+        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_FILE_PATH, False)
+        modules_in_config = list(deployment_manifest.get_all_modules().keys())
 
         for module in modules_in_config:
             if show:

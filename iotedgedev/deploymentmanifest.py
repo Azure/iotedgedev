@@ -68,18 +68,23 @@ class DeploymentManifest:
     def get_user_modules(self):
         """Get user modules from deployment manifest"""
         try:
-            modules = self.get_desired_property("$edgeAgent", "modules")
-            return list(modules.keys())
+            return self.get_desired_property("$edgeAgent", "modules")
         except KeyError as err:
             raise KeyError("Missing key {0} in file {1}".format(err, self.path))
 
     def get_system_modules(self):
         """Get system modules from deployment manifest"""
         try:
-            modules = self.get_desired_property("$edgeAgent", "systemModules")
-            return list(modules.keys())
+            return self.get_desired_property("$edgeAgent", "systemModules")
         except KeyError as err:
             raise KeyError("Missing key {0} in file {1}".format(err, self.path))
+
+    def get_all_modules(self):
+        all_modules = {}
+        all_modules.update(self.get_user_modules())
+        all_modules.update(self.get_system_modules())
+
+        return all_modules
 
     def get_modules_to_process(self):
         """Get modules to process from deployment manifest template"""

@@ -7,8 +7,6 @@ from hmac import HMAC
 from time import time
 
 from .compat import PY2, PY3
-from .deploymentmanifest import DeploymentManifest
-from .moduletype import ModuleType
 
 if PY2:
     from .compat import FileNotFoundError
@@ -112,22 +110,6 @@ class Utility:
 
     def in_asterisk_list(self, item, asterisk_list):
         return len(asterisk_list) > 0 and (asterisk_list[0] == "*" or item in asterisk_list)
-
-    def get_modules_in_config(self, moduleType):
-        deployment_manifest = DeploymentManifest(self.envvars, self.output, self, self.envvars.DEPLOYMENT_CONFIG_FILE_PATH, False)
-
-        system_modules = deployment_manifest.get_system_modules()
-        user_modules = deployment_manifest.get_user_modules()
-
-        if moduleType == ModuleType.System:
-            return system_modules
-        elif moduleType == ModuleType.User:
-            return user_modules
-        else:
-            return_modules = []
-            return_modules.extend(system_modules)
-            return_modules.extend(user_modules)
-            return return_modules
 
     def set_config(self, force=False, replacements=None):
 

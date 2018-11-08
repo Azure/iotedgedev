@@ -52,14 +52,20 @@ def test_get_desired_property_nonexistent_prop(deployment_manifest):
 
 def test_get_user_modules(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_1)
-    user_modules = deployment_manifest.get_user_modules()
+    user_modules = list(deployment_manifest.get_user_modules().keys())
     assert_list_equal(user_modules, ["tempSensor", "csharpmodule", "csharpfunction"])
 
 
 def test_get_system_modules(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_1)
-    system_modules = deployment_manifest.get_system_modules()
+    system_modules = list(deployment_manifest.get_system_modules().keys())
     assert_list_equal(system_modules, ["edgeAgent", "edgeHub"])
+
+
+def test_get_all_modules(deployment_manifest):
+    deployment_manifest = deployment_manifest(test_file_1)
+    system_modules = list(deployment_manifest.get_all_modules().keys())
+    assert_list_equal(system_modules, ["edgeAgent", "edgeHub", "tempSensor", "csharpmodule", "csharpfunction"])
 
 
 def test_get_modules_to_process(deployment_manifest):
