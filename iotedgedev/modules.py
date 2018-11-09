@@ -123,9 +123,9 @@ class Modules:
         bypass_modules = self.utility.get_bypass_modules()
         active_platform = self.utility.get_active_docker_platform()
 
-        # map (module name, platform) tuple to tag.
-        # sample: (('filtermodule', 'amd64'), 'localhost:5000/filtermodule:0.0.1-amd64')
-        image_tag_map = {}
+        # map image placeholder to tag.
+        # sample: ('${MODULES.filtermodule.amd64}', 'localhost:5000/filtermodule:0.0.1-amd64')
+        placeholder_tag_map = {}
         # map image tag to BuildProfile object
         tag_build_profile_map = {}
         # image tags to build
@@ -140,7 +140,7 @@ class Modules:
                     dockerfile = module.get_dockerfile_by_platform(platform)
                     container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
                     tag = "{0}:{1}{2}-{3}".format(module.repository, module.tag_version, container_tag, platform).lower()
-                    image_tag_map[(module_name, platform)] = tag
+                    placeholder_tag_map["${{MODULES.{0}.{1}}}".format(module_name, platform)] = tag
                     tag_build_profile_map[tag] = BuildProfile(module_name, dockerfile, module.context_path, module.build_options)
                     if not self.utility.in_asterisk_list(module_name, bypass_modules) and self.utility.in_asterisk_list(platform, active_platform):
                         tags_to_build.add(tag)
@@ -148,13 +148,13 @@ class Modules:
                 pass
 
         deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
-        modules_to_process = deployment_manifest.get_modules_to_process()
 
         replacements = {}
-        for module_name, platform in modules_to_process:
-            key = (module_name, platform)
-            if key in image_tag_map:
-                tag = image_tag_map.get(key)
+        user_modules = deployment_manifest.get_user_modules()
+        for module_name, module_info in user_modules.items():
+            image = module_info["settings"]["image"]
+            if image in placeholder_tag_map:
+                tag = placeholder_tag_map[image]
                 replacements[module_name] = tag
                 if not self.utility.in_asterisk_list(module_name, bypass_modules):
                     tags_to_build.add(tag)

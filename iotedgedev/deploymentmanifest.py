@@ -92,24 +92,6 @@ class DeploymentManifest:
 
         return all_modules
 
-    def get_modules_to_process(self):
-        """Get modules to process from deployment manifest template"""
-        try:
-            user_modules = self.get_desired_property("$edgeAgent", "modules")
-            modules_to_process = []
-            for _, module_info in user_modules.items():
-                image = module_info["settings"]["image"]
-                # If the image is placeholder, e.g., ${MODULES.NodeModule.amd64}, parse module folder and platform from the placeholder
-                if image.startswith("${") and image.endswith("}") and len(image.split(".")) > 2:
-                    first_dot = image.index(".")
-                    second_dot = image.index(".", first_dot + 1)
-                    module_dir = image[first_dot+1:second_dot]
-                    module_platform = image[second_dot+1:image.index("}")]
-                    modules_to_process.append((module_dir, module_platform))
-            return modules_to_process
-        except KeyError as err:
-            raise KeyError("Missing key {0} in file {1}".format(err, self.path))
-
     def get_desired_property(self, module, prop):
         return self._get_module_content()[module]["properties.desired"][prop]
 
