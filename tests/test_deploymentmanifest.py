@@ -52,26 +52,20 @@ def test_get_desired_property_nonexistent_prop(deployment_manifest):
 
 def test_get_user_modules(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_1)
-    user_modules = deployment_manifest.get_user_modules()
+    user_modules = list(deployment_manifest.get_user_modules().keys())
     assert_list_equal(user_modules, ["tempSensor", "csharpmodule", "csharpfunction"])
 
 
 def test_get_system_modules(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_1)
-    system_modules = deployment_manifest.get_system_modules()
+    system_modules = list(deployment_manifest.get_system_modules().keys())
     assert_list_equal(system_modules, ["edgeAgent", "edgeHub"])
 
 
-def test_get_modules_to_process(deployment_manifest):
+def test_get_all_modules(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_1)
-    modules_to_process = deployment_manifest.get_modules_to_process()
-    assert_list_equal(modules_to_process, [("csharpmodule", "amd64"), ("csharpfunction", "amd64.debug")])
-
-
-def test_get_modules_to_process_empty(deployment_manifest):
-    deployment_manifest = deployment_manifest(test_file_2)
-    modules_to_process = deployment_manifest.get_modules_to_process()
-    assert_list_equal(modules_to_process, [])
+    system_modules = list(deployment_manifest.get_all_modules().keys())
+    assert_list_equal(system_modules, ["edgeAgent", "edgeHub", "tempSensor", "csharpmodule", "csharpfunction"])
 
 
 def test_add_module_template(deployment_manifest):
@@ -79,3 +73,29 @@ def test_add_module_template(deployment_manifest):
     deployment_manifest.add_module_template("csharpmodule2")
     with open(test_file_3, "r") as expected:
         assert deployment_manifest.json == json.load(expected)
+
+
+def test_convert_create_options(deployment_manifest):
+    deployment_manifest = deployment_manifest(test_file_1)
+
+    temp_sensor_settings = deployment_manifest.json["modulesContent"]["$edgeAgent"]["properties.desired"]["modules"]["tempSensor"]["settings"]
+    temp_sensor_create_options_copy = json.loads(json.dumps(temp_sensor_settings["createOptions"]))
+
+    deployment_manifest.convert_create_options()
+    assert deployment_manifest.json["modulesContent"]["$edgeAgent"]["properties.desired"]["systemModules"]["edgeAgent"]["settings"][
+        "createOptions"] == ""
+    assert json.loads(deployment_manifest.json["modulesContent"]["$edgeAgent"]["properties.desired"]["systemModules"]["edgeHub"]["settings"][
+        "createOptions"]) == json.loads("{\"HostConfig\":{\"PortBindings\":{\"5671/tcp\":[{\"HostPort\":\"5671\"}],\"8883/tcp\":[{\"HostPort\":\"8883\"}],\"443/tcp\":[{\"HostPort\":\"443\"}]}}}")
+
+    assert "createOptions" in temp_sensor_settings
+    assert "createOptions01" in temp_sensor_settings
+    assert "createOptions02" in temp_sensor_settings
+
+    create_options_str = temp_sensor_settings["createOptions"] + temp_sensor_settings["createOptions01"] + temp_sensor_settings["createOptions02"]
+    assert json.loads(create_options_str) == temp_sensor_create_options_copy
+
+
+def test_expand_image_placeholders(deployment_manifest):
+    deployment_manifest = deployment_manifest(test_file_1)
+    deployment_manifest.expand_image_placeholders({"csharpmodule": "localhost:5000/csharpmodule:0.0.1-amd64"})
+    assert deployment_manifest.json["modulesContent"]["$edgeAgent"]["properties.desired"]["modules"]["csharpmodule"]["settings"]["image"] == "localhost:5000/csharpmodule:0.0.1-amd64"
