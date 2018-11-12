@@ -6,15 +6,12 @@ from hashlib import sha256
 from hmac import HMAC
 from time import time
 
-from .compat import PY2, PY3
+from six.moves.urllib.parse import quote, urlencode
+
+from .compat import PY2
 
 if PY2:
     from .compat import FileNotFoundError
-
-if PY3:
-    from urllib.parse import quote, urlencode
-else:
-    from urllib import quote, urlencode
 
 
 class Utility:
@@ -134,14 +131,27 @@ class Utility:
         with open(dest, "w") as dest_file:
             dest_file.write(content)
 
-    def nested_set(self, dic, keys, value):
-        current = dic
-        for key in keys[:-1]:
+    def nested_set(self, dict_, key_path, value):
+        current = dict_
+        for key in key_path[:-1]:
             if key not in current:
                 current[key] = {}
             current = current.get(key)
 
-        current[keys[-1]] = value
+        current[key_path[-1]] = value
+
+    def del_key(self, dict_, key_path):
+        if not isinstance(dict_, dict):
+            return None
+
+        current = dict_
+        for key in key_path[:-1]:
+            current = current.get(key, None)
+
+            if not isinstance(current, dict):
+                return None
+
+        return current.pop(key_path[-1], None)
 
     @staticmethod
     def get_sha256_hash(val):

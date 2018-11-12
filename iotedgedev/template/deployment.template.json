@@ -1,4 +1,5 @@
 {
+  "$schema-template": "1.0.0",
   "modulesContent": {
     "$edgeAgent": {
       "properties.desired": {

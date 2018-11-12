@@ -12,10 +12,12 @@ from . import telemetry
 from .buildoptionsparser import BuildOptionsParser
 from .buildprofile import BuildProfile
 from .compat import PY2
+from .constants import Constants
 from .deploymentmanifest import DeploymentManifest
 from .dockercls import Docker
 from .dotnet import DotNet
 from .module import Module
+from .platform import Platform
 from .utility import Utility
 
 if PY2:
@@ -107,6 +109,12 @@ class Modules:
         deployment_manifest.add_module_template(name)
         deployment_manifest.dump()
 
+        debug_create_options = self._get_debug_create_options(template)
+        if os.path.exists(Constants.default_deployment_template_debug_file):
+            deployment_manifest_debug = DeploymentManifest(self.envvars, self.output, self.utility, Constants.default_deployment_template_debug_file, True)
+            deployment_manifest_debug.add_module_template(name, debug_create_options, True)
+            deployment_manifest_debug.dump()
+
         self._update_launch_json(name, template, group_id)
 
         self.output.footer("ADD COMPLETE")
@@ -141,6 +149,12 @@ class Modules:
                     container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
                     tag = "{0}:{1}{2}-{3}".format(module.repository, module.tag_version, container_tag, platform).lower()
                     placeholder_tag_map["${{MODULES.{0}.{1}}}".format(module_name, platform)] = tag
+
+                    if platform == Platform.get_default_platform():
+                        placeholder_tag_map[DeploymentManifest.get_image_placeholder(module_name)] = tag
+                    elif platform == Platform.get_default_platform() + ".debug":
+                        placeholder_tag_map[DeploymentManifest.get_image_placeholder(module_name), True] = tag
+
                     tag_build_profile_map[tag] = BuildProfile(module_name, dockerfile, module.context_path, module.build_options)
                     if not self.utility.in_asterisk_list(module_name, bypass_modules) and self.utility.in_asterisk_list(platform, active_platform):
                         tags_to_build.add(tag)
@@ -212,12 +226,31 @@ class Modules:
 
         deployment_manifest.expand_image_placeholders(replacements)
         deployment_manifest.convert_create_options()
+        is_debug_template = deployment_manifest.is_debug_template()
+        template_schema_ver = deployment_manifest.get_template_schema_ver()
+        deployment_manifest.del_key(["$schema-template"])
+        platform = Platform.get_default_platform()
 
         self.utility.ensure_dir(self.envvars.CONFIG_OUTPUT_DIR)
-        gen_deployment_manifest_path = os.path.join(self.envvars.CONFIG_OUTPUT_DIR, "deployment.json")
+        gen_deployment_manifest_name = "deployment{0}{1}.json".format("." + platform if template_schema_ver > "0.0.1" else "", ".debug" if is_debug_template else "")
+        gen_deployment_manifest_path = os.path.join(self.envvars.CONFIG_OUTPUT_DIR, gen_deployment_manifest_name)
 
         self.output.info("Expanding '{0}' to '{1}'".format(os.path.basename(self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE), gen_deployment_manifest_path))
         deployment_manifest.dump(gen_deployment_manifest_path)
+
+    def _get_debug_create_options(self,  template):
+        if template == "c":
+            return {"HostConfig": {"Privileged": True}}
+        elif template == "java":
+            return {"HostConfig": {"PortBindings": {"5005/tcp": [{"HostPort": "5005"}]}}}
+        elif template == "nodejs":
+            return {"ExposedPorts": {"9229/tcp": {}},
+                    "HostConfig": {"PortBindings": {"9229/tcp": [{"HostPort": "9229"}]}}}
+        elif template == "python":
+            return {"ExposedPorts": {"5678/tcp": {}},
+                    "HostConfig": {"PortBindings": {"5678/tcp": [{"HostPort": "5678"}]}}}
+        else:
+            return {}
 
     def _update_launch_json(self, name, template, group_id):
         new_launch_json = self._get_launch_json(name, template, group_id)

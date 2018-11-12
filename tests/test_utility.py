@@ -44,7 +44,6 @@ def test_ensure_dir(request, utility):
 def test_copy_from_template_dir(utility, tmpdir):
     src_file = "deployment.template.json"
     dest_dir = tmpdir.strpath
-    print(dest_dir)
     dest_file = tmpdir.join(src_file).strpath
     utility.copy_from_template_dir(src_file, dest_dir, replacements={"%MODULE%": "filtermodule"})
     assert_file_equal(dest_file, test_file_4)
@@ -81,6 +80,34 @@ def test_in_asterisk_list_empty(utility):
 
 def test_in_asterisk_list_asterisk(utility):
     assert utility.in_asterisk_list("filtermodule", "*")
+
+
+def test_del_key(utility):
+    dict_ = {
+        "1": 0,
+        "2": {
+            "3": 0,
+            "4": "foo",
+            "5": {
+                "6": 0
+            }
+        }
+    }
+
+    assert utility.del_key("not a dict", ["1", "2"]) is None
+    assert utility.del_key(dict_, ["2", "5"]) == {"6": 0}
+    assert utility.del_key(dict_, ["1", "non_existent_key"]) is None
+    assert utility.del_key(dict_, ["2", "non_existent_key"]) is None
+
+    expected = {
+        "1": 0,
+        "2": {
+            "3": 0,
+            "4": "foo"
+        }
+    }
+
+    assert dict_ == expected
 
 
 def test_get_sha256_hash():

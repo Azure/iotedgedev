@@ -8,6 +8,7 @@ from fstrings import f
 from .args import Args
 from .compat import PY2
 from .connectionstring import DeviceConnectionString, IoTHubConnectionString
+from .constants import Constants
 from .containerregistry import ContainerRegistry
 
 
@@ -46,7 +47,6 @@ class EnvVars:
             os.environ = clean_enviro
 
     def backup_dotenv(self):
-        dotenv_file = self.get_dotenv_file()
         dotenv_path = self.get_dotenv_file_path()
         dotenv_backup_path = dotenv_path + ".backup"
         try:
@@ -128,12 +128,12 @@ class EnvVars:
                 self.ACTIVE_DOCKER_PLATFORMS = self.get_envvar("ACTIVE_DOCKER_PLATFORMS", altkeys=["ACTIVE_DOCKER_ARCH"], default="")
                 self.CONTAINER_TAG = self.get_envvar("CONTAINER_TAG", default="")
                 self.RUNTIME_TAG = self.get_envvar("RUNTIME_TAG", default="1.0")
-                self.CONFIG_OUTPUT_DIR = self.get_envvar("CONFIG_OUTPUT_DIR", default="config")
-                self.DEPLOYMENT_CONFIG_FILE = self.get_envvar("DEPLOYMENT_CONFIG_FILE", altkeys=['MODULES_CONFIG_FILE'], default="deployment.json")
+                self.CONFIG_OUTPUT_DIR = self.get_envvar("CONFIG_OUTPUT_DIR", default=Constants.default_config_folder)
+                self.DEPLOYMENT_CONFIG_FILE = self.get_envvar("DEPLOYMENT_CONFIG_FILE", altkeys=['MODULES_CONFIG_FILE'], default=Constants.default_deployment_file)
                 self.DEPLOYMENT_CONFIG_FILE_PATH = os.path.join(self.CONFIG_OUTPUT_DIR, self.DEPLOYMENT_CONFIG_FILE)
-                self.DEPLOYMENT_CONFIG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", default="deployment.template.json")
+                self.DEPLOYMENT_CONFIG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", default=Constants.default_deployment_template_file)
                 self.LOGS_PATH = self.get_envvar("LOGS_PATH", default="logs")
-                self.MODULES_PATH = self.get_envvar("MODULES_PATH", default="modules")
+                self.MODULES_PATH = self.get_envvar("MODULES_PATH", default=Constants.default_modules_folder)
                 self.LOGS_CMD = self.get_envvar("LOGS_CMD", default="start /B start cmd.exe @cmd /k docker logs {0} -f")
                 self.SUBSCRIPTION_ID = self.get_envvar("SUBSCRIPTION_ID")
                 self.RESOURCE_GROUP_NAME = self.get_envvar("RESOURCE_GROUP_NAME")

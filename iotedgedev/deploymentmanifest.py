@@ -11,6 +11,7 @@ import shutil
 import six
 
 from .compat import PY2
+from .constants import Constants
 
 if PY2:
     from .compat import FileNotFoundError
@@ -41,21 +42,21 @@ class DeploymentManifest:
             else:
                 raise FileNotFoundError('Deployment manifest file "{0}" not found'.format(path))
 
-    def add_module_template(self, module_name):
+    def add_module_template(self, module_name, create_options={}, is_debug=False):
         """Add a module template to the deployment manifest with amd64 as the default platform"""
-        new_module = """{
+        new_module = {
             "version": "1.0",
             "type": "docker",
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": \"${MODULES.""" + module_name + """.amd64}\",
-              "createOptions": {}
+                "image": DeploymentManifest.get_image_placeholder(module_name, is_debug),
+                "createOptions": create_options
             }
-        }"""
+        }
 
         try:
-            self.utility.nested_set(self._get_module_content(), ["$edgeAgent", "properties.desired", "modules", module_name], json.loads(new_module))
+            self.utility.nested_set(self._get_module_content(), ["$edgeAgent", "properties.desired", "modules", module_name], new_module)
         except KeyError as err:
             raise KeyError("Missing key {0} in file {1}".format(err, self.path))
 
@@ -95,6 +96,12 @@ class DeploymentManifest:
     def get_desired_property(self, module, prop):
         return self._get_module_content()[module]["properties.desired"][prop]
 
+    def get_template_schema_ver(self):
+        return self.json.get("$schema-template", None)
+
+    def is_debug_template(self):
+        return os.path.basename(self.path) == Constants.default_deployment_template_debug_file
+
     def convert_create_options(self):
         modules = self.get_all_modules()
         for module_name, module_info in modules.items():
@@ -120,6 +127,9 @@ class DeploymentManifest:
             if module_name in replacements:
                 self.utility.nested_set(module_info, ["settings", "image"], replacements[module_name])
 
+    def del_key(self, keys):
+        self.utility.del_key(self.json, keys)
+
     def dump(self, path=None):
         """Dump the JSON to the disk"""
         if path is None:
@@ -127,6 +137,10 @@ class DeploymentManifest:
 
         with open(path, "w") as deployment_manifest:
             json.dump(self.json, deployment_manifest, indent=2)
+
+    @staticmethod
+    def get_image_placeholder(module_name, is_debug=False):
+        return "${{MODULES.{0}}}".format(module_name + ".debug" if is_debug else module_name)
 
     def _get_module_content(self):
         if "modulesContent" in self.json:
