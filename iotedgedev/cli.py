@@ -207,6 +207,7 @@ main.add_command(build)
               default=envvars.DEFAULT_PLATFORM,
               show_default=True,
               required=False,
+              type=click.Choice(["amd64", "windows-amd64", "arm32v7"]),
               help="Specify the default platform")
 @click.pass_context
 @with_telemetry

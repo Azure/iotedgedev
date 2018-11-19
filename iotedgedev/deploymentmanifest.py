@@ -97,7 +97,7 @@ class DeploymentManifest:
         return self._get_module_content()[module]["properties.desired"][prop]
 
     def get_template_schema_ver(self):
-        return self.json.get("$schema-template", None)
+        return self.json.get("$schema-template", "")
 
     def convert_create_options(self):
         modules = self.get_all_modules()

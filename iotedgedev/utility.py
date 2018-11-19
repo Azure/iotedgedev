@@ -162,7 +162,8 @@ class Utility:
 
     @staticmethod
     def get_deployment_manifest_name(template_file, template_schema_ver, platform):
-        platform = ".{0}".format(platform if template_schema_ver > "0.0.1" else "")
+        template_schema_ver = template_schema_ver or ""
+        platform = "." + platform if template_schema_ver > "0.0.1" else ""
         prefix = os.path.basename(template_file)
         if prefix.endswith(Constants.deployment_template_suffix):
             prefix = prefix[:-len(Constants.deployment_template_suffix)]

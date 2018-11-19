@@ -112,3 +112,12 @@ def test_del_key(utility):
 
 def test_get_sha256_hash():
     assert Utility.get_sha256_hash("foo") == "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae"
+
+
+def test_get_deployment_manifest_name():
+    assert Utility.get_deployment_manifest_name("config/deployment.template.json", "0.0.1", "amd64") == "deployment.json"
+    assert Utility.get_deployment_manifest_name("deployment.template.json", "0.0.1", "amd64") == "deployment.json"
+    assert Utility.get_deployment_manifest_name("deployment.debug.template.json", "0.0.1", "amd64") == "deployment.debug.json"
+    assert Utility.get_deployment_manifest_name("config/deployment.template.json", "1.0.0", "amd64") == "deployment.amd64.json"
+    assert Utility.get_deployment_manifest_name("deployment.template.json", "1.0.0", "amd64") == "deployment.amd64.json"
+    assert Utility.get_deployment_manifest_name("deployment.debug.template.json", "1.0.0", "amd64") == "deployment.debug.amd64.json"
