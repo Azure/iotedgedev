@@ -112,7 +112,6 @@ main.add_command(init)
 @with_telemetry
 def e2e(ctx):
     ctx.invoke(init)
-    envvars.load(force=True)
     ctx.invoke(push)
     ctx.invoke(deploy)
     ctx.invoke(monitor)
@@ -122,10 +121,17 @@ def e2e(ctx):
                   short_help="Add a new module to the solution",
                   help="Add a new module to the solution, where NAME is the module name")
 @add_module_options(envvars)
+@click.option("--file",
+              "-f",
+              "template_file",
+              default=envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE,
+              show_default=True,
+              required=False,
+              help="Specify the deployment manifest template file")
 @with_telemetry
-def add(name, template, group_id):
+def add(name, template, group_id, template_file):
     mod = Modules(envvars, output)
-    mod.add(name, template, group_id)
+    mod.add(name, template, group_id, template_file)
 
 
 main.add_command(add)
@@ -147,11 +153,24 @@ main.add_command(add)
               required=False,
               is_flag=True,
               help="Deploy modules to Edge device using deployment.json in the config folder")
+@click.option("--file",
+              "-f",
+              "template_file",
+              default=envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE,
+              show_default=True,
+              required=False,
+              help="Specify the deployment manifest template file")
+@click.option("--platform",
+              "-P",
+              default=envvars.DEFAULT_PLATFORM,
+              show_default=True,
+              required=False,
+              help="Specify the default platform")
 @click.pass_context
 @with_telemetry
-def build(ctx, push, do_deploy):
+def build(ctx, push, do_deploy, template_file, platform):
     mod = Modules(envvars, output)
-    mod.build_push(no_push=not push)
+    mod.build_push(template_file, platform, no_push=not push)
 
     if do_deploy:
         ctx.invoke(deploy)
@@ -175,11 +194,24 @@ main.add_command(build)
               required=False,
               is_flag=True,
               help="Inform the push command to not build modules images before pushing to container registry")
+@click.option("--file",
+              "-f",
+              "template_file",
+              default=envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE,
+              show_default=True,
+              required=False,
+              help="Specify the deployment manifest template file")
+@click.option("--platform",
+              "-P",
+              default=envvars.DEFAULT_PLATFORM,
+              show_default=True,
+              required=False,
+              help="Specify the default platform")
 @click.pass_context
 @with_telemetry
-def push(ctx, do_deploy, no_build):
+def push(ctx, do_deploy, no_build, template_file, platform):
     mod = Modules(envvars, output)
-    mod.push(no_build=no_build)
+    mod.push(template_file, platform, no_build=no_build)
 
     if do_deploy:
         ctx.invoke(deploy)
@@ -189,23 +221,43 @@ main.add_command(push)
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Deploy solution to IoT Edge device")
+@click.option("--file",
+              "-f",
+              "manifest_file",
+              default=envvars.DEPLOYMENT_CONFIG_FILE_PATH,
+              show_default=True,
+              required=False,
+              help="Specify the deployment manifest file")
 @with_telemetry
-def deploy():
+def deploy(manifest_file):
     edge = Edge(envvars, output, azure_cli)
-    edge.deploy()
+    edge.deploy(manifest_file)
 
 
 main.add_command(deploy)
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS,
-                  help="Expand environment variables and placeholders in *.template.json and copy to config folder",
+                  help="Expand environment variables and placeholders in deployment manifest template file and copy to config folder",
                   # hack to prevent Click truncating help messages
-                  short_help="Expand environment variables and placeholders in *.template.json and copy to config folder")
+                  short_help="Expand environment variables and placeholders in deployment manifest template file and copy to config folder")
+@click.option("--file",
+              "-f",
+              "template_file",
+              default=envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE,
+              show_default=True,
+              required=False,
+              help="Specify the deployment manifest template file")
+@click.option("--platform",
+              "-P",
+              default=envvars.DEFAULT_PLATFORM,
+              show_default=True,
+              required=False,
+              help="Specify the default platform")
 @with_telemetry
-def genconfig():
+def genconfig(template_file, platform):
     mod = Modules(envvars, output)
-    mod.build_push(no_build=True, no_push=True)
+    mod.build_push(template_file, platform, no_build=True, no_push=True)
 
 
 main.add_command(genconfig)
@@ -261,6 +313,19 @@ main.add_command(setup_simulator)
               default=False,
               show_default=True,
               help="Build the solution before starting IoT Edge simulator in solution mode.")
+@click.option("--file",
+              "-f",
+              "template_file",
+              default=envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE,
+              show_default=True,
+              required=False,
+              help="Specify the deployment manifest template file to build")
+@click.option("--platform",
+              "-P",
+              default=envvars.DEFAULT_PLATFORM,
+              show_default=True,
+              required=False,
+              help="Specify the default platform to build")
 @click.option("--inputs",
               "-i",
               required=False,
@@ -273,14 +338,14 @@ main.add_command(setup_simulator)
               show_default=True,
               help="Port of the service for sending message.")
 @with_telemetry
-def start_simulator(setup, solution, build, verbose, inputs, port):
+def start_simulator(setup, solution, build, template_file, platform, verbose, inputs, port):
     sim = Simulator(envvars, output)
 
     if setup:
         sim.setup(socket.getfqdn())
 
     if solution or not inputs:
-        sim.start_solution(verbose, build)
+        sim.start_solution(template_file, platform, verbose, build)
     else:
         sim.start_single(inputs, port)
 

@@ -9,6 +9,7 @@ from time import time
 from six.moves.urllib.parse import quote, urlencode
 
 from .compat import PY2
+from .constants import Constants
 
 if PY2:
     from .compat import FileNotFoundError
@@ -158,3 +159,14 @@ class Utility:
         hash_object = sha256(val.encode('utf-8'))
 
         return str(hash_object.hexdigest()).lower()
+
+    @staticmethod
+    def get_deployment_manifest_name(template_file, template_schema_ver, platform):
+        platform = ".{0}".format(platform if template_schema_ver > "0.0.1" else "")
+        prefix = os.path.basename(template_file)
+        if prefix.endswith(Constants.deployment_template_suffix):
+            prefix = prefix[:-len(Constants.deployment_template_suffix)]
+        elif prefix.endswith(".json"):
+            prefix = prefix[:-len(".json")]
+
+        return "{0}{1}.json".format(prefix, platform)

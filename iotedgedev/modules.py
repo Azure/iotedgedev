@@ -17,7 +17,6 @@ from .deploymentmanifest import DeploymentManifest
 from .dockercls import Docker
 from .dotnet import DotNet
 from .module import Module
-from .platform import Platform
 from .utility import Utility
 
 if PY2:
@@ -30,10 +29,10 @@ class Modules:
         self.output = output
         self.utility = Utility(self.envvars, self.output)
 
-    def add(self, name, template, group_id):
+    def add(self, name, template, group_id, template_file):
         self.output.header("ADDING MODULE {0}".format(name))
 
-        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
+        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, template_file, True)
 
         cwd = self.envvars.MODULES_PATH
         self.utility.ensure_dir(cwd)
@@ -110,8 +109,8 @@ class Modules:
         deployment_manifest.dump()
 
         debug_create_options = self._get_debug_create_options(template)
-        if os.path.exists(Constants.default_deployment_template_debug_file):
-            deployment_manifest_debug = DeploymentManifest(self.envvars, self.output, self.utility, Constants.default_deployment_template_debug_file, True)
+        if os.path.exists(self.envvars.DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE):
+            deployment_manifest_debug = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE, True)
             deployment_manifest_debug.add_module_template(name, debug_create_options, True)
             deployment_manifest_debug.dump()
 
@@ -119,13 +118,13 @@ class Modules:
 
         self.output.footer("ADD COMPLETE")
 
-    def build(self):
-        self.build_push(no_push=True)
+    def build(self, template_file, platform):
+        self.build_push(template_file, platform, no_push=True)
 
-    def push(self, no_build=False):
-        self.build_push(no_build=no_build)
+    def push(self, template_file, platform, no_build=False):
+        self.build_push(template_file, platform, no_build=no_build)
 
-    def build_push(self, no_build=False, no_push=False):
+    def build_push(self, template_file, default_platform, no_build=False, no_push=False):
         self.output.header("BUILDING MODULES", suppress=no_build)
 
         bypass_modules = self.utility.get_bypass_modules()
@@ -150,10 +149,10 @@ class Modules:
                     tag = "{0}:{1}{2}-{3}".format(module.repository, module.tag_version, container_tag, platform).lower()
                     placeholder_tag_map["${{MODULES.{0}.{1}}}".format(module_name, platform)] = tag
 
-                    if platform == Platform.get_default_platform():
+                    if platform == default_platform:
                         placeholder_tag_map[DeploymentManifest.get_image_placeholder(module_name)] = tag
-                    elif platform == Platform.get_default_platform() + ".debug":
-                        placeholder_tag_map[DeploymentManifest.get_image_placeholder(module_name), True] = tag
+                    elif platform == default_platform + ".debug":
+                        placeholder_tag_map[DeploymentManifest.get_image_placeholder(module_name, True)] = tag
 
                     tag_build_profile_map[tag] = BuildProfile(module_name, dockerfile, module.context_path, module.build_options)
                     if not self.utility.in_asterisk_list(module_name, bypass_modules) and self.utility.in_asterisk_list(platform, active_platform):
@@ -161,7 +160,7 @@ class Modules:
             except FileNotFoundError:
                 pass
 
-        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
+        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, template_file, True)
 
         replacements = {}
         user_modules = deployment_manifest.get_user_modules()
@@ -192,7 +191,8 @@ class Modules:
 
                     context_path = build_profile.context_path
 
-                    # a hack to workaround Python Docker SDK's bug with Linux container mode on Windows
+                    # A hack to work around Python Docker SDK's bug with Linux container mode on Windows
+                    # https://github.com/docker/docker-py/issues/2127
                     dockerfile_relative = os.path.relpath(dockerfile, context_path)
                     if docker.get_os_type() == "linux" and sys.platform == "win32":
                         dockerfile_relative = dockerfile_relative.replace("\\", "/")
@@ -226,13 +226,11 @@ class Modules:
 
         deployment_manifest.expand_image_placeholders(replacements)
         deployment_manifest.convert_create_options()
-        is_debug_template = deployment_manifest.is_debug_template()
         template_schema_ver = deployment_manifest.get_template_schema_ver()
         deployment_manifest.del_key(["$schema-template"])
-        platform = Platform.get_default_platform()
 
         self.utility.ensure_dir(self.envvars.CONFIG_OUTPUT_DIR)
-        gen_deployment_manifest_name = "deployment{0}{1}.json".format("." + platform if template_schema_ver > "0.0.1" else "", ".debug" if is_debug_template else "")
+        gen_deployment_manifest_name = Utility.get_deployment_manifest_name(template_file, template_schema_ver, default_platform)
         gen_deployment_manifest_path = os.path.join(self.envvars.CONFIG_OUTPUT_DIR, gen_deployment_manifest_name)
 
         self.output.info("Expanding '{0}' to '{1}'".format(os.path.basename(self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE), gen_deployment_manifest_path))

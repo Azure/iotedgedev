@@ -11,7 +11,6 @@ import shutil
 import six
 
 from .compat import PY2
-from .constants import Constants
 
 if PY2:
     from .compat import FileNotFoundError
@@ -22,6 +21,7 @@ TWIN_VALUE_MAX_CHUNKS = 8
 
 class DeploymentManifest:
     def __init__(self, envvars, output, utility, path, is_template):
+        self.envvars = envvars
         self.utility = utility
         self.output = output
         try:
@@ -30,13 +30,13 @@ class DeploymentManifest:
             self.json = json.loads(self.utility.get_file_contents(path, expandvars=True))
         except FileNotFoundError:
             if is_template:
-                deployment_manifest_path = envvars.DEPLOYMENT_CONFIG_FILE_PATH
+                deployment_manifest_path = self.envvars.DEPLOYMENT_CONFIG_FILE_PATH
                 if os.path.exists(deployment_manifest_path):
                     self.output.error('Deployment manifest template file "{0}" not found'.format(path))
                     if output.confirm('Would you like to make a copy of the deployment manifest file "{0}" as the deployment template file?'.format(deployment_manifest_path), default=True):
                         shutil.copyfile(deployment_manifest_path, path)
-                        self.json = json.load(open(envvars.DEPLOYMENT_CONFIG_FILE_PATH))
-                        envvars.save_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", path)
+                        self.json = json.load(open(self.envvars.DEPLOYMENT_CONFIG_FILE_PATH))
+                        self.envvars.save_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", path)
                 else:
                     raise FileNotFoundError('Deployment manifest file "{0}" not found'.format(path))
             else:
@@ -98,9 +98,6 @@ class DeploymentManifest:
 
     def get_template_schema_ver(self):
         return self.json.get("$schema-template", None)
-
-    def is_debug_template(self):
-        return os.path.basename(self.path) == Constants.default_deployment_template_debug_file
 
     def convert_create_options(self):
         modules = self.get_all_modules()
