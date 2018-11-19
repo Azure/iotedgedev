@@ -165,6 +165,7 @@ main.add_command(add)
               default=envvars.DEFAULT_PLATFORM,
               show_default=True,
               required=False,
+              type=click.Choice(["amd64", "windows-amd64", "arm32v7"]),
               help="Specify the default platform")
 @click.pass_context
 @with_telemetry
@@ -253,6 +254,7 @@ main.add_command(deploy)
               default=envvars.DEFAULT_PLATFORM,
               show_default=True,
               required=False,
+              type=click.Choice(["amd64", "windows-amd64", "arm32v7"]),
               help="Specify the default platform")
 @with_telemetry
 def genconfig(template_file, platform):
@@ -325,6 +327,7 @@ main.add_command(setup_simulator)
               default=envvars.DEFAULT_PLATFORM,
               show_default=True,
               required=False,
+              type=click.Choice(["amd64", "windows-amd64", "arm32v7"]),
               help="Specify the default platform to build")
 @click.option("--inputs",
               "-i",
