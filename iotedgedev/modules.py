@@ -230,9 +230,10 @@ class Modules:
 
         self.utility.ensure_dir(self.envvars.CONFIG_OUTPUT_DIR)
         gen_deployment_manifest_name = Utility.get_deployment_manifest_name(template_file, template_schema_ver, default_platform)
+        self.envvars.DEPLOYMENT_CONFIG_FILE = gen_deployment_manifest_name
         gen_deployment_manifest_path = os.path.join(self.envvars.CONFIG_OUTPUT_DIR, gen_deployment_manifest_name)
 
-        self.output.info("Expanding '{0}' to '{1}'".format(os.path.basename(self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE), gen_deployment_manifest_path))
+        self.output.info("Expanding '{0}' to '{1}'".format(os.path.basename(template_file), gen_deployment_manifest_path))
         deployment_manifest.dump(gen_deployment_manifest_path)
 
     def _get_debug_create_options(self,  template):
