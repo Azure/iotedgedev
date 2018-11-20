@@ -14,12 +14,16 @@ class Docker:
         self.utility = utility
         self.output = output
 
-        if self.envvars.DOCKER_HOST:
-            self.docker_client = docker.DockerClient(base_url=self.envvars.DOCKER_HOST)
-            self.docker_api = docker.APIClient(base_url=self.envvars.DOCKER_HOST)
-        else:
-            self.docker_client = docker.from_env()
-            self.docker_api = docker.APIClient()
+        try:
+            if self.envvars.DOCKER_HOST:
+                self.docker_client = docker.DockerClient(base_url=self.envvars.DOCKER_HOST)
+                self.docker_api = docker.APIClient(base_url=self.envvars.DOCKER_HOST)
+            else:
+                self.docker_client = docker.from_env(version="auto")
+                self.docker_api = docker.APIClient()
+        except Exception as ex:
+            msg = "Could not connect to Docker daemon. Please make sure Docker daemon is running and accessible"
+            raise ValueError(msg, ex)
 
     def get_os_type(self):
         return self.docker_client.info()["OSType"].lower()
