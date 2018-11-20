@@ -121,3 +121,6 @@ def test_get_deployment_manifest_name():
     assert Utility.get_deployment_manifest_name("config/deployment.template.json", "1.0.0", "amd64") == "deployment.amd64.json"
     assert Utility.get_deployment_manifest_name("deployment.template.json", "1.0.0", "amd64") == "deployment.amd64.json"
     assert Utility.get_deployment_manifest_name("deployment.debug.template.json", "1.0.0", "amd64") == "deployment.debug.amd64.json"
+
+    os.environ["DEPLOYMENT_CONFIG_FILE"] = "foo.json"
+    assert Utility.get_deployment_manifest_name("deployment.debug.template.json", "1.0.0", "amd64") == "foo.json"

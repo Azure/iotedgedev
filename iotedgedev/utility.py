@@ -162,6 +162,9 @@ class Utility:
 
     @staticmethod
     def get_deployment_manifest_name(template_file, template_schema_ver, platform):
+        if "DEPLOYMENT_CONFIG_FILE" in os.environ:
+            return os.environ["DEPLOYMENT_CONFIG_FILE"]
+
         template_schema_ver = template_schema_ver or ""
         platform = "." + platform if template_schema_ver > "0.0.1" else ""
         prefix = os.path.basename(template_file)
