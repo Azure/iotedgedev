@@ -123,7 +123,7 @@ def test_is_terse_command_true():
 def test_is_terse_command_false():
     output = Output()
     envvars = EnvVars(output)
-    assert not envvars.is_terse_command("solution new")
+    assert not envvars.is_terse_command("solution add")
 
 
 def test_is_terse_command_empty():

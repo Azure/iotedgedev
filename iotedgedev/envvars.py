@@ -21,7 +21,7 @@ class EnvVars:
         current_command = Args().get_current_command()
 
         # for some commands we don't want verbose dotenv load output
-        self.terse_commands = ['', 'iothub setup']
+        self.terse_commands = ['', 'iothub setup', 'solution init', 'init', 'solution e2e', 'solution new', 'new', 'simulator stop', 'simulator modulecred']
         self.verbose = not self.is_terse_command(current_command)
 
     def clean(self):

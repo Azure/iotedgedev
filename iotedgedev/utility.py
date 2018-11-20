@@ -172,5 +172,7 @@ class Utility:
             prefix = prefix[:-len(Constants.deployment_template_suffix)]
         elif prefix.endswith(".json"):
             prefix = prefix[:-len(".json")]
+        else:
+            prefix = "deployment"
 
         return "{0}{1}.json".format(prefix, platform)
