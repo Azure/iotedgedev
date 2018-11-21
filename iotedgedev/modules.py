@@ -118,10 +118,10 @@ class Modules:
         self.output.footer("ADD COMPLETE")
 
     def build(self, template_file, platform):
-        self.build_push(template_file, platform, no_push=True)
+        return self.build_push(template_file, platform, no_push=True)
 
     def push(self, template_file, platform, no_build=False):
-        self.build_push(template_file, platform, no_build=no_build)
+        return self.build_push(template_file, platform, no_build=no_build)
 
     def build_push(self, template_file, default_platform, no_build=False, no_push=False):
         self.output.header("BUILDING MODULES", suppress=no_build)
@@ -230,11 +230,12 @@ class Modules:
 
         self.utility.ensure_dir(self.envvars.CONFIG_OUTPUT_DIR)
         gen_deployment_manifest_name = Utility.get_deployment_manifest_name(template_file, template_schema_ver, default_platform)
-        self.envvars.DEPLOYMENT_CONFIG_FILE = gen_deployment_manifest_name
         gen_deployment_manifest_path = os.path.join(self.envvars.CONFIG_OUTPUT_DIR, gen_deployment_manifest_name)
 
         self.output.info("Expanding '{0}' to '{1}'".format(os.path.basename(template_file), gen_deployment_manifest_path))
         deployment_manifest.dump(gen_deployment_manifest_path)
+
+        return gen_deployment_manifest_path
 
     def _get_debug_create_options(self,  template):
         if template == "c":

@@ -315,11 +315,11 @@ main.add_command(setup_simulator)
               help="Build the solution before starting IoT Edge simulator in solution mode.")
 @click.option("--file",
               "-f",
-              "template_file",
-              default=envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE,
+              "manifest_file",
+              default=envvars.DEPLOYMENT_CONFIG_FILE_PATH,
               show_default=True,
               required=False,
-              help="Specify the deployment manifest template file to build")
+              help="Specify the deployment manifest file. When `--build` flag is set, specify a deployment manifest template and it will be built.")
 @click.option("--platform",
               "-P",
               default=envvars.DEFAULT_PLATFORM,
@@ -338,14 +338,14 @@ main.add_command(setup_simulator)
               show_default=True,
               help="Port of the service for sending message.")
 @with_telemetry
-def start_simulator(setup, solution, build, template_file, platform, verbose, inputs, port):
+def start_simulator(setup, solution, build, manifest_file, platform, verbose, inputs, port):
     sim = Simulator(envvars, output)
 
     if setup:
         sim.setup(socket.getfqdn())
 
     if solution or not inputs:
-        sim.start_solution(template_file, platform, verbose, build)
+        sim.start_solution(manifest_file, platform, verbose, build)
     else:
         sim.start_single(inputs, port)
 

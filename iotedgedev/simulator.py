@@ -31,17 +31,17 @@ class Simulator:
             cmd.extend(["-p", str(port)])
         self.utility.exe_proc(cmd)
 
-    def start_solution(self, template_file, default_platform, verbose=True, build=False):
+    def start_solution(self, manifest_file, default_platform, verbose=True, build=False):
         if build:
             mod = Modules(self.envvars, self.output)
-            mod.build(template_file, default_platform)
+            manifest_file = mod.build(manifest_file, default_platform)
 
-        if not os.path.exists(self.envvars.DEPLOYMENT_CONFIG_FILE_PATH):
+        if not os.path.exists(manifest_file):
             raise FileNotFoundError("Deployment manifest {0} not found. Please build the solution before starting IoT Edge simulator.".format(self.envvars.DEPLOYMENT_CONFIG_FILE_PATH))
 
         self.output.header("Starting IoT Edge Simulator in Solution Mode")
 
-        cmd = ["iotedgehubdev", "start", "-d", self.envvars.DEPLOYMENT_CONFIG_FILE_PATH]
+        cmd = ["iotedgehubdev", "start", "-d", manifest_file]
         if verbose:
             cmd.append("-v")
         self.utility.call_proc(cmd)

@@ -92,7 +92,7 @@ def test_start_solution(capfd):
     cli = __import__('iotedgedev.cli', fromlist=['main'])
     runner = CliRunner()
 
-    result = runner.invoke(cli.main, ['simulator', 'start', '-s', '-b'])
+    result = runner.invoke(cli.main, ['simulator', 'start', '-s', '-b', '-f', 'deployment.template.json'])
     print(result.output)
     out, err = capfd.readouterr()
     print(out)
