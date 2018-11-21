@@ -5,6 +5,7 @@ import docker
 import six
 
 from .deploymentmanifest import DeploymentManifest
+from .utility import Utility
 
 
 class Docker:
@@ -131,7 +132,7 @@ class Docker:
 
         # Replace mcr.microsoft.com/ with ${CONTAINER_REGISTRY_SERVER}
         for config_file in self.utility.get_config_files():
-            config_file_contents = self.utility.get_file_contents(config_file)
+            config_file_contents = Utility.get_file_contents(config_file)
             for image_name in image_names:
                 config_file_contents = config_file_contents.replace(
                     "mcr.microsoft.com/" + image_name, "${CONTAINER_REGISTRY_SERVER}/" + image_name)

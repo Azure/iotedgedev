@@ -125,7 +125,7 @@ class EnvVars:
                 self.DEPLOYMENT_CONFIG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", default=Constants.default_deployment_template_file)
                 self.DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE", default=Constants.default_deployment_debug_template_file)
                 self.DEFAULT_PLATFORM = self.get_envvar("DEFAULT_PLATFORM", default=Constants.default_default_platform)
-                self.DEPLOYMENT_CONFIG_FILE = Utility.get_deployment_manifest_name(self.DEPLOYMENT_CONFIG_TEMPLATE_FILE, "1.0.0", self.DEFAULT_PLATFORM)
+                self.DEPLOYMENT_CONFIG_FILE = Utility.get_deployment_manifest_name(self.DEPLOYMENT_CONFIG_TEMPLATE_FILE, None, self.DEFAULT_PLATFORM)
                 self.MODULES_PATH = self.get_envvar("MODULES_PATH", default=Constants.default_modules_folder)
                 self.LOGS_PATH = self.get_envvar("LOGS_PATH", default="logs")
                 self.LOGS_CMD = self.get_envvar("LOGS_CMD", default="start /B start cmd.exe @cmd /k docker logs {0} -f")

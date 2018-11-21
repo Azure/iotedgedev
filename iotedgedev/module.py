@@ -2,6 +2,7 @@ import json
 import os
 
 from .compat import PY2
+from .utility import Utility
 
 if PY2:
     from .compat import FileNotFoundError
@@ -19,7 +20,7 @@ class Module(object):
     def load_module_json(self):
         if os.path.exists(self.module_json_file):
             try:
-                self.file_json_content = json.loads(self.utility.get_file_contents(self.module_json_file, expandvars=True))
+                self.file_json_content = json.loads(Utility.get_file_contents(self.module_json_file, expandvars=True))
                 self.module_language = self.file_json_content.get("language").lower()
             except KeyError as e:
                 raise KeyError("Error parsing {0} from module.json file : {1}".format(str(e), self.module_json_file))

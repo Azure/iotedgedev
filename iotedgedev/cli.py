@@ -193,7 +193,7 @@ main.add_command(build)
               show_default=True,
               required=False,
               is_flag=True,
-              help="Inform the push command to not build modules images before pushing to container registry")
+              help="Inform the push command to not build module images before pushing to container registry")
 @click.option("--file",
               "-f",
               "template_file",

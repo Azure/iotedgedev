@@ -11,6 +11,7 @@ import shutil
 import six
 
 from .compat import PY2
+from .utility import Utility
 
 if PY2:
     from .compat import FileNotFoundError
@@ -27,7 +28,7 @@ class DeploymentManifest:
         try:
             self.path = path
             self.is_template = is_template
-            self.json = json.loads(self.utility.get_file_contents(path, expandvars=True))
+            self.json = json.loads(Utility.get_file_contents(path, expandvars=True))
         except FileNotFoundError:
             if is_template:
                 deployment_manifest_path = self.envvars.DEPLOYMENT_CONFIG_FILE_PATH

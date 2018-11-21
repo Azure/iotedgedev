@@ -1,4 +1,5 @@
 import fnmatch
+import json
 import os
 import subprocess
 from base64 import b64decode, b64encode
@@ -82,7 +83,8 @@ class Utility:
 
         return "SharedAccessSignature " + urlencode(rawtoken)
 
-    def get_file_contents(self, file, expandvars=False):
+    @staticmethod
+    def get_file_contents(file, expandvars=False):
         with open(file, "r") as file:
             content = file.read()
             if expandvars:
@@ -120,7 +122,7 @@ class Utility:
         if dest is None:
             dest = src
 
-        content = self.get_file_contents(src)
+        content = Utility.get_file_contents(src)
 
         if replacements:
             for key, value in replacements.items():
@@ -165,7 +167,13 @@ class Utility:
         if "DEPLOYMENT_CONFIG_FILE" in os.environ:
             return os.environ["DEPLOYMENT_CONFIG_FILE"]
 
-        template_schema_ver = template_schema_ver or ""
+        if template_schema_ver is None:
+            if os.path.exists(template_file):
+                json_ = json.loads(Utility.get_file_contents(template_file, expandvars=True))
+                template_schema_ver = json_.get("$schema-template", "")
+            else:
+                template_schema_ver = Constants.deployment_template_schema_version
+
         platform = "." + platform if template_schema_ver > "0.0.1" else ""
         prefix = os.path.basename(template_file)
         if prefix.endswith(Constants.deployment_template_suffix):

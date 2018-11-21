@@ -283,7 +283,7 @@ class Modules:
 
         if launch_json_file is not None:
             launch_json_file = os.path.join(os.path.split(__file__)[0], "template", launch_json_file)
-            launch_json_content = self.utility.get_file_contents(launch_json_file)
+            launch_json_content = Utility.get_file_contents(launch_json_file)
             for key, value in replacements.items():
                 launch_json_content = launch_json_content.replace(key, value)
             launch_json = commentjson.loads(launch_json_content)
@@ -297,7 +297,7 @@ class Modules:
         self.utility.ensure_dir(vscode_dir)
         launch_json_file = os.path.join(vscode_dir, "launch.json")
         if os.path.exists(launch_json_file):
-            launch_json = commentjson.loads(self.utility.get_file_contents(launch_json_file))
+            launch_json = commentjson.loads(Utility.get_file_contents(launch_json_file))
             launch_json['configurations'].extend(new_launch_json['configurations'])
             with open(launch_json_file, "w") as f:
                 commentjson.dump(launch_json, f, indent=2)
