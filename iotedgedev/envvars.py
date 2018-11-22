@@ -124,7 +124,7 @@ class EnvVars:
                 self.CONFIG_OUTPUT_DIR = self.get_envvar("CONFIG_OUTPUT_DIR", default=Constants.default_config_folder)
                 self.DEPLOYMENT_CONFIG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", default=Constants.default_deployment_template_file)
                 self.DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE", default=Constants.default_deployment_debug_template_file)
-                self.DEFAULT_PLATFORM = self.get_envvar("DEFAULT_PLATFORM", default=Constants.default_default_platform)
+                self.DEFAULT_PLATFORM = self.get_envvar("DEFAULT_PLATFORM", default=Constants.default_platform)
                 self.DEPLOYMENT_CONFIG_FILE = Utility.get_deployment_manifest_name(self.DEPLOYMENT_CONFIG_TEMPLATE_FILE, None, self.DEFAULT_PLATFORM)
                 self.MODULES_PATH = self.get_envvar("MODULES_PATH", default=Constants.default_modules_folder)
                 self.LOGS_PATH = self.get_envvar("LOGS_PATH", default="logs")

@@ -165,7 +165,7 @@ main.add_command(add)
               default=envvars.DEFAULT_PLATFORM,
               show_default=True,
               required=False,
-              help="Specify the default platform")
+              help="Specify the platform")
 @click.pass_context
 @with_telemetry
 def build(ctx, push, do_deploy, template_file, platform):
@@ -206,7 +206,7 @@ main.add_command(build)
               default=envvars.DEFAULT_PLATFORM,
               show_default=True,
               required=False,
-              help="Specify the default platform")
+              help="Specify the platform")
 @click.pass_context
 @with_telemetry
 def push(ctx, do_deploy, no_build, template_file, platform):
@@ -253,7 +253,7 @@ main.add_command(deploy)
               default=envvars.DEFAULT_PLATFORM,
               show_default=True,
               required=False,
-              help="Specify the default platform")
+              help="Specify the platform")
 @with_telemetry
 def genconfig(template_file, platform):
     mod = Modules(envvars, output)
@@ -325,7 +325,7 @@ main.add_command(setup_simulator)
               default=envvars.DEFAULT_PLATFORM,
               show_default=True,
               required=False,
-              help="Specify the default platform to build")
+              help="Specify the platform")
 @click.option("--inputs",
               "-i",
               required=False,

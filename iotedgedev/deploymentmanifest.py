@@ -44,7 +44,7 @@ class DeploymentManifest:
                 raise FileNotFoundError('Deployment manifest file "{0}" not found'.format(path))
 
     def add_module_template(self, module_name, create_options={}, is_debug=False):
-        """Add a module template to the deployment manifest with amd64 as the default platform"""
+        """Add a module template to the deployment manifest"""
         new_module = {
             "version": "1.0",
             "type": "docker",
