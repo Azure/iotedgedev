@@ -28,10 +28,10 @@ class Modules:
         self.output = output
         self.utility = Utility(self.envvars, self.output)
 
-    def add(self, name, template, group_id, template_file):
+    def add(self, name, template, group_id):
         self.output.header("ADDING MODULE {0}".format(name))
 
-        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, template_file, True)
+        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
 
         cwd = self.envvars.MODULES_PATH
         self.utility.ensure_dir(cwd)

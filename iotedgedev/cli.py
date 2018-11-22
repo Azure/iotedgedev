@@ -121,17 +121,10 @@ def e2e(ctx):
                   short_help="Add a new module to the solution",
                   help="Add a new module to the solution, where NAME is the module name")
 @add_module_options(envvars)
-@click.option("--file",
-              "-f",
-              "template_file",
-              default=envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE,
-              show_default=True,
-              required=False,
-              help="Specify the deployment manifest template file")
 @with_telemetry
-def add(name, template, group_id, template_file):
+def add(name, template, group_id):
     mod = Modules(envvars, output)
-    mod.add(name, template, group_id, template_file)
+    mod.add(name, template, group_id)
 
 
 main.add_command(add)
