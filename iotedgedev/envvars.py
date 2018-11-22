@@ -8,7 +8,9 @@ from fstrings import f
 from .args import Args
 from .compat import PY2
 from .connectionstring import DeviceConnectionString, IoTHubConnectionString
+from .constants import Constants
 from .containerregistry import ContainerRegistry
+from .utility import Utility
 
 
 class EnvVars:
@@ -17,12 +19,9 @@ class EnvVars:
         self.loaded = False
 
         current_command = Args().get_current_command()
-        # for some commands we don't want to load dotenv
-        # TODO: temporary hack. A more grace solution would be a decorator on the command to indicate whether to bypass env
-        self.bypass_dotenv_load_commands = ['solution init', 'init', 'solution e2e', 'solution new', 'new', 'simulator stop', 'simulator modulecred']
-        self.bypass = self.is_bypass_command(current_command)
+
         # for some commands we don't want verbose dotenv load output
-        self.terse_commands = ['', 'iothub setup']
+        self.terse_commands = ['', 'iothub setup', 'solution init', 'init', 'solution e2e', 'solution new', 'new', 'simulator stop', 'simulator modulecred']
         self.verbose = not self.is_terse_command(current_command)
 
     def clean(self):
@@ -46,7 +45,6 @@ class EnvVars:
             os.environ = clean_enviro
 
     def backup_dotenv(self):
-        dotenv_file = self.get_dotenv_file()
         dotenv_path = self.get_dotenv_file_path()
         dotenv_backup_path = dotenv_path + ".backup"
         try:
@@ -92,11 +90,6 @@ class EnvVars:
         return self.get_dotenv_path(self.get_dotenv_file())
 
     def load(self, force=False):
-
-        # for some commands we don't want to load dotenv
-        if self.bypass and not force:
-            return
-
         if not self.loaded or force:
             if self.verbose:
                 self.output.header("ENVIRONMENT VARIABLES")
@@ -128,12 +121,13 @@ class EnvVars:
                 self.ACTIVE_DOCKER_PLATFORMS = self.get_envvar("ACTIVE_DOCKER_PLATFORMS", altkeys=["ACTIVE_DOCKER_ARCH"], default="")
                 self.CONTAINER_TAG = self.get_envvar("CONTAINER_TAG", default="")
                 self.RUNTIME_TAG = self.get_envvar("RUNTIME_TAG", default="1.0")
-                self.CONFIG_OUTPUT_DIR = self.get_envvar("CONFIG_OUTPUT_DIR", default="config")
-                self.DEPLOYMENT_CONFIG_FILE = self.get_envvar("DEPLOYMENT_CONFIG_FILE", altkeys=['MODULES_CONFIG_FILE'], default="deployment.json")
-                self.DEPLOYMENT_CONFIG_FILE_PATH = os.path.join(self.CONFIG_OUTPUT_DIR, self.DEPLOYMENT_CONFIG_FILE)
-                self.DEPLOYMENT_CONFIG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", default="deployment.template.json")
+                self.CONFIG_OUTPUT_DIR = self.get_envvar("CONFIG_OUTPUT_DIR", default=Constants.default_config_folder)
+                self.DEPLOYMENT_CONFIG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", default=Constants.default_deployment_template_file)
+                self.DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE", default=Constants.default_deployment_debug_template_file)
+                self.DEFAULT_PLATFORM = self.get_envvar("DEFAULT_PLATFORM", default=Constants.default_platform)
+                self.DEPLOYMENT_CONFIG_FILE = Utility.get_deployment_manifest_name(self.DEPLOYMENT_CONFIG_TEMPLATE_FILE, None, self.DEFAULT_PLATFORM)
+                self.MODULES_PATH = self.get_envvar("MODULES_PATH", default=Constants.default_modules_folder)
                 self.LOGS_PATH = self.get_envvar("LOGS_PATH", default="logs")
-                self.MODULES_PATH = self.get_envvar("MODULES_PATH", default="modules")
                 self.LOGS_CMD = self.get_envvar("LOGS_CMD", default="start /B start cmd.exe @cmd /k docker logs {0} -f")
                 self.SUBSCRIPTION_ID = self.get_envvar("SUBSCRIPTION_ID")
                 self.RESOURCE_GROUP_NAME = self.get_envvar("RESOURCE_GROUP_NAME")
@@ -225,9 +219,6 @@ class EnvVars:
         plat = platform.system().lower()
         return plat == "linux" or plat == "darwin"
 
-    def is_bypass_command(self, command):
-        return self.in_command_list(command, self.bypass_dotenv_load_commands)
-
     def is_terse_command(self, command):
         return self.in_command_list(command, self.terse_commands)
 
@@ -245,6 +236,10 @@ class EnvVars:
                 else:
                     continue
         return False
+
+    @property
+    def DEPLOYMENT_CONFIG_FILE_PATH(self):
+        return os.path.join(self.CONFIG_OUTPUT_DIR, self.DEPLOYMENT_CONFIG_FILE)
 
     def _set_registry_map(self, env_key, subkey):
         registry_key_prefix = 'CONTAINER_REGISTRY_'

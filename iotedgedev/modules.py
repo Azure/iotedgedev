@@ -107,17 +107,23 @@ class Modules:
         deployment_manifest.add_module_template(name)
         deployment_manifest.dump()
 
+        debug_create_options = self._get_debug_create_options(template)
+        if os.path.exists(self.envvars.DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE):
+            deployment_manifest_debug = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE, True)
+            deployment_manifest_debug.add_module_template(name, debug_create_options, True)
+            deployment_manifest_debug.dump()
+
         self._update_launch_json(name, template, group_id)
 
         self.output.footer("ADD COMPLETE")
 
-    def build(self):
-        self.build_push(no_push=True)
+    def build(self, template_file, platform):
+        return self.build_push(template_file, platform, no_push=True)
 
-    def push(self, no_build=False):
-        self.build_push(no_build=no_build)
+    def push(self, template_file, platform, no_build=False):
+        return self.build_push(template_file, platform, no_build=no_build)
 
-    def build_push(self, no_build=False, no_push=False):
+    def build_push(self, template_file, default_platform, no_build=False, no_push=False):
         self.output.header("BUILDING MODULES", suppress=no_build)
 
         bypass_modules = self.utility.get_bypass_modules()
@@ -141,13 +147,19 @@ class Modules:
                     container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
                     tag = "{0}:{1}{2}-{3}".format(module.repository, module.tag_version, container_tag, platform).lower()
                     placeholder_tag_map["${{MODULES.{0}.{1}}}".format(module_name, platform)] = tag
+
+                    if platform == default_platform:
+                        placeholder_tag_map[DeploymentManifest.get_image_placeholder(module_name)] = tag
+                    elif platform == default_platform + ".debug":
+                        placeholder_tag_map[DeploymentManifest.get_image_placeholder(module_name, True)] = tag
+
                     tag_build_profile_map[tag] = BuildProfile(module_name, dockerfile, module.context_path, module.build_options)
                     if not self.utility.in_asterisk_list(module_name, bypass_modules) and self.utility.in_asterisk_list(platform, active_platform):
                         tags_to_build.add(tag)
             except FileNotFoundError:
                 pass
 
-        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE, True)
+        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, template_file, True)
 
         replacements = {}
         user_modules = deployment_manifest.get_user_modules()
@@ -178,7 +190,8 @@ class Modules:
 
                     context_path = build_profile.context_path
 
-                    # a hack to workaround Python Docker SDK's bug with Linux container mode on Windows
+                    # A hack to work around Python Docker SDK's bug with Linux container mode on Windows
+                    # https://github.com/docker/docker-py/issues/2127
                     dockerfile_relative = os.path.relpath(dockerfile, context_path)
                     if docker.get_os_type() == "linux" and sys.platform == "win32":
                         dockerfile_relative = dockerfile_relative.replace("\\", "/")
@@ -212,12 +225,31 @@ class Modules:
 
         deployment_manifest.expand_image_placeholders(replacements)
         deployment_manifest.convert_create_options()
+        template_schema_ver = deployment_manifest.get_template_schema_ver()
+        deployment_manifest.del_key(["$schema-template"])
 
         self.utility.ensure_dir(self.envvars.CONFIG_OUTPUT_DIR)
-        gen_deployment_manifest_path = os.path.join(self.envvars.CONFIG_OUTPUT_DIR, "deployment.json")
+        gen_deployment_manifest_name = Utility.get_deployment_manifest_name(template_file, template_schema_ver, default_platform)
+        gen_deployment_manifest_path = os.path.join(self.envvars.CONFIG_OUTPUT_DIR, gen_deployment_manifest_name)
 
-        self.output.info("Expanding '{0}' to '{1}'".format(os.path.basename(self.envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE), gen_deployment_manifest_path))
+        self.output.info("Expanding '{0}' to '{1}'".format(os.path.basename(template_file), gen_deployment_manifest_path))
         deployment_manifest.dump(gen_deployment_manifest_path)
+
+        return gen_deployment_manifest_path
+
+    def _get_debug_create_options(self,  template):
+        if template == "c":
+            return {"HostConfig": {"Privileged": True}}
+        elif template == "java":
+            return {"HostConfig": {"PortBindings": {"5005/tcp": [{"HostPort": "5005"}]}}}
+        elif template == "nodejs":
+            return {"ExposedPorts": {"9229/tcp": {}},
+                    "HostConfig": {"PortBindings": {"9229/tcp": [{"HostPort": "9229"}]}}}
+        elif template == "python":
+            return {"ExposedPorts": {"5678/tcp": {}},
+                    "HostConfig": {"PortBindings": {"5678/tcp": [{"HostPort": "5678"}]}}}
+        else:
+            return {}
 
     def _update_launch_json(self, name, template, group_id):
         new_launch_json = self._get_launch_json(name, template, group_id)
@@ -252,7 +284,7 @@ class Modules:
 
         if launch_json_file is not None:
             launch_json_file = os.path.join(os.path.split(__file__)[0], "template", launch_json_file)
-            launch_json_content = self.utility.get_file_contents(launch_json_file)
+            launch_json_content = Utility.get_file_contents(launch_json_file)
             for key, value in replacements.items():
                 launch_json_content = launch_json_content.replace(key, value)
             launch_json = commentjson.loads(launch_json_content)
@@ -266,7 +298,7 @@ class Modules:
         self.utility.ensure_dir(vscode_dir)
         launch_json_file = os.path.join(vscode_dir, "launch.json")
         if os.path.exists(launch_json_file):
-            launch_json = commentjson.loads(self.utility.get_file_contents(launch_json_file))
+            launch_json = commentjson.loads(Utility.get_file_contents(launch_json_file))
             launch_json['configurations'].extend(new_launch_json['configurations'])
             with open(launch_json_file, "w") as f:
                 commentjson.dump(launch_json, f, indent=2)

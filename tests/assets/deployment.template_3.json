@@ -149,7 +149,7 @@
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "${MODULES.csharpmodule2.amd64}",
+              "image": "${MODULES.csharpmodule2}",
               "createOptions": {}
             }
           }

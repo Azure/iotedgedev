@@ -1,5 +1,3 @@
-import os
-
 from .compat import PY35
 
 

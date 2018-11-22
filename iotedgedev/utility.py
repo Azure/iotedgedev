@@ -1,4 +1,5 @@
 import fnmatch
+import json
 import os
 import subprocess
 from base64 import b64decode, b64encode
@@ -6,15 +7,13 @@ from hashlib import sha256
 from hmac import HMAC
 from time import time
 
-from .compat import PY2, PY3
+from six.moves.urllib.parse import quote, urlencode
+
+from .compat import PY2
+from .constants import Constants
 
 if PY2:
     from .compat import FileNotFoundError
-
-if PY3:
-    from urllib.parse import quote, urlencode
-else:
-    from urllib import quote, urlencode
 
 
 class Utility:
@@ -84,7 +83,8 @@ class Utility:
 
         return "SharedAccessSignature " + urlencode(rawtoken)
 
-    def get_file_contents(self, file, expandvars=False):
+    @staticmethod
+    def get_file_contents(file, expandvars=False):
         with open(file, "r") as file:
             content = file.read()
             if expandvars:
@@ -122,7 +122,7 @@ class Utility:
         if dest is None:
             dest = src
 
-        content = self.get_file_contents(src)
+        content = Utility.get_file_contents(src)
 
         if replacements:
             for key, value in replacements.items():
@@ -134,17 +134,53 @@ class Utility:
         with open(dest, "w") as dest_file:
             dest_file.write(content)
 
-    def nested_set(self, dic, keys, value):
-        current = dic
-        for key in keys[:-1]:
+    def nested_set(self, dict_, key_path, value):
+        current = dict_
+        for key in key_path[:-1]:
             if key not in current:
                 current[key] = {}
             current = current.get(key)
 
-        current[keys[-1]] = value
+        current[key_path[-1]] = value
+
+    def del_key(self, dict_, key_path):
+        if not isinstance(dict_, dict):
+            return None
+
+        current = dict_
+        for key in key_path[:-1]:
+            current = current.get(key, None)
+
+            if not isinstance(current, dict):
+                return None
+
+        return current.pop(key_path[-1], None)
 
     @staticmethod
     def get_sha256_hash(val):
         hash_object = sha256(val.encode('utf-8'))
 
         return str(hash_object.hexdigest()).lower()
+
+    @staticmethod
+    def get_deployment_manifest_name(template_file, template_schema_ver, platform):
+        if "DEPLOYMENT_CONFIG_FILE" in os.environ:
+            return os.environ["DEPLOYMENT_CONFIG_FILE"]
+
+        if template_schema_ver is None:
+            if os.path.exists(template_file):
+                json_ = json.loads(Utility.get_file_contents(template_file, expandvars=True))
+                template_schema_ver = json_.get("$schema-template", "")
+            else:
+                template_schema_ver = Constants.deployment_template_schema_version
+
+        platform = "." + platform if template_schema_ver > "0.0.1" else ""
+        prefix = os.path.basename(template_file)
+        if prefix.endswith(Constants.deployment_template_suffix):
+            prefix = prefix[:-len(Constants.deployment_template_suffix)]
+        elif prefix.endswith(".json"):
+            prefix = prefix[:-len(".json")]
+        else:
+            prefix = "deployment"
+
+        return "{0}{1}.json".format(prefix, platform)

@@ -114,24 +114,6 @@ def test_in_command_list_empty_3():
     assert envvars.in_command_list("", ["init", "e2e", "", "new", "simulator stop"])
 
 
-def test_is_bypass_command_true():
-    output = Output()
-    envvars = EnvVars(output)
-    assert envvars.is_bypass_command("solution new EdgeSolution")
-
-
-def test_is_bypass_command_false():
-    output = Output()
-    envvars = EnvVars(output)
-    assert not envvars.is_bypass_command("solution add")
-
-
-def test_is_bypass_command_empty():
-    output = Output()
-    envvars = EnvVars(output)
-    assert not envvars.is_bypass_command("")
-
-
 def test_is_terse_command_true():
     output = Output()
     envvars = EnvVars(output)
@@ -141,7 +123,7 @@ def test_is_terse_command_true():
 def test_is_terse_command_false():
     output = Output()
     envvars = EnvVars(output)
-    assert not envvars.is_terse_command("solution new")
+    assert not envvars.is_terse_command("solution add")
 
 
 def test_is_terse_command_empty():

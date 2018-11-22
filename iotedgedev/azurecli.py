@@ -11,6 +11,10 @@ from fstrings import f
 from six.moves.queue import Empty, Queue
 
 from . import telemetry
+from .compat import PY2
+
+if PY2:
+    from .compat import FileNotFoundError
 
 output_io_cls = StringIO
 

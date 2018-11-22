@@ -1,18 +1,12 @@
-try:
-    # Python 2.x
-    import urllib2 as HTTPClient
-except ImportError:
-    # Python 3.x
-    import urllib.request as HTTPClient
-
 import json
 import sys
 
-import six
 from applicationinsights import TelemetryClient
 from applicationinsights.channel import (SynchronousQueue, SynchronousSender,
                                          TelemetryChannel)
 from applicationinsights.exceptions import enable
+from six import string_types
+from six.moves.urllib.request import Request, urlopen
 
 from iotedgedev.decorators import suppress_all_exceptions
 
@@ -25,10 +19,10 @@ class LimitedRetrySender(SynchronousSender):
         """ Override the default resend mechanism in SenderBase. Stop resend when it fails."""
         request_payload = json.dumps([a.write() for a in data_to_send])
 
-        request = HTTPClient.Request(self._service_endpoint_uri, bytearray(request_payload, 'utf-8'),
-                                     {'Accept': 'application/json', 'Content-Type': 'application/json; charset=utf-8'})
+        req = Request(self._service_endpoint_uri, bytearray(request_payload, 'utf-8'),
+                      {'Accept': 'application/json', 'Content-Type': 'application/json; charset=utf-8'})
         try:
-            HTTPClient.urlopen(request, timeout=10)
+            urlopen(req, timeout=10)
         except Exception:
             pass
 
@@ -47,7 +41,7 @@ def upload(data_to_save):
             properties = {}
             measurements = {}
             for k, v in raw_properties.items():
-                if isinstance(v, six.string_types):
+                if isinstance(v, string_types):
                     properties[k] = v
                 else:
                     measurements[k] = v

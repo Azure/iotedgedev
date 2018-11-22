@@ -99,3 +99,8 @@ def test_expand_image_placeholders(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_1)
     deployment_manifest.expand_image_placeholders({"csharpmodule": "localhost:5000/csharpmodule:0.0.1-amd64"})
     assert deployment_manifest.json["modulesContent"]["$edgeAgent"]["properties.desired"]["modules"]["csharpmodule"]["settings"]["image"] == "localhost:5000/csharpmodule:0.0.1-amd64"
+
+
+def test_get_image_placeholder():
+    assert DeploymentManifest.get_image_placeholder("filtermodule") == "${MODULES.filtermodule}"
+    assert DeploymentManifest.get_image_placeholder("filtermodule", True) == "${MODULES.filtermodule.debug}"

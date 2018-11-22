@@ -1,5 +1,7 @@
 import os
 
+from .constants import Constants
+
 
 class Solution:
     def __init__(self, output, utility):
@@ -19,7 +21,9 @@ class Solution:
 
         self.utility.ensure_dir(dir_path)
 
-        self.utility.copy_from_template_dir("deployment.template.json", dir_path, replacements={"%MODULE%": module})
+        self.utility.copy_from_template_dir(Constants.default_deployment_template_file, dir_path, replacements={"%MODULE%": module})
+        self.utility.copy_from_template_dir(Constants.default_deployment_template_file, dir_path,
+                                            dest_file=Constants.default_deployment_debug_template_file, replacements={"%MODULE%": module})
         self.utility.copy_from_template_dir(".gitignore", dir_path)
         self.utility.copy_from_template_dir(".env.tmp", dir_path, dest_file=".env")
 
