@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [1.1.0] - 2018-11-26
+### Added
+- Support parsing `createOptions` in JSON dictionary format
+- Support multi-platform deployment manifest template, where modules' image placeholders are platform neutral (`${MODULE.filtermodule}` vs. `${MODULES.filtermodule.amd64}`). You can specify the platforms to build using the `--platform` parameter. By default, we provide "arm32v7", "amd64" and "windows-amd64" as the platform set since these are Azure IoT Edge supporting platforms today
+- Add **deployment.debug.template.json** when creating new solutions. This template refers to the debug flavour image of the modules and has debug `createOptions` populated automatically. You can specify the deployment manifest template to build using the `--file` parameter
+
+### Changed
+- Default to JSON dictionary format for newly created modules' `createOptions`
+- Show more clear message when failing to connect to Docker daemon
+
 ## [1.0.0] - 2018-11-01
 ### Added
 - Support adding Java modules

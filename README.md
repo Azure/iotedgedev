@@ -68,6 +68,7 @@ The only thing you need to install is Docker. All of the other dev dependencies 
     ```
         │  .env
         │  .gitignore
+        |  deployment.debug.template.json
         │  deployment.template.json
         │
         ├─.vscode
@@ -96,7 +97,7 @@ The only thing you need to install is Docker. All of the other dev dependencies 
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-                "image": "${MODULES.filtermodule.amd64}",
+                "image": "${MODULES.filtermodule}",
                 "createOptions": {}
             }
         }
@@ -135,14 +136,14 @@ The only thing you need to install is Docker. All of the other dev dependencies 
     <summary>More information</summary>
 
     1. You will see a "BUILD COMPLETE" for each module and no error messages in the terminal output.
-	2. Open `config/deployment.json` file, you will see the module image placeholders expanded correctly.
+	2. Open `config/deployment.amd64.json` file, you will see the module image placeholders expanded correctly.
     3. Run `sudo docker image ls`, you will see the module images you just built.
 
     </details>
 
 1. **Setup and start the IoT Edge Simulator to run the solution**
 
-    `sudo iotedgedev start --setup`
+    `sudo iotedgedev start --setup --file config/deployment.amd64.json`
 
     > IoT Edge Simulator does not support running Python and C modules yet. You'll need IoT Edge Runtime to run your Python and C modules.
 
