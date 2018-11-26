@@ -135,9 +135,10 @@ The only thing you need to install is Docker. All of the other dev dependencies 
     <details>
     <summary>More information</summary>
 
+    1. This step will build user modules in deployment.template.json targeting amd64 platform.
     1. You will see a "BUILD COMPLETE" for each module and no error messages in the terminal output.
-	2. Open `config/deployment.amd64.json` file, you will see the module image placeholders expanded correctly.
-    3. Run `sudo docker image ls`, you will see the module images you just built.
+    1. Open `config/deployment.amd64.json` file, you will see the module image placeholders expanded correctly.
+    1. Run `sudo docker image ls`, you will see the module images you just built.
 
     </details>
 
