@@ -28,7 +28,7 @@ The only thing you need to install is Docker. All of the other dev dependencies 
 
 1. **Install [Docker CE](https://docs.docker.com/install/)**
 
-    - On Windows, only Linux containers are supported at this time. Windows container support is coming very soon! Please follow [the document](https://docs.docker.com/docker-for-windows/#shared-drives) to open Docker Settings and setup a Shared Drive.
+    - Please follow [the document](https://docs.docker.com/docker-for-windows/#shared-drives) to open Docker Settings and setup a Shared Drive.
     - For macOS, please follow [the document](https://docs.docker.com/docker-for-mac/#file-sharing) to choose local directories to share with your containers.
 
 
@@ -45,7 +45,7 @@ The only thing you need to install is Docker. All of the other dev dependencies 
     **Linux**
     ```
     sudo mkdir /home/iotedge
-    sudo docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v /home/iotedge:/home/iotedge microsoft/iotedgedev
+    sudo docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v ~/iotedge:/home/iotedge microsoft/iotedgedev
     ```
 
     **macOS**
@@ -68,7 +68,7 @@ The only thing you need to install is Docker. All of the other dev dependencies 
     ```
         │  .env
         │  .gitignore
-        |  deployment.debug.template.json
+        │  deployment.debug.template.json
         │  deployment.template.json
         │
         ├─.vscode
