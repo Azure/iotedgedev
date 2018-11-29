@@ -63,7 +63,7 @@ class Modules:
             with ZipFile(BytesIO(response.read())) as zip_f:
                 zip_f.extractall(temp_dir)
 
-            os.rename(temp_template_dir, os.path.join(cwd, name))
+            shutil.move(temp_template_dir, os.path.join(cwd, name))
 
             module = Module(self.envvars, self.utility, name)
             module.repository = repo
