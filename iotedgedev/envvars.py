@@ -137,11 +137,6 @@ class EnvVars:
                 self.EDGE_DEVICE_ID = self.get_envvar("EDGE_DEVICE_ID")
                 self.CREDENTIALS = self.get_envvar("CREDENTIALS")
                 self.UPDATE_DOTENV = self.get_envvar("UPDATE_DOTENV")
-
-                if "DOCKER_HOST" in os.environ:
-                    self.DOCKER_HOST = self.get_envvar("DOCKER_HOST")
-                else:
-                    self.DOCKER_HOST = None
             except Exception as ex:
                 msg = "Environment variables not configured correctly. Run `iotedgedev new` to create a new solution with sample .env file. "
                 "Please see README for variable configuration options. Tip: You might just need to restart your command prompt to refresh your Environment Variables. "

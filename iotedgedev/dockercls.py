@@ -17,7 +17,7 @@ class Docker:
 
         try:
             self.docker_client = docker.from_env(version="auto")
-            self.docker_api = docker.APIClient(version="auto")
+            self.docker_api = self.docker_client.api
         except Exception as ex:
             msg = "Could not connect to Docker daemon. Please make sure Docker daemon is running and accessible"
             raise ValueError(msg, ex)
