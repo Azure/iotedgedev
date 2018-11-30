@@ -16,12 +16,8 @@ class Docker:
         self.output = output
 
         try:
-            if self.envvars.DOCKER_HOST:
-                self.docker_client = docker.DockerClient(base_url=self.envvars.DOCKER_HOST)
-                self.docker_api = docker.APIClient(base_url=self.envvars.DOCKER_HOST)
-            else:
-                self.docker_client = docker.from_env(version="auto")
-                self.docker_api = docker.APIClient()
+            self.docker_client = docker.from_env(version="auto")
+            self.docker_api = docker.APIClient(version="auto")
         except Exception as ex:
             msg = "Could not connect to Docker daemon. Please make sure Docker daemon is running and accessible"
             raise ValueError(msg, ex)
