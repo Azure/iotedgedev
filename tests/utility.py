@@ -30,3 +30,11 @@ def get_docker_client():
     utility = Utility(envvars, output)
     docker_client = Docker(envvars, utility, output)
     return docker_client
+
+
+def get_docker_os_type():
+    if get_docker_client().get_os_type().lower() == 'windows':
+        platform_type = 'windows-amd64'
+    else:
+        platform_type = 'amd64'
+    return platform_type

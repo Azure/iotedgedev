@@ -13,7 +13,7 @@ from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 
 from .utility import assert_json_file_equal
-from .utility import get_docker_client
+from .utility import get_docker_os_type
 
 pytestmark = pytest.mark.e2e
 
@@ -31,14 +31,6 @@ launch_json_file_without_nodejs = os.path.join(tests_dir, "assets", "launch_with
 
 test_solution_shared_lib = "test_solution_shared_lib"
 test_solution_shared_lib_dir = os.path.join(tests_dir, "assets", test_solution_shared_lib)
-
-
-def get_docker_os_type():
-    if get_docker_client().get_os_type().lower() == 'windows':
-        platform_type = 'windows-amd64'
-    else:
-        platform_type = 'amd64'
-    return platform_type
 
 
 @pytest.fixture(scope="function", autouse=True)
