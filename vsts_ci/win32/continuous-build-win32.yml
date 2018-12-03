@@ -33,8 +33,13 @@ steps:
       choco install python2
       choco install python --version 3.6.6
       choco install python --version 3.7.1
-      $env:Path += ";C:\Python37;C:\Python37\Scripts"
-      python -m pip install --upgrade pip
-      pip install tox
-      tox
+      $env:Path += ";C:\Python27;C:\Python27\Scripts"
+      pip2 install tox
+      tox -e py2.7
+      $env:Path = "$env:Path" -replace ";C:\\Python27;C:\\Python27\\Scripts",";C:\Python36;C:\Python36\Scripts"
+      pip3.6 install tox
+      tox -e py3.6
+      $env:Path = "$env:Path" -replace ";C:\\Python36;C:\\Python36\\Scripts",";C:\Python37;C:\Python37\Scripts"
+      pip3.7 install tox
+      tox -e py3.7
     displayName: "Run tests against iotedgedev source code"
