@@ -1,0 +1,170 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "processId": "${command:pickRemoteProcess}",
+      "name": "filtermodule Remote Debug (.NET Core)",
+      "sourceFileMap": {
+        "/app": "${workspaceFolder}/modules/filtermodule"
+      },
+      "request": "attach",
+      "pipeTransport": {
+        "quoteArgs": true,
+        "pipeArgs": ["exec", "-i", "filtermodule", "sh", "-c"],
+        "debuggerPath": "~/vsdbg/vsdbg",
+        "pipeCwd": "${workspaceFolder}",
+        "pipeProgram": "docker"
+      },
+      "type": "coreclr",
+      "justMyCode": true
+    },
+    {
+      "console": "internalConsole",
+      "name": "filtermodule Local Debug (.NET Core)",
+      "args": [],
+      "request": "launch",
+      "internalConsoleOptions": "openOnSessionStart",
+      "stopAtEntry": false,
+      "program": "${workspaceRoot}/modules/filtermodule/bin/Debug/netcoreapp2.1/filtermodule.dll",
+      "env": {
+        "EdgeHubConnectionString": "${config:azure-iot-edge.EdgeHubConnectionString}",
+        "EdgeModuleCACertificateFile": "${config:azure-iot-edge.EdgeModuleCACertificateFile}"
+      },
+      "type": "coreclr",
+      "cwd": "${workspaceRoot}/modules/filtermodule"
+    },
+    {
+      "processId": "${command:pickRemoteProcess}",
+      "name": "cmodule Remote Debug (C)",
+      "osx": {
+        "MIMode": "lldb"
+      },
+      "windows": {
+        "setupCommands": [
+          {
+            "text": "-enable-pretty-printing",
+            "description": "Enable pretty-printing for gdb",
+            "ignoreFailures": true
+          }
+        ],
+        "MIMode": "gdb"
+      },
+      "sourceFileMap": {
+        "/app": "${workspaceFolder}/modules/cmodule"
+      },
+      "request": "attach",
+      "pipeTransport": {
+        "pipeArgs": ["exec", "-i", "cmodule", "sh", "-c"],
+        "debuggerPath": "/usr/bin/gdb",
+        "pipeCwd": "${workspaceFolder}",
+        "pipeProgram": "docker"
+      },
+      "program": "./main",
+      "linux": {
+        "setupCommands": [
+          {
+            "text": "-enable-pretty-printing",
+            "description": "Enable pretty-printing for gdb",
+            "ignoreFailures": true
+          }
+        ],
+        "MIMode": "gdb"
+      },
+      "type": "cppdbg"
+    },
+    {
+      "processId": "${command:pickRemoteProcess}",
+      "name": "csharpmodule Remote Debug (.NET Core)",
+      "sourceFileMap": {
+        "/app": "${workspaceFolder}/modules/csharpmodule"
+      },
+      "request": "attach",
+      "pipeTransport": {
+        "quoteArgs": true,
+        "pipeArgs": ["exec", "-i", "csharpmodule", "sh", "-c"],
+        "debuggerPath": "~/vsdbg/vsdbg",
+        "pipeCwd": "${workspaceFolder}",
+        "pipeProgram": "docker"
+      },
+      "type": "coreclr",
+      "justMyCode": true
+    },
+    {
+      "console": "internalConsole",
+      "name": "csharpmodule Local Debug (.NET Core)",
+      "args": [],
+      "request": "launch",
+      "internalConsoleOptions": "openOnSessionStart",
+      "stopAtEntry": false,
+      "program": "${workspaceRoot}/modules/csharpmodule/bin/Debug/netcoreapp2.1/csharpmodule.dll",
+      "env": {
+        "EdgeHubConnectionString": "${config:azure-iot-edge.EdgeHubConnectionString}",
+        "EdgeModuleCACertificateFile": "${config:azure-iot-edge.EdgeModuleCACertificateFile}"
+      },
+      "type": "coreclr",
+      "cwd": "${workspaceRoot}/modules/csharpmodule"
+    },
+    {
+      "console": "internalConsole",
+      "name": "javamodule Local Debug (java)",
+      "projectName": "javamodule",
+      "args": "",
+      "request": "launch",
+      "mainClass": "com.edgemodule.App",
+      "env": {
+        "EdgeHubConnectionString": "${config:azure-iot-edge.EdgeHubConnectionString}",
+        "EdgeModuleCACertificateFile": "${config:azure-iot-edge.EdgeModuleCACertificateFile}"
+      },
+      "type": "java",
+      "cwd": "${workspaceRoot}/modules/javamodule",
+      "stopOnEntry": false
+    },
+    {
+      "request": "attach",
+      "hostName": "localhost",
+      "type": "java",
+      "name": "javamodule Remote Debug (java)",
+      "port": 5005
+    },
+    {
+      "pathMappings": [
+        {
+          "localRoot": "${workspaceFolder}/modules/pythonmodule",
+          "remoteRoot": "/app"
+        }
+      ],
+      "name": "pythonmodule Remote Debug (Python)",
+      "windows": {
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}\\modules\\pythonmodule",
+            "remoteRoot": "/app"
+          }
+        ]
+      },
+      "logToFile": true,
+      "request": "attach",
+      "host": "localhost",
+      "redirectOutput": true,
+      "type": "python",
+      "port": 5678
+    },
+    {
+      "processId": "${command:pickRemoteProcess}",
+      "name": "csharpfunctionmodule Remote Debug (.NET Core)",
+      "type": "coreclr",
+      "request": "attach",
+      "pipeTransport": {
+        "pipeArgs": ["exec", "-i", "csharpfunctionmodule", "sh", "-c"],
+        "quoteArgs": true,
+        "pipeProgram": "docker",
+        "debuggerPath": "~/vsdbg/vsdbg",
+        "pipeCwd": "${workspaceFolder}"
+      },
+      "sourceFileMap": {
+        "/app": "${workspaceFolder}/modules/csharpfunctionmodule"
+      },
+      "justMyCode": true
+    }
+  ]
+}

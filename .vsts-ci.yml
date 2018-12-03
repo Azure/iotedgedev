@@ -3,36 +3,39 @@
 # Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
 # https://docs.microsoft.com/vsts/pipelines/languages/python
 
-phases:
+jobs:
+  - job: Windows
+    pool:
+      vmImage: win1803
+    steps:
+      - template: vsts_ci/win32/continuous-build-win32.yml
 
-- phase: 'Test'
-  queue:
-    name: 'Hosted Linux Preview'
-    parallel: 4
-    matrix:
-      Python27:
-        python.version: '2.7'
-      Python35:
-        python.version: '3.5'
-      Python36:
-        python.version: '3.6'
-      Python37:
-        python.version: '3.7'
+  - job: MacOS
+    pool:
+      vmImage: macOS-10.13
+    strategy:
+      matrix:
+        Python27:
+          python.version: "2.7"
+        Python36:
+          python.version: "3.6"
+        Python37:
+          python.version: "3.7"
+      maxParallel: 1
+    steps:
+      - template: vsts_ci/darwin/continuous-build-darwin.yml
 
-  steps:
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: '$(python.version)'
-      architecture: 'x64'
-
-  - script: python -m pip install --upgrade pip && pip install -r requirements_dev.txt
-    displayName: 'Install dependencies'
-
-  - script: |
-      pytest -m unit --junitxml=junit/test-results.xml
-    displayName: 'pytest'
-  - task: PublishTestResults@2
-    inputs:
-      testResultsFiles: '**/test-results.xml'
-      testRunTitle: 'Python $(python.version)'
-    condition: succeededOrFailed()
+  - job: Linux
+    pool:
+      vmImage: ubuntu-16.04
+    strategy:
+      matrix:
+        Python27:
+          python.version: "2.7"
+        Python36:
+          python.version: "3.6"
+        Python37:
+          python.version: "3.7"
+      maxParallel: 3
+    steps:
+      - template: vsts_ci/linux/continuous-build-linux.yml

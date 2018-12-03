@@ -1,0 +1,40 @@
+steps:
+  - powershell: |
+      ((Get-Content -path "$(BUILD.REPOSITORY.LOCALPATH)\.env.tmp" -Raw) -replace 'IOTHUB_CONNECTION_STRING=".*"','IOTHUB_CONNECTION_STRING="$(IOTHUB_CONNECTION_STRING)"' -replace 'DEVICE_CONNECTION_STRING=".*"','DEVICE_CONNECTION_STRING="$(DEVICE_CONNECTION_STRING)"' -replace 'CONTAINER_REGISTRY_SERVER=".*"','CONTAINER_REGISTRY_SERVER="$(CONTAINER_REGISTRY_SERVER)"' -replace 'CONTAINER_REGISTRY_USERNAME=".*"','CONTAINER_REGISTRY_USERNAME="$(CONTAINER_REGISTRY_USERNAME)"' -replace 'CONTAINER_REGISTRY_PASSWORD=".*"','CONTAINER_REGISTRY_PASSWORD="$(CONTAINER_REGISTRY_PASSWORD)"') | Set-Content -Path "$(BUILD.REPOSITORY.LOCALPATH)\.env.tmp"
+    displayName: "Update .env.tmp file"
+
+  - powershell: |
+      choco install jdk11
+      $env:JAVA_HOME = "C:\Program Files\Java\jdk-11.0.1"
+      choco install maven
+      mvn -v
+      dotnet --version
+    displayName: "Install JDK and Maven"
+
+  - powershell: |
+      npm i -g iothub-explorer
+    displayName: "Install IoT Hub Explorer"
+
+  - powershell: |
+      npm install -g yo
+      npm i -g yo generator-azure-iot-edge-module
+    displayName: "Install Yeoman and Azure IoT Edge Node.js module generator packages"
+
+  - powershell: |
+      choco install azure-cli
+      $env:Path += ";C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\wbin"
+      az extension add --name azure-cli-iot-ext
+      az --version
+    displayName: "Install Azure Cli And Azure Cli Extension"
+
+  - powershell: |
+      $env:Path += ";C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\wbin"
+      $env:JAVA_HOME = "C:\Program Files\Java\jdk-11.0.1"
+      choco install python2
+      choco install python --version 3.6.6
+      choco install python --version 3.7.1
+      $env:Path += ";C:\Python37;C:\Python37\Scripts"
+      python -m pip install --upgrade pip
+      pip install tox
+      tox
+    displayName: "Run tests against iotedgehubdev source code"

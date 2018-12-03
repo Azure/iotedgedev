@@ -14,5 +14,7 @@
     "python.formatting.autopep8Args": [
         "--max-line-length",
         "200"
-    ]
+    ],
+    "python.unitTest.unittestEnabled": true,
+    "python.unitTest.pyTestEnabled": true
 }
