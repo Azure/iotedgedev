@@ -56,4 +56,4 @@ steps:
       docker version
       sudo -E tox -e "py$(python.version)"
       docker-machine rm default -f -y
-    displayName: "Install docker and run tests against iotedgehubdev source code with tox"
+    displayName: "Install docker and run tests against iotedgedev source code with tox"

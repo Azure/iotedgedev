@@ -8,7 +8,7 @@ from iotedgedev.compat import PY35
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 
-from .utility import get_docker_client
+from .utility import get_docker_os_type
 
 pytestmark = pytest.mark.e2e
 
@@ -47,7 +47,7 @@ def create_solution(request):
     return
 
 
-@pytest.mark.skipif(get_docker_client().get_os_type().lower() == 'windows', reason='Simulator does not support windows container')
+@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_setup():
     cli = __import__('iotedgedev.cli', fromlist=['main'])
     runner = CliRunner()
@@ -58,7 +58,7 @@ def test_setup():
     assert 'Setup IoT Edge Simulator successfully.' in result.output
 
 
-@pytest.mark.skipif(get_docker_client().get_os_type().lower() == 'windows', reason='Simulator does not support windows container')
+@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_start_single():
     cli = __import__('iotedgedev.cli', fromlist=['main'])
     runner = CliRunner()
@@ -69,7 +69,7 @@ def test_start_single():
     assert 'IoT Edge Simulator has been started in single module mode.' in result.output
 
 
-@pytest.mark.skipif(get_docker_client().get_os_type().lower() == 'windows', reason='Simulator does not support windows container')
+@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_modulecred():
     cli = __import__('iotedgedev.cli', fromlist=['main'])
     runner = CliRunner()
@@ -81,7 +81,7 @@ def test_modulecred():
     assert 'EdgeModuleCACertificateFile=' in result.output
 
 
-@pytest.mark.skipif(get_docker_client().get_os_type().lower() == 'windows', reason='Simulator does not support windows container')
+@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_stop(capfd):
     cli = __import__('iotedgedev.cli', fromlist=['main'])
     runner = CliRunner()
@@ -95,7 +95,7 @@ def test_stop(capfd):
     assert 'IoT Edge Simulator has been stopped successfully.' in out
 
 
-@pytest.mark.skipif(get_docker_client().get_os_type().lower() == 'windows', reason='Simulator does not support windows container')
+@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_start_solution(capfd):
     cli = __import__('iotedgedev.cli', fromlist=['main'])
     runner = CliRunner()
@@ -111,7 +111,7 @@ def test_start_solution(capfd):
     assert 'IoT Edge Simulator has been started in solution mode.' in out
 
 
-@pytest.mark.skipif(get_docker_client().get_os_type().lower() == 'windows', reason='Simulator does not support windows container')
+@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_monitor(capfd):
     cli = __import__('iotedgedev.cli', fromlist=['main'])
     runner = CliRunner()

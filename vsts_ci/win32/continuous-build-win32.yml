@@ -37,4 +37,4 @@ steps:
       python -m pip install --upgrade pip
       pip install tox
       tox
-    displayName: "Run tests against iotedgehubdev source code"
+    displayName: "Run tests against iotedgedev source code"

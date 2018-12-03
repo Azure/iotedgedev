@@ -13,7 +13,7 @@ from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 
 from .utility import assert_json_file_equal
-from .utility import get_docker_os_type
+from .utility import get_platform_type
 
 pytestmark = pytest.mark.e2e
 
@@ -172,7 +172,7 @@ def test_push_modules(request):
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['push', '-P', get_docker_os_type()])
+    result = runner.invoke(cli.main, ['push', '-P', get_platform_type()])
     print(result.output)
     print(result.exception)
 
@@ -189,7 +189,7 @@ def test_deploy_modules(request):
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
 
-    result = runner.invoke(cli.main, ['deploy', '-f', os.path.join('config', 'deployment.' + get_docker_os_type() + '.json')])
+    result = runner.invoke(cli.main, ['deploy', '-f', os.path.join('config', 'deployment.' + get_platform_type() + '.json')])
     print(result.output)
 
     assert 'DEPLOYMENT COMPLETE' in result.output
@@ -245,7 +245,7 @@ def test_shared_lib():
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['build', '-P', get_docker_os_type()])
+    result = runner.invoke(cli.main, ['build', '-P', get_platform_type()])
     print(result.output)
     print(result.exception)
 
