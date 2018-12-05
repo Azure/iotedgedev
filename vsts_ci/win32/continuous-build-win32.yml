@@ -33,7 +33,7 @@ steps:
       choco install python2
       choco install python --version 3.6.6
       choco install python --version 3.7.1
-      $env:Path += ";C:\Python37;C:\Python37\Scripts;C:\\Python36;C:\\Python36\\Scripts;C:\\Python27;C:\\Python27\\Scripts"
+      $env:Path += ";C:\Python37;C:\Python37\Scripts;C:\Python36;C:\Python36\Scripts;C:\Python27;C:\Python27\Scripts"
       ls C:\
       python -m pip install --upgrade pip
       pip install tox
