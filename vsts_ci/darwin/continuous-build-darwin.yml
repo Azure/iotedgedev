@@ -1,0 +1,59 @@
+steps:
+  - powershell: |
+      ((Get-Content -path "$(BUILD.REPOSITORY.LOCALPATH)\.env.tmp" -Raw) -replace 'IOTHUB_CONNECTION_STRING=".*"','IOTHUB_CONNECTION_STRING="$(IOTHUB_CONNECTION_STRING)"' -replace 'DEVICE_CONNECTION_STRING=".*"','DEVICE_CONNECTION_STRING="$(DEVICE_CONNECTION_STRING)"' -replace 'CONTAINER_REGISTRY_SERVER=".*"','CONTAINER_REGISTRY_SERVER="$(CONTAINER_REGISTRY_SERVER)"' -replace 'CONTAINER_REGISTRY_USERNAME=".*"','CONTAINER_REGISTRY_USERNAME="$(CONTAINER_REGISTRY_USERNAME)"' -replace 'CONTAINER_REGISTRY_PASSWORD=".*"','CONTAINER_REGISTRY_PASSWORD="$(CONTAINER_REGISTRY_PASSWORD)"') | Set-Content -Path "$(BUILD.REPOSITORY.LOCALPATH)\.env.tmp"
+    displayName: "Update .env.tmp file"
+
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: "$(python.version)"
+      addToPath: true
+      architecture: "x64"
+
+  - task: NodeTool@0
+    displayName: "Use Node 8.x"
+    inputs:
+      versionSpec: 8.x
+      checkLatest: true
+
+  - script: |
+      node --version
+      npm --version
+      npm i -g iothub-explorer
+      iothub-explorer --version
+    displayName: "Install IoT Hub Explorer"
+
+  - powershell: |
+      npm install -g yo
+      npm i -g yo generator-azure-iot-edge-module
+      yo --version
+    displayName: "Install Yeoman and Azure IoT Edge Node.js module generator packages"
+
+  - powershell: |
+      az extension add --name azure-cli-iot-ext
+      az --version
+    displayName: "Install Azure Cli iot extension"
+
+  - script: |
+      pip install --upgrade pip
+      pip install --upgrade tox
+    displayName: "Update and install required tools"
+
+  - script: |
+      brew install docker
+      brew install docker-machine
+      brew link --overwrite docker-machine
+      brew unlink docker-machine-driver-xhyve
+      brew install docker-machine-driver-xhyve
+      sudo chown root:wheel $(brew --prefix)/opt/docker-machine-driver-xhyve/bin/docker-machine-driver-xhyve
+      sudo chmod u+s $(brew --prefix)/opt/docker-machine-driver-xhyve/bin/docker-machine-driver-xhyve
+      mkdir -p /Users/vsts/.docker/machine/cache
+      curl -Lo /Users/vsts/.docker/machine/cache/boot2docker.iso https://github.com/boot2docker/boot2docker/releases/download/v18.06.1-ce/boot2docker.iso
+      docker-machine create default --driver xhyve --xhyve-boot2docker-url /Users/vsts/.docker/machine/cache/boot2docker.iso
+      docker-machine env default
+      eval $(docker-machine env default)
+      brew services start docker-machine
+      brew install docker-compose
+      docker version
+      sudo -E tox -e "$(TOXENV)"
+      docker-machine rm default -f -y
+    displayName: "Install docker and run tests against iotedgedev source code with tox"

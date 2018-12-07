@@ -1,6 +1,7 @@
 import json
 import os
 import shutil
+import platform
 
 import pytest
 from click.testing import CliRunner
@@ -12,24 +13,27 @@ from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 
 from .utility import assert_json_file_equal
+from .utility import get_platform_type
 
 pytestmark = pytest.mark.e2e
 
 root_dir = os.getcwd()
 tests_dir = os.path.join(root_dir, "tests")
-envvars = EnvVars(Output())
+output = Output()
+envvars = EnvVars(output)
 env_file_name = envvars.get_dotenv_file()
 env_file_path = envvars.get_dotenv_path(env_file_name)
 
 test_solution = "test_solution"
 test_solution_dir = os.path.join(tests_dir, test_solution)
 launch_json_file = os.path.join(tests_dir, "assets", "launch.json")
+launch_json_file_without_nodejs = os.path.join(tests_dir, "assets", "launch_without_nodejs.json")
 
 test_solution_shared_lib = "test_solution_shared_lib"
 test_solution_shared_lib_dir = os.path.join(tests_dir, "assets", test_solution_shared_lib)
 
 
-@pytest.fixture(scope="module", autouse=True)
+@pytest.fixture(scope="function", autouse=True)
 def create_solution(request):
     def clean():
         os.chdir(root_dir)
@@ -125,11 +129,20 @@ def test_module_add():
     add_module_and_verify(cli.main, runner, "c")
     add_module_and_verify(cli.main, runner, "csharp")
     add_module_and_verify(cli.main, runner, "java")
-    add_module_and_verify(cli.main, runner, "nodejs")
+
+    # Node.js modules is skipped on non-Windows for known issue.
+    # See more details: https://github.com/Azure/iotedgedev/issues/312
+    # See more details: https://github.com/Azure/iotedgedev/issues/346
+    if (platform.system().lower() == 'windows'):
+        add_module_and_verify(cli.main, runner, "nodejs")
+        launch_file = launch_json_file
+    else:
+        launch_file = launch_json_file_without_nodejs
+
     add_module_and_verify(cli.main, runner, "python")
     add_module_and_verify(cli.main, runner, "csharpfunction")
 
-    assert_json_file_equal(os.path.join(os.getcwd(), ".vscode", "launch.json"), launch_json_file)
+    assert_json_file_equal(os.path.join(os.getcwd(), ".vscode", "launch.json"), launch_file)
 
 
 def test_module_add_invalid_name():
@@ -162,8 +175,9 @@ def test_push_modules(request):
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['push'])
+    result = runner.invoke(cli.main, ['push', '-P', get_platform_type()])
     print(result.output)
+    print(result.exception)
 
     assert 'BUILD COMPLETE' in result.output
     assert 'PUSH COMPLETE' in result.output
@@ -177,7 +191,8 @@ def test_deploy_modules(request):
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['deploy'])
+
+    result = runner.invoke(cli.main, ['deploy', '-f', os.path.join('config', 'deployment.' + get_platform_type() + '.json')])
     print(result.output)
 
     assert 'DEPLOYMENT COMPLETE' in result.output
@@ -195,6 +210,7 @@ def test_monitor(request, capfd):
     print(out)
     print(err)
     print(result.output)
+    print(result.exception)
 
     if not PY35:
         assert 'Monitoring events from device' in out
@@ -232,8 +248,9 @@ def test_shared_lib():
 
     cli = __import__("iotedgedev.cli", fromlist=['main'])
     runner = CliRunner()
-    result = runner.invoke(cli.main, ['build'])
+    result = runner.invoke(cli.main, ['build', '-P', get_platform_type()])
     print(result.output)
+    print(result.exception)
 
     assert 'BUILD COMPLETE' in result.output
     assert 'ERROR' not in result.output
@@ -243,6 +260,7 @@ def add_module_and_verify(main, runner, template):
     module_name = template + "module"
     result = runner.invoke(main, ["solution", "add", module_name, '--template', template])
     print(result.output)
+    print(result.exception)
     assert 'ADD COMPLETE' in result.output
     assert os.path.exists(os.path.join(os.environ["MODULES_PATH"], module_name))
     assert module_name in json.load(open(os.environ["DEPLOYMENT_CONFIG_TEMPLATE_FILE"]))["modulesContent"]["$edgeAgent"]["properties.desired"]["modules"]
