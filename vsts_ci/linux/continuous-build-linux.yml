@@ -22,12 +22,8 @@ steps:
       az --version
     displayName: "Update and install required tools"
 
-  - powershell: |
-      $toxpyversion = $(python.version) -replace "\.",""
-      Write-Host '##vso[task.setvariable variable=TOX_PY_VERSION]$toxpyversion'
-
   - script: |
       export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
       mvn -v
-      sudo -E `which tox` -e "$(TOX_PY_VERSION)"
+      sudo -E `which tox` -e "$(TOXENV)"
     displayName: "Run test"

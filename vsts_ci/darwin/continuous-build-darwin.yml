@@ -38,10 +38,6 @@ steps:
       pip install --upgrade tox
     displayName: "Update and install required tools"
 
-  - powershell: |
-      $toxpyversion = $(python.version) -replace "\.",""
-      Write-Host '##vso[task.setvariable variable=TOX_PY_VERSION]$toxpyversion'
-
   - script: |
       brew install docker
       brew install docker-machine
@@ -58,6 +54,6 @@ steps:
       brew services start docker-machine
       brew install docker-compose
       docker version
-      sudo -E tox -e "$(TOX_PY_VERSION)"
+      sudo -E tox -e "$(TOXENV)"
       docker-machine rm default -f -y
     displayName: "Install docker and run tests against iotedgedev source code with tox"

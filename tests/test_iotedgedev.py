@@ -130,6 +130,9 @@ def test_module_add():
     add_module_and_verify(cli.main, runner, "csharp")
     add_module_and_verify(cli.main, runner, "java")
 
+    # Node.js modules is skipped on non-Windows for known issue.
+    # See more details: https://github.com/Azure/iotedgedev/issues/312
+    # See more details: https://github.com/Azure/iotedgedev/issues/346
     if (platform.system().lower() == 'windows'):
         add_module_and_verify(cli.main, runner, "nodejs")
         launch_file = launch_json_file

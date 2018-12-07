@@ -17,10 +17,13 @@ jobs:
       matrix:
         Python27:
           python.version: "2.7"
+          TOXENV: "py27"
         Python36:
           python.version: "3.6"
+          TOXENV: "py36"
         Python37:
           python.version: "3.7"
+          TOXENV: "py37"
       maxParallel: 1
     steps:
       - template: darwin/continuous-build-darwin.yml
@@ -32,10 +35,13 @@ jobs:
       matrix:
         Python27:
           python.version: "2.7"
+          TOXENV: "py27"
         Python36:
           python.version: "3.6"
+          TOXENV: "py36"
         Python37:
           python.version: "3.7"
+          TOXENV: "py37"
       maxParallel: 3
     steps:
       - template: linux/continuous-build-linux.yml
