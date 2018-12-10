@@ -1,0 +1,29 @@
+steps:
+  - powershell: |
+      ((Get-Content -path "$(BUILD.REPOSITORY.LOCALPATH)\.env.tmp" -Raw) -replace 'IOTHUB_CONNECTION_STRING=".*"','IOTHUB_CONNECTION_STRING="$(IOTHUB_CONNECTION_STRING)"' -replace 'DEVICE_CONNECTION_STRING=".*"','DEVICE_CONNECTION_STRING="$(DEVICE_CONNECTION_STRING)"' -replace 'CONTAINER_REGISTRY_SERVER=".*"','CONTAINER_REGISTRY_SERVER="$(CONTAINER_REGISTRY_SERVER)"' -replace 'CONTAINER_REGISTRY_USERNAME=".*"','CONTAINER_REGISTRY_USERNAME="$(CONTAINER_REGISTRY_USERNAME)"' -replace 'CONTAINER_REGISTRY_PASSWORD=".*"','CONTAINER_REGISTRY_PASSWORD="$(CONTAINER_REGISTRY_PASSWORD)"') | Set-Content -Path "$(BUILD.REPOSITORY.LOCALPATH)\.env.tmp"
+    displayName: "Update .env.tmp file"
+
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: "$(python.version)"
+      addToPath: true
+      architecture: "x64"
+
+  - powershell: |
+      sudo npm install -g yo
+      sudo npm i -g yo generator-azure-iot-edge-module
+    displayName: "Install Yeoman and Azure IoT Edge Node.js module generator packages"
+
+  - powershell: |
+      pip install --upgrade pip
+      pip install --upgrade tox
+      sudo npm i -g iothub-explorer
+      az extension add --name azure-cli-iot-ext
+      az --version
+    displayName: "Update and install required tools"
+
+  - script: |
+      export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+      mvn -v
+      sudo -E `which tox` -e "$(TOXENV)"
+    displayName: "Run test"

@@ -1,4 +1,5 @@
 {
+  "$schema-template": "1.0.0",
   "modulesContent": {
     "$edgeAgent": {
       "properties.desired": {
@@ -66,7 +67,7 @@
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "${MODULES.sample_module.amd64}",
+              "image": "${MODULES.sample_module}",
               "createOptions": {}
             }
           }
