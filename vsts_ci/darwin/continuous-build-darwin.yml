@@ -55,5 +55,4 @@ steps:
       brew install docker-compose
       docker version
       sudo -E tox -e "$(TOXENV)"
-      docker-machine rm default -f -y
     displayName: "Install docker and run tests against iotedgedev source code with tox"
