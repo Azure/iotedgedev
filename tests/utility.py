@@ -29,8 +29,8 @@ def assert_json_file_equal(file1, file2):
 
 
 def get_docker_client():
-    utility = Utility(envvars, output)
     envvars.load(force=True)
+    utility = Utility(envvars, output)
     docker_client = Docker(envvars, utility, output)
     docker_client.init_registry()
     return docker_client
@@ -42,10 +42,10 @@ def get_docker_os_type():
 
 
 def get_platform_type():
-    if get_docker_os_type() == "windows":
-        platform_type = "windows-amd64"
+    if get_docker_os_type() == 'windows':
+        platform_type = 'windows-amd64'
     else:
-        platform_type = "amd64"
+        platform_type = 'amd64'
     return platform_type
 
 
@@ -97,4 +97,3 @@ def update_file_content(file_path, actual_value, expected_value):
         f.seek(0)
         f.truncate()
         f.write(ret)
-        f.close()
