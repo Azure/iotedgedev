@@ -13,6 +13,7 @@ from iotedgedev.output import Output
 
 from .utility import (assert_json_file_equal,
                       get_platform_type,
+                      get_file_content,
                       get_all_docker_images,
                       get_all_docker_containers,
                       remove_docker_container,
@@ -289,10 +290,18 @@ def test_solution_build_without_schema_template():
         template_without_schema_version = os.path.join(tests_dir, "assets", "deployment.template_without_schema_template.json")
         shutil.copyfile(template_without_schema_version, 'deployment.template.json')
 
-        result = runner_invoke(['build', '-P', get_platform_type()])
+        update_file_content('deployment.template.json', '"image": "(.*)MODULES.sample_module}",', '"image": "${MODULES.sample_module.' + get_platform_type() + '}",')
+
+        result = runner_invoke(['build'])
 
         assert 'BUILD COMPLETE' in result.output
         assert 'ERROR' not in result.output
+
+        config_file_path = os.path.join(test_solution_shared_lib_dir, "config", "deployment.json")
+        assert os.path.exists(config_file_path)
+
+        content = get_file_content(config_file_path)
+        assert "sample_module:0.0.1-" + get_platform_type() in content
     finally:
         os.remove('deployment.template.json')
         os.rename('deployment.template.backup.json', 'deployment.template.json')
@@ -367,24 +376,27 @@ def test_solution_push_with_default_platform(prepare_solution_with_env):
 
 
 def test_generate_deployment_manifest():
-    test_solution_build_with_platform()
+    try:
+        os.chdir(test_solution_shared_lib_dir)
 
-    original_config_deployment_name = 'deployment.' + get_platform_type() + '.json'
-    original_config_deployment_path = os.path.join(test_solution_shared_lib_dir, 'config', original_config_deployment_name)
-    updated_config_deployment_name = 'deployment.' + get_platform_type() + '.backup.json'
-    updated_config_deployment_path = os.path.join(test_solution_shared_lib_dir, 'config', updated_config_deployment_name)
+        original_config_deployment_name = 'deployment.' + get_platform_type() + '.json'
+        original_config_deployment_path = os.path.join(tests_dir, 'assets', original_config_deployment_name)
+        update_file_content(original_config_deployment_path, '"image": "(.*)/sample_module:0.0.1-' + get_platform_type() + '",',
+                            '"image": "' + os.getenv("CONTAINER_REGISTRY_SERVER") + '/sample_module:0.0.1-' + get_platform_type() + '",')
 
-    if os.path.exists(updated_config_deployment_path):
-        os.remove(updated_config_deployment_path)
-    os.rename(original_config_deployment_path, updated_config_deployment_path)
+        new_config_deployment_name = 'deployment.' + get_platform_type() + '.json'
+        new_config_deployment_path = os.path.join(test_solution_shared_lib_dir, 'config', new_config_deployment_name)
 
-    if get_docker_os_type() == "windows":
-        result = runner_invoke(['genconfig', '-P', get_platform_type()])
-    else:
-        result = runner_invoke(['genconfig'])
+        if get_docker_os_type() == "windows":
+            result = runner_invoke(['genconfig', '-P', get_platform_type()])
+        else:
+            result = runner_invoke(['genconfig'])
 
-    assert 'ERROR' not in result.output
-    assert_json_file_equal(original_config_deployment_path, updated_config_deployment_path)
+        assert 'ERROR' not in result.output
+        assert_json_file_equal(original_config_deployment_path, new_config_deployment_path)
+    finally:
+        update_file_content(original_config_deployment_path, '"image": "(.*)/sample_module:0.0.1-' + get_platform_type() +
+                            '",', '"image": "${container_registry_server}/sample_module:0.0.1-' + get_platform_type() + '",')
 
 
 @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='windows container does not support local registry image')

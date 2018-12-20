@@ -97,3 +97,10 @@ def update_file_content(file_path, actual_value, expected_value):
         f.seek(0)
         f.truncate()
         f.write(ret)
+
+
+def get_file_content(file_path):
+    with open(file_path, "r+") as f:
+        content = f.read()
+
+    return content
