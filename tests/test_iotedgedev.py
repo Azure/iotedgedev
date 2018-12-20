@@ -378,11 +378,7 @@ def test_solution_push_with_default_platform(prepare_solution_with_env):
 def test_generate_deployment_manifest():
     try:
         os.chdir(test_solution_shared_lib_dir)
-
-        original_config_deployment_name = 'deployment.' + get_platform_type() + '.json'
-        original_config_deployment_path = os.path.join(tests_dir, 'assets', original_config_deployment_name)
-        update_file_content(original_config_deployment_path, '"image": "(.*)/sample_module:0.0.1-' + get_platform_type() + '",',
-                            '"image": "' + os.getenv("CONTAINER_REGISTRY_SERVER") + '/sample_module:0.0.1-' + get_platform_type() + '",')
+        shutil.copyfile(env_file_path, os.path.join(test_solution_shared_lib_dir, env_file_name))
 
         new_config_deployment_name = 'deployment.' + get_platform_type() + '.json'
         new_config_deployment_path = os.path.join(test_solution_shared_lib_dir, 'config', new_config_deployment_name)
@@ -393,10 +389,16 @@ def test_generate_deployment_manifest():
             result = runner_invoke(['genconfig'])
 
         assert 'ERROR' not in result.output
-        assert_json_file_equal(original_config_deployment_path, new_config_deployment_path)
+
+        with open(new_config_deployment_path, "r") as f:
+            content = json.load(f)
+
+        module_image_name = content["modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][
+            "sample_module"]["settings"]["image"]
+        env_container_registry_server = os.getenv("CONTAINER_REGISTRY_SERVER")
+        assert env_container_registry_server + "/sample_module:0.0.1-" + get_platform_type() == module_image_name
     finally:
-        update_file_content(original_config_deployment_path, '"image": "(.*)/sample_module:0.0.1-' + get_platform_type() +
-                            '",', '"image": "${container_registry_server}/sample_module:0.0.1-' + get_platform_type() + '",')
+        os.remove(os.path.join(test_solution_shared_lib_dir, env_file_name))
 
 
 @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='windows container does not support local registry image')
