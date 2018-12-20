@@ -18,7 +18,8 @@ from .utility import (assert_json_file_equal,
                       remove_docker_container,
                       remove_docker_image,
                       get_docker_os_type,
-                      runner_invoke)
+                      runner_invoke,
+                      update_file_content)
 
 pytestmark = pytest.mark.e2e
 
@@ -100,7 +101,9 @@ def assert_solution_folder_structure(template):
     expected_template_files = [os.environ["DEPLOYMENT_CONFIG_TEMPLATE_FILE"], os.environ["DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE"]]
 
     for expected_template_file in expected_template_files:
-        content = json.load(open(os.path.join(test_solution_dir, expected_template_file)))
+        with open(os.path.join(test_solution_dir, expected_template_file)) as f:
+            content = json.load(f)
+
         assert module_name in content["modulesContent"]["$edgeAgent"]["properties.desired"]["modules"]
         assert module_name in content["modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][module_name]["settings"]["image"]
         assert module_name in content["modulesContent"]["$edgeHub"]["properties.desired"]["routes"]["sensorTo" + module_name]
@@ -112,7 +115,9 @@ def assert_module_folder_structure(template):
     expected_template_files = [os.environ["DEPLOYMENT_CONFIG_TEMPLATE_FILE"], os.environ["DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE"]]
 
     for expected_template_file in expected_template_files:
-        content = json.load(open(expected_template_file))
+        with open(expected_template_file) as f:
+            content = json.load(f)
+
         assert module_name in content["modulesContent"]["$edgeAgent"]["properties.desired"]["modules"]
         assert module_name in content["modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][module_name]["settings"]["image"]
         assert module_name in content["modulesContent"]["$edgeHub"]["properties.desired"]["routes"][module_name + "ToIoTHub"]
@@ -257,12 +262,31 @@ def test_solution_build_with_platform():
     assert 'ERROR' not in result.output
 
 
+def test_solution_build_with_version_and_build_options():
+    os.chdir(test_solution_shared_lib_dir)
+    module_json_file_path = os.path.join(test_solution_shared_lib_dir, "modules", "sample_module", "module.json")
+    try:
+        envvars.set_envvar("VERSION", "0.0.2")
+        update_file_content(module_json_file_path, '"version": "0.0.1"', '"version": "${VERSION}"')
+        update_file_content(module_json_file_path, '"buildOptions": (.*),', '"buildOptions": [ "--add-host=github.com:192.30.255.112", "--build-arg a=b" ],')
+
+        result = runner_invoke(['build', '-P', get_platform_type()])
+
+        assert 'BUILD COMPLETE' in result.output
+        assert 'ERROR' not in result.output
+        assert '0.0.2' in get_all_docker_images()
+    finally:
+        update_file_content(module_json_file_path, '"version": "(.*)"', '"version": "0.0.1"')
+        update_file_content(module_json_file_path, '"buildOptions": (.*),', '"buildOptions": [],')
+        del os.environ["VERSION"]
+
+
 def test_solution_build_without_schema_template():
     try:
         os.chdir(test_solution_shared_lib_dir)
 
         os.rename('deployment.template.json', 'deployment.template.backup.json')
-        template_without_schema_version = os.path.join(tests_dir, "assets", "deployment.template_without_schema.json")
+        template_without_schema_version = os.path.join(tests_dir, "assets", "deployment.template_without_schema_template.json")
         shutil.copyfile(template_without_schema_version, 'deployment.template.json')
 
         result = runner_invoke(['build', '-P', get_platform_type()])
@@ -296,10 +320,12 @@ def test_solution_build_with_default_platform(prepare_solution_with_env):
     module_name = "filtermodule"
     test_solution_config_dir = os.path.join('config', 'deployment.' + get_platform_type() + '.json')
     env_container_registry_server = os.getenv("CONTAINER_REGISTRY_SERVER")
+    with open(test_solution_config_dir) as f:
+        content = json.load(f)
 
     assert 'BUILD COMPLETE' in result.output
     assert 'ERROR' not in result.output
-    assert env_container_registry_server + "/" + module_name + ":0.0.1-" + get_platform_type() in json.load(open(test_solution_config_dir))[
+    assert env_container_registry_server + "/" + module_name + ":0.0.1-" + get_platform_type() in content[
         "modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][module_name]["settings"]["image"]
     assert module_name in get_all_docker_images()
 
@@ -313,10 +339,12 @@ def test_solution_build_with_debug_template():
     module_name = "sample_module"
     test_solution_shared_debug_config = os.path.join('config', 'deployment.debug.' + get_platform_type() + '.json')
     env_container_registry_server = os.getenv("CONTAINER_REGISTRY_SERVER")
+    with open(test_solution_shared_debug_config) as f:
+        content = json.load(f)
 
     assert 'BUILD COMPLETE' in result.output
     assert 'ERROR' not in result.output
-    assert env_container_registry_server + "/" + module_name + ":0.0.1-" + get_platform_type() + ".debug" in json.load(open(test_solution_shared_debug_config))[
+    assert env_container_registry_server + "/" + module_name + ":0.0.1-" + get_platform_type() + ".debug" in content[
         "modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][module_name]["settings"]["image"]
     assert module_name in get_all_docker_images()
 
@@ -327,11 +355,13 @@ def test_solution_push_with_default_platform(prepare_solution_with_env):
     module_name = "filtermodule"
     test_solution_config_dir = os.path.join('config', 'deployment.' + get_platform_type() + '.json')
     env_container_registry_server = os.getenv("CONTAINER_REGISTRY_SERVER")
+    with open(test_solution_config_dir) as f:
+        content = json.load(f)
 
     assert 'BUILD COMPLETE' in result.output
     assert 'PUSH COMPLETE' in result.output
     assert 'ERROR' not in result.output
-    assert env_container_registry_server + "/" + module_name + ":0.0.1-" + get_platform_type() in json.load(open(test_solution_config_dir))[
+    assert env_container_registry_server + "/" + module_name + ":0.0.1-" + get_platform_type() in content[
         "modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][module_name]["settings"]["image"]
     assert module_name in get_all_docker_images()
 
