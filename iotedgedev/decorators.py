@@ -22,7 +22,7 @@ def with_telemetry(func):
             return value
         except Exception as e:
             from .output import Output
-            Output().error('Error: {0}'.format(str(e)))
+            Output().error(str(e))
             telemetry.fail(str(e), 'Command failed')
             telemetry.flush()
             sys.exit(1)
