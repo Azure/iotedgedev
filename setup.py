@@ -41,6 +41,7 @@ requirements = [
     'azure-cli-configure',
     'azure-cli-resource',
     'azure-cli-cloud',
+    'pyyaml>=4.2b1',
     'iotedgehubdev',
     'six',
     'applicationinsights',
