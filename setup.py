@@ -24,30 +24,11 @@ class PostDevelop(develop):
         atexit.register(_execute)
         develop.run(self)
 
-
 with open('CHANGELOG.md') as history_file:
     history = history_file.read()
 
-requirements = [
-    'Click>=6.0',
-    'docker>=3.5',
-    'python-dotenv',
-    'requests',
-    'fstrings',
-    'msrestazure~=0.4.32',
-    'azure-cli-iot',
-    'azure-cli-profile',
-    'azure-cli-extension',
-    'azure-cli-configure',
-    'azure-cli-resource',
-    'azure-cli-cloud',
-    'iotedgehubdev',
-    'six',
-    'applicationinsights',
-    'commentjson',
-    'pypiwin32==219; sys_platform == "win32" and python_version < "3.6"',
-    'pypiwin32==223; sys_platform == "win32" and python_version >= "3.6"'
-]
+with open('requirements.txt') as requirements_file:
+    requirements = requirements_file.readlines()
 
 setup_requirements = [
 ]
