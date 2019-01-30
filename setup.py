@@ -32,7 +32,7 @@ requirements = [
     'Click>=6.0',
     'docker>=3.5',
     'python-dotenv',
-    'requests',
+    'requests<2.21',
     'fstrings',
     'msrestazure~=0.4.32',
     'azure-cli-core<2.0.55',
