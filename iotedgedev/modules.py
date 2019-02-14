@@ -138,26 +138,27 @@ class Modules:
         # sample: 'localhost:5000/filtermodule:0.0.1-amd64'
         tags_to_build = set()
 
-        for module_name in os.listdir(self.envvars.MODULES_PATH):
-            try:
-                module = Module(self.envvars, self.utility, module_name)
-                for platform in module.platforms:
-                    # get the Dockerfile from module.json
-                    dockerfile = module.get_dockerfile_by_platform(platform)
-                    container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
-                    tag = "{0}:{1}{2}-{3}".format(module.repository, module.tag_version, container_tag, platform)
-                    placeholder_tag_map["${{MODULES.{0}.{1}}}".format(module_name, platform)] = tag
+        if os.path.isdir(self.envvars.MODULES_PATH):
+            for module_name in os.listdir(self.envvars.MODULES_PATH):
+                try:
+                    module = Module(self.envvars, self.utility, module_name)
+                    for platform in module.platforms:
+                        # get the Dockerfile from module.json
+                        dockerfile = module.get_dockerfile_by_platform(platform)
+                        container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
+                        tag = "{0}:{1}{2}-{3}".format(module.repository, module.tag_version, container_tag, platform)
+                        placeholder_tag_map["${{MODULES.{0}.{1}}}".format(module_name, platform)] = tag
 
-                    if platform == default_platform:
-                        placeholder_tag_map[DeploymentManifest.get_image_placeholder(module_name)] = tag
-                    elif platform == default_platform + ".debug":
-                        placeholder_tag_map[DeploymentManifest.get_image_placeholder(module_name, True)] = tag
+                        if platform == default_platform:
+                            placeholder_tag_map[DeploymentManifest.get_image_placeholder(module_name)] = tag
+                        elif platform == default_platform + ".debug":
+                            placeholder_tag_map[DeploymentManifest.get_image_placeholder(module_name, True)] = tag
 
-                    tag_build_profile_map[tag] = BuildProfile(module_name, dockerfile, module.context_path, module.build_options)
-                    if not self.utility.in_asterisk_list(module_name, bypass_modules) and self.utility.in_asterisk_list(platform, active_platform):
-                        tags_to_build.add(tag)
-            except FileNotFoundError:
-                pass
+                        tag_build_profile_map[tag] = BuildProfile(module_name, dockerfile, module.context_path, module.build_options)
+                        if not self.utility.in_asterisk_list(module_name, bypass_modules) and self.utility.in_asterisk_list(platform, active_platform):
+                            tags_to_build.add(tag)
+                except FileNotFoundError:
+                    pass
 
         deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, template_file, True)
 
