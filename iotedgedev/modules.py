@@ -146,7 +146,7 @@ class Modules:
                         # get the Dockerfile from module.json
                         dockerfile = module.get_dockerfile_by_platform(platform)
                         container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
-                        tag = "{0}:{1}{2}-{3}".format(module.repository, module.tag_version, container_tag, platform)
+                        tag = "{0}:{1}{2}-{3}".format(module.repository.lower(), module.tag_version, container_tag, platform)
                         placeholder_tag_map["${{MODULES.{0}.{1}}}".format(module_name, platform)] = tag
 
                         if platform == default_platform:
