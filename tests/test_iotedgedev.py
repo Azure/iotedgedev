@@ -268,7 +268,7 @@ def test_solution_build_with_version_and_build_options():
     module_json_file_path = os.path.join(test_solution_shared_lib_dir, "modules", "sample_module", "module.json")
     try:
         envvars.set_envvar("VERSION", "0.0.2")
-        update_file_content(module_json_file_path, '"version": "0.0.1"', '"version": "${VERSION}"')
+        update_file_content(module_json_file_path, '"version": "0.0.1-RC"', '"version": "${VERSION}"')
         update_file_content(module_json_file_path, '"buildOptions": (.*),', '"buildOptions": [ "--add-host=github.com:192.30.255.112", "--build-arg a=b" ],')
 
         result = runner_invoke(['build', '-P', get_platform_type()])
@@ -277,7 +277,7 @@ def test_solution_build_with_version_and_build_options():
         assert 'ERROR' not in result.output
         assert '0.0.2' in get_all_docker_images()
     finally:
-        update_file_content(module_json_file_path, '"version": "(.*)"', '"version": "0.0.1"')
+        update_file_content(module_json_file_path, '"version": "(.*)"', '"version": "0.0.1-RC"')
         update_file_content(module_json_file_path, '"buildOptions": (.*),', '"buildOptions": [],')
         del os.environ["VERSION"]
 
@@ -301,7 +301,7 @@ def test_solution_build_without_schema_template():
         assert os.path.exists(config_file_path)
 
         content = get_file_content(config_file_path)
-        assert "sample_module:0.0.1-" + get_platform_type() in content
+        assert "sample_module:0.0.1-RC-" + get_platform_type() in content
     finally:
         os.remove('deployment.template.json')
         os.rename('deployment.template.backup.json', 'deployment.template.json')
@@ -353,7 +353,7 @@ def test_solution_build_with_debug_template():
 
     assert 'BUILD COMPLETE' in result.output
     assert 'ERROR' not in result.output
-    assert env_container_registry_server + "/" + module_name + ":0.0.1-" + get_platform_type() + ".debug" in content[
+    assert env_container_registry_server + "/" + module_name + ":0.0.1-RC-" + get_platform_type() + ".debug" in content[
         "modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][module_name]["settings"]["image"]
     assert module_name in get_all_docker_images()
 
@@ -396,7 +396,7 @@ def test_generate_deployment_manifest():
         module_image_name = content["modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][
             "sample_module"]["settings"]["image"]
         env_container_registry_server = os.getenv("CONTAINER_REGISTRY_SERVER")
-        assert env_container_registry_server + "/sample_module:0.0.1-" + get_platform_type() == module_image_name
+        assert env_container_registry_server + "/sample_module:0.0.1-RC-" + get_platform_type() == module_image_name
     finally:
         os.remove(os.path.join(test_solution_shared_lib_dir, env_file_name))
 
