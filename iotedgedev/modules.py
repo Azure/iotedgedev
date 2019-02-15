@@ -138,26 +138,27 @@ class Modules:
         # sample: 'localhost:5000/filtermodule:0.0.1-amd64'
         tags_to_build = set()
 
-        for module_name in os.listdir(self.envvars.MODULES_PATH):
-            try:
-                module = Module(self.envvars, self.utility, module_name)
-                for platform in module.platforms:
-                    # get the Dockerfile from module.json
-                    dockerfile = module.get_dockerfile_by_platform(platform)
-                    container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
-                    tag = "{0}:{1}{2}-{3}".format(module.repository, module.tag_version, container_tag, platform).lower()
-                    placeholder_tag_map["${{MODULES.{0}.{1}}}".format(module_name, platform)] = tag
+        if os.path.isdir(self.envvars.MODULES_PATH):
+            for module_name in os.listdir(self.envvars.MODULES_PATH):
+                try:
+                    module = Module(self.envvars, self.utility, module_name)
+                    for platform in module.platforms:
+                        # get the Dockerfile from module.json
+                        dockerfile = module.get_dockerfile_by_platform(platform)
+                        container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
+                        tag = "{0}:{1}{2}-{3}".format(module.repository.lower(), module.tag_version, container_tag, platform)
+                        placeholder_tag_map["${{MODULES.{0}.{1}}}".format(module_name, platform)] = tag
 
-                    if platform == default_platform:
-                        placeholder_tag_map[DeploymentManifest.get_image_placeholder(module_name)] = tag
-                    elif platform == default_platform + ".debug":
-                        placeholder_tag_map[DeploymentManifest.get_image_placeholder(module_name, True)] = tag
+                        if platform == default_platform:
+                            placeholder_tag_map[DeploymentManifest.get_image_placeholder(module_name)] = tag
+                        elif platform == default_platform + ".debug":
+                            placeholder_tag_map[DeploymentManifest.get_image_placeholder(module_name, True)] = tag
 
-                    tag_build_profile_map[tag] = BuildProfile(module_name, dockerfile, module.context_path, module.build_options)
-                    if not self.utility.in_asterisk_list(module_name, bypass_modules) and self.utility.in_asterisk_list(platform, active_platform):
-                        tags_to_build.add(tag)
-            except FileNotFoundError:
-                pass
+                        tag_build_profile_map[tag] = BuildProfile(module_name, dockerfile, module.context_path, module.build_options)
+                        if not self.utility.in_asterisk_list(module_name, bypass_modules) and self.utility.in_asterisk_list(platform, active_platform):
+                            tags_to_build.add(tag)
+                except FileNotFoundError:
+                    pass
 
         deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, template_file, True)
 
@@ -171,57 +172,58 @@ class Modules:
                 if not self.utility.in_asterisk_list(module_name, bypass_modules):
                     tags_to_build.add(tag)
 
-        for tag in tags_to_build:
-            if tag in tag_build_profile_map:
-                docker = Docker(self.envvars, self.utility, self.output)
-                # BUILD DOCKER IMAGE
-                if not no_build:
-                    build_profile = tag_build_profile_map.get(tag)
+        if not no_build or not no_push:
+            docker = Docker(self.envvars, self.utility, self.output)
+            for tag in tags_to_build:
+                if tag in tag_build_profile_map:
+                    # BUILD DOCKER IMAGE
+                    if not no_build:
+                        build_profile = tag_build_profile_map.get(tag)
 
-                    module_name = build_profile.module_name
-                    dockerfile = build_profile.dockerfile
-                    self.output.info("BUILDING MODULE: {0}".format(module_name))
-                    self.output.info("PROCESSING DOCKERFILE: {0}".format(dockerfile))
-                    self.output.info("BUILDING DOCKER IMAGE: {0}".format(tag))
+                        module_name = build_profile.module_name
+                        dockerfile = build_profile.dockerfile
+                        self.output.info("BUILDING MODULE: {0}".format(module_name))
+                        self.output.info("PROCESSING DOCKERFILE: {0}".format(dockerfile))
+                        self.output.info("BUILDING DOCKER IMAGE: {0}".format(tag))
 
-                    build_options = build_profile.extra_options
-                    build_options_parser = BuildOptionsParser(build_options)
-                    sdk_options = build_options_parser.parse_build_options()
+                        build_options = build_profile.extra_options
+                        build_options_parser = BuildOptionsParser(build_options)
+                        sdk_options = build_options_parser.parse_build_options()
 
-                    context_path = build_profile.context_path
+                        context_path = build_profile.context_path
 
-                    # A hack to work around Python Docker SDK's bug with Linux container mode on Windows
-                    # https://github.com/docker/docker-py/issues/2127
-                    dockerfile_relative = os.path.relpath(dockerfile, context_path)
-                    if docker.get_os_type() == "linux" and sys.platform == "win32":
-                        dockerfile_relative = dockerfile_relative.replace("\\", "/")
+                        # A hack to work around Python Docker SDK's bug with Linux container mode on Windows
+                        # https://github.com/docker/docker-py/issues/2127
+                        dockerfile_relative = os.path.relpath(dockerfile, context_path)
+                        if docker.get_os_type() == "linux" and sys.platform == "win32":
+                            dockerfile_relative = dockerfile_relative.replace("\\", "/")
 
-                    build_args = {"tag": tag, "path": context_path, "dockerfile": dockerfile_relative}
-                    build_args.update(sdk_options)
+                        build_args = {"tag": tag, "path": context_path, "dockerfile": dockerfile_relative}
+                        build_args.update(sdk_options)
 
-                    response = docker.docker_api.build(**build_args)
-                    docker.process_api_response(response)
-                if not no_push:
-                    docker.init_registry()
+                        response = docker.docker_api.build(**build_args)
+                        docker.process_api_response(response)
+                    if not no_push:
+                        docker.init_registry()
 
-                    # PUSH TO CONTAINER REGISTRY
-                    self.output.info("PUSHING DOCKER IMAGE: " + tag)
-                    registry_key = None
-                    for key, registry in self.envvars.CONTAINER_REGISTRY_MAP.items():
-                        # Split the repository tag in the module.json (ex: Localhost:5000/filtermodule)
-                        if registry.server.lower() == tag.split('/')[0].lower():
-                            registry_key = key
-                            break
-                    if registry_key is None:
-                        self.output.info("Could not find registry credentials with name {0} in environment variable. Pushing anonymously.".format(tag.split('/')[0].lower()))
-                        response = docker.docker_client.images.push(repository=tag, stream=True)
-                    else:
-                        response = docker.docker_client.images.push(repository=tag, stream=True, auth_config={
-                            "username": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].username,
-                            "password": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].password})
-                    docker.process_api_response(response)
-            self.output.footer("BUILD COMPLETE", suppress=no_build)
-            self.output.footer("PUSH COMPLETE", suppress=no_push)
+                        # PUSH TO CONTAINER REGISTRY
+                        self.output.info("PUSHING DOCKER IMAGE: " + tag)
+                        registry_key = None
+                        for key, registry in self.envvars.CONTAINER_REGISTRY_MAP.items():
+                            # Split the repository tag in the module.json (ex: Localhost:5000/filtermodule)
+                            if registry.server.lower() == tag.split('/')[0].lower():
+                                registry_key = key
+                                break
+                        if registry_key is None:
+                            self.output.info("Could not find registry credentials with name {0} in environment variable. Pushing anonymously.".format(tag.split('/')[0].lower()))
+                            response = docker.docker_client.images.push(repository=tag, stream=True)
+                        else:
+                            response = docker.docker_client.images.push(repository=tag, stream=True, auth_config={
+                                "username": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].username,
+                                "password": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].password})
+                        docker.process_api_response(response)
+                self.output.footer("BUILD COMPLETE", suppress=no_build)
+                self.output.footer("PUSH COMPLETE", suppress=no_push)
 
         deployment_manifest.expand_image_placeholders(replacements)
         deployment_manifest.convert_create_options()
