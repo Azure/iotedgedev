@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
-## [1.2.0] - 2019-02-25
+## [1.2.0] - 2019-02-26
 ### Changed
 - Fix issue creating C modules when temp folder and target project folder are on different disks
 - Fix issue connecting to Docker daemon with `tlsverify` enabled
