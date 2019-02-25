@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [1.2.0] - 2019-02-26
+### Changed
+- Fix issue creating C modules when temp folder and target project folder are on different disks [[#362](https://github.com/Azure/iotedgedev/pull/362)]
+- Fix issue connecting to Docker daemon with `tlsverify` enabled [[#364](https://github.com/Azure/iotedgedev/pull/364)]
+- Preserve tag cases when generating deployment manifests [[#372](https://github.com/Azure/iotedgedev/pull/372)]
+
 ## [1.1.0] - 2018-11-26
 ### Added
 - Support parsing `createOptions` in JSON dictionary format
