@@ -75,12 +75,10 @@ function build_linux
     docker build \
         -f Dockerfile \
         --build-arg IOTEDGEDEV_VERSION=$VERSION \
-        -t microsoft/iotedgedev:$VERSION-amd64 \
-        -t microsoft/iotedgedev:latest-amd64 \
-        -t mcr.microsoft.com/public/iotedge/iotedgedev:$VERSION-amd64 \
-        -t mcr.microsoft.com/public/iotedge/iotedgedev:latest-amd64 \
         -t $IMAGE_NAME:$VERSION-amd64 \
         -t $IMAGE_NAME:latest-amd64 \
+        -t $IMAGE_NAME:$VERSION \
+        -t $IMAGE_NAME:latest \
         .
 
     rm iotedgedev-$VERSION-py2.py3-none-any.whl --force
