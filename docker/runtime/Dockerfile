@@ -4,6 +4,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
     iproute2 \
+    iputils-ping \
     systemd  && \
     rm -rf /var/lib/apt/lists/*
 RUN curl https://packages.microsoft.com/config/ubuntu/16.04/prod.list > ./microsoft-prod.list && \
