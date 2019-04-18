@@ -35,7 +35,7 @@ requirements = [
     'requests >= 2.20.0, < 2.21',
     'fstrings',
     'msrestazure~=0.4.32',
-    'azure-cli-core >= 2.0.0, <2.0.55',
+    'azure-cli-core >= 2.0.0, <=2.0.62',
     'azure-cli-iot',
     'azure-cli-profile',
     'azure-cli-extension',
@@ -44,7 +44,7 @@ requirements = [
     'azure-cli-cloud',
     'iotedgehubdev >= 0.8.0',
     'six',
-    'applicationinsights',
+    'applicationinsights < 0.11.8',
     'commentjson',
     'pypiwin32==219; sys_platform == "win32" and python_version < "3.6"',
     'pypiwin32==223; sys_platform == "win32" and python_version >= "3.6"'
