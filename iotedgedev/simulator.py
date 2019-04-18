@@ -14,13 +14,15 @@ class Simulator:
         self.output = output
         self.utility = Utility(self.envvars, self.output)
 
-    def setup(self, gateway_host):
+    def setup(self, gateway_host, iothub_connection_string):
         self.output.header("Setting Up IoT Edge Simulator")
         self.envvars.verify_envvar_has_val("DEVICE_CONNECTION_STRING", self.envvars.DEVICE_CONNECTION_STRING)
 
         cmd = ["iotedgehubdev", "setup", "-c", self.envvars.DEVICE_CONNECTION_STRING]
         if gateway_host:
             cmd.extend(["-g", gateway_host])
+        if iothub_connection_string:
+            cmd.extend(["-i", iothub_connection_string])
         self.utility.exe_proc(cmd)
 
     def start_single(self, inputs, port):

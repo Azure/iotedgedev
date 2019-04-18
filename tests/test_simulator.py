@@ -55,6 +55,13 @@ def test_setup():
 
 
 @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
+def test_setup_with_iothub():
+    result = runner_invoke(['simulator', 'setup', '-i', os.getenv("IOTHUB_CONNECTION_STRING")])
+
+    assert 'Setup IoT Edge Simulator successfully.' in result.output
+
+
+@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_start_single():
     result = runner_invoke(['simulator', 'start', '-i', 'input1'])
 

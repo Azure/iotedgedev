@@ -42,7 +42,7 @@ requirements = [
     'azure-cli-configure',
     'azure-cli-resource',
     'azure-cli-cloud',
-    'iotedgehubdev',
+    'iotedgehubdev >= 0.8.0',
     'six',
     'applicationinsights',
     'commentjson',
