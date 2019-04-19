@@ -35,7 +35,7 @@ requirements = [
     'requests >= 2.20.0, < 2.21',
     'fstrings',
     'msrestazure~=0.4.32',
-    'azure-cli-core >= 2.0.0, <=2.0.62',
+    'azure-cli-core',
     'azure-cli-iot',
     'azure-cli-profile',
     'azure-cli-extension',
