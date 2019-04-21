@@ -46,6 +46,7 @@ requirements = [
     'six',
     'applicationinsights < 0.11.8',
     'commentjson',
+    'pyyaml>=3.10,<4.3',
     'pypiwin32==219; sys_platform == "win32" and python_version < "3.6"',
     'pypiwin32==223; sys_platform == "win32" and python_version >= "3.6"'
 ]
