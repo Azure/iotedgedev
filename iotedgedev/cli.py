@@ -266,10 +266,14 @@ main.add_command(genconfig)
               required=False,
               default=socket.getfqdn(),
               show_default=True)
+@click.option("--iothub-connection-string",
+              "-i",
+              help="Set Azure IoT Hub connection string. Note: Use double quotes when supplying this input.",
+              required=False)
 @with_telemetry
-def setup_simulator(gateway_host):
+def setup_simulator(gateway_host, iothub_connection_string):
     sim = Simulator(envvars, output)
-    sim.setup(gateway_host)
+    sim.setup(gateway_host, iothub_connection_string)
 
 
 main.add_command(setup_simulator)
