@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [1.3.0] - 2019-04-25
+### Added
+- Add module twin support for simulator
+
+### Changed
+- Update azure-cli-core to fix module import error
+- Fix applicationinsights incompatible version issue [[#383](https://github.com/Azure/iotedgedev/issues/383)]
+
 ## [1.2.0] - 2019-02-26
 ### Changed
 - Fix issue creating C modules when temp folder and target project folder are on different disks [[#362](https://github.com/Azure/iotedgedev/pull/362)]
