@@ -452,7 +452,7 @@ class AzureCli:
             if result:
                 out_string = io.getvalue()
                 data = json.loads(out_string)
-                return data["cs"]
+                return data["connectionString"]
         return ''
 
     def edge_device_exists(self, value, iothub, resource_group):
@@ -495,6 +495,6 @@ class AzureCli:
             if result:
                 out_string = io.getvalue()
                 data = json.loads(out_string)
-                return data["cs"]
+                return data["connectionString"]
 
         return ''
