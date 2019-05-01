@@ -10,8 +10,8 @@ steps:
     displayName: "Install .NET Core SDK"
 
   - powershell: |
-      choco install jdk8 --version 8.0.201
-      $env:JAVA_HOME = "C:\Program Files\Java\jdk1.8.0_201"
+      choco install jdk8 --version 8.0.211
+      $env:JAVA_HOME = "C:\Program Files\Java\jdk1.8.0_211"
       choco install maven
       mvn -v
     displayName: "Install JDK and Maven"
@@ -34,7 +34,7 @@ steps:
 
   - powershell: |
       $env:Path += ";C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\wbin"
-      $env:JAVA_HOME = "C:\Program Files\Java\jdk1.8.0_201"
+      $env:JAVA_HOME = "C:\Program Files\Java\jdk1.8.0_211"
       choco install python2
       choco install python --version 3.6.6
       choco install python --version 3.7.1
