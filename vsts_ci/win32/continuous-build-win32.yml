@@ -15,7 +15,6 @@ steps:
 
   - pwsh: |
       az extension add --name azure-cli-iot-ext
-      az --version
     displayName: "Install Azure CLI IoT Extension"
 
   - pwsh: |
