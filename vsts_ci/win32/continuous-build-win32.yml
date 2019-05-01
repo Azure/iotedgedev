@@ -1,7 +1,6 @@
 steps:
-  - powershell: |
+  - pwsh: |
       ((Get-Content -path "$(BUILD.REPOSITORY.LOCALPATH)\.env.tmp" -Raw) -replace 'IOTHUB_CONNECTION_STRING=".*"','IOTHUB_CONNECTION_STRING="$(IOTHUB_CONNECTION_STRING)"' -replace 'DEVICE_CONNECTION_STRING=".*"','DEVICE_CONNECTION_STRING="$(DEVICE_CONNECTION_STRING)"' -replace 'CONTAINER_REGISTRY_SERVER=".*"','CONTAINER_REGISTRY_SERVER="$(CONTAINER_REGISTRY_SERVER)"' -replace 'CONTAINER_REGISTRY_USERNAME=".*"','CONTAINER_REGISTRY_USERNAME="$(CONTAINER_REGISTRY_USERNAME)"' -replace 'CONTAINER_REGISTRY_PASSWORD=".*"','CONTAINER_REGISTRY_PASSWORD="$(CONTAINER_REGISTRY_PASSWORD)"') | Set-Content -Path "$(BUILD.REPOSITORY.LOCALPATH)\.env.tmp"
-    pwsh: true
     displayName: "Update .env.tmp file"
 
   - task: UsePythonVersion@0
@@ -10,18 +9,16 @@ steps:
       addToPath: true
       architecture: "x64"
 
-  - powershell: |
+  - pwsh: |
       npm i -g iothub-explorer yo generator-azure-iot-edge-module
-    pwsh: true
     displayName: "Install IoT Hub explorer, Yeoman and Azure IoT Edge Node.js module generator packages"
 
-  - powershell: |
+  - pwsh: |
       az extension add --name azure-cli-iot-ext
       az --version
-    pwsh: true
     displayName: "Install Azure CLI IoT Extension"
 
-  - powershell: |
+  - pwsh: |
       pip install tox
       tox -e "$(TOXENV)"
     displayName: "Run tests against iotedgedev source code"
