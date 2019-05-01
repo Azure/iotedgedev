@@ -1,45 +1,27 @@
 steps:
   - powershell: |
       ((Get-Content -path "$(BUILD.REPOSITORY.LOCALPATH)\.env.tmp" -Raw) -replace 'IOTHUB_CONNECTION_STRING=".*"','IOTHUB_CONNECTION_STRING="$(IOTHUB_CONNECTION_STRING)"' -replace 'DEVICE_CONNECTION_STRING=".*"','DEVICE_CONNECTION_STRING="$(DEVICE_CONNECTION_STRING)"' -replace 'CONTAINER_REGISTRY_SERVER=".*"','CONTAINER_REGISTRY_SERVER="$(CONTAINER_REGISTRY_SERVER)"' -replace 'CONTAINER_REGISTRY_USERNAME=".*"','CONTAINER_REGISTRY_USERNAME="$(CONTAINER_REGISTRY_USERNAME)"' -replace 'CONTAINER_REGISTRY_PASSWORD=".*"','CONTAINER_REGISTRY_PASSWORD="$(CONTAINER_REGISTRY_PASSWORD)"') | Set-Content -Path "$(BUILD.REPOSITORY.LOCALPATH)\.env.tmp"
+    pwsh: true
     displayName: "Update .env.tmp file"
 
-  - task: DotNetCoreInstaller@0
+  - task: UsePythonVersion@0
     inputs:
-      packageType: 'sdk'
-      version: '2.2.103'
-    displayName: "Install .NET Core SDK"
-
-  - powershell: |
-      choco install jdk8 --version 8.0.211
-      $env:JAVA_HOME = "C:\Program Files\Java\jdk1.8.0_211"
-      choco install maven
-      mvn -v
-    displayName: "Install JDK and Maven"
-
-  - task: NodeTool@0
-    inputs:
-      versionSpec: '10.x'
-    displayName: "Install Node.js"
+      versionSpec: "$(python.version)"
+      addToPath: true
+      architecture: "x64"
 
   - powershell: |
       npm i -g iothub-explorer yo generator-azure-iot-edge-module
+    pwsh: true
     displayName: "Install IoT Hub explorer, Yeoman and Azure IoT Edge Node.js module generator packages"
 
   - powershell: |
-      choco install azure-cli
-      $env:Path += ";C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\wbin"
       az extension add --name azure-cli-iot-ext
       az --version
-    displayName: "Install Azure CLI And Azure CLI IoT Extension"
+    pwsh: true
+    displayName: "Install Azure CLI IoT Extension"
 
   - powershell: |
-      $env:Path += ";C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\wbin"
-      $env:JAVA_HOME = "C:\Program Files\Java\jdk1.8.0_211"
-      choco install python2
-      choco install python --version 3.6.6
-      choco install python --version 3.7.1
-      $env:Path += ";C:\Python37;C:\Python37\Scripts"
-      python -m pip install --upgrade pip
       pip install tox
-      tox
+      tox -e "$(TOXENV)"
     displayName: "Run tests against iotedgedev source code"

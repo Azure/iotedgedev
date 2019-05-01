@@ -6,7 +6,19 @@
 jobs:
   - job: Windows
     pool:
-      vmImage: win1803
+      vmImage: windows-2019
+    strategy:
+      matrix:
+        Python27:
+          python.version: "2.7"
+          TOXENV: "py27"
+        Python36:
+          python.version: "3.6"
+          TOXENV: "py36"
+        Python37:
+          python.version: "3.7"
+          TOXENV: "py37"
+      maxParallel: 1
     steps:
       - template: win32/continuous-build-win32.yml
 
