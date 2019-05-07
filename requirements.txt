@@ -1,4 +1,4 @@
-Click>=6.0
+click>=6.0
 docker>=3.4
 python-dotenv
 requests

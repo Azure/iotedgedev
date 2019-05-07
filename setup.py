@@ -29,7 +29,7 @@ with open('CHANGELOG.md') as history_file:
     history = history_file.read()
 
 requirements = [
-    'Click>=6.0',
+    'click>=6.0',
     'docker>=3.5',
     'python-dotenv',
     'requests >= 2.20.0, < 2.21',
