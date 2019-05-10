@@ -53,6 +53,7 @@ steps:
       eval $(docker-machine env default)
       brew services start docker-machine
       brew install docker-compose
+      sleep 10
       docker version
       sudo -E tox -e "$(TOXENV)"
     displayName: "Install docker and run tests against iotedgedev source code with tox"
