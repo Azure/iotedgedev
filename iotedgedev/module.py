@@ -9,9 +9,9 @@ if PY2:
 
 
 class Module(object):
-    def __init__(self, envvars, utility, module_name):
+    def __init__(self, envvars, utility, module_dir):
         self.utility = utility
-        self.module_dir = os.path.join(envvars.MODULES_PATH, module_name)
+        # self.module_dir = os.path.join(envvars.MODULES_PATH, module_name)
         self.module_json_file = os.path.join(self.module_dir, "module.json")
         self.module_language = "csharp"
         self.file_json_content = None

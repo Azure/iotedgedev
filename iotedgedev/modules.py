@@ -17,6 +17,7 @@ from .dockercls import Docker
 from .dotnet import DotNet
 from .module import Module
 from .utility import Utility
+from .constants import Constants
 
 if PY2:
     from .compat import FileNotFoundError
@@ -138,6 +139,9 @@ class Modules:
         # sample: 'localhost:5000/filtermodule:0.0.1-amd64'
         tags_to_build = set()
 
+        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, template_file, True)
+
+        # get image tags for ${MODULES.modulename.xxx} placeholder
         if os.path.isdir(self.envvars.MODULES_PATH):
             for module_name in os.listdir(self.envvars.MODULES_PATH):
                 try:
@@ -160,10 +164,17 @@ class Modules:
                 except FileNotFoundError:
                     pass
 
-        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, template_file, True)
+        # get image tags for ${MODULEDIR<relative path>.xxx} placeholder
+        user_modules = deployment_manifest.get_user_modules()
+        for module_name, module_info in user_modules.items():
+            image = module_info["settings"]["image"]
+            match_result = re.search(Constants.moduledir_placeholder_pattern, image)
+            if (match_result is not None):
+                module_dir = match_result.group(1)
+                module = Module(self.envvars, self.utility, module_dir)
+                self._update_module_maps("${{MODULEDIR<{0}>}}".format(module_dir), module_name, module, placeholder_tag_map, tag_build_profile_map, tags_to_build, bypass_modules, active_platform)
 
         replacements = {}
-        user_modules = deployment_manifest.get_user_modules()
         for module_name, module_info in user_modules.items():
             image = module_info["settings"]["image"]
             if image in placeholder_tag_map:
@@ -238,6 +249,24 @@ class Modules:
         deployment_manifest.dump(gen_deployment_manifest_path)
 
         return gen_deployment_manifest_path
+
+    def _update_module_maps(self, placeholder_base, module_name, module, placeholder_tag_map, tag_build_profile_map, tags_to_build, default_platform, bypass_modules, active_platform,):
+        for platform in module.platforms:
+            # get the Dockerfile from module.json
+            dockerfile = module.get_dockerfile_by_platform(platform)
+            container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
+            tag = "{0}:{1}{2}-{3}".format(module.repository.lower(), module.tag_version, container_tag, platform)
+            placeholder_tag_map["${0}.{1}".format(placeholder_base, platform)] = tag
+            placeholder_tag_map[tag] = tag
+
+            if platform == default_platform:
+                placeholder_tag_map[placeholder_base] = tag
+            elif platform == default_platform + ".debug":
+                placeholder_tag_map["{0}.{1}".format(placeholder_base, "debug")] = tag
+
+            tag_build_profile_map[tag] = BuildProfile(module_name, dockerfile, module.context_path, module.build_options)
+            if not self.utility.in_asterisk_list(module_name, bypass_modules) and self.utility.in_asterisk_list(platform, active_platform):
+                tags_to_build.add(tag)
 
     def _get_debug_create_options(self,  template):
         if template == "c":
