@@ -260,25 +260,33 @@ def test_solution_build_with_platform():
     result = runner_invoke(['build', '-P', get_platform_type()])
 
     assert 'BUILD COMPLETE' in result.output
+    assert 'sample_module:0.0.1-RC-amd64' in result.output
+    assert 'sample_module_2:0.0.1-RC-amd64' in result.output
     assert 'ERROR' not in result.output
 
 
 def test_solution_build_with_version_and_build_options():
     os.chdir(test_solution_shared_lib_dir)
     module_json_file_path = os.path.join(test_solution_shared_lib_dir, "modules", "sample_module", "module.json")
+    module_2_json_file_path = os.path.join(test_solution_shared_lib_dir, "sample_module_2", "module.json")
     try:
         envvars.set_envvar("VERSION", "0.0.2")
         update_file_content(module_json_file_path, '"version": "0.0.1-RC"', '"version": "${VERSION}"')
         update_file_content(module_json_file_path, '"buildOptions": (.*),', '"buildOptions": [ "--add-host=github.com:192.30.255.112", "--build-arg a=b" ],')
+        update_file_content(module_2_json_file_path, '"version": "0.0.1-RC"', '"version": "${VERSION}"')
+        update_file_content(module_2_json_file_path, '"buildOptions": (.*),', '"buildOptions": [ "--add-host=github.com:192.30.255.112", "--build-arg a=b" ],')
 
         result = runner_invoke(['build', '-P', get_platform_type()])
 
         assert 'BUILD COMPLETE' in result.output
+        assert 'sample_module:0.0.2-RC-amd64' in result.output
+        assert 'sample_module_2:0.0.2-RC-amd64' in result.output
         assert 'ERROR' not in result.output
-        assert '0.0.2' in get_all_docker_images()
     finally:
         update_file_content(module_json_file_path, '"version": "(.*)"', '"version": "0.0.1-RC"')
         update_file_content(module_json_file_path, '"buildOptions": (.*),', '"buildOptions": [],')
+        update_file_content(module_2_json_file_path, '"version": "(.*)"', '"version": "0.0.1-RC"')
+        update_file_content(module_2_json_file_path, '"buildOptions": (.*),', '"buildOptions": [],')
         del os.environ["VERSION"]
 
 
@@ -346,6 +354,7 @@ def test_solution_build_with_debug_template():
     result = runner_invoke(['build', '-f', os.environ["DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE"], '-P', get_platform_type()])
 
     module_name = "sample_module"
+    module_2_name = "sample_module_2"
     test_solution_shared_debug_config = os.path.join('config', 'deployment.debug.' + get_platform_type() + '.json')
     env_container_registry_server = os.getenv("CONTAINER_REGISTRY_SERVER")
     with open(test_solution_shared_debug_config) as f:
@@ -355,7 +364,10 @@ def test_solution_build_with_debug_template():
     assert 'ERROR' not in result.output
     assert env_container_registry_server + "/" + module_name + ":0.0.1-RC-" + get_platform_type() + ".debug" in content[
         "modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][module_name]["settings"]["image"]
+    assert env_container_registry_server + "/" + module_2_name + ":0.0.1-RC-" + get_platform_type() + ".debug" in content[
+        "modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][module_2_name]["settings"]["image"]
     assert module_name in get_all_docker_images()
+    assert module_2_name in get_all_docker_images()
 
 
 def test_solution_push_with_default_platform(prepare_solution_with_env):
@@ -395,8 +407,12 @@ def test_generate_deployment_manifest():
 
         module_image_name = content["modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][
             "sample_module"]["settings"]["image"]
+        module_2_image_name = content["modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][
+            "sample_module_2"]["settings"]["image"]
         env_container_registry_server = os.getenv("CONTAINER_REGISTRY_SERVER")
         assert env_container_registry_server + "/sample_module:0.0.1-RC-" + get_platform_type() == module_image_name
+        assert env_container_registry_server + "/sample_module_2:0.0.1-RC-" + get_platform_type() == module_2_image_name
+
     finally:
         os.remove(os.path.join(test_solution_shared_lib_dir, env_file_name))
 
