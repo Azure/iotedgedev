@@ -254,7 +254,7 @@ def test_valid_env_device_connectionstring():
     assert connectionstring.device_id
 
 
-def test_solution_build_with_platform():
+def test_solution_build_and_push_with_platform():
     os.chdir(test_solution_shared_lib_dir)
 
     result = runner_invoke(['build', '-P', get_platform_type()])
@@ -264,6 +264,13 @@ def test_solution_build_with_platform():
     assert 'sample_module_2:0.0.1-RC-amd64' in result.output
     assert 'ERROR' not in result.output
 
+    result = runner_invoke(['push', '--no-build', '-P', get_platform_type()])
+
+    assert 'PUSH COMPLET' in result.output
+    assert 'sample_module:0.0.1-RC-amd64' in result.output
+    assert 'sample_module_2:0.0.1-RC-amd64' in result.output
+    assert 'ERROR' not in result.output
+    
 
 def test_solution_build_with_version_and_build_options():
     os.chdir(test_solution_shared_lib_dir)
@@ -279,9 +286,11 @@ def test_solution_build_with_version_and_build_options():
         result = runner_invoke(['build', '-P', get_platform_type()])
 
         assert 'BUILD COMPLETE' in result.output
-        assert 'sample_module:0.0.2-RC-amd64' in result.output
-        assert 'sample_module_2:0.0.2-RC-amd64' in result.output
+        assert 'sample_module:0.0.2-amd64' in result.output
+        assert 'sample_module_2:0.0.2-amd64' in result.output
         assert 'ERROR' not in result.output
+        assert '0.0.2-amd64' in get_all_docker_images()
+
     finally:
         update_file_content(module_json_file_path, '"version": "(.*)"', '"version": "0.0.1-RC"')
         update_file_content(module_json_file_path, '"buildOptions": (.*),', '"buildOptions": [],')
@@ -317,6 +326,7 @@ def test_solution_build_without_schema_template():
 
 def test_create_new_solution():
     os.chdir(tests_dir)
+    clean_folder(test_solution_dir)
 
     for template in templates:
         # Node.js modules is skipped on non-Windows for below known issue.
@@ -366,8 +376,9 @@ def test_solution_build_with_debug_template():
         "modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][module_name]["settings"]["image"]
     assert env_container_registry_server + "/" + module_2_name + ":0.0.1-RC-" + get_platform_type() + ".debug" in content[
         "modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][module_2_name]["settings"]["image"]
-    assert module_name in get_all_docker_images()
-    assert module_2_name in get_all_docker_images()
+    all_docker_images = get_all_docker_images()
+    assert module_name in all_docker_images
+    assert module_2_name in all_docker_images
 
 
 def test_solution_push_with_default_platform(prepare_solution_with_env):
