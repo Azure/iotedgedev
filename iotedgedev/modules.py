@@ -66,7 +66,7 @@ class Modules:
 
             shutil.move(temp_template_dir, os.path.join(cwd, name))
 
-            module = Module(self.envvars, self.utility, os.path.join(self.envvars.MODULES_PATH, name))
+            module = Module(self.envvars, self.utility, os.path.join(cwd, name))
             module.repository = repo
             module.dump()
         elif template == "csharp":
@@ -142,9 +142,9 @@ class Modules:
 
         # get image tags for ${MODULES.modulename.xxx} placeholder
         if os.path.isdir(self.envvars.MODULES_PATH):
-            for module_name in os.listdir(self.envvars.MODULES_PATH):
-                module = Module(self.envvars, self.utility, os.path.join(self.envvars.MODULES_PATH, module_name))
-                self._update_module_maps("MODULES.{0}".format(module_name), module_name, module, placeholder_tag_map, tag_build_profile_map, default_platform)
+            for folder_name in os.listdir(self.envvars.MODULES_PATH):
+                module = Module(self.envvars, self.utility, os.path.join(self.envvars.MODULES_PATH, folder_name))
+                self._update_module_maps("MODULES.{0}".format(folder_name), module, placeholder_tag_map, tag_build_profile_map, default_platform)
 
         # get image tags for ${MODULEDIR<relative path>.xxx} placeholder
         user_modules = deployment_manifest.get_user_modules()
@@ -154,7 +154,7 @@ class Modules:
             if (match_result is not None):
                 module_dir = match_result.group(1)
                 module = Module(self.envvars, self.utility, module_dir)
-                self._update_module_maps("MODULEDIR<{0}>".format(module_dir), module_name, module, placeholder_tag_map, tag_build_profile_map, default_platform)
+                self._update_module_maps("MODULEDIR<{0}>".format(module_dir), module, placeholder_tag_map, tag_build_profile_map, default_platform)
 
         replacements = {}
         for module_name, module_info in user_modules.items():
@@ -173,9 +173,7 @@ class Modules:
                     if not no_build:
                         build_profile = tag_build_profile_map.get(tag)
 
-                        module_name = build_profile.module_name
                         dockerfile = build_profile.dockerfile
-                        self.output.info("BUILDING MODULE: {0}".format(module_name))
                         self.output.info("PROCESSING DOCKERFILE: {0}".format(dockerfile))
                         self.output.info("BUILDING DOCKER IMAGE: {0}".format(tag))
 
@@ -232,7 +230,7 @@ class Modules:
 
         return gen_deployment_manifest_path
 
-    def _update_module_maps(self, placeholder_base, module_name, module, placeholder_tag_map, tag_build_profile_map, default_platform):
+    def _update_module_maps(self, placeholder_base, module, placeholder_tag_map, tag_build_profile_map, default_platform):
         try:
             for platform in module.platforms:
                 # get the Dockerfile from module.json
@@ -247,7 +245,7 @@ class Modules:
                 elif platform == default_platform + ".debug":
                     placeholder_tag_map["${{{0}.{1}}}".format(placeholder_base, "debug")] = tag
 
-                tag_build_profile_map[tag] = BuildProfile(module_name, dockerfile, module.context_path, module.build_options)
+                tag_build_profile_map[tag] = BuildProfile(dockerfile, module.context_path, module.build_options)
         except FileNotFoundError:
             pass
 
