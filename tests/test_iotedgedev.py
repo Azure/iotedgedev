@@ -260,15 +260,15 @@ def test_solution_build_and_push_with_platform():
     result = runner_invoke(['build', '-P', get_platform_type()])
 
     assert 'BUILD COMPLETE' in result.output
-    assert 'sample_module:0.0.1-RC-amd64' in result.output
-    assert 'sample_module_2:0.0.1-RC-amd64' in result.output
+    assert 'sample_module:0.0.1-RC' in result.output
+    assert 'sample_module_2:0.0.1-RC' in result.output
     assert 'ERROR' not in result.output
 
     result = runner_invoke(['push', '--no-build', '-P', get_platform_type()])
 
     assert 'PUSH COMPLET' in result.output
-    assert 'sample_module:0.0.1-RC-amd64' in result.output
-    assert 'sample_module_2:0.0.1-RC-amd64' in result.output
+    assert 'sample_module:0.0.1-RC' in result.output
+    assert 'sample_module_2:0.0.1-RC' in result.output
     assert 'ERROR' not in result.output
 
 
@@ -279,14 +279,15 @@ def test_solution_build_and_push_with_escapedpath():
     result = runner_invoke(['build', '-P', get_platform_type()])
 
     assert 'BUILD COMPLETE' in result.output
-    assert 'sample_module_2:0.0.1-RC-amd64' in result.output
+    assert 'sample_module_2:0.0.1-RC' in result.output
     assert 'ERROR' not in result.output
 
     result = runner_invoke(['push', '--no-build', '-P', get_platform_type()])
 
     assert 'PUSH COMPLET' in result.output
-    assert 'sample_module_2:0.0.1-RC-amd64' in result.output
+    assert 'sample_module_2:0.0.1-RC' in result.output
     assert 'ERROR' not in result.output
+
 
 def test_solution_build_with_version_and_build_options():
     os.chdir(test_solution_shared_lib_dir)
@@ -302,10 +303,10 @@ def test_solution_build_with_version_and_build_options():
         result = runner_invoke(['build', '-P', get_platform_type()])
 
         assert 'BUILD COMPLETE' in result.output
-        assert 'sample_module:0.0.2-amd64' in result.output
-        assert 'sample_module_2:0.0.2-amd64' in result.output
+        assert 'sample_module:0.0.2' in result.output
+        assert 'sample_module_2:0.0.2' in result.output
         assert 'ERROR' not in result.output
-        assert '0.0.2-amd64' in get_all_docker_images()
+        assert '0.0.2' in get_all_docker_images()
 
     finally:
         update_file_content(module_json_file_path, '"version": "(.*)"', '"version": "0.0.1-RC"')

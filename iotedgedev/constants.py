@@ -6,5 +6,4 @@ class Constants:
     default_platform = "amd64"
     deployment_template_suffix = ".template.json"
     deployment_template_schema_version = "1.0.0"
-    moduledir_placeholder_pattern = "\${MODULEDIR<(.+)>(\..+)?}"
-    image_placeholder_pattern = "\${MODULES\..+}|\${MODULEDIR<(.+)>(\..+)?}"
+    moduledir_placeholder_pattern = r'\${MODULEDIR<(.+)>(\..+)?}'
