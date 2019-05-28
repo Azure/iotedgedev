@@ -272,11 +272,32 @@ def test_solution_build_and_push_with_platform():
     assert 'ERROR' not in result.output
 
 
+def test_solution_build_and_push_with_different_cwd():
+    cwd = os.path.join(test_solution_shared_lib_dir, 'config')
+    if not os.path.exists(cwd):
+        os.makedirs(cwd)
+    os.chdir(cwd)
+
+    result = runner_invoke(['build', '-f', '../deployment.template.json', '-P', get_platform_type()])
+
+    assert 'BUILD COMPLETE' in result.output
+    assert 'sample_module:0.0.1-RC' in result.output
+    assert 'sample_module_2:0.0.1-RC' in result.output
+    assert 'ERROR' not in result.output
+
+    result = runner_invoke(['push', '-f', '../deployment.template.json', '--no-build', '-P', get_platform_type()])
+
+    assert 'PUSH COMPLET' in result.output
+    assert 'sample_module:0.0.1-RC' in result.output
+    assert 'sample_module_2:0.0.1-RC' in result.output
+    assert 'ERROR' not in result.output
+
+
 @pytest.mark.skipif(platform.system().lower() != 'windows', reason='The path is not valid in non windows platform')
 def test_solution_build_and_push_with_escapedpath():
     os.chdir(test_solution_shared_lib_dir)
 
-    result = runner_invoke(['build', '-P', get_platform_type()])
+    result = runner_invoke(['build', '-f', 'deployment.escapedpath.template.json', '-P', get_platform_type()])
 
     assert 'BUILD COMPLETE' in result.output
     assert 'sample_module_2:0.0.1-RC' in result.output

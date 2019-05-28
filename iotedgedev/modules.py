@@ -127,6 +127,7 @@ class Modules:
     def build_push(self, template_file, default_platform, no_build=False, no_push=False):
         self.output.header("BUILDING MODULES", suppress=no_build)
 
+        template_file_folder = os.path.dirname(template_file)
         bypass_modules = self.utility.get_bypass_modules()
 
         # map image placeholder to tag.
@@ -141,9 +142,10 @@ class Modules:
         deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, template_file, True)
 
         # get image tags for ${MODULES.modulename.xxx} placeholder
-        if os.path.isdir(self.envvars.MODULES_PATH):
-            for folder_name in os.listdir(self.envvars.MODULES_PATH):
-                module = Module(self.envvars, self.utility, os.path.join(self.envvars.MODULES_PATH, folder_name))
+        modules_path = os.path.join(template_file_folder, self.envvars.MODULES_PATH)
+        if os.path.isdir(modules_path):
+            for folder_name in os.listdir(modules_path):
+                module = Module(self.envvars, self.utility, os.path.join(modules_path, folder_name))
                 self._update_module_maps("MODULES.{0}".format(folder_name), module, placeholder_tag_map, tag_build_profile_map, default_platform)
 
         # get image tags for ${MODULEDIR<relative path>.xxx} placeholder
@@ -153,7 +155,7 @@ class Modules:
             match_result = re.search(Constants.moduledir_placeholder_pattern, image)
             if (match_result is not None):
                 module_dir = match_result.group(1)
-                module = Module(self.envvars, self.utility, module_dir)
+                module = Module(self.envvars, self.utility, os.path.join(template_file_folder, module_dir))
                 self._update_module_maps("MODULEDIR<{0}>".format(module_dir), module, placeholder_tag_map, tag_build_profile_map, default_platform)
 
         replacements = {}
