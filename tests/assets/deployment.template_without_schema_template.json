@@ -69,6 +69,16 @@
               "image": "${MODULES.sample_module}",
               "createOptions": {}
             }
+          },
+          "sample_module_2": {
+            "version": "1.0",
+            "type": "docker",
+            "status": "running",
+            "restartPolicy": "always",
+            "settings": {
+              "image": "${MODULEDIR<./sample_module_2>}",
+              "createOptions": {}
+            }
           }
         }
       }

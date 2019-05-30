@@ -118,7 +118,6 @@ class EnvVars:
                 self.get_registries()
 
                 self.BYPASS_MODULES = self.get_envvar("BYPASS_MODULES", default="")
-                self.ACTIVE_DOCKER_PLATFORMS = self.get_envvar("ACTIVE_DOCKER_PLATFORMS", altkeys=["ACTIVE_DOCKER_ARCH"], default="")
                 self.CONTAINER_TAG = self.get_envvar("CONTAINER_TAG", default="")
                 self.RUNTIME_TAG = self.get_envvar("RUNTIME_TAG", default="1.0")
                 self.CONFIG_OUTPUT_DIR = self.get_envvar("CONFIG_OUTPUT_DIR", default=Constants.default_config_folder)

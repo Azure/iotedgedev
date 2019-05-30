@@ -104,9 +104,6 @@ class Utility:
         return [module.strip()
                 for module in self.envvars.BYPASS_MODULES.split(",") if module]
 
-    def get_active_docker_platform(self):
-        return [platform.strip() for platform in self.envvars.ACTIVE_DOCKER_PLATFORMS.split(",") if platform]
-
     def in_asterisk_list(self, item, asterisk_list):
         return len(asterisk_list) > 0 and (asterisk_list[0] == "*" or item in asterisk_list)
 

@@ -17,6 +17,7 @@ from .dockercls import Docker
 from .dotnet import DotNet
 from .module import Module
 from .utility import Utility
+from .constants import Constants
 
 if PY2:
     from .compat import FileNotFoundError
@@ -65,7 +66,7 @@ class Modules:
 
             shutil.move(temp_template_dir, os.path.join(cwd, name))
 
-            module = Module(self.envvars, self.utility, name)
+            module = Module(self.envvars, self.utility, os.path.join(cwd, name))
             module.repository = repo
             module.dump()
         elif template == "csharp":
@@ -126,8 +127,8 @@ class Modules:
     def build_push(self, template_file, default_platform, no_build=False, no_push=False):
         self.output.header("BUILDING MODULES", suppress=no_build)
 
+        template_file_folder = os.path.dirname(template_file)
         bypass_modules = self.utility.get_bypass_modules()
-        active_platform = self.utility.get_active_docker_platform()
 
         # map image placeholder to tag.
         # sample: ('${MODULES.filtermodule.amd64}', 'localhost:5000/filtermodule:0.0.1-amd64')
@@ -138,32 +139,26 @@ class Modules:
         # sample: 'localhost:5000/filtermodule:0.0.1-amd64'
         tags_to_build = set()
 
-        if os.path.isdir(self.envvars.MODULES_PATH):
-            for module_name in os.listdir(self.envvars.MODULES_PATH):
-                try:
-                    module = Module(self.envvars, self.utility, module_name)
-                    for platform in module.platforms:
-                        # get the Dockerfile from module.json
-                        dockerfile = module.get_dockerfile_by_platform(platform)
-                        container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
-                        tag = "{0}:{1}{2}-{3}".format(module.repository.lower(), module.tag_version, container_tag, platform)
-                        placeholder_tag_map["${{MODULES.{0}.{1}}}".format(module_name, platform)] = tag
-
-                        if platform == default_platform:
-                            placeholder_tag_map[DeploymentManifest.get_image_placeholder(module_name)] = tag
-                        elif platform == default_platform + ".debug":
-                            placeholder_tag_map[DeploymentManifest.get_image_placeholder(module_name, True)] = tag
-
-                        tag_build_profile_map[tag] = BuildProfile(module_name, dockerfile, module.context_path, module.build_options)
-                        if not self.utility.in_asterisk_list(module_name, bypass_modules) and self.utility.in_asterisk_list(platform, active_platform):
-                            tags_to_build.add(tag)
-                except FileNotFoundError:
-                    pass
-
         deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, template_file, True)
 
-        replacements = {}
+        # get image tags for ${MODULES.modulename.xxx} placeholder
+        modules_path = os.path.join(template_file_folder, self.envvars.MODULES_PATH)
+        if os.path.isdir(modules_path):
+            for folder_name in os.listdir(modules_path):
+                module = Module(self.envvars, self.utility, os.path.join(modules_path, folder_name))
+                self._update_module_maps("MODULES.{0}".format(folder_name), module, placeholder_tag_map, tag_build_profile_map, default_platform)
+
+        # get image tags for ${MODULEDIR<relative path>.xxx} placeholder
         user_modules = deployment_manifest.get_user_modules()
+        for module_name, module_info in user_modules.items():
+            image = module_info["settings"]["image"]
+            match_result = re.search(Constants.moduledir_placeholder_pattern, image)
+            if (match_result is not None):
+                module_dir = match_result.group(1)
+                module = Module(self.envvars, self.utility, os.path.join(template_file_folder, module_dir))
+                self._update_module_maps("MODULEDIR<{0}>".format(module_dir), module, placeholder_tag_map, tag_build_profile_map, default_platform)
+
+        replacements = {}
         for module_name, module_info in user_modules.items():
             image = module_info["settings"]["image"]
             if image in placeholder_tag_map:
@@ -180,9 +175,7 @@ class Modules:
                     if not no_build:
                         build_profile = tag_build_profile_map.get(tag)
 
-                        module_name = build_profile.module_name
                         dockerfile = build_profile.dockerfile
-                        self.output.info("BUILDING MODULE: {0}".format(module_name))
                         self.output.info("PROCESSING DOCKERFILE: {0}".format(dockerfile))
                         self.output.info("BUILDING DOCKER IMAGE: {0}".format(tag))
 
@@ -238,6 +231,25 @@ class Modules:
         deployment_manifest.dump(gen_deployment_manifest_path)
 
         return gen_deployment_manifest_path
+
+    def _update_module_maps(self, placeholder_base, module, placeholder_tag_map, tag_build_profile_map, default_platform):
+        try:
+            for platform in module.platforms:
+                # get the Dockerfile from module.json
+                dockerfile = module.get_dockerfile_by_platform(platform)
+                container_tag = "" if self.envvars.CONTAINER_TAG == "" else "-" + self.envvars.CONTAINER_TAG
+                tag = "{0}:{1}{2}-{3}".format(module.repository.lower(), module.tag_version, container_tag, platform)
+                placeholder_tag_map["${{{0}.{1}}}".format(placeholder_base, platform)] = tag
+                placeholder_tag_map[tag] = tag
+
+                if platform == default_platform:
+                    placeholder_tag_map["${{{0}}}".format(placeholder_base)] = tag
+                elif platform == default_platform + ".debug":
+                    placeholder_tag_map["${{{0}.{1}}}".format(placeholder_base, "debug")] = tag
+
+                tag_build_profile_map[tag] = BuildProfile(dockerfile, module.context_path, module.build_options)
+        except FileNotFoundError:
+            pass
 
     def _get_debug_create_options(self,  template):
         if template == "c":
