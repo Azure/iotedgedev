@@ -1,6 +1,14 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [2.0.0] - 2019-06-10
+### Added
+- Support relative path for module placeholder in deployment.template.json
+
+### Changed
+- Fix issue with 'cs' keyerror [[#387](https://github.com/Azure/iotedgedev/issues/387)]. Thanks for jporcenaluk's contribution.
+- Drop support for ACTIVE_DOCKER_PLATFORMS environment variable
+
 ## [1.3.0] - 2019-04-25
 ### Added
 - Add module twin support for simulator
