@@ -113,6 +113,7 @@ class Modules:
             deployment_manifest_debug = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE, True)
             deployment_manifest_debug.add_module_template(name, debug_create_options, True)
             deployment_manifest_debug.dump()
+            
         self._update_launch_json(name, template, group_id)
 
         self.output.footer("ADD COMPLETE")
