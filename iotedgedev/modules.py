@@ -113,7 +113,6 @@ class Modules:
             deployment_manifest_debug = DeploymentManifest(self.envvars, self.output, self.utility, self.envvars.DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE, True)
             deployment_manifest_debug.add_module_template(name, debug_create_options, True)
             deployment_manifest_debug.dump()
-    
         self._update_launch_json(name, template, group_id)
 
         self.output.footer("ADD COMPLETE")
@@ -304,7 +303,10 @@ class Modules:
             launch_json_content = Utility.get_file_contents(launch_json_file)
             for key, value in replacements.items():
                 launch_json_content = launch_json_content.replace(key, value)
-            launch_json = commentjson.loads(launch_json_content.encode('ascii'))
+            if PY2:
+                launch_json = commentjson.loads(launch_json_content.encode('ascii'))
+            else:
+                launch_json = commentjson.loads(launch_json_content)
             if is_function and launch_json is not None and "configurations" in launch_json:
                 # for Function modules, there shouldn't be launch config for local debug
                 launch_json["configurations"] = list(filter(lambda x: x["request"] != "launch", launch_json["configurations"]))
