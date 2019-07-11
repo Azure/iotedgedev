@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [2.0.1] - 2019-07-11
+### Changed
+- Fix build errors when some projects under modules folder have no module.json [[#396](https://github.com/Azure/iotedgedev/issues/396)]
+
 ## [2.0.0] - 2019-06-10
 ### Added
 - Support relative path for module placeholder in deployment.template.json
