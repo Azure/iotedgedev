@@ -13,7 +13,6 @@ class Module(object):
         self.utility = utility
         self.module_dir = module_dir
         self.module_json_file = os.path.join(self.module_dir, "module.json")
-        self.module_language = "csharp"
         self.file_json_content = None
         self.load_module_json()
 
@@ -21,17 +20,12 @@ class Module(object):
         if os.path.exists(self.module_json_file):
             try:
                 self.file_json_content = json.loads(Utility.get_file_contents(self.module_json_file, expandvars=True))
-                self.module_language = self.file_json_content.get("language").lower()
             except KeyError as e:
                 raise KeyError("Error parsing {0} from module.json file : {1}".format(str(e), self.module_json_file))
             except IOError:
                 raise IOError("Error loading module.json file : {0}".format(self.module_json_file))
         else:
             raise FileNotFoundError("No module.json file found. module.json file is required in the root of your module folder")
-
-    @property
-    def language(self):
-        return self.module_language
 
     @property
     def platforms(self):

@@ -5,6 +5,7 @@ import sys
 from zipfile import ZipFile
 
 import commentjson
+import six
 from six import BytesIO
 from six.moves.urllib.request import urlopen
 
@@ -145,8 +146,10 @@ class Modules:
         modules_path = os.path.join(template_file_folder, self.envvars.MODULES_PATH)
         if os.path.isdir(modules_path):
             for folder_name in os.listdir(modules_path):
-                module = Module(self.envvars, self.utility, os.path.join(modules_path, folder_name))
-                self._update_module_maps("MODULES.{0}".format(folder_name), module, placeholder_tag_map, tag_build_profile_map, default_platform)
+                project_folder = os.path.join(modules_path, folder_name)
+                if os.path.exists(os.path.join(project_folder, "module.json")):
+                    module = Module(self.envvars, self.utility, project_folder)
+                    self._update_module_maps("MODULES.{0}".format(folder_name), module, placeholder_tag_map, tag_build_profile_map, default_platform)
 
         # get image tags for ${MODULEDIR<relative path>.xxx} placeholder
         user_modules = deployment_manifest.get_user_modules()
@@ -301,7 +304,10 @@ class Modules:
             launch_json_content = Utility.get_file_contents(launch_json_file)
             for key, value in replacements.items():
                 launch_json_content = launch_json_content.replace(key, value)
-            launch_json = commentjson.loads(launch_json_content)
+            if PY2:
+                launch_json = commentjson.loads(six.binary_type(launch_json_content))
+            else:
+                launch_json = commentjson.loads(launch_json_content)
             if is_function and launch_json is not None and "configurations" in launch_json:
                 # for Function modules, there shouldn't be launch config for local debug
                 launch_json["configurations"] = list(filter(lambda x: x["request"] != "launch", launch_json["configurations"]))
