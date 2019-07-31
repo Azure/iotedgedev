@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [2.0.2] - 2019-07-31
+### Changed
+- Fix errors caused by latest lark-parser release.
+
 ## [2.0.1] - 2019-07-11
 ### Changed
 - Fix build errors when some projects under modules folder have no module.json [[#396](https://github.com/Azure/iotedgedev/issues/396)]
