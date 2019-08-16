@@ -497,7 +497,7 @@ def test_push_modules_to_local_registry(prepare_solution_with_env):
         if "registry" in get_all_docker_images():
             remove_docker_image("registry:2")
 
-
+# # TODO: The output of docker build logs is not captured by pytest, need to capture this before enable this test
 # def test_docker_build_status_output():
 #     prune_docker_images()
 #     prune_docker_containers()
@@ -508,5 +508,4 @@ def test_push_modules_to_local_registry(prepare_solution_with_env):
 
 #     result = runner_invoke(['build', '-P', get_platform_type()])
 
-#     # TODO: The output of docker build logs is not captured by pytest, need to capture this before enable this test
 #     assert re.match('\\[=*>\\s*\\]', result.output) is not None
