@@ -4,6 +4,7 @@ import platform
 import pytest
 import shutil
 import time
+import re
 
 from iotedgedev.compat import PY35
 from iotedgedev.connectionstring import (DeviceConnectionString,
@@ -16,6 +17,9 @@ from .utility import (assert_json_file_equal,
                       get_file_content,
                       get_all_docker_images,
                       get_all_docker_containers,
+                      prune_docker_images,
+                      prune_docker_containers,
+                      prune_docker_build_cache,
                       remove_docker_container,
                       remove_docker_image,
                       get_docker_os_type,
@@ -492,3 +496,16 @@ def test_push_modules_to_local_registry(prepare_solution_with_env):
             remove_docker_container("registry")
         if "registry" in get_all_docker_images():
             remove_docker_image("registry:2")
+
+# # TODO: The output of docker build logs is not captured by pytest, need to capture this before enable this test
+# def test_docker_build_status_output():
+#     prune_docker_images()
+#     prune_docker_containers()
+#     prune_docker_build_cache()
+#     remove_docker_image("sample_module:0.0.1-RC")
+
+#     os.chdir(test_solution_shared_lib_dir)
+
+#     result = runner_invoke(['build', '-P', get_platform_type()])
+
+#     assert re.match('\\[=*>\\s*\\]', result.output) is not None

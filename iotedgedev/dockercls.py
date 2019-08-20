@@ -241,7 +241,13 @@ class Docker:
                 if key == "stream" and isinstance(json_[key], six.string_types):
                     self.output.procout(json_[key], nl=False)
                 if key == "status" and isinstance(json_[key], six.string_types):
-                    self.output.procout(json_[key])
+                    message = ""
+                    if ("id" in json_):
+                        message += json_["id"] + " "
+                    message += json_[key] + " "
+                    if ("progress" in json_):
+                        message += json_["progress"]
+                    self.output.procout(message)
 
             # Docker SDK won't throw exceptions for some failures.
             # We have to check the response ourselves.

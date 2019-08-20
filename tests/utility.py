@@ -59,6 +59,21 @@ def get_all_docker_images():
     return output
 
 
+def prune_docker_images():
+    output = start_process(['docker', 'image', 'prune', '-f'], False)
+    return output
+
+
+def prune_docker_containers():
+    output = start_process(['docker', 'container', 'prune', '-f'], False)
+    return output
+
+
+def prune_docker_build_cache():
+    output = start_process(['docker', 'builder', 'prune', '-f'], False)
+    return output
+
+
 def remove_docker_container(container_name):
     output = start_process(['docker', 'rm', '-f', container_name], False)
     return output
