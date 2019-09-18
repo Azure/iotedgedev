@@ -247,10 +247,17 @@ main.add_command(deploy)
               show_default=True,
               required=False,
               help="Specify the platform")
+@click.option("--fail-on-validation-error",
+              "fail_on_validation_error",
+              is_flag=True,
+              default=False,
+              show_default=True,
+              required=False,
+              help="Fail the command when deployment manifest validation failed")
 @with_telemetry
-def genconfig(template_file, platform):
+def genconfig(template_file, platform, fail_on_validation_error):
     mod = Modules(envvars, output)
-    mod.build_push(template_file, platform, no_build=True, no_push=True)
+    mod.build_push(template_file, platform, no_build=True, no_push=True, fail_on_validation_error=fail_on_validation_error)
 
 
 main.add_command(genconfig)
