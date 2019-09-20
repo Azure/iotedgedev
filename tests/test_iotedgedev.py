@@ -512,6 +512,7 @@ def test_validate_deployment_template_and_manifest_success():
     try:
         os.chdir(test_solution_shared_lib_dir)
         shutil.copyfile(env_file_path, os.path.join(test_solution_shared_lib_dir, env_file_name))
+        os.environ["CONTAINER_REGISTRY_PASSWORD"] = "nonempty"
 
         if get_docker_os_type() == "windows":
             result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', 'deployment.template.json'])
@@ -543,6 +544,7 @@ def test_validate_create_options_failed():
     assert "Length of createOptions02 in module tempSensor exceeds 512" in result.output
     assert "createOptions of module csharpmodule is not a valid JSON string" in result.output
     assert "createOptions of module csharpfunction should be an object" in result.output
+    assert "createOptions of module csharpfunction2 is not a valid JSON string" in result.output
     assert "No settings or createOptions property found in module edgeAgent. Skip createOptions validation." in result.output
     assert "createOptions of module edgeHub validation passed" in result.output
     assert "Errors found during createOptions validation" in result.output

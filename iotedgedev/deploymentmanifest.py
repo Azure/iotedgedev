@@ -145,21 +145,8 @@ class DeploymentManifest:
     def validate_deployment_template(self):
         validation_success = True
         try:
-            self.output.info("Validating schema of deployment template.")
             template_schema = json.loads(urlopen(Constants.deployment_template_schema_url).read().decode())
-            validator_class = jsonschema.validators.validator_for(template_schema)
-            validator = validator_class(template_schema)
-            validation_errors = validator.iter_errors(self.json)
-            error_detected = False
-            for error in validation_errors:
-                error_detected = True
-                self.output.info("Deployment template schema error: %s. Property path:%s" % (error.message, "->".join(error.path)))
-            if error_detected:
-                self.output.info("Deployment template schema validation failed. Please see previous logs for more details")
-            else:
-                self.output.info("Deployment template schema validation passed.")
-        except jsonschema.exceptions.SchemaError as schemaErr:
-            self.output.info("Errors found in deployment template schema, skip schema validation. Error:%s" % schemaErr.message)
+            self._validate_json_schema(template_schema, self.json, "Deployment template")
         except Exception as ex:  # Ignore other non shcema validation errors
             self.output.info("Unexpected error during deployment template schema validation, skip schema validation. Error:%s" % ex)
 
@@ -187,24 +174,34 @@ class DeploymentManifest:
         else:
             raise KeyError("modulesContent")
 
-    def _validate_deployment_manifest_schema(self):
+    # Carefully check upper/lower case of the output when using this function
+    def _validate_json_schema(self, schema_object, json_object, schema_type):
         validation_success = True
         try:
-            self.output.info("Validating schema of deployment manifest.")
-            deployment_schema = json.loads(urlopen(Constants.deployment_manifest_schema_url).read())
-            validator_class = jsonschema.validators.validator_for(deployment_schema)
-            validator = validator_class(deployment_schema)
+            self.output.info("Validating schema of %s." % schema_type.lower())
+            validator_class = jsonschema.validators.validator_for(schema_object)
+            validator = validator_class(schema_object)
             validation_errors = validator.iter_errors(self.json)
             error_detected = False
             for error in validation_errors:
                 error_detected = True
-                self.output.info("Deployment manifest schema error: %s. Property path:%s" % (error.message, "->".join(error.path)))
+                self.output.info("%s schema error: %s. Property path:%s" % (schema_type, error.message, "->".join(error.path)))
             if error_detected:
-                self.output.info("Deployment manifest schema validation failed. Please see previous logs for more details")
+                self.output.info("%s schema validation failed. Please see previous logs for more details" % schema_type)
             else:
-                self.output.info("Deployment manifest schema validation passed.")
+                self.output.info("%s schema validation passed." % schema_type)
         except jsonschema.exceptions.SchemaError as schemaErr:
-            self.output.info("Errors found in deployment manifest schema, skip schema validation. Error:%s" % schemaErr.message)
+            self.output.info("Errors found in %s schema, skip schema validation. Error:%s" % (schema_type, schemaErr.message))
+        except Exception as ex:  # Ignore other non schema validation errors
+            self.output.info("Unexpected error during %s schema validation, skip schema validation. Error:%s" % (schema_type, ex))
+
+        return validation_success
+
+    def _validate_deployment_manifest_schema(self):
+        validation_success = True
+        try:
+            deployment_schema = json.loads(urlopen(Constants.deployment_manifest_schema_url).read())
+            self._validate_json_schema(deployment_schema, self.json, "Deployment manifest")
         except Exception as ex:  # Ignore other non schema validation errors
             self.output.info("Unexpected error during deployment manifest schema validation, skip schema validation. Error:%s" % ex)
 
@@ -216,42 +213,46 @@ class DeploymentManifest:
         modules = self.get_all_modules()
         validation_success = True
         for module_name, module_info in modules.items():
+            current_module_validation_success = True
             try:
                 self.output.info("Validating createOptions for module %s" % module_name)
                 create_options = []
                 if "settings" in module_info and "createOptions" in module_info["settings"]:
                     create_options_value = module_info["settings"]["createOptions"]
-                    if len(create_options_value) > TWIN_VALUE_MAX_SIZE:
-                        validation_success = False
+                    if len(str(create_options_value)) > TWIN_VALUE_MAX_SIZE:
+                        current_module_validation_success = False
                         self.output.info("Length of createOptions in module %s exceeds %d" % (module_name, TWIN_VALUE_MAX_SIZE))
-                    create_options.append(create_options_value)
+                    create_options.append(str(create_options_value))
                     # Merge additional create options
                     for i in range(1, TWIN_VALUE_MAX_CHUNKS):
                         property_name = "createOptions0%d" % i
                         if property_name in module_info["settings"]:
                             create_options_value = module_info["settings"][property_name]
-                            if len(create_options_value) > TWIN_VALUE_MAX_SIZE:
-                                validation_success = False
+                            if len(str(create_options_value)) > TWIN_VALUE_MAX_SIZE:
+                                current_module_validation_success = False
                                 self.output.info("Length of %s in module %s exceeds %d" % (property_name, module_name, TWIN_VALUE_MAX_SIZE))
-                            create_options.append(create_options_value)
+                            create_options.append(str(create_options_value))
                         else:
                             break
                     # Verify createOptions is valid json
                     create_options_string = "".join(create_options).strip()
                     if not create_options_string.startswith('{'):
-                        validation_success = False
+                        current_module_validation_success = False
                         self.output.info("createOptions of module %s should be an object" % module_name)
                     else:
                         try:
                             json.loads(create_options_string)
-                            self.output.info("createOptions of module %s validation passed" % module_name)
+                            if current_module_validation_success:
+                                self.output.info("createOptions of module %s validation passed" % module_name)
                         except ValueError as err:
-                            validation_success = False
+                            current_module_validation_success = False
                             self.output.info("createOptions of module %s is not a valid JSON string. Error: %s" % (module_name, err))
                 else:
                     self.output.info("No settings or createOptions property found in module %s. Skip createOptions validation." % module_name)
             except Exception as ex:
                 self.output.info("Unexpected error occurs when validating createOptions for module %s: %s" % (module_name, ex))
+            finally:
+                validation_success &= current_module_validation_success
         if (validation_success):
             self.output.info("Validation for all createOptions passed.")
         else:

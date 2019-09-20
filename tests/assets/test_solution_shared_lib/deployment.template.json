@@ -9,7 +9,13 @@
           "settings": {
             "minDockerVersion": "v1.25",
             "loggingOptions": "",
-            "registryCredentials": {}
+            "registryCredentials": {
+              "testacr": {
+                "username": "$USERNAME",
+                "password": "$PASSWORD",
+                "address": "$CONTAINER_REGISTRY_PASSWORD"
+              }
+            }
           }
         },
         "systemModules": {
