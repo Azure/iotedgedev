@@ -481,27 +481,32 @@ def test_validate_deployment_template_and_manifest_failed():
         else:
             result = runner_invoke(['genconfig', '-f', 'deployment.template_invalidresult.json'])
 
+        template_path = os.path.join(tests_assets_dir, "deployment.template_invalidresult.json")
+        generated_config = os.path.join(tests_assets_dir, 'config', "deployment.template_invalidresult.json")
         assert "ERROR" not in result.output
+        # File name should be printed
+        assert "Validating deployment template deployment.template_invalidresult.json" in result.output
+        assert "Validating generated deployment manifest config\\deployment.template_invalidresult.json" in result.output
         # All schema errors should be detected, not only the first error
-        assert "Deployment template schema error: 'address' is a required property. "
+        assert "Warning: Deployment template schema error: 'address' is a required property. "
         "Property path:modulesContent->$edgeAgent->properties.desired->runtime->settings->registryCredentials->test" in result.output
-        assert "Deployment template schema error: 1 is not of type 'string'. "
+        assert "Warning: Deployment template schema error: 1 is not of type 'string'. "
         "Property path:modulesContent->$edgeAgent->properties.desired->runtime->settings->registryCredentials->test->username" in result.output
-        assert "Deployment template schema validation failed" in result.output
+        assert "Warning: Deployment template schema validation failed" in result.output
         assert "Deployment template schema validation passed" not in result.output
-        assert "Deployment manifest schema error: 'address' is a required property. "
+        assert "Warning: Deployment manifest schema error: 'address' is a required property. "
         "Property path:modulesContent->$edgeAgent->properties.desired->runtime->settings->registryCredentials->test" in result.output
-        assert "Deployment manifest schema error: 1 is not of type 'string'. "
+        assert "Warning: Deployment manifest schema error: 1 is not of type 'string'. "
         "Property path:modulesContent->$edgeAgent->properties.desired->runtime->settings->registryCredentials->test->username" in result.output
         # Schema errors resulted by expanding environment variables should be detected
-        assert "Deployment manifest schema error: '' does not match '^[^\\s]+$'. "
+        assert "Warning: Deployment manifest schema error: '' does not match '^[^\\s]+$'. "
         "Property path:modulesContent->$edgeAgent->properties.desired->runtime->settings->registryCredentials->test2->address" in result.output
-        assert "Deployment manifest schema validation failed" in result.output
+        assert "Warning: Deployment manifest schema validation failed" in result.output
         assert "Deployment manifest schema validation passed" not in result.output
         assert "Validating createOptions for module csharpmodule" in result.output
         assert "createOptions of module csharpmodule validation passed" in result.output
-        assert "createOptions of module edgeAgent should be an object" in result.output
-        assert "Errors found during createOptions validation" in result.output
+        assert "Warning: createOptions of module edgeAgent should be an object" in result.output
+        assert "Warning: Errors found during createOptions validation" in result.output
         assert "Validation for all createOptions passed" not in result.output
 
     finally:
@@ -521,11 +526,11 @@ def test_validate_deployment_template_and_manifest_success():
 
         assert "ERROR" not in result.output
         assert "Deployment template schema validation passed" in result.output
-        assert "Deployment template schema validation failed" not in result.output
+        assert "Warning: Deployment template schema validation failed" not in result.output
         assert "Deployment manifest schema validation passed" in result.output
-        assert "Deployment manifest schema validation failed" not in result.output
+        assert "Warning: Deployment manifest schema validation failed" not in result.output
         assert "Validation for all createOptions passed" in result.output
-        assert "Errors found during createOptions validation" not in result.output
+        assert "Warning: Errors found during createOptions validation" not in result.output
 
     finally:
         os.remove(os.path.join(test_solution_shared_lib_dir, env_file_name))
@@ -540,14 +545,14 @@ def test_validate_create_options_failed():
         result = runner_invoke(['genconfig', '-f', 'deployment.manifest_invalid.json'])
 
     assert "ERROR" not in result.output
-    assert "Length of createOptions01 in module tempSensor exceeds 512" in result.output
-    assert "Length of createOptions02 in module tempSensor exceeds 512" in result.output
-    assert "createOptions of module csharpmodule is not a valid JSON string" in result.output
-    assert "createOptions of module csharpfunction should be an object" in result.output
-    assert "createOptions of module csharpfunction2 is not a valid JSON string" in result.output
+    assert "Warning: Length of createOptions01 in module tempSensor exceeds 512" in result.output
+    assert "Warning: Length of createOptions02 in module tempSensor exceeds 512" in result.output
+    assert "Warning: createOptions of module csharpmodule is not a valid JSON string" in result.output
+    assert "Warning: createOptions of module csharpfunction should be an object" in result.output
+    assert "Warning: createOptions of module csharpfunction2 is not a valid JSON string" in result.output
     assert "No settings or createOptions property found in module edgeAgent. Skip createOptions validation." in result.output
     assert "createOptions of module edgeHub validation passed" in result.output
-    assert "Errors found during createOptions validation" in result.output
+    assert "Warning: Errors found during createOptions validation" in result.output
 
 
 def test_fail_gen_config_on_validation_error():

@@ -141,6 +141,7 @@ class Modules:
         # sample: 'localhost:5000/filtermodule:0.0.1-amd64'
         tags_to_build = set()
 
+        self.output.info("Validating deployment template %s" % template_file)
         deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, template_file, True, False)
         deployment_manifest.validate_deployment_template()
         deployment_manifest.expand_environment_variables()
@@ -231,8 +232,6 @@ class Modules:
         self.output.info("Deleting template schema version")
         template_schema_ver = deployment_manifest.get_template_schema_ver()
         deployment_manifest.del_key(["$schema-template"])
-        self.output.info("Validating generated deployment manifest")
-        validation_success = deployment_manifest.validate_deployment_manifest()
 
         self.utility.ensure_dir(self.envvars.CONFIG_OUTPUT_DIR)
         gen_deployment_manifest_name = Utility.get_deployment_manifest_name(template_file, template_schema_ver, default_platform)
@@ -240,6 +239,9 @@ class Modules:
 
         self.output.info("Expanding '{0}' to '{1}'".format(os.path.basename(template_file), gen_deployment_manifest_path))
         deployment_manifest.dump(gen_deployment_manifest_path)
+
+        self.output.info("Validating generated deployment manifest %s" % gen_deployment_manifest_path)
+        validation_success = deployment_manifest.validate_deployment_manifest()
 
         if fail_on_validation_error and not validation_success:
             raise Exception("Deployment manifest validation failed. Please see previous logs for more details.")
