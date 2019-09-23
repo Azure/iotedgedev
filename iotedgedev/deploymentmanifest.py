@@ -156,7 +156,7 @@ class DeploymentManifest:
         validation_success = True
         try:
             validation_success = self._validate_deployment_manifest_schema()
-            validation_success &= self._validate_createOptions()
+            validation_success &= self._validate_create_options()
         except Exception as err:
             self.output.info("Unexpected error during deployment manifest validation, skip the validation. Error:%s" % err)
 
@@ -208,7 +208,7 @@ class DeploymentManifest:
         return validation_success
 
     # Call _validate_deployment_manifest_schema first. This function assumes createOptions are strings.
-    def _validate_createOptions(self):
+    def _validate_create_options(self):
         self.output.info("Start validating createOptions for all modules.")
         modules = self.get_all_modules()
         validation_success = True
@@ -217,8 +217,7 @@ class DeploymentManifest:
             try:
                 self.output.info("Validating createOptions for module %s" % module_name)
                 if "settings" in module_info and "createOptions" in module_info["settings"]:
-                    current_module_validation_success &= self._validate_createOptions_lengh(module_name, module_info)
-                    current_module_validation_success &= self._validate_create_options_format(module_name, module_info)
+                    current_module_validation_success = self._validate_create_options_for_module(module_name, module_info)
                     if current_module_validation_success:
                         self.output.info("createOptions of module %s validation passed" % module_name)
                 else:
@@ -233,7 +232,13 @@ class DeploymentManifest:
             self.output.warning("Errors found during createOptions validation. Please check the logs for details.")
         return validation_success
 
-    def _validate_createOptions_lengh(self, module_name, module_info):
+    def _validate_create_options_for_module(self, module_name, module_info):
+        validation_success = True
+        validation_success &= self._validate_create_options_lengh(module_name, module_info)
+        validation_success &= self._validate_create_options_format(module_name, module_info)
+        return validation_success
+
+    def _validate_create_options_lengh(self, module_name, module_info):
         validation_success = True
         create_options_value = module_info["settings"]["createOptions"]
         if len(str(create_options_value)) > TWIN_VALUE_MAX_SIZE:

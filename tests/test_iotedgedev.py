@@ -473,20 +473,19 @@ def test_generate_deployment_manifest():
 
 def test_validate_deployment_template_and_manifest_failed():
     try:
+        deployment_file_name = "deployment.template_invalidresult.json"
         os.chdir(tests_assets_dir)
         shutil.copyfile(env_file_path, os.path.join(tests_assets_dir, env_file_name))
 
         if get_docker_os_type() == "windows":
-            result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', 'deployment.template_invalidresult.json'])
+            result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name])
         else:
-            result = runner_invoke(['genconfig', '-f', 'deployment.template_invalidresult.json'])
+            result = runner_invoke(['genconfig', '-f', deployment_file_name])
 
-        template_path = os.path.join(tests_assets_dir, "deployment.template_invalidresult.json")
-        generated_config = os.path.join(tests_assets_dir, 'config', "deployment.template_invalidresult.json")
         assert "ERROR" not in result.output
         # File name should be printed
-        assert "Validating deployment template deployment.template_invalidresult.json" in result.output
-        assert "Validating generated deployment manifest config\\deployment.template_invalidresult.json" in result.output
+        assert "Validating deployment template %s" % deployment_file_name in result.output
+        assert "Validating generated deployment manifest config\\%s" % deployment_file_name in result.output
         # All schema errors should be detected, not only the first error
         assert "Warning: Deployment template schema error: 'address' is a required property. "
         "Property path:modulesContent->$edgeAgent->properties.desired->runtime->settings->registryCredentials->test" in result.output
@@ -515,14 +514,15 @@ def test_validate_deployment_template_and_manifest_failed():
 
 def test_validate_deployment_template_and_manifest_success():
     try:
+        deployment_file_name = "deployment.template.json"
         os.chdir(test_solution_shared_lib_dir)
         shutil.copyfile(env_file_path, os.path.join(test_solution_shared_lib_dir, env_file_name))
         os.environ["CONTAINER_REGISTRY_PASSWORD"] = "nonempty"
 
         if get_docker_os_type() == "windows":
-            result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', 'deployment.template.json'])
+            result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name])
         else:
-            result = runner_invoke(['genconfig', '-f', 'deployment.template.json'])
+            result = runner_invoke(['genconfig', '-f', deployment_file_name])
 
         assert "ERROR" not in result.output
         assert "Deployment template schema validation passed" in result.output
@@ -538,11 +538,12 @@ def test_validate_deployment_template_and_manifest_success():
 
 def test_validate_create_options_failed():
     os.chdir(tests_assets_dir)
+    deployment_file_name = "deployment.manifest_invalid.json"
 
     if get_docker_os_type() == "windows":
-        result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', 'deployment.manifest_invalid.json'])
+        result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name])
     else:
-        result = runner_invoke(['genconfig', '-f', 'deployment.manifest_invalid.json'])
+        result = runner_invoke(['genconfig', '-f', deployment_file_name])
 
     assert "ERROR" not in result.output
     assert "Warning: Length of createOptions01 in module tempSensor exceeds 512" in result.output
@@ -557,19 +558,19 @@ def test_validate_create_options_failed():
 
 def test_fail_gen_config_on_validation_error():
     os.chdir(tests_assets_dir)
-
+    deployment_file_name = "deployment.template_invalidresult.json"
     try:
         if get_docker_os_type() == "windows":
-            result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', 'deployment.template_invalidresult.json', '--fail-on-validation-error'])
+            result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name, '--fail-on-validation-error'])
         else:
-            result = runner_invoke(['genconfig', '-f', 'deployment.template_invalidresult.json', '--fail-on-validation-error'])
+            result = runner_invoke(['genconfig', '-f', deployment_file_name, '--fail-on-validation-error'])
     except Exception as err:
         assert "ERROR: Deployment manifest validation failed. Please see previous logs for more details." in "%s" % err
 
     if get_docker_os_type() == "windows":
-        result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', 'deployment.template_invalidresult.json'])
+        result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name])
     else:
-        result = runner_invoke(['genconfig', '-f', 'deployment.template_invalidresult.json'])
+        result = runner_invoke(['genconfig', '-f', deployment_file_name])
 
     assert "ERROR" not in result.output
 
