@@ -485,7 +485,7 @@ def test_validate_deployment_template_and_manifest_failed():
         assert "ERROR" not in result.output
         # File name should be printed
         assert "Validating deployment template %s" % deployment_file_name in result.output
-        assert "Validating generated deployment manifest config\\%s" % deployment_file_name in result.output
+        assert "Validating generated deployment manifest %s" % os.path.join("config", deployment_file_name) in result.output
         # All schema errors should be detected, not only the first error
         assert "Warning: Deployment template schema error: 'address' is a required property. "
         "Property path:modulesContent->$edgeAgent->properties.desired->runtime->settings->registryCredentials->test" in result.output
