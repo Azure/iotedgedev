@@ -33,6 +33,7 @@ envvars = EnvVars(output)
 
 root_dir = os.getcwd()
 tests_dir = os.path.join(root_dir, "tests")
+tests_assets_dir = os.path.join(tests_dir, "assets")
 
 env_file_name = envvars.get_dotenv_file()
 env_file_path = envvars.get_dotenv_path(env_file_name)
@@ -468,6 +469,110 @@ def test_generate_deployment_manifest():
 
     finally:
         os.remove(os.path.join(test_solution_shared_lib_dir, env_file_name))
+
+
+def test_validate_deployment_template_and_manifest_failed():
+    try:
+        deployment_file_name = "deployment.template_invalidresult.json"
+        os.chdir(tests_assets_dir)
+        shutil.copyfile(env_file_path, os.path.join(tests_assets_dir, env_file_name))
+
+        if get_docker_os_type() == "windows":
+            result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name])
+        else:
+            result = runner_invoke(['genconfig', '-f', deployment_file_name])
+
+        assert "ERROR" not in result.output
+        # File name should be printed
+        assert "Validating deployment template %s" % deployment_file_name in result.output
+        assert "Validating generated deployment manifest %s" % os.path.join("config", deployment_file_name) in result.output
+        # All schema errors should be detected, not only the first error
+        assert "Warning: Deployment template schema error: 'address' is a required property. "
+        "Property path:modulesContent->$edgeAgent->properties.desired->runtime->settings->registryCredentials->test" in result.output
+        assert "Warning: Deployment template schema error: 1 is not of type 'string'. "
+        "Property path:modulesContent->$edgeAgent->properties.desired->runtime->settings->registryCredentials->test->username" in result.output
+        assert "Warning: Deployment template schema validation failed" in result.output
+        assert "Deployment template schema validation passed" not in result.output
+        assert "Warning: Deployment manifest schema error: 'address' is a required property. "
+        "Property path:modulesContent->$edgeAgent->properties.desired->runtime->settings->registryCredentials->test" in result.output
+        assert "Warning: Deployment manifest schema error: 1 is not of type 'string'. "
+        "Property path:modulesContent->$edgeAgent->properties.desired->runtime->settings->registryCredentials->test->username" in result.output
+        # Schema errors resulted by expanding environment variables should be detected
+        assert "Warning: Deployment manifest schema error: '' does not match '^[^\\s]+$'. "
+        "Property path:modulesContent->$edgeAgent->properties.desired->runtime->settings->registryCredentials->test2->address" in result.output
+        assert "Warning: Deployment manifest schema validation failed" in result.output
+        assert "Deployment manifest schema validation passed" not in result.output
+        assert "Validating createOptions for module csharpmodule" in result.output
+        assert "createOptions of module csharpmodule validation passed" in result.output
+        assert "Warning: createOptions of module edgeAgent should be an object" in result.output
+        assert "Warning: Errors found during createOptions validation" in result.output
+        assert "Validation for all createOptions passed" not in result.output
+
+    finally:
+        os.remove(os.path.join(tests_assets_dir, env_file_name))
+
+
+def test_validate_deployment_template_and_manifest_success():
+    try:
+        deployment_file_name = "deployment.template.json"
+        os.chdir(test_solution_shared_lib_dir)
+        shutil.copyfile(env_file_path, os.path.join(test_solution_shared_lib_dir, env_file_name))
+        os.environ["CONTAINER_REGISTRY_PASSWORD"] = "nonempty"
+
+        if get_docker_os_type() == "windows":
+            result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name])
+        else:
+            result = runner_invoke(['genconfig', '-f', deployment_file_name])
+
+        assert "ERROR" not in result.output
+        assert "Deployment template schema validation passed" in result.output
+        assert "Warning: Deployment template schema validation failed" not in result.output
+        assert "Deployment manifest schema validation passed" in result.output
+        assert "Warning: Deployment manifest schema validation failed" not in result.output
+        assert "Validation for all createOptions passed" in result.output
+        assert "Warning: Errors found during createOptions validation" not in result.output
+
+    finally:
+        os.remove(os.path.join(test_solution_shared_lib_dir, env_file_name))
+
+
+def test_validate_create_options_failed():
+    os.chdir(tests_assets_dir)
+    deployment_file_name = "deployment.manifest_invalid.json"
+
+    if get_docker_os_type() == "windows":
+        result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name])
+    else:
+        result = runner_invoke(['genconfig', '-f', deployment_file_name])
+
+    assert "ERROR" not in result.output
+    assert "Warning: Length of createOptions01 in module tempSensor exceeds 512" in result.output
+    assert "Warning: Length of createOptions02 in module tempSensor exceeds 512" in result.output
+    assert "Warning: createOptions of module csharpmodule is not a valid JSON string" in result.output
+    assert "Warning: createOptions of module csharpfunction should be an object" in result.output
+    assert "Warning: createOptions of module csharpfunction2 is not a valid JSON string" in result.output
+    assert "No settings or createOptions property found in module edgeAgent. Skip createOptions validation." in result.output
+    assert "createOptions of module edgeHub validation passed" in result.output
+    assert "Warning: Errors found during createOptions validation" in result.output
+
+
+def test_fail_gen_config_on_validation_error():
+    os.chdir(tests_assets_dir)
+    deployment_file_name = "deployment.template_invalidresult.json"
+    try:
+        if get_docker_os_type() == "windows":
+            result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name, '--fail-on-validation-error'])
+        else:
+            result = runner_invoke(['genconfig', '-f', deployment_file_name, '--fail-on-validation-error'])
+    except Exception as err:
+        assert "ERROR: Deployment manifest validation failed. Please see previous logs for more details." in "%s" % err
+
+    if get_docker_os_type() == "windows":
+        result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name])
+    else:
+        result = runner_invoke(['genconfig', '-f', deployment_file_name])
+
+    assert "ERROR" not in result.output
 
 
 @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='windows container does not support local registry image')

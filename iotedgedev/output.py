@@ -8,6 +8,9 @@ class Output:
         if not suppress:
             self.echo(text, color='yellow')
 
+    def warning(self, text):
+        self.echo("Warning: %s" % text, color='yellow')
+
     def status(self, text):
         self.info(text)
         self.line()

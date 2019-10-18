@@ -9,9 +9,12 @@ import re
 import shutil
 
 import six
+import jsonschema
+from six.moves.urllib.request import urlopen
 
 from .compat import PY2
 from .utility import Utility
+from .constants import Constants
 
 if PY2:
     from .compat import FileNotFoundError
@@ -21,14 +24,14 @@ TWIN_VALUE_MAX_CHUNKS = 8
 
 
 class DeploymentManifest:
-    def __init__(self, envvars, output, utility, path, is_template):
+    def __init__(self, envvars, output, utility, path, is_template, expand_vars=True):
         self.envvars = envvars
         self.utility = utility
         self.output = output
         try:
             self.path = path
             self.is_template = is_template
-            self.json = json.loads(Utility.get_file_contents(path, expandvars=True))
+            self.json = json.loads(Utility.get_file_contents(path, expandvars=expand_vars))
         except FileNotFoundError:
             if is_template:
                 deployment_manifest_path = self.envvars.DEPLOYMENT_CONFIG_FILE_PATH
@@ -125,6 +128,9 @@ class DeploymentManifest:
             if module_name in replacements:
                 self.utility.nested_set(module_info, ["settings", "image"], replacements[module_name])
 
+    def expand_environment_variables(self):
+        self.json = json.loads(os.path.expandvars(json.dumps(self.json)))
+
     def del_key(self, keys):
         self.utility.del_key(self.json, keys)
 
@@ -135,6 +141,26 @@ class DeploymentManifest:
 
         with open(path, "w") as deployment_manifest:
             json.dump(self.json, deployment_manifest, indent=2)
+
+    def validate_deployment_template(self):
+        validation_success = True
+        try:
+            template_schema = json.loads(urlopen(Constants.deployment_template_schema_url).read().decode())
+            self._validate_json_schema(template_schema, self.json, "Deployment template")
+        except Exception as ex:  # Ignore other non shcema validation errors
+            self.output.info("Unexpected error during deployment template schema validation, skip schema validation. Error:%s" % ex)
+
+        return validation_success
+
+    def validate_deployment_manifest(self):
+        validation_success = True
+        try:
+            validation_success = self._validate_deployment_manifest_schema()
+            validation_success &= self._validate_create_options()
+        except Exception as err:
+            self.output.info("Unexpected error during deployment manifest validation, skip the validation. Error:%s" % err)
+
+        return validation_success
 
     @staticmethod
     def get_image_placeholder(module_name, is_debug=False):
@@ -147,3 +173,111 @@ class DeploymentManifest:
             return self.json["moduleContent"]
         else:
             raise KeyError("modulesContent")
+
+    # Carefully check upper/lower case of the output when using this function
+    def _validate_json_schema(self, schema_object, json_object, schema_type):
+        validation_success = True
+        try:
+            self.output.info("Validating schema of %s." % schema_type.lower())
+            validator_class = jsonschema.validators.validator_for(schema_object)
+            validator = validator_class(schema_object)
+            validation_errors = validator.iter_errors(self.json)
+            error_detected = False
+            for error in validation_errors:
+                error_detected = True
+                self.output.warning("%s schema error: %s. Property path:%s" % (schema_type, error.message, "->".join(error.path)))
+            if error_detected:
+                self.output.warning("%s schema validation failed. Please see previous logs for more details" % schema_type)
+            else:
+                self.output.info("%s schema validation passed." % schema_type)
+        except jsonschema.exceptions.SchemaError as schemaErr:
+            self.output.info("Errors found in %s schema, skip schema validation. Error:%s" % (schema_type, schemaErr.message))
+        except Exception as ex:  # Ignore other non schema validation errors
+            self.output.info("Unexpected error during %s schema validation, skip schema validation. Error:%s" % (schema_type, ex))
+
+        return validation_success
+
+    def _validate_deployment_manifest_schema(self):
+        validation_success = True
+        try:
+            deployment_schema = json.loads(urlopen(Constants.deployment_manifest_schema_url).read())
+            self._validate_json_schema(deployment_schema, self.json, "Deployment manifest")
+        except Exception as ex:  # Ignore other non schema validation errors
+            self.output.info("Unexpected error during deployment manifest schema validation, skip schema validation. Error:%s" % ex)
+
+        return validation_success
+
+    # Call _validate_deployment_manifest_schema first. This function assumes createOptions are strings.
+    def _validate_create_options(self):
+        self.output.info("Start validating createOptions for all modules.")
+        modules = self.get_all_modules()
+        validation_success = True
+        for module_name, module_info in modules.items():
+            current_module_validation_success = True
+            try:
+                self.output.info("Validating createOptions for module %s" % module_name)
+                if "settings" in module_info and "createOptions" in module_info["settings"]:
+                    current_module_validation_success = self._validate_create_options_for_module(module_name, module_info)
+                    if current_module_validation_success:
+                        self.output.info("createOptions of module %s validation passed" % module_name)
+                else:
+                    self.output.info("No settings or createOptions property found in module %s. Skip createOptions validation." % module_name)
+            except Exception as ex:
+                self.output.info("Unexpected error occurs when validating createOptions for module %s: %s" % (module_name, ex))
+            finally:
+                validation_success &= current_module_validation_success
+        if (validation_success):
+            self.output.info("Validation for all createOptions passed.")
+        else:
+            self.output.warning("Errors found during createOptions validation. Please check the logs for details.")
+        return validation_success
+
+    def _validate_create_options_for_module(self, module_name, module_info):
+        validation_success = True
+        validation_success &= self._validate_create_options_lengh(module_name, module_info)
+        validation_success &= self._validate_create_options_format(module_name, module_info)
+        return validation_success
+
+    def _validate_create_options_lengh(self, module_name, module_info):
+        validation_success = True
+        create_options_value = module_info["settings"]["createOptions"]
+        if len(str(create_options_value)) > TWIN_VALUE_MAX_SIZE:
+            validation_success = False
+            self.output.warning("Length of createOptions in module %s exceeds %d" % (module_name, TWIN_VALUE_MAX_SIZE))
+        # Merge additional create options
+        for i in range(1, TWIN_VALUE_MAX_CHUNKS):
+            property_name = "createOptions0%d" % i
+            if property_name in module_info["settings"]:
+                create_options_value = module_info["settings"][property_name]
+                if len(str(create_options_value)) > TWIN_VALUE_MAX_SIZE:
+                    validation_success = False
+                    self.output.warning("Length of %s in module %s exceeds %d" % (property_name, module_name, TWIN_VALUE_MAX_SIZE))
+            else:
+                break
+        return validation_success
+
+    def _validate_create_options_format(self, module_name, module_info):
+        validation_success = True
+        create_options_string = self._merge_create_options(module_name, module_info)
+        if not create_options_string.startswith('{'):
+            validation_success = False
+            self.output.warning("createOptions of module %s should be an object" % module_name)
+        else:
+            try:
+                json.loads(create_options_string)
+            except ValueError as err:
+                validation_success = False
+                self.output.warning("createOptions of module %s is not a valid JSON string. Error: %s" % (module_name, err))
+        return validation_success
+
+    def _merge_create_options(self, module_name, module_info):
+        create_options = []
+        create_options.append(str(module_info["settings"]["createOptions"]))
+        # Merge additional create options
+        for i in range(1, TWIN_VALUE_MAX_CHUNKS):
+            property_name = "createOptions0%d" % i
+            if property_name in module_info["settings"]:
+                create_options.append(str(module_info["settings"][property_name]))
+            else:
+                break
+        return "".join(create_options).strip()

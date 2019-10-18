@@ -125,11 +125,12 @@ class Modules:
     def push(self, template_file, platform, no_build=False):
         return self.build_push(template_file, platform, no_build=no_build)
 
-    def build_push(self, template_file, default_platform, no_build=False, no_push=False):
+    def build_push(self, template_file, default_platform, no_build=False, no_push=False, fail_on_validation_error=False):
         self.output.header("BUILDING MODULES", suppress=no_build)
 
         template_file_folder = os.path.dirname(template_file)
         bypass_modules = self.utility.get_bypass_modules()
+        validation_success = True
 
         # map image placeholder to tag.
         # sample: ('${MODULES.filtermodule.amd64}', 'localhost:5000/filtermodule:0.0.1-amd64')
@@ -140,7 +141,10 @@ class Modules:
         # sample: 'localhost:5000/filtermodule:0.0.1-amd64'
         tags_to_build = set()
 
-        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, template_file, True)
+        self.output.info("Validating deployment template %s" % template_file)
+        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, template_file, True, False)
+        deployment_manifest.validate_deployment_template()
+        deployment_manifest.expand_environment_variables()
 
         # get image tags for ${MODULES.modulename.xxx} placeholder
         modules_path = os.path.join(template_file_folder, self.envvars.MODULES_PATH)
@@ -221,8 +225,11 @@ class Modules:
                 self.output.footer("BUILD COMPLETE", suppress=no_build)
                 self.output.footer("PUSH COMPLETE", suppress=no_push)
 
+        self.output.info("Expanding image placeholders")
         deployment_manifest.expand_image_placeholders(replacements)
+        self.output.info("Converting createOptions")
         deployment_manifest.convert_create_options()
+        self.output.info("Deleting template schema version")
         template_schema_ver = deployment_manifest.get_template_schema_ver()
         deployment_manifest.del_key(["$schema-template"])
 
@@ -232,6 +239,12 @@ class Modules:
 
         self.output.info("Expanding '{0}' to '{1}'".format(os.path.basename(template_file), gen_deployment_manifest_path))
         deployment_manifest.dump(gen_deployment_manifest_path)
+
+        self.output.info("Validating generated deployment manifest %s" % gen_deployment_manifest_path)
+        validation_success = deployment_manifest.validate_deployment_manifest()
+
+        if fail_on_validation_error and not validation_success:
+            raise Exception("Deployment manifest validation failed. Please see previous logs for more details.")
 
         return gen_deployment_manifest_path
 
