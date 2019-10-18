@@ -39,19 +39,19 @@ The only thing you need to install is Docker. All of the other dev dependencies 
     **Windows**
     ```
     mkdir c:\temp\iotedge
-    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v c:/temp/iotedge:/home/iotedge microsoft/iotedgedev
+    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v c:/temp/iotedge:/home/iotedge mcr.microsoft.com/iotedge/iotedgedev
     ```
 
     **Linux**
     ```
     sudo mkdir /home/iotedge
-    sudo docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v ~/iotedge:/home/iotedge microsoft/iotedgedev
+    sudo docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v ~/iotedge:/home/iotedge mcr.microsoft.com/iotedge/iotedgedev
     ```
 
     **macOS**
     ```
     mkdir ~/iotedge
-    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v ~/iotedge:/home/iotedge microsoft/iotedgedev
+    docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v ~/iotedge:/home/iotedge mcr.microsoft.com/iotedge/iotedgedev
     ```
 
 1. **Initialize IoT Edge solution and setup Azure resources**
