@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [2.1.0] - 2019-10-28
+### Added
+- Validate schema of deployment template and generated deployment manifest in `genconfig` command
+
+### Changed
+- Show progress info for docker commands
+
 ## [2.0.2] - 2019-07-31
 ### Changed
 - Fix errors caused by latest lark-parser release.
