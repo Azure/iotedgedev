@@ -22,23 +22,23 @@ jobs:
     steps:
       - template: win32/continuous-build-win32.yml
 
-  - job: MacOS
-    pool:
-      vmImage: macOS-10.13
-    strategy:
-      matrix:
-        Python27:
-          python.version: "2.7"
-          TOXENV: "py27"
-        Python36:
-          python.version: "3.6"
-          TOXENV: "py36"
-        Python37:
-          python.version: "3.7"
-          TOXENV: "py37"
-      maxParallel: 1
-    steps:
-      - template: darwin/continuous-build-darwin.yml
+  # - job: MacOS
+  #   pool:
+  #     vmImage: macOS-10.13
+  #   strategy:
+  #     matrix:
+  #       Python27:
+  #         python.version: "2.7"
+  #         TOXENV: "py27"
+  #       Python36:
+  #         python.version: "3.6"
+  #         TOXENV: "py36"
+  #       Python37:
+  #         python.version: "3.7"
+  #         TOXENV: "py37"
+  #     maxParallel: 1
+  #   steps:
+  #     - template: darwin/continuous-build-darwin.yml
 
   - job: Linux
     pool:
