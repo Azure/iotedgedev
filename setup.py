@@ -34,7 +34,6 @@ requirements = [
     'python-dotenv',
     'requests >= 2.20.0, < 2.21',
     'fstrings',
-    'msrestazure~=0.4.32',
     'azure-cli-core',
     'azure-cli-iot',
     'azure-cli-profile',
@@ -46,7 +45,7 @@ requirements = [
     'six',
     'applicationinsights < 0.11.8',
     'commentjson == 0.7.2',
-    'pyyaml>=3.10,<4.3',
+    'pyyaml>=4.1,<=4.2b4',
     'pypiwin32==219; sys_platform == "win32" and python_version < "3.6"',
     'pypiwin32==223; sys_platform == "win32" and python_version >= "3.6"'
 ]

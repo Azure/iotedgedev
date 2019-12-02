@@ -141,10 +141,7 @@ class Modules:
         # sample: 'localhost:5000/filtermodule:0.0.1-amd64'
         tags_to_build = set()
 
-        self.output.info("Validating deployment template %s" % template_file)
-        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, template_file, True, False)
-        deployment_manifest.validate_deployment_template()
-        deployment_manifest.expand_environment_variables()
+        deployment_manifest = DeploymentManifest(self.envvars, self.output, self.utility, template_file, True, True)
 
         # get image tags for ${MODULES.modulename.xxx} placeholder
         modules_path = os.path.join(template_file_folder, self.envvars.MODULES_PATH)
