@@ -484,15 +484,8 @@ def test_validate_deployment_template_and_manifest_failed():
 
         assert "ERROR" not in result.output
         # File name should be printed
-        assert "Validating deployment template %s" % deployment_file_name in result.output
         assert "Validating generated deployment manifest %s" % os.path.join("config", deployment_file_name) in result.output
         # All schema errors should be detected, not only the first error
-        assert "Warning: Deployment template schema error: 'address' is a required property. "
-        "Property path:modulesContent->$edgeAgent->properties.desired->runtime->settings->registryCredentials->test" in result.output
-        assert "Warning: Deployment template schema error: 1 is not of type 'string'. "
-        "Property path:modulesContent->$edgeAgent->properties.desired->runtime->settings->registryCredentials->test->username" in result.output
-        assert "Warning: Deployment template schema validation failed" in result.output
-        assert "Deployment template schema validation passed" not in result.output
         assert "Warning: Deployment manifest schema error: 'address' is a required property. "
         "Property path:modulesContent->$edgeAgent->properties.desired->runtime->settings->registryCredentials->test" in result.output
         assert "Warning: Deployment manifest schema error: 1 is not of type 'string'. "
@@ -525,8 +518,6 @@ def test_validate_deployment_template_and_manifest_success():
             result = runner_invoke(['genconfig', '-f', deployment_file_name])
 
         assert "ERROR" not in result.output
-        assert "Deployment template schema validation passed" in result.output
-        assert "Warning: Deployment template schema validation failed" not in result.output
         assert "Deployment manifest schema validation passed" in result.output
         assert "Warning: Deployment manifest schema validation failed" not in result.output
         assert "Validation for all createOptions passed" in result.output
@@ -571,6 +562,18 @@ def test_fail_gen_config_on_validation_error():
         result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name])
     else:
         result = runner_invoke(['genconfig', '-f', deployment_file_name])
+
+    assert "ERROR" not in result.output
+
+
+def test_gen_config_with_non_string_placeholder():
+    os.chdir(tests_assets_dir)
+    os.environ["TTL"] = "7200"
+    deployment_file_name = "deployment.template.non_str_placeholder.json"
+    if get_docker_os_type() == "windows":
+        result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name, '--fail-on-validation-error'])
+    else:
+        result = runner_invoke(['genconfig', '-f', deployment_file_name, '--fail-on-validation-error'])
 
     assert "ERROR" not in result.output
 
