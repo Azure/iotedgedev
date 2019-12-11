@@ -341,12 +341,16 @@ main.add_command(setup_simulator)
               default=53000,
               show_default=True,
               help="Port of the service for sending message.")
+@click.option("--iothub-connection-string",
+              "-c",
+              help="Set Azure IoT Hub connection string when setup IoT Edge simulator. Note: Use double quotes when supplying this input.",
+              required=False)
 @with_telemetry
-def start_simulator(setup, solution, build, manifest_file, platform, verbose, inputs, port):
+def start_simulator(setup, solution, build, manifest_file, platform, verbose, inputs, port, iothub_connection_string):
     sim = Simulator(envvars, output)
 
     if setup:
-        sim.setup(socket.getfqdn())
+        sim.setup(socket.getfqdn(), iothub_connection_string)
 
     if solution or not inputs:
         sim.start_solution(manifest_file, platform, verbose, build)
