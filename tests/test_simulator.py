@@ -98,6 +98,7 @@ def test_start_solution_with_setup(capfd):
     result = runner_invoke(['simulator', 'start', '--setup', '-s', '-b', '-f', 'deployment.template.json'])
     out, err = capfd.readouterr()
 
+    assert 'Setup IoT Edge Simulator successfully.' in result.output
     assert 'BUILD COMPLETE' in result.output
     assert 'IoT Edge Simulator has been started in solution mode.' in out
 
