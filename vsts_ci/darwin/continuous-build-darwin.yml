@@ -28,11 +28,6 @@ steps:
       yo --version
     displayName: "Install Yeoman and Azure IoT Edge Node.js module generator packages"
 
-  - powershell: |
-      az extension add --name azure-cli-iot-ext
-      az --version
-    displayName: "Install Azure Cli iot extension"
-
   - script: |
       pip install --upgrade pip
       pip install --upgrade tox

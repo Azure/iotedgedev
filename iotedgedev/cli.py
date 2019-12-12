@@ -10,6 +10,7 @@ import click
 from fstrings import f
 
 from .azurecli import AzureCli
+from .constants import Constants
 from .decorators import add_module_options, with_telemetry
 from .dockercls import Docker
 from .edge import Edge
@@ -472,7 +473,12 @@ def validate_option(ctx, param, value):
         output.param("IOT HUB", value, f("Setting IoT Hub to '{value}'..."), azure_cli_processing_complete)
         envvars.IOTHUB_NAME = value
         if not azure_cli.extension_exists("azure-cli-iot-ext"):
-            azure_cli.add_extension("azure-cli-iot-ext")
+            try:
+                # Install fixed version of Azure CLI IoT extension
+                azure_cli.add_extension_with_source(Constants.azure_cli_iot_ext_source_url)
+            except Exception:
+                # Fall back to install latest Azure CLI IoT extension when fail
+                azure_cli.add_extension("azure-cli-iot-ext")
         if not azure_cli.iothub_exists(value, envvars.RESOURCE_GROUP_NAME):
             # check if the active subscription already contains a free IoT Hub
             # if yes ask if the user wants to create an S1

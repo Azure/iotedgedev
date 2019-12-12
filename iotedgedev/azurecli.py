@@ -209,6 +209,12 @@ class AzureCli:
                                            "--yes"],
                                           f("Error while adding extension {name}."), suppress_output=True)
 
+    def add_extension_with_source(self, source_url):
+        return self.invoke_az_cli_outproc(["extension", "add", "--source", source_url,
+                                           "--yes"],
+                                          f("Error while add extension from source {source_url}."),
+                                          suppress_output=True)
+
     def extension_exists(self, name):
         return self.invoke_az_cli_outproc(["extension", "show", "--name", name, "--output", "table"],
                                           f("Error while checking for extension {name}."), suppress_output=True)
