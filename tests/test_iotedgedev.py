@@ -217,7 +217,7 @@ def test_deploy_modules():
         result = runner_invoke(['deploy'])
 
     assert 'DEPLOYMENT COMPLETE' in result.output
-    assert 'ERROR' not in result.output.replace('Error while checking for extension', '')
+    assert 'ERROR' not in result.output.replace('ERROR: Error while checking for extension', '')
 
 
 @pytest.fixture
