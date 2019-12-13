@@ -224,6 +224,7 @@ main.add_command(push)
               help="Specify the deployment manifest file")
 @with_telemetry
 def deploy(manifest_file):
+    ensure_azure_cli_iot_ext()
     edge = Edge(envvars, output, azure_cli)
     edge.deploy(manifest_file)
 
@@ -405,12 +406,23 @@ def modulecred(local, output_file):
               help="Specify number of seconds to monitor for messages")
 @with_telemetry
 def monitor(timeout):
+    ensure_azure_cli_iot_ext()
     utility = Utility(envvars, output)
     ih = IoTHub(envvars, utility, output, azure_cli)
     ih.monitor_events(timeout)
 
 
 main.add_command(monitor)
+
+
+def ensure_azure_cli_iot_ext():
+    if not azure_cli.extension_exists("azure-cli-iot-ext"):
+        try:
+            # Install fixed version of Azure CLI IoT extension
+            azure_cli.add_extension_with_source(Constants.azure_cli_iot_ext_source_url)
+        except Exception:
+            # Fall back to install latest Azure CLI IoT extension when fail
+            azure_cli.add_extension("azure-cli-iot-ext")
 
 
 def validate_option(ctx, param, value):
@@ -472,13 +484,7 @@ def validate_option(ctx, param, value):
     if param.name == "iothub_name":
         output.param("IOT HUB", value, f("Setting IoT Hub to '{value}'..."), azure_cli_processing_complete)
         envvars.IOTHUB_NAME = value
-        if not azure_cli.extension_exists("azure-cli-iot-ext"):
-            try:
-                # Install fixed version of Azure CLI IoT extension
-                azure_cli.add_extension_with_source(Constants.azure_cli_iot_ext_source_url)
-            except Exception:
-                # Fall back to install latest Azure CLI IoT extension when fail
-                azure_cli.add_extension("azure-cli-iot-ext")
+        ensure_azure_cli_iot_ext()
         if not azure_cli.iothub_exists(value, envvars.RESOURCE_GROUP_NAME):
             # check if the active subscription already contains a free IoT Hub
             # if yes ask if the user wants to create an S1
