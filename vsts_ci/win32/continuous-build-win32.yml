@@ -14,10 +14,6 @@ steps:
     displayName: "Install IoT Hub explorer, Yeoman and Azure IoT Edge Node.js module generator packages"
 
   - pwsh: |
-      az extension add --name azure-cli-iot-ext
-    displayName: "Install Azure CLI IoT Extension"
-
-  - pwsh: |
       pip install tox
       tox -e "$(TOXENV)"
     displayName: "Run tests against iotedgedev source code"

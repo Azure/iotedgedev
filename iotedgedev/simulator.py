@@ -14,7 +14,7 @@ class Simulator:
         self.output = output
         self.utility = Utility(self.envvars, self.output)
 
-    def setup(self, gateway_host, iothub_connection_string):
+    def setup(self, gateway_host, iothub_connection_string=""):
         self.output.header("Setting Up IoT Edge Simulator")
         self.envvars.verify_envvar_has_val("DEVICE_CONNECTION_STRING", self.envvars.DEVICE_CONNECTION_STRING)
 

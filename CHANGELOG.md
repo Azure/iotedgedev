@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [2.1.1] - 2019-12-11
+### Changed
+- Fix getconfig fails if template contains a placeholder that is not enclosed in quotes.[[#414](https://github.com/Azure/iotedgedev/issues/414)]
+- Fix wrong instruction to `iotedgedev iothub setup` with extra flags.[[#417](https://github.com/Azure/iotedgedev/issues/417)]
+
 ## [2.1.0] - 2019-10-28
 ### Added
 - Validate schema of deployment template and generated deployment manifest in `genconfig` command
