@@ -5,7 +5,7 @@ All notable changes to this project since 0.82.0 will be documented in this file
 ### Changed
 - Fix getconfig fails if template contains a placeholder that is not enclosed in quotes.[[#414](https://github.com/Azure/iotedgedev/issues/414)]
 - Fix wrong instruction to `iotedgedev iothub setup` with extra flags.[[#417](https://github.com/Azure/iotedgedev/issues/417)]
-- Do not support Python 3.8 due to Azure CLI IoT extension issue [[#128](https://github.com/Azure/azure-iot-cli-extension/issues/128)]
+- Python 3.8 is not supported due to Azure CLI IoT extension issue [[#128](https://github.com/Azure/azure-iot-cli-extension/issues/128)]
 
 ## [2.1.0] - 2019-10-28
 ### Added
