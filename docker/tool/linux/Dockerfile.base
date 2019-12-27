@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:19.04
 ENV DEBIAN_FRONTEND noninteractive
 ENV DOTNETCORESDK_VERSION 2.1
 ENV DOCKER_COMPOSE_VERSION 1.22.0
@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y apt-transport-https ca-certificates cur
 RUN apt-get install git gnupg gnupg2 gnupg1 -y && \
     apt-get install -y --no-install-recommends dialog apt-utils curl apt-transport-https python-pip python3-pip libltdl-dev && \ 
     curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
-    apt-get install -y nodejs 
+    apt-get install -y nodejs npm
 RUN apt-get install -y wget && \
     wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.asc.gpg && \
     mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/ && \
