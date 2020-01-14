@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [2.1.2] - 2020-01-14
+### Changed
+- Fix error when install on Azure Pipelines agent
+
 ## [2.1.1] - 2019-12-16
 ### Changed
 - Fix getconfig fails if template contains a placeholder that is not enclosed in quotes.[[#414](https://github.com/Azure/iotedgedev/issues/414)]

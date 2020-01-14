@@ -47,7 +47,8 @@ requirements = [
     'commentjson == 0.7.2',
     'pyyaml>=4.1,<=4.2b4',
     'pypiwin32==219; sys_platform == "win32" and python_version < "3.6"',
-    'pypiwin32==223; sys_platform == "win32" and python_version >= "3.6"'
+    'pypiwin32==223; sys_platform == "win32" and python_version >= "3.6"',
+    'more-itertools < 8.1.0'
 ]
 
 setup_requirements = [
@@ -59,7 +60,7 @@ test_requirements = [
 
 setup(
     name='iotedgedev',
-    version='2.1.1',
+    version='2.1.2',
     description='The Azure IoT Edge Dev Tool greatly simplifies the IoT Edge development process by automating many routine manual tasks, such as building, deploying, pushing modules and configuring the IoT Edge Runtime.',
     long_description='See https://github.com/azure/iotedgedev for usage instructions.',
     author='Microsoft Corporation',
