@@ -182,17 +182,14 @@ class DeploymentManifest:
             validator_class = jsonschema.validators.validator_for(schema_object)
             validator = validator_class(schema_object)
             validation_errors = validator.iter_errors(self.json)
-            error_detected = False
             for error in validation_errors:
-                error_detected = True
-                self.output.warning("%s schema error: %s. Property path:%s" % (schema_type, error.message, "->".join(error.path)))
-            if error_detected:
-                self.output.warning("%s schema validation failed. Please see previous logs for more details" % schema_type)
-            else:
-                self.output.info("%s schema validation passed." % schema_type)
-
-            if error_detected:
                 validation_success = False
+                self.output.warning("%s schema error: %s. Property path:%s" % (schema_type, error.message, "->".join(error.path)))
+            if validation_success:
+                self.output.info("%s schema validation passed." % schema_type)
+            else:
+                self.output.warning("%s schema validation failed. Please see previous logs for more details" % schema_type)
+
         except jsonschema.exceptions.SchemaError as schemaErr:
             self.output.info("Errors found in %s schema, skip schema validation. Error:%s" % (schema_type, schemaErr.message))
         except Exception as ex:  # Ignore other non schema validation errors
