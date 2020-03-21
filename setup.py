@@ -21,7 +21,7 @@ class PostInstall(install):
 
 class PostDevelop(develop):
     def run(self):
-        atexit.register(_execute)
+        # atexit.register(_execute)
         develop.run(self)
 
 
@@ -91,5 +91,6 @@ setup(
     ],
     test_suite='tests',
     tests_require=test_requirements,
-    setup_requires=setup_requirements
+    setup_requires=setup_requirements,
+    cmdclass={'install': PostInstall, 'develop': PostDevelop}
 )
