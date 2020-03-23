@@ -9,19 +9,13 @@ from setuptools.command.develop import develop
 from setuptools.command.install import install
 
 
-def _execute():
-    check_call('pip install azure-cli --no-deps'.split())
-
-
 class PostInstall(install):
     def run(self):
-        atexit.register(_execute)
         install.run(self)
 
 
 class PostDevelop(develop):
     def run(self):
-        # atexit.register(_execute)
         develop.run(self)
 
 
