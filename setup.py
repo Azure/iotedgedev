@@ -9,16 +9,6 @@ from setuptools.command.develop import develop
 from setuptools.command.install import install
 
 
-class PostInstall(install):
-    def run(self):
-        install.run(self)
-
-
-class PostDevelop(develop):
-    def run(self):
-        develop.run(self)
-
-
 with open('CHANGELOG.md') as history_file:
     history = history_file.read()
 
@@ -85,6 +75,5 @@ setup(
     ],
     test_suite='tests',
     tests_require=test_requirements,
-    setup_requires=setup_requirements,
-    cmdclass={'install': PostInstall, 'develop': PostDevelop}
+    setup_requires=setup_requirements
 )
