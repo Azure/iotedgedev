@@ -146,7 +146,7 @@ class DeploymentManifest:
         validation_success = True
         try:
             template_schema = json.loads(urlopen(Constants.deployment_template_schema_url).read().decode())
-            self._validate_json_schema(template_schema, self.json, "Deployment template")
+            validation_success = self._validate_json_schema(template_schema, self.json, "Deployment template")
         except Exception as ex:  # Ignore other non shcema validation errors
             self.output.info("Unexpected error during deployment template schema validation, skip schema validation. Error:%s" % ex)
 
@@ -182,14 +182,14 @@ class DeploymentManifest:
             validator_class = jsonschema.validators.validator_for(schema_object)
             validator = validator_class(schema_object)
             validation_errors = validator.iter_errors(self.json)
-            error_detected = False
             for error in validation_errors:
-                error_detected = True
+                validation_success = False
                 self.output.warning("%s schema error: %s. Property path:%s" % (schema_type, error.message, "->".join(error.path)))
-            if error_detected:
-                self.output.warning("%s schema validation failed. Please see previous logs for more details" % schema_type)
-            else:
+            if validation_success:
                 self.output.info("%s schema validation passed." % schema_type)
+            else:
+                self.output.warning("%s schema validation failed. Please see previous logs for more details" % schema_type)
+
         except jsonschema.exceptions.SchemaError as schemaErr:
             self.output.info("Errors found in %s schema, skip schema validation. Error:%s" % (schema_type, schemaErr.message))
         except Exception as ex:  # Ignore other non schema validation errors
@@ -201,7 +201,7 @@ class DeploymentManifest:
         validation_success = True
         try:
             deployment_schema = json.loads(urlopen(Constants.deployment_manifest_schema_url).read())
-            self._validate_json_schema(deployment_schema, self.json, "Deployment manifest")
+            validation_success = self._validate_json_schema(deployment_schema, self.json, "Deployment manifest")
         except Exception as ex:  # Ignore other non schema validation errors
             self.output.info("Unexpected error during deployment manifest schema validation, skip schema validation. Error:%s" % ex)
 

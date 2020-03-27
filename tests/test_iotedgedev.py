@@ -549,14 +549,17 @@ def test_validate_create_options_failed():
 
 def test_fail_gen_config_on_validation_error():
     os.chdir(tests_assets_dir)
-    deployment_file_name = "deployment.template_invalidresult.json"
-    try:
-        if get_docker_os_type() == "windows":
-            result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name, '--fail-on-validation-error'])
-        else:
-            result = runner_invoke(['genconfig', '-f', deployment_file_name, '--fail-on-validation-error'])
-    except Exception as err:
-        assert "ERROR: Deployment manifest validation failed. Please see previous logs for more details." in "%s" % err
+    test_files = ["deployment.manifest_invalid.json", "deployment.manifest_invalid_schema.json", "deployment.manifest_invalid_createoptions.json"]
+    for deployment_file_name in test_files:
+        try:
+            if get_docker_os_type() == "windows":
+                result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name, '--fail-on-validation-error'])
+            else:
+                result = runner_invoke(['genconfig', '-f', deployment_file_name, '--fail-on-validation-error'])
+            raise Exception("genconfig command should fail in %s" % deployment_file_name)
+        except Exception as err:
+            assert "ERROR: Deployment manifest validation failed. Please see previous logs for more details." in "%s" % err
+            assert "genconfig command should fail" not in "%s" % err
 
     if get_docker_os_type() == "windows":
         result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name])
