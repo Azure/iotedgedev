@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [2.1.4] - 2020-04-01
+### Changed
+- Fix configparser error from Azure Cli Core [[#426](https://github.com/Azure/iotedgedev/issues/426)]
+
 ## [2.1.3] - 2020-03-27
 ### Changed
 - Fix genconfig does not fail when schema validation failed. [[#424](https://github.com/Azure/iotedgedev/issues/424)]
