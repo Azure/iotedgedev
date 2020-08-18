@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [2.1.5] - 2020-08-18
+### Changed
+- Fix error caused by latest bcrypt on Azure Pipelines agent
+
 ## [2.1.4] - 2020-04-01
 ### Changed
 - Fix configparser error from Azure Cli Core [[#426](https://github.com/Azure/iotedgedev/issues/426)]
