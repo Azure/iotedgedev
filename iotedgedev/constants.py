@@ -9,4 +9,4 @@ class Constants:
     moduledir_placeholder_pattern = r'\${MODULEDIR<(.+)>(\..+)?}'
     deployment_template_schema_url = "http://json.schemastore.org/azure-iot-edge-deployment-template-2.0"
     deployment_manifest_schema_url = "http://json.schemastore.org/azure-iot-edge-deployment-2.0"
-    azure_cli_iot_ext_source_url = "https://github.com/Azure/azure-iot-cli-extension/releases/download/v0.8.6/azure_cli_iot_ext-0.8.6-py2.py3-none-any.whl"
+    azure_cli_iot_ext_source_url = "https://github.com/Azure/azure-iot-cli-extension/releases/download/v0.9.0/azure_iot-0.9.0-py2.py3-none-any.whl"

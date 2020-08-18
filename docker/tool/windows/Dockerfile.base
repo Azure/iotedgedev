@@ -58,6 +58,6 @@ USER ContainerUser
 RUN python -m pip install --upgrade pip
 RUN pip install azure-cli cookiecutter docker-compose
 RUN npm i -g iothub-explorer yo generator-azure-iot-edge-module
-RUN az extension add --name azure-cli-iot-ext
+RUN az extension add --name azure-iot
 WORKDIR /home/iotedge
 COPY install-dev.bat /scripts/install-dev.bat

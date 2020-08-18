@@ -55,7 +55,7 @@ RUN useradd -m iotedgedev && \
     chown -R iotedgedev:iotedgedev /home/iotedge
 USER iotedgedev
 # Azure CLI extensions are installed per user
-RUN az extension add --name azure-cli-iot-ext && \
+RUN az extension add --name azure-iot && \
     echo 'alias python=python3' >> ~/.bashrc && \
     echo 'alias pip=pip3' >> ~/.bashrc
 ENV DEBIAN_FRONTEND teletype

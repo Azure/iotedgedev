@@ -416,13 +416,13 @@ main.add_command(monitor)
 
 
 def ensure_azure_cli_iot_ext():
-    if not azure_cli.extension_exists("azure-cli-iot-ext"):
+    if not azure_cli.extension_exists("azure-iot"):
         try:
             # Install fixed version of Azure CLI IoT extension
             azure_cli.add_extension_with_source(Constants.azure_cli_iot_ext_source_url)
         except Exception:
             # Fall back to install latest Azure CLI IoT extension when fail
-            azure_cli.add_extension("azure-cli-iot-ext")
+            azure_cli.add_extension("azure-iot")
 
 
 def validate_option(ctx, param, value):
