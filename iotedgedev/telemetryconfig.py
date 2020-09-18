@@ -43,7 +43,7 @@ class TelemetryConfig(object):
     @suppress_all_exceptions()
     def load(self):
         with open(self.get_config_path(), 'r') as f:
-            self.config_parser.readfp(f)
+            self.config_parser.read_file(f)
 
     @suppress_all_exceptions()
     def dump(self):
