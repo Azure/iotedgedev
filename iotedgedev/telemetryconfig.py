@@ -43,7 +43,12 @@ class TelemetryConfig(object):
     @suppress_all_exceptions()
     def load(self):
         with open(self.get_config_path(), 'r') as f:
-            self.config_parser.readfp(f)
+            if hasattr(self.config_parser, 'read_file'):
+                self.config_parser.read_file(f)
+            else:  # pragma: no cover
+                assert PY2
+                # The `read_file` method is not available on ConfigParser in py2.7!
+                self.config_parser.readfp(f)
 
     @suppress_all_exceptions()
     def dump(self):

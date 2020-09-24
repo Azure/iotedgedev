@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [2.1.6] - 2020-09-23
+### Changed
+- Fix warning about ConfigParser readfp deprecation
+
 ## [2.1.5] - 2020-08-18
 ### Changed
 - Fix error caused by latest bcrypt on Azure Pipelines agent

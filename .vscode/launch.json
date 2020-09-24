@@ -2,12 +2,23 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: debug test",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "-v",
+                "${workspaceFolder}/tests/test_simulator.py::test_monitor"
+            ],
+            "cwd": "${workspaceFolder}"
+        },
+        {
             "name": "Python Module",
             "type": "python",
             "request": "launch",
             "module": "iotedgedev.cli",
             "args": [
-                "push"
+                "init"
             ],
             "cwd": "${workspaceFolder}/tests/test_solution"
         }
