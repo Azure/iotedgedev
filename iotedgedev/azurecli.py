@@ -391,7 +391,7 @@ class AzureCli:
                 data = json.loads(out_string)
                 for iot in data:
                     if iot["sku"]["name"] == "F1":
-                        return (iot["name"], iot["resourceGroup"])
+                        return (iot["name"], iot["resourcegroup"])
         return (None, None)
 
     def get_first_iothub(self, resource_group):
