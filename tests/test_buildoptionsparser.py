@@ -1,9 +1,13 @@
 import pytest
-from iotedgedev.buildoptionsparser import BuildOptionsParser
+
+from .version import test_py2, minversion
+
+if not test_py2:
+    from iotedgedev.buildoptionsparser import BuildOptionsParser
 
 pytestmark = pytest.mark.unit
 
-
+@minversion
 def test_filter_build_options():
     build_options = [
         "--rm",
@@ -16,6 +20,7 @@ def test_filter_build_options():
     assert not build_options_parser.parse_build_options()
 
 
+@minversion
 def test_parse_to_dict():
     build_options = [
         "--add-host=github.com:192.30.255.112",
@@ -43,6 +48,7 @@ def test_parse_to_dict():
     assert sdk_options == build_options_parser.parse_build_options()
 
 
+@minversion
 def test_parse_to_list():
     build_options = [
         "--cache-from a",
@@ -55,6 +61,7 @@ def test_parse_to_list():
     assert sdk_options == build_options_parser.parse_build_options()
 
 
+@minversion
 def test_parse_val():
     build_options = [
         "--network bridge",
@@ -72,6 +79,7 @@ def test_parse_val():
     assert sdk_options == build_options_parser.parse_build_options()
 
 
+@minversion
 def test_parse_container_limits():
     build_options = [
         "--cpu-shares 50",
@@ -91,6 +99,7 @@ def test_parse_container_limits():
     assert sdk_options == build_options_parser.parse_build_options()
 
 
+@minversion
 def test_parse_flag():
     build_options = [
         "--pull=true",
@@ -106,6 +115,7 @@ def test_parse_flag():
     assert sdk_options == build_options_parser.parse_build_options()
 
 
+@minversion
 def test_invalid_build_options():
     with pytest.raises(KeyError):
         build_options = [
@@ -118,6 +128,7 @@ def test_invalid_build_options():
         build_options_parser.parse_build_options()
 
 
+@minversion
 def test_filtered_valid_build_options():
     build_options = [
         "--rm",

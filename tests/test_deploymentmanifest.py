@@ -3,12 +3,15 @@ import os
 
 import pytest
 
-from iotedgedev.deploymentmanifest import DeploymentManifest
-from iotedgedev.envvars import EnvVars
-from iotedgedev.output import Output
-from iotedgedev.utility import Utility
+from .version import test_py2, minversion
 
-from .utility import assert_list_equal
+if not test_py2:
+    from iotedgedev.deploymentmanifest import DeploymentManifest
+    from iotedgedev.envvars import EnvVars
+    from iotedgedev.output import Output
+    from iotedgedev.utility import Utility
+    
+    from .utility import assert_list_equal
 
 pytestmark = pytest.mark.unit
 
@@ -20,6 +23,7 @@ test_file_3 = os.path.join(test_assets_dir, "deployment.template_3.json")
 
 
 @pytest.fixture
+@minversion
 def deployment_manifest():
     output = Output()
     envvars = EnvVars(output)
@@ -32,42 +36,49 @@ def deployment_manifest():
     return _deployment_manifest
 
 
+@minversion
 def test_get_desired_property(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_1)
     props = deployment_manifest.get_desired_property("$edgeHub", "schemaVersion")
     assert props == "1.0"
 
 
+@minversion
 def test_get_desired_property_nonexistent_module(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_1)
     with pytest.raises(KeyError):
         deployment_manifest.get_desired_property("nonexistentModule", "schemaVersion")
 
 
+@minversion
 def test_get_desired_property_nonexistent_prop(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_1)
     with pytest.raises(KeyError):
         deployment_manifest.get_desired_property("$edgeHub", "nonexistentProp")
 
 
+@minversion
 def test_get_user_modules(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_1)
     user_modules = list(deployment_manifest.get_user_modules().keys())
     assert_list_equal(user_modules, ["tempSensor", "csharpmodule", "csharpfunction"])
 
 
+@minversion
 def test_get_system_modules(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_1)
     system_modules = list(deployment_manifest.get_system_modules().keys())
     assert_list_equal(system_modules, ["edgeAgent", "edgeHub"])
 
 
+@minversion
 def test_get_all_modules(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_1)
     system_modules = list(deployment_manifest.get_all_modules().keys())
     assert_list_equal(system_modules, ["edgeAgent", "edgeHub", "tempSensor", "csharpmodule", "csharpfunction"])
 
 
+@minversion
 def test_add_module_template(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_1)
     deployment_manifest.add_module_template("csharpmodule2")
@@ -75,6 +86,7 @@ def test_add_module_template(deployment_manifest):
         assert deployment_manifest.json == json.load(expected)
 
 
+@minversion
 def test_convert_create_options(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_1)
 
@@ -95,12 +107,14 @@ def test_convert_create_options(deployment_manifest):
     assert json.loads(create_options_str) == temp_sensor_create_options_copy
 
 
+@minversion
 def test_expand_image_placeholders(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_1)
     deployment_manifest.expand_image_placeholders({"csharpmodule": "localhost:5000/csharpmodule:0.0.1-amd64"})
     assert deployment_manifest.json["modulesContent"]["$edgeAgent"]["properties.desired"]["modules"]["csharpmodule"]["settings"]["image"] == "localhost:5000/csharpmodule:0.0.1-amd64"
 
 
+@minversion
 def test_get_image_placeholder():
     assert DeploymentManifest.get_image_placeholder("filtermodule") == "${MODULES.filtermodule}"
     assert DeploymentManifest.get_image_placeholder("filtermodule", True) == "${MODULES.filtermodule.debug}"

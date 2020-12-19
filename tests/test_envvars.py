@@ -2,13 +2,16 @@ import os
 
 import pytest
 
-from iotedgedev.compat import PY2
-from iotedgedev.envvars import EnvVars
-from iotedgedev.output import Output
+from .version import test_py2, minversion
+
+if not test_py2:
+    from iotedgedev.envvars import EnvVars
+    from iotedgedev.output import Output
 
 pytestmark = pytest.mark.unit
 
 
+@minversion
 def test_valid_get_envvar():
     output = Output()
     envvars = EnvVars(output)
@@ -16,6 +19,7 @@ def test_valid_get_envvar():
     assert deployment_template is not None
 
 
+@minversion
 def test_invalid_get_envvar():
     output = Output()
     envvars = EnvVars(output)
@@ -23,6 +27,7 @@ def test_invalid_get_envvar():
     assert not testerval
 
 
+@minversion
 def test_valid_load():
     output = Output()
     envvars = EnvVars(output)
@@ -30,6 +35,7 @@ def test_valid_load():
     assert envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE == "deployment.template.json"
 
 
+@minversion
 def test_valid_verify_envvar_has_val():
     output = Output()
     envvars = EnvVars(output)
@@ -38,18 +44,21 @@ def test_valid_verify_envvar_has_val():
     assert not result
 
 
+@minversion
 def test_valid_get_envvar_key_if_val():
     output = Output()
     envvars = EnvVars(output)
     assert envvars.get_envvar_key_if_val("DEPLOYMENT_CONFIG_TEMPLATE_FILE")
 
 
+@minversion
 def test_invalid_get_envvar_key_if_val():
     output = Output()
     envvars = EnvVars(output)
     assert not envvars.get_envvar_key_if_val("TESTER")
 
 
+@minversion
 def test_set_envvar():
     output = Output()
     envvars = EnvVars(output)
@@ -60,78 +69,85 @@ def test_set_envvar():
     envvars.set_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", registry_server)
 
 
+@minversion
 def test_envvar_clean():
     output = Output()
     envvars = EnvVars(output)
     envvar_clean_name = u"IOTEDGEDEV_ENVVAR_CLEAN_TEST"
     os.environ[envvar_clean_name] = u"test unicode string"
 
-    envvars.clean()
 
-    if PY2:
-        assert isinstance(os.environ[envvar_clean_name], str)
-
-
+@minversion
 def test_in_command_list_true_1():
     output = Output()
     envvars = EnvVars(output)
     assert envvars.in_command_list("solution new test_solution", ["init", "e2e", "solution new", "new", "simulator stop"])
 
 
+@minversion
 def test_in_command_list_true_2():
     output = Output()
     envvars = EnvVars(output)
     assert envvars.in_command_list("solution new", ["init", "e2e", "solution new", "new", "simulator stop"])
 
 
+@minversion
 def test_in_command_list_false_1():
     output = Output()
     envvars = EnvVars(output)
     assert not envvars.in_command_list("solution add filtermodule", ["init", "e2e", "solution new", "new", "simulator stop"])
 
 
+@minversion
 def test_in_command_list_false_2():
     output = Output()
     envvars = EnvVars(output)
     assert not envvars.in_command_list("solution addotherstuff filtermodule", ["init", "e2e", "solution add", "new", "simulator stop"])
 
 
+@minversion
 def test_in_command_list_empty_1():
     output = Output()
     envvars = EnvVars(output)
     assert not envvars.in_command_list("", ["init", "e2e", "solution new", "new", "simulator stop"])
 
 
+@minversion
 def test_in_command_list_empty_2():
     output = Output()
     envvars = EnvVars(output)
     assert not envvars.in_command_list("solution new test_solution", ["init", "e2e", "", "new", "simulator stop"])
 
 
+@minversion
 def test_in_command_list_empty_3():
     output = Output()
     envvars = EnvVars(output)
     assert envvars.in_command_list("", ["init", "e2e", "", "new", "simulator stop"])
 
 
+@minversion
 def test_is_terse_command_true():
     output = Output()
     envvars = EnvVars(output)
     assert envvars.is_terse_command("iothub setup --update-dotenv")
 
 
+@minversion
 def test_is_terse_command_false():
     output = Output()
     envvars = EnvVars(output)
     assert not envvars.is_terse_command("solution add")
 
 
+@minversion
 def test_is_terse_command_empty():
     output = Output()
     envvars = EnvVars(output)
     assert envvars.is_terse_command("")
 
 
+@minversion
 def test_default_container_registry_server_key_exists():
     output = Output()
     envvars = EnvVars(output)
@@ -139,6 +155,7 @@ def test_default_container_registry_server_key_exists():
     assert "CONTAINER_REGISTRY_SERVER" in os.environ
 
 
+@minversion
 def test_default_container_registry_server_value_exists():
     output = Output()
     envvars = EnvVars(output)
@@ -146,6 +163,7 @@ def test_default_container_registry_server_value_exists():
     assert server is not None
 
 
+@minversion
 def test_default_container_registry_username_value_exists_or_returns_empty_string():
     output = Output()
     envvars = EnvVars(output)
@@ -153,6 +171,7 @@ def test_default_container_registry_username_value_exists_or_returns_empty_strin
     assert username is not None
 
 
+@minversion
 def test_default_container_registry_password_value_exists_or_returns_empty_string():
     output = Output()
     envvars = EnvVars(output)
@@ -160,6 +179,7 @@ def test_default_container_registry_password_value_exists_or_returns_empty_strin
     assert password is not None
 
 
+@minversion
 def test_container_registry_server_key_missing_sys_exit():
     output = Output()
     envvars = EnvVars(output)
@@ -168,6 +188,7 @@ def test_container_registry_server_key_missing_sys_exit():
 
 
 @pytest.fixture
+@minversion
 def setup_test_env(request):
     output = Output()
     envvars = EnvVars(output)
@@ -184,6 +205,7 @@ def setup_test_env(request):
     return
 
 
+@minversion
 def test_unique_container_registry_server_tokens():
     unique = set()
     length_container_registry_server = len('container_registry_server')
@@ -202,6 +224,7 @@ def test_unique_container_registry_server_tokens():
     assert is_unique
 
 
+@minversion
 def test_unique_container_registry_username_tokens():
     unique = set()
     length_container_registry_username = len('container_registry_username')
@@ -220,6 +243,7 @@ def test_unique_container_registry_username_tokens():
     assert is_unique
 
 
+@minversion
 def test_unique_container_registry_password_tokens():
     unique = set()
     length_container_registry_password = len('container_registry_password')
@@ -238,6 +262,7 @@ def test_unique_container_registry_password_tokens():
     assert is_unique
 
 
+@minversion
 def test_additional_container_registry_map_has_val(setup_test_env):
     output = Output()
     envvars = EnvVars(output)

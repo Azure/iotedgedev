@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [3.0.0] - 2021-01-04
+- Remove support for Python2... only Python 3.6, 3.7, and 3.8 are currently supported
+- Fix issues in tests caused by updated packages
+
 ## [2.1.6] - 2020-09-23
 ### Changed
 - Fix warning about ConfigParser readfp deprecation

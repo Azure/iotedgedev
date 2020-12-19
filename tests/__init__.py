@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Test package for Azure IoT Edge Dev Tool ."""
 
 __author__ = 'David Ruttka'

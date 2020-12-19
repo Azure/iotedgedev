@@ -2,11 +2,14 @@ import os
 
 import pytest
 
-from iotedgedev.telemetryconfig import TelemetryConfig
+from .version import test_py2, minversion
+
+if not test_py2:
+    from iotedgedev.telemetryconfig import TelemetryConfig
 
 pytestmark = pytest.mark.unit
 
-
+@minversion
 def test_firsttime(request):
     config = TelemetryConfig()
 

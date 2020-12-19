@@ -7,13 +7,9 @@ from hashlib import sha256
 from hmac import HMAC
 from time import time
 
-from six.moves.urllib.parse import quote, urlencode
+from urllib.parse import quote, urlencode
 
-from .compat import PY2
 from .constants import Constants
-
-if PY2:
-    from .compat import FileNotFoundError
 
 
 class Utility:
@@ -93,7 +89,7 @@ class Utility:
                 return content
 
     def decode(self, val):
-        return val.decode("utf-8").strip()
+        return val.decode().strip()
 
     def get_config_files(self):
         # config files are in root of solution

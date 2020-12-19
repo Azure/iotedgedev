@@ -2,8 +2,6 @@ import sys
 from functools import wraps
 
 import click
-import six
-
 
 def with_telemetry(func):
     @wraps(func)
@@ -70,7 +68,7 @@ def hash256_result(func):
         val = func(*args, **kwargs)
         if not val:
             raise ValueError('Return value is None')
-        elif not isinstance(val, six.string_types):
+        elif not isinstance(val, str):
             raise ValueError('Return value is not string')
 
         from .utility import Utility
