@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [2.2.0] - 2021-01-06
+### Changed
+- Remove explicit cryptography package install to resolve dependency conflicts so tests can run
+- Add local registry support for Windows
+
 ## [2.1.6] - 2020-09-23
 ### Changed
 - Fix warning about ConfigParser readfp deprecation
