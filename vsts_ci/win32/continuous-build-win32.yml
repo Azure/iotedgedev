@@ -14,9 +14,8 @@ steps:
     displayName: "Install IoT Hub explorer, Yeoman and Azure IoT Edge Node.js module generator packages"
 
   - pwsh: |
-      docker pull registry
-      docker run registry
-    displayName: "Pull and run local registry container"
+      docker run -d -p 5000:5000 --name registry registry:2
+    displayName: "Run local registry container"
   
   - pwsh: |
       pip install tox
