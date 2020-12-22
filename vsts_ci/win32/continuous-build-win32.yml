@@ -14,10 +14,8 @@ steps:
     displayName: "Install IoT Hub explorer, Yeoman and Azure IoT Edge Node.js module generator packages"
 
   - pwsh: |
-      # docker run -d -p 5000:5000 --restart always --name registry mcr.microsoft.com/windows:1809-amd64
       mkdir C:\registry
       docker run -d -p 5000:5000 --restart=always --name registry -v C:\registry:C:\registry stefanscherer/registry-windows:2.6.2
-	  
     displayName: "Pull and run local registry containers"
   
   - pwsh: |
