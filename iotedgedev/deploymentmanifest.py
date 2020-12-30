@@ -12,12 +12,9 @@ import six
 import jsonschema
 from six.moves.urllib.request import urlopen
 
-from .compat import PY2
 from .utility import Utility
 from .constants import Constants
 
-if PY2:
-    from .compat import FileNotFoundError
 
 TWIN_VALUE_MAX_SIZE = 512
 TWIN_VALUE_MAX_CHUNKS = 8

@@ -6,7 +6,6 @@ from dotenv import load_dotenv, set_key
 from fstrings import f
 
 from .args import Args
-from .compat import PY2
 from .connectionstring import DeviceConnectionString, IoTHubConnectionString
 from .constants import Constants
 from .containerregistry import ContainerRegistry
@@ -23,26 +22,6 @@ class EnvVars:
         # for some commands we don't want verbose dotenv load output
         self.terse_commands = ['', 'iothub setup', 'solution init', 'init', 'solution e2e', 'solution new', 'new', 'simulator stop', 'simulator modulecred']
         self.verbose = not self.is_terse_command(current_command)
-
-    def clean(self):
-        """docker-py had py2 issues with shelling out to docker api if unicode characters are in any environment variable. This will convert to utf-8 if py2."""
-
-        if PY2:
-            environment = os.environ.copy()
-
-            clean_enviro = {}
-
-            for k in environment:
-                key = k
-                if isinstance(key, unicode):
-                    key = key.encode('utf-8')
-
-                if isinstance(environment[k], unicode):
-                    environment[k] = environment[k].encode('utf-8')
-
-                clean_enviro[key] = environment[k]
-
-            os.environ = clean_enviro
 
     def backup_dotenv(self):
         dotenv_path = self.get_dotenv_file_path()
@@ -141,8 +120,6 @@ class EnvVars:
                 "Please see README for variable configuration options. Tip: You might just need to restart your command prompt to refresh your Environment Variables. "
                 "Variable that caused exception: {0}".format(str(ex))
                 raise ValueError(msg)
-
-        self.clean()
 
         self.loaded = True
 
