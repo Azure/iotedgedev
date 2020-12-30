@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Top-level package for Azure IoT Edge Dev Tool."""
 
 __author__ = 'Microsoft Corporation'
