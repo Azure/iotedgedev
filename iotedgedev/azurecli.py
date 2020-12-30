@@ -8,7 +8,7 @@ from threading import Thread, Timer
 
 from azure.cli.core import get_default_cli
 from fstrings import f
-from queue import Empty
+from queue import Empty, Queue
 
 from . import telemetry
 
