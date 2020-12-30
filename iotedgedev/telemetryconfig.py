@@ -1,6 +1,6 @@
 import os
 
-from six.moves import configparser
+import configparser
 
 from .decorators import suppress_all_exceptions
 

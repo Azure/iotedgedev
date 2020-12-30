@@ -26,7 +26,6 @@ requirements = [
     'azure-cli-resource',
     'azure-cli-cloud',
     'iotedgehubdev >= 0.8.0',
-    'six',
     'applicationinsights < 0.11.8',
     'commentjson == 0.7.2',
     'pyyaml>=4.1,<=4.2b4',

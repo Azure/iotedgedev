@@ -2,7 +2,6 @@ import os
 import zipfile
 
 import docker
-import six
 
 from .deploymentmanifest import DeploymentManifest
 from .utility import Utility
@@ -238,9 +237,9 @@ class Docker:
     def process_api_response(self, response):
         for json_ in docker.utils.json_stream.json_stream(response):
             for key in json_:
-                if key == "stream" and isinstance(json_[key], six.string_types):
+                if key == "stream" and isinstance(json_[key], str):
                     self.output.procout(json_[key], nl=False)
-                if key == "status" and isinstance(json_[key], six.string_types):
+                if key == "status" and isinstance(json_[key], str):
                     message = ""
                     if ("id" in json_):
                         message += json_["id"] + " "

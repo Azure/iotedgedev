@@ -5,9 +5,8 @@ import sys
 from zipfile import ZipFile
 
 import commentjson
-import six
-from six import BytesIO
-from six.moves.urllib.request import urlopen
+from io import BytesIO
+from urllib.request import urlopen
 
 from . import telemetry
 from .buildoptionsparser import BuildOptionsParser

@@ -7,7 +7,7 @@ from hashlib import sha256
 from hmac import HMAC
 from time import time
 
-from six.moves.urllib.parse import quote, urlencode
+from urllib.parse import quote, urlencode
 
 from .constants import Constants
 
