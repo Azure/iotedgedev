@@ -103,7 +103,7 @@ function run_upload_pypi
     if [ "$MODE" != "local" ]; then
         echo -e "\n===== Uploading to PyPi"
         PYPI=$([ "$MODE" = "prod" ] && echo "pypi" || echo "pypitest")
-        twine upload -r ${PYPI} --config-file .pypirc dist/iotedgedev-$(get_version)-py2.py3-none-any.whl
+        twine upload -r ${PYPI} --config-file .pypirc dist/iotedgedev-$(get_version)-py3-none-any.whl
     fi
 }
 
