@@ -6,7 +6,7 @@ import shutil
 import time
 import re
 
-from iotedgedev.compat import PY35
+from iotedgedev.version import PY35
 from iotedgedev.connectionstring import (DeviceConnectionString,
                                          IoTHubConnectionString)
 from iotedgedev.envvars import EnvVars
