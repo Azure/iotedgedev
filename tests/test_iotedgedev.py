@@ -7,49 +7,58 @@ import time
 import re
 
 from iotedgedev.version import PY35
-from iotedgedev.connectionstring import (DeviceConnectionString,
-                                         IoTHubConnectionString)
-from iotedgedev.envvars import EnvVars
-from iotedgedev.output import Output
+from iotedgedev.version import PY3
 
-from .utility import (assert_json_file_equal,
-                      get_platform_type,
-                      get_file_content,
-                      get_all_docker_images,
-                      get_all_docker_containers,
-                      prune_docker_images,
-                      prune_docker_containers,
-                      prune_docker_build_cache,
-                      remove_docker_container,
-                      remove_docker_image,
-                      get_docker_os_type,
-                      runner_invoke,
-                      update_file_content)
+from .version import minversion
 
-pytestmark = pytest.mark.e2e
+if PY3:
+    from iotedgedev.connectionstring import (DeviceConnectionString,
+                                            IoTHubConnectionString)
+    from iotedgedev.envvars import EnvVars
+    from iotedgedev.output import Output
 
-output = Output()
-envvars = EnvVars(output)
+    from .utility import (assert_json_file_equal,
+                        get_platform_type,
+                        get_file_content,
+                        get_all_docker_images,
+                        get_all_docker_containers,
+                        prune_docker_images,
+                        prune_docker_containers,
+                        prune_docker_build_cache,
+                        remove_docker_container,
+                        remove_docker_image,
+                        get_docker_os_type,
+                        runner_invoke,
+                        update_file_content)
 
-root_dir = os.getcwd()
-tests_dir = os.path.join(root_dir, "tests")
-tests_assets_dir = os.path.join(tests_dir, "assets")
+    pytestmark = pytest.mark.e2e
 
-env_file_name = envvars.get_dotenv_file()
-env_file_path = envvars.get_dotenv_path(env_file_name)
+    output = Output()
+    envvars = EnvVars(output)
 
-launch_json_file = os.path.join(tests_dir, "assets", "launch.json")
-launch_json_file_without_nodejs = os.path.join(tests_dir, "assets", "launch_without_nodejs.json")
+    root_dir = os.getcwd()
+    tests_dir = os.path.join(root_dir, "tests")
+    tests_assets_dir = os.path.join(tests_dir, "assets")
 
-test_solution = "test_solution"
-test_solution_dir = os.path.join(tests_dir, test_solution)
+    env_file_name = envvars.get_dotenv_file()
+    env_file_path = envvars.get_dotenv_path(env_file_name)
 
-test_solution_shared_lib = "test_solution_shared_lib"
-test_solution_shared_lib_dir = os.path.join(tests_dir, "assets", test_solution_shared_lib)
+    launch_json_file = os.path.join(tests_dir, "assets", "launch.json")
+    launch_json_file_without_nodejs = os.path.join(tests_dir, "assets", "launch_without_nodejs.json")
 
-templates = ["c", "csharp", "java", "nodejs", "python", "csharpfunction"]
+    test_solution = "test_solution"
+    test_solution_dir = os.path.join(tests_dir, test_solution)
 
+    test_solution_shared_lib = "test_solution_shared_lib"
+    test_solution_shared_lib_dir = os.path.join(tests_dir, "assets", test_solution_shared_lib)
 
+    templates = ["c", "csharp", "java", "nodejs", "python", "csharpfunction"]
+
+else:
+    def get_docker_os_type():
+        return None
+
+@minversion
 def create_solution(template, custom_module_name=None):
     if custom_module_name is None:
         module_name = template + "module"
@@ -60,12 +69,14 @@ def create_solution(template, custom_module_name=None):
     return result
 
 
+@minversion
 def add_module(template):
     module_name = template + "module"
     result = runner_invoke(["solution", "add", module_name, '--template', template])
     return result
 
 
+@minversion
 def clean_folder(folder_path):
     os.chdir(tests_dir)
     time.sleep(5)
@@ -73,6 +84,7 @@ def clean_folder(folder_path):
 
 
 @pytest.fixture
+@minversion
 def prepare_solution_with_env():
     os.chdir(tests_dir)
 
@@ -92,6 +104,7 @@ def prepare_solution_with_env():
     return
 
 
+@minversion
 def assert_solution_folder_structure(template):
     module_name = template + "module"
 
@@ -116,6 +129,7 @@ def assert_solution_folder_structure(template):
         assert module_name in content["modulesContent"]["$edgeHub"]["properties.desired"]["routes"][module_name + "ToIoTHub"]
 
 
+@minversion
 def assert_module_folder_structure(template):
     module_name = template + "module"
     expected_template_files = [os.environ["DEPLOYMENT_CONFIG_TEMPLATE_FILE"], os.environ["DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE"]]
@@ -133,12 +147,14 @@ def assert_module_folder_structure(template):
                 assert "HostConfig" in content["modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][module_name]["settings"]["createOptions"]
 
 
+@minversion
 def test_solution_create_in_non_empty_current_path(prepare_solution_with_env):
     result = runner_invoke(['solution', 'new', '.'], True)
 
     assert "Directory is not empty" in result.output
 
 
+@minversion
 def test_solution_create_in_empty_current_path(prepare_solution_with_env):
     dirname = "emptydir_current"
     os.makedirs(dirname)
@@ -149,6 +165,7 @@ def test_solution_create_in_empty_current_path(prepare_solution_with_env):
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
 
 
+@minversion
 def test_solution_create_in_non_empty_dir(prepare_solution_with_env):
     os.chdir(tests_dir)
 
@@ -157,6 +174,7 @@ def test_solution_create_in_non_empty_dir(prepare_solution_with_env):
     assert "Directory is not empty" in result.output
 
 
+@minversion
 def test_solution_create_in_empty_child_dir(prepare_solution_with_env):
     dirname = "emptydir"
     os.makedirs(dirname)
@@ -166,6 +184,7 @@ def test_solution_create_in_empty_child_dir(prepare_solution_with_env):
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
 
 
+@minversion
 def test_module_add(prepare_solution_with_env):
     launch_file = launch_json_file
     for template in templates:
@@ -184,6 +203,7 @@ def test_module_add(prepare_solution_with_env):
     assert_json_file_equal(os.path.join(test_solution_dir, ".vscode", "launch.json"), launch_file)
 
 
+@minversion
 def test_module_add_invalid_name(prepare_solution_with_env):
     """Test the addmodule command with invalid module name"""
 
@@ -201,6 +221,7 @@ def test_module_add_invalid_name(prepare_solution_with_env):
 
 
 @pytest.fixture
+@minversion
 def test_push_modules():
     result = runner_invoke(['push', '-P', get_platform_type()])
 
@@ -210,6 +231,7 @@ def test_push_modules():
 
 
 @pytest.fixture
+@minversion
 def test_deploy_modules():
     if get_docker_os_type() == "windows":
         result = runner_invoke(['deploy', '-f', os.path.join('config', 'deployment.' + get_platform_type() + '.json')])
@@ -221,6 +243,7 @@ def test_deploy_modules():
 
 
 @pytest.fixture
+@minversion
 def test_monitor(capfd):
     runner_invoke(['monitor', '--timeout', '5'])
 
@@ -231,10 +254,12 @@ def test_monitor(capfd):
         assert not err
 
 
+@minversion
 def test_e2e(prepare_solution_with_env, test_push_modules, test_deploy_modules, test_monitor):
     print("Testing e2e with env file")
 
 
+@minversion
 def test_valid_env_iothub_connectionstring():
     """Test for loading data of env file"""
 
@@ -247,6 +272,7 @@ def test_valid_env_iothub_connectionstring():
     assert connectionstring.shared_access_key_name
 
 
+@minversion
 def test_valid_env_device_connectionstring():
     """Test for loading data of env file"""
 
@@ -259,6 +285,7 @@ def test_valid_env_device_connectionstring():
     assert connectionstring.device_id
 
 
+@minversion
 def test_solution_build_and_push_with_platform():
     os.chdir(test_solution_shared_lib_dir)
 
@@ -277,6 +304,7 @@ def test_solution_build_and_push_with_platform():
     assert 'ERROR' not in result.output
 
 
+@minversion
 def test_solution_build_and_push_with_different_cwd():
     cwd = os.path.join(test_solution_shared_lib_dir, 'config')
     if not os.path.exists(cwd):
@@ -299,6 +327,7 @@ def test_solution_build_and_push_with_different_cwd():
 
 
 @pytest.mark.skipif(platform.system().lower() != 'windows', reason='The path is not valid in non windows platform')
+@minversion
 def test_solution_build_and_push_with_escapedpath():
     os.chdir(test_solution_shared_lib_dir)
 
@@ -315,6 +344,7 @@ def test_solution_build_and_push_with_escapedpath():
     assert 'ERROR' not in result.output
 
 
+@minversion
 def test_solution_build_with_version_and_build_options():
     os.chdir(test_solution_shared_lib_dir)
     module_json_file_path = os.path.join(test_solution_shared_lib_dir, "modules", "sample_module", "module.json")
@@ -342,6 +372,7 @@ def test_solution_build_with_version_and_build_options():
         del os.environ["VERSION"]
 
 
+@minversion
 def test_solution_build_without_schema_template():
     try:
         os.chdir(test_solution_shared_lib_dir)
@@ -367,6 +398,7 @@ def test_solution_build_without_schema_template():
         os.rename('deployment.template.backup.json', 'deployment.template.json')
 
 
+@minversion
 def test_create_new_solution():
     os.chdir(tests_dir)
     clean_folder(test_solution_dir)
@@ -384,6 +416,7 @@ def test_create_new_solution():
             clean_folder(test_solution_dir)
 
 
+@minversion
 def test_solution_build_with_default_platform(prepare_solution_with_env):
     result = runner_invoke(['build'])
 
@@ -400,6 +433,7 @@ def test_solution_build_with_default_platform(prepare_solution_with_env):
     assert module_name in get_all_docker_images()
 
 
+@minversion
 @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Debugger does not support C# in windows container')
 def test_solution_build_with_debug_template():
     os.chdir(test_solution_shared_lib_dir)
@@ -424,6 +458,7 @@ def test_solution_build_with_debug_template():
     assert module_2_name in all_docker_images
 
 
+@minversion
 def test_solution_push_with_default_platform(prepare_solution_with_env):
     result = runner_invoke(['push'])
 
@@ -441,6 +476,7 @@ def test_solution_push_with_default_platform(prepare_solution_with_env):
     assert module_name in get_all_docker_images()
 
 
+@minversion
 def test_generate_deployment_manifest():
     try:
         os.chdir(test_solution_shared_lib_dir)
@@ -471,6 +507,7 @@ def test_generate_deployment_manifest():
         os.remove(os.path.join(test_solution_shared_lib_dir, env_file_name))
 
 
+@minversion
 def test_validate_deployment_template_and_manifest_failed():
     try:
         deployment_file_name = "deployment.template_invalidresult.json"
@@ -505,6 +542,7 @@ def test_validate_deployment_template_and_manifest_failed():
         os.remove(os.path.join(tests_assets_dir, env_file_name))
 
 
+@minversion
 def test_validate_deployment_template_and_manifest_success():
     try:
         deployment_file_name = "deployment.template.json"
@@ -527,6 +565,7 @@ def test_validate_deployment_template_and_manifest_success():
         os.remove(os.path.join(test_solution_shared_lib_dir, env_file_name))
 
 
+@minversion
 def test_validate_create_options_failed():
     os.chdir(tests_assets_dir)
     deployment_file_name = "deployment.manifest_invalid.json"
@@ -547,6 +586,7 @@ def test_validate_create_options_failed():
     assert "Warning: Errors found during createOptions validation" in result.output
 
 
+@minversion
 def test_fail_gen_config_on_validation_error():
     os.chdir(tests_assets_dir)
     test_files = ["deployment.manifest_invalid.json", "deployment.manifest_invalid_schema.json", "deployment.manifest_invalid_createoptions.json"]
@@ -569,6 +609,7 @@ def test_fail_gen_config_on_validation_error():
     assert "ERROR" not in result.output
 
 
+@minversion
 def test_gen_config_with_non_string_placeholder():
     os.chdir(tests_assets_dir)
     os.environ["TTL"] = "7200"
@@ -582,6 +623,7 @@ def test_gen_config_with_non_string_placeholder():
 
 
 @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='windows container does not support local registry image')
+@minversion
 def test_push_modules_to_local_registry(prepare_solution_with_env):
     env_container_registry_server = os.getenv("CONTAINER_REGISTRY_SERVER")
     try:
@@ -609,6 +651,7 @@ def test_push_modules_to_local_registry(prepare_solution_with_env):
             remove_docker_image("registry:2")
 
 # # TODO: The output of docker build logs is not captured by pytest, need to capture this before enable this test
+# @minversion
 # def test_docker_build_status_output():
 #     prune_docker_images()
 #     prune_docker_containers()

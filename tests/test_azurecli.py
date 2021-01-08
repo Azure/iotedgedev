@@ -1,10 +1,14 @@
 import pytest
+from iotedgedev.version import PY3
+from .version import minversion
 
-from iotedgedev.azurecli import get_query_argument_for_id_and_name
+if PY3:
+    from iotedgedev.azurecli import get_query_argument_for_id_and_name
 
 pytestmark = pytest.mark.unit
 
-
+@minversion
+@minversion
 def get_terms(query):
     # These tests are all asserting that the query contains two terms enclosed in
     # [?], separated by ||
@@ -13,6 +17,7 @@ def get_terms(query):
     return query[2:len(query)-1].split(" || ")
 
 
+@minversion
 def test_lowercase_token_should_be_lowercase_for_name_and_id():
     token = "abc123"
     query = get_query_argument_for_id_and_name(token)
@@ -23,6 +28,7 @@ def test_lowercase_token_should_be_lowercase_for_name_and_id():
     assert "contains(@.name,'abc123')" in terms
 
 
+@minversion
 def test_mixedcase_token_should_be_lowercase_for_id_but_unmodified_for_name():
     token = "AbC123"
     query = get_query_argument_for_id_and_name(token)

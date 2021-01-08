@@ -2,11 +2,16 @@ import hashlib
 
 import pytest
 
-from iotedgedev.decorators import hash256_result, suppress_all_exceptions
+from iotedgedev.version import PY3
+
+if PY3:
+    from iotedgedev.decorators import hash256_result, suppress_all_exceptions
+
+from .version import minversion
 
 pytestmark = pytest.mark.unit
 
-
+@minversion
 def test_suppress_all_exceptions():
     @suppress_all_exceptions()
     def test_valid():
@@ -23,7 +28,7 @@ def test_suppress_all_exceptions():
         raise Exception
     assert not test_exception_nofallback()
 
-
+@minversion
 def test_hash256_result():
     @hash256_result
     def test_valid():

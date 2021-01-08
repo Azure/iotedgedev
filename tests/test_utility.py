@@ -2,11 +2,16 @@ import os
 
 import pytest
 
-from iotedgedev.envvars import EnvVars
-from iotedgedev.output import Output
-from iotedgedev.utility import Utility
+from iotedgedev.version import PY3
 
-from .utility import assert_list_equal, assert_file_equal, assert_json_file_equal
+from .version import minversion
+
+if PY3:
+    from iotedgedev.envvars import EnvVars
+    from iotedgedev.output import Output
+    from iotedgedev.utility import Utility
+
+    from .utility import assert_list_equal, assert_file_equal, assert_json_file_equal
 
 pytestmark = pytest.mark.unit
 
@@ -18,6 +23,7 @@ test_file_4 = os.path.join(test_assets_dir, "deployment.template_4.json")
 
 
 @pytest.fixture
+@minversion
 def utility():
     output = Output()
     envvars = EnvVars(output)
@@ -25,6 +31,7 @@ def utility():
     return Utility(envvars, output)
 
 
+@minversion
 def test_ensure_dir(request, utility):
     before_ensure = os.listdir(tests_dir)
     utility.ensure_dir(test_assets_dir)
@@ -41,6 +48,7 @@ def test_ensure_dir(request, utility):
     request.addfinalizer(clean)
 
 
+@minversion
 def test_copy_from_template_dir(utility, tmpdir):
     src_file = "deployment.template.json"
     dest_dir = tmpdir.strpath
@@ -49,6 +57,7 @@ def test_copy_from_template_dir(utility, tmpdir):
     assert_file_equal(dest_file, test_file_4)
 
 
+@minversion
 def test_copy_template(utility, tmpdir):
     replacements = {
         "${MODULES.csharpmodule.amd64}": "localhost:5000/csharpmodule:0.0.1-amd64",
@@ -59,6 +68,7 @@ def test_copy_template(utility, tmpdir):
     assert_json_file_equal(test_file_2, dest)
 
 
+@minversion
 def test_copy_template_expandvars(utility, tmpdir):
     replacements = {
         "${MODULES.csharpmodule.amd64}": "${CONTAINER_REGISTRY_SERVER}/csharpmodule:0.0.1-amd64",
@@ -70,18 +80,22 @@ def test_copy_template_expandvars(utility, tmpdir):
     assert_json_file_equal(test_file_2, dest)
 
 
+@minversion
 def test_in_asterisk_list(utility):
     assert utility.in_asterisk_list("filtermodule", "pipemodule, filtermodule")
 
 
+@minversion
 def test_in_asterisk_list_empty(utility):
     assert not utility.in_asterisk_list("filtermodule", "")
 
 
+@minversion
 def test_in_asterisk_list_asterisk(utility):
     assert utility.in_asterisk_list("filtermodule", "*")
 
 
+@minversion
 def test_del_key(utility):
     dict_ = {
         "1": 0,
@@ -110,10 +124,12 @@ def test_del_key(utility):
     assert dict_ == expected
 
 
+@minversion
 def test_get_sha256_hash():
     assert Utility.get_sha256_hash("foo") == "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae"
 
 
+@minversion
 def test_get_deployment_manifest_name():
     assert Utility.get_deployment_manifest_name("config/deployment.template.json", "0.0.1", "amd64") == "deployment.json"
     assert Utility.get_deployment_manifest_name("deployment.template.json", "0.0.1", "amd64") == "deployment.json"

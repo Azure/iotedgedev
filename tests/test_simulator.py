@@ -4,29 +4,38 @@ import shutil
 import time
 
 from iotedgedev.version import PY35
-from iotedgedev.envvars import EnvVars
-from iotedgedev.output import Output
+from iotedgedev.version import PY3
 
-from .utility import get_docker_os_type
-from .utility import get_platform_type
-from .utility import runner_invoke
+from .version import minversion
+if PY3:
+    from iotedgedev.envvars import EnvVars
+    from iotedgedev.output import Output
 
-pytestmark = pytest.mark.e2e
+    from .utility import get_docker_os_type
+    from .utility import get_platform_type
+    from .utility import runner_invoke
 
-output = Output()
-envvars = EnvVars(output)
+    pytestmark = pytest.mark.e2e
 
-env_file_name = envvars.get_dotenv_file()
-env_file_path = envvars.get_dotenv_path(env_file_name)
+    output = Output()
+    envvars = EnvVars(output)
 
-root_dir = os.getcwd()
-tests_dir = os.path.join(root_dir, 'tests')
+    env_file_name = envvars.get_dotenv_file()
+    env_file_path = envvars.get_dotenv_path(env_file_name)
 
-test_solution = 'test_solution'
-test_solution_dir = os.path.join(tests_dir, test_solution)
+    root_dir = os.getcwd()
+    tests_dir = os.path.join(root_dir, 'tests')
+
+    test_solution = 'test_solution'
+    test_solution_dir = os.path.join(tests_dir, test_solution)
 
 
+else:
+    def get_docker_os_type():
+        return None
+        
 @pytest.fixture(scope="module", autouse=True)
+@minversion
 def create_solution(request):
     os.chdir(tests_dir)
     result = runner_invoke(['solution', 'new', test_solution])
@@ -47,6 +56,7 @@ def create_solution(request):
     return
 
 
+@minversion
 @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_setup():
     result = runner_invoke(['simulator', 'setup'])
@@ -54,6 +64,7 @@ def test_setup():
     assert 'Setup IoT Edge Simulator successfully.' in result.output
 
 
+@minversion
 @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_setup_with_iothub():
     result = runner_invoke(['simulator', 'setup', '-i', os.getenv("IOTHUB_CONNECTION_STRING")])
@@ -61,6 +72,7 @@ def test_setup_with_iothub():
     assert 'Setup IoT Edge Simulator successfully.' in result.output
 
 
+@minversion
 @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_start_single():
     result = runner_invoke(['simulator', 'start', '-i', 'input1'])
@@ -68,6 +80,7 @@ def test_start_single():
     assert 'IoT Edge Simulator has been started in single module mode.' in result.output
 
 
+@minversion
 @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_modulecred():
     result = runner_invoke(['simulator', 'modulecred'])
@@ -76,6 +89,7 @@ def test_modulecred():
     assert 'EdgeModuleCACertificateFile=' in result.output
 
 
+@minversion
 @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_stop(capfd):
     runner_invoke(['simulator', 'stop'])
@@ -84,6 +98,7 @@ def test_stop(capfd):
     assert 'IoT Edge Simulator has been stopped successfully.' in out
 
 
+@minversion
 @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_start_solution(capfd):
     result = runner_invoke(['simulator', 'start', '-s', '-b', '-f', 'deployment.template.json'])
@@ -93,6 +108,7 @@ def test_start_solution(capfd):
     assert 'IoT Edge Simulator has been started in solution mode.' in out
 
 
+@minversion
 @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_start_solution_with_setup(capfd):
     result = runner_invoke(['simulator', 'start', '--setup', '-s', '-b', '-f', 'deployment.template.json'])
@@ -103,6 +119,7 @@ def test_start_solution_with_setup(capfd):
     assert 'IoT Edge Simulator has been started in solution mode.' in out
 
 
+@minversion
 @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_monitor(capfd):
     try:
@@ -122,6 +139,7 @@ def test_monitor(capfd):
         test_stop(capfd)
 
 
+@minversion
 @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_start_solution_with_deployment(capfd):
     platform_type = get_platform_type()

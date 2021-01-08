@@ -1,5 +1,7 @@
 """Top-level package for Azure IoT Edge Dev Tool."""
 
+from . import version_catch
+
 __author__ = 'Microsoft Corporation'
 __email__ = 'vsciet@microsoft.com'
 __version__ = '3.0.0'

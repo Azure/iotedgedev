@@ -1,8 +1,13 @@
 import pytest
 
-from iotedgedev.connectionstring import (ConnectionString,
-                                         DeviceConnectionString,
-                                         IoTHubConnectionString)
+from iotedgedev.version import PY3
+
+from .version import minversion
+
+if PY3:
+    from iotedgedev.connectionstring import (ConnectionString,
+                                             DeviceConnectionString,
+                                             IoTHubConnectionString)
 
 pytestmark = pytest.mark.unit
 
@@ -15,12 +20,13 @@ invalid_iothub_connectionstring = "HostName=testhub.azure-devices.net;SharedAcce
 invalid_device_connectionstring = "HostName=testhub.azure-devices.net;DeviceId=;SharedAccessKey=othergibberish"
 empty_hostname_iothub_connectionstring = "HostName=;SharedAccessKeyName=iothubowner;SharedAccessKey=moregibberish"
 
-
+@minversion
 def test_empty_connectionstring():
     connectionstring = ConnectionString(emptystring)
     assert not connectionstring.data
 
 
+@minversion
 def test_empty_hostname_iothub_connectionstring():
     connectionstring = ConnectionString(empty_hostname_iothub_connectionstring)
     assert connectionstring.iothub_host.name == ""
@@ -29,16 +35,19 @@ def test_empty_hostname_iothub_connectionstring():
     assert connectionstring.iothub_host.name_hash == ""
 
 
+@minversion
 def test_empty_iothub_connectionstring():
     connectionstring = IoTHubConnectionString(emptystring)
     assert not connectionstring.data
 
 
+@minversion
 def test_empty_device_connectionstring():
     connectionstring = DeviceConnectionString(emptystring)
     assert not connectionstring.data
 
 
+@minversion
 def test_valid_connectionstring():
     connectionstring = ConnectionString(valid_connectionstring)
     assert connectionstring.iothub_host.name == "testhub.azure-devices.net"
@@ -46,6 +55,7 @@ def test_valid_connectionstring():
     assert connectionstring.shared_access_key == "gibberish"
 
 
+@minversion
 def test_valid_iothub_connectionstring():
     connectionstring = IoTHubConnectionString(valid_iothub_connectionstring)
     assert connectionstring.iothub_host.name == "ChaoyiTestIoT.azure-devices.net"
@@ -55,6 +65,7 @@ def test_valid_iothub_connectionstring():
     assert connectionstring.iothub_host.name_hash == "6b8fcfea09003d5f104771e83bd9ff54c592ec2277ec1815df91dd64d1633778"
 
 
+@minversion
 def test_valid_devicehub_connectionstring():
     connectionstring = DeviceConnectionString(valid_device_connectionstring)
     assert connectionstring.iothub_host.name == "testhub.azure-devices.net"
@@ -63,16 +74,19 @@ def test_valid_devicehub_connectionstring():
     assert connectionstring.shared_access_key == "othergibberish"
 
 
+@minversion
 def test_invalid_connectionstring():
     connectionstring = ConnectionString(invalid_connectionstring)
     assert connectionstring.iothub_host.hub_name != "testhub"
 
 
+@minversion
 def test_invalid_iothub_connectionstring():
     with pytest.raises(KeyError):
         IoTHubConnectionString(invalid_iothub_connectionstring)
 
 
+@minversion
 def test_invalid_devicehub_connectionstring():
     connectionstring = DeviceConnectionString(invalid_device_connectionstring)
     assert connectionstring.iothub_host.name == "testhub.azure-devices.net"
