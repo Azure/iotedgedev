@@ -1,19 +1,12 @@
 import pytest
 
-try:
-    from iotedgedev.version import PY3
-except AssertionError as e:
-    print("AssertionError: This is a Python 2 environment. All tests will be skipped.")
+from .version import test_py2, minversion
 
-
-from .version import minversion
-
-if PY3:
+if not test_py2:
     from iotedgedev.azurecli import get_query_argument_for_id_and_name
 
 pytestmark = pytest.mark.unit
 
-@minversion
 @minversion
 def get_terms(query):
     # These tests are all asserting that the query contains two terms enclosed in

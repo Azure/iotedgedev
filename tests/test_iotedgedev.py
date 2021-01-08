@@ -6,15 +6,11 @@ import shutil
 import time
 import re
 
-from iotedgedev.version import PY35
-try:
-    from iotedgedev.version import PY3
-except AssertionError as e:
-    print("AssertionError: This is a Python 2 environment. All tests will be skipped.")
+from .version import test_py2, minversion
 
-from .version import minversion
+if not test_py2:
+    from iotedgedev.version import PY35
 
-if PY3:
     from iotedgedev.connectionstring import (DeviceConnectionString,
                                             IoTHubConnectionString)
     from iotedgedev.envvars import EnvVars
@@ -33,6 +29,7 @@ if PY3:
                         get_docker_os_type,
                         runner_invoke,
                         update_file_content)
+        
 
     pytestmark = pytest.mark.e2e
 

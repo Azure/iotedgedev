@@ -2,14 +2,9 @@ import os
 
 import pytest
 
-try:
-    from iotedgedev.version import PY3
-except AssertionError as e:
-    print("AssertionError: This is a Python 2 environment. All tests will be skipped.")
+from .version import test_py2, minversion
 
-from .version import minversion
-
-if PY3:
+if not test_py2:
     from iotedgedev.envvars import EnvVars
     from iotedgedev.output import Output
     from iotedgedev.utility import Utility

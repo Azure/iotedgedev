@@ -1,4 +1,6 @@
 import pytest
-from iotedgedev.version import PY3
+import sys
 
-minversion = pytest.mark.skipif(not PY3, reason="Python 2 not supported. Skipping.")
+test_py2 = sys.version_info < (3, 0)
+
+minversion = pytest.mark.skipif(test_py2, reason="Python 2 not supported. Skipping.")
