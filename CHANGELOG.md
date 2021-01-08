@@ -3,7 +3,12 @@ All notable changes to this project since 0.82.0 will be documented in this file
 
 ## [3.0.0] - 2021-01-04
 - Remove support for Python2... only Python 3.6, 3.7, and 3.8 are currently supported
-- Fix issues in tests caused by updated packages
+- Add testing to validate version catch for versions less than Python 3.0
+
+## [2.2.0] - 2021-01-06
+### Changed
+- Remove explicit cryptography package install to resolve dependency conflicts so tests can run
+- Add local registry support for Windows
 
 ## [2.1.6] - 2020-09-23
 ### Changed
