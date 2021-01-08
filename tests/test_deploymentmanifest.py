@@ -3,7 +3,10 @@ import os
 
 import pytest
 
-from iotedgedev.version import PY3
+try:
+    from iotedgedev.version import PY3
+except AssertionError as e:
+    print("AssertionError: This is a Python 2 environment. All tests will be skipped.")
 
 if PY3:
     from iotedgedev.deploymentmanifest import DeploymentManifest
