@@ -167,7 +167,7 @@ The only thing you need to install is Docker. All of the other dev dependencies 
     </details>
 
 ## Python Versions
-This project only supports Python 3.6, 3.7, and 3.8.
+This project only supports Python 3.6 and 3.7.
 
 ## Resources
 Please refer to the [Wiki](https://github.com/Azure/iotedgedev/wiki) for details on setup, usage, and troubleshooting.
