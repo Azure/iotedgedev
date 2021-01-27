@@ -3,7 +3,7 @@ import pytest
 import shutil
 import time
 
-from iotedgedev.compat import PY35
+from iotedgedev.version import PY35
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 

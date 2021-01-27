@@ -5,24 +5,18 @@ import sys
 from zipfile import ZipFile
 
 import commentjson
-import six
-from six import BytesIO
-from six.moves.urllib.request import urlopen
+from io import BytesIO
+from urllib.request import urlopen
 
 from . import telemetry
 from .buildoptionsparser import BuildOptionsParser
 from .buildprofile import BuildProfile
-from .compat import PY2
 from .deploymentmanifest import DeploymentManifest
 from .dockercls import Docker
 from .dotnet import DotNet
 from .module import Module
 from .utility import Utility
 from .constants import Constants
-
-if PY2:
-    from .compat import FileNotFoundError
-
 
 class Modules:
     def __init__(self, envvars, output):
@@ -314,10 +308,7 @@ class Modules:
             launch_json_content = Utility.get_file_contents(launch_json_file)
             for key, value in replacements.items():
                 launch_json_content = launch_json_content.replace(key, value)
-            if PY2:
-                launch_json = commentjson.loads(six.binary_type(launch_json_content))
-            else:
-                launch_json = commentjson.loads(launch_json_content)
+            launch_json = commentjson.loads(launch_json_content)
             if is_function and launch_json is not None and "configurations" in launch_json:
                 # for Function modules, there shouldn't be launch config for local debug
                 launch_json["configurations"] = list(filter(lambda x: x["request"] != "launch", launch_json["configurations"]))

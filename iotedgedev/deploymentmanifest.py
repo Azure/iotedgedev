@@ -8,16 +8,12 @@ import os
 import re
 import shutil
 
-import six
 import jsonschema
-from six.moves.urllib.request import urlopen
+from urllib.request import urlopen
 
-from .compat import PY2
 from .utility import Utility
 from .constants import Constants
 
-if PY2:
-    from .compat import FileNotFoundError
 
 TWIN_VALUE_MAX_SIZE = 512
 TWIN_VALUE_MAX_CHUNKS = 8
@@ -108,7 +104,7 @@ class DeploymentManifest:
         for module_name, module_info in modules.items():
             if "settings" in module_info and "createOptions" in module_info["settings"]:
                 create_options = module_info["settings"]["createOptions"]
-                if not isinstance(create_options, six.string_types):
+                if not isinstance(create_options, str):
                     # Stringify and minify the createOptions from dict format
                     create_options = json.dumps(create_options, separators=(',', ':'))
 
@@ -145,7 +141,7 @@ class DeploymentManifest:
     def validate_deployment_template(self):
         validation_success = True
         try:
-            template_schema = json.loads(urlopen(Constants.deployment_template_schema_url).read().decode())
+            template_schema = json.loads(urlopen(Constants.deployment_template_schema_url).read().decode("utf-8"))
             validation_success = self._validate_json_schema(template_schema, self.json, "Deployment template")
         except Exception as ex:  # Ignore other non shcema validation errors
             self.output.info("Unexpected error during deployment template schema validation, skip schema validation. Error:%s" % ex)

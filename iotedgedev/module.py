@@ -1,11 +1,7 @@
 import json
 import os
 
-from .compat import PY2
 from .utility import Utility
-
-if PY2:
-    from .compat import FileNotFoundError
 
 
 class Module(object):
