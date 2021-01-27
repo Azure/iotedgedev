@@ -141,7 +141,7 @@ class DeploymentManifest:
     def validate_deployment_template(self):
         validation_success = True
         try:
-            template_schema = json.loads(urlopen(Constants.deployment_template_schema_url).read().decode())
+            template_schema = json.loads(urlopen(Constants.deployment_template_schema_url).read().decode("utf-8"))
             validation_success = self._validate_json_schema(template_schema, self.json, "Deployment template")
         except Exception as ex:  # Ignore other non shcema validation errors
             self.output.info("Unexpected error during deployment template schema validation, skip schema validation. Error:%s" % ex)
