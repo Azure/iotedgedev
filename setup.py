@@ -19,7 +19,7 @@ requirements = [
     'python-dotenv',
     'requests >= 2.20.0, < 2.21',
     'fstrings',
-    'azure-cli-core < 2.3.0',
+    'azure-cli-core',
     'azure-cli-iot',
     'azure-cli-profile',
     'azure-cli-extension',
