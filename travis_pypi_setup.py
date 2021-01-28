@@ -1,9 +1,7 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+
 """Update encrypted deploy password in Travis config file."""
 
-
-from __future__ import print_function
 import base64
 import json
 import os
@@ -58,7 +56,7 @@ def fetch_public_key(repo):
     Travis API docs: http://docs.travis-ci.com/api/#repository-keys
     """
     keyurl = 'https://api.travis-ci.org/repos/{0}/key'.format(repo)
-    data = json.loads(urlopen(keyurl).read().decode())
+    data = json.loads(urlopen(keyurl).read().decode("utf-8"))
     if 'key' not in data:
         errmsg = "Could not find public key for repo: {}.\n".format(repo)
         errmsg += "Have you already added your GitHub repo to Travis?"

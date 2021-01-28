@@ -5,8 +5,7 @@ from applicationinsights import TelemetryClient
 from applicationinsights.channel import (SynchronousQueue, SynchronousSender,
                                          TelemetryChannel)
 from applicationinsights.exceptions import enable
-from six import string_types
-from six.moves.urllib.request import Request, urlopen
+from urllib.request import Request, urlopen
 
 from iotedgedev.decorators import suppress_all_exceptions
 
@@ -41,7 +40,7 @@ def upload(data_to_save):
             properties = {}
             measurements = {}
             for k, v in raw_properties.items():
-                if isinstance(v, string_types):
+                if isinstance(v, str):
                     properties[k] = v
                 else:
                     measurements[k] = v

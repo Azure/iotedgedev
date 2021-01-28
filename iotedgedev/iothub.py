@@ -1,4 +1,4 @@
-from .compat import PY35
+from .version import PY35
 
 
 class IoTHub:

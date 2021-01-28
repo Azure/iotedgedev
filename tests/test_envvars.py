@@ -2,7 +2,6 @@ import os
 
 import pytest
 
-from iotedgedev.compat import PY2
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 
@@ -65,11 +64,6 @@ def test_envvar_clean():
     envvars = EnvVars(output)
     envvar_clean_name = u"IOTEDGEDEV_ENVVAR_CLEAN_TEST"
     os.environ[envvar_clean_name] = u"test unicode string"
-
-    envvars.clean()
-
-    if PY2:
-        assert isinstance(os.environ[envvar_clean_name], str)
 
 
 def test_in_command_list_true_1():

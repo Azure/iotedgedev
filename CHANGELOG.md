@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [3.0.0] - 2021-01-27
+- Remove support for Python2. Only Python 3.6 and 3.7 are currently supported.
+
 ## [2.2.0] - 2021-01-06
 ### Changed
 - Remove explicit cryptography package install to resolve dependency conflicts so tests can run

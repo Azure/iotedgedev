@@ -1,5 +1,4 @@
 import click
-import six
 
 
 class Output:
@@ -52,7 +51,7 @@ class Output:
         try:
             click.secho(text, fg=color, dim=dim, nl=nl, err=err)
         except Exception:
-            six.print_(text)
+            print(text)
 
     def confirm(self, text, default=False, abort=True):
         return click.confirm(text, default=default, abort=abort)
