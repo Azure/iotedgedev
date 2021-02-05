@@ -16,7 +16,7 @@ requirements = [
     'bcrypt<=3.1.7',
     'docker >= 3.7.0, <= 4.4.1',
     'python-dotenv',
-    'requests >= 2.20.0, < 2.21',
+    'requests >= 2.20.0, <= 2.25.1',
     'fstrings',
     'azure-cli-core',
     'azure-cli-iot',
