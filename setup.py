@@ -18,7 +18,7 @@ requirements = [
     'python-dotenv',
     'requests >= 2.20.0, <= 2.25.1',
     'fstrings',
-    'azure-cli == 2.18.0'
+    'azure-cli == 2.18.0',
     'iotedgehubdev >= 0.8.0',
     'applicationinsights == 0.11.9',
     'commentjson == 0.9.0',
