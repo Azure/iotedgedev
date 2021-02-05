@@ -1,5 +1,5 @@
 container:
-  image: iotedge/iotedgedev:latest 
+  image: iotedge/iotedgedev:latest
   endpoint: iotedgetools_dockercr_sc
 
 steps:
