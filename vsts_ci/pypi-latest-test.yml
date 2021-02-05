@@ -1,6 +1,6 @@
 container:
   image: iotedgetoolscontainerregistry.azurecr.io/iotedge/iotedgedev:latest 
-  endpoint: ${IOTEDGETOOLS_SERVICE_CONNECTION}
+  endpoint: spmcdono-iotedgecr
 
 steps:
   - script: |
