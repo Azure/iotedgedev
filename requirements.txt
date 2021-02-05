@@ -4,12 +4,7 @@ python-dotenv
 requests
 fstrings
 msrestazure~=0.4.32
-azure-cli-iot
-azure-cli-profile
-azure-cli-extension
-azure-cli-configure
-azure-cli-resource
-azure-cli-cloud
+azure-cli
 iotedgehubdev >= 0.8.0
 applicationinsights
 commentjson
