@@ -1,6 +1,11 @@
-container:
-  image: public/iotedge/iotedgedev:latest
-  endpoint: iotedgetools_dockercr_sc
+# container:
+#   image: public/iotedge/iotedgedev:latest
+#   endpoint: iotedgetools_dockercr_sc
+
+pool:
+  vmImage: 'ubuntu-18.04'
+
+container: mcr.microsoft.com/iotedge/iotedgedev:latest
 
 steps:
   - script: |
