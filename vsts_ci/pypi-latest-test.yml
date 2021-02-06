@@ -1,26 +1,21 @@
-# container:
-#   image: public/iotedge/iotedgedev:latest
-#   endpoint: iotedgetools_dockercr_sc
+container:
+  image: public/iotedge/iotedgedev:latest
+  endpoint: ${iotedgetools_dockercr_sc}
 
-# pool:
-#   vmImage: 'ubuntu-18.04'
+steps:
+  - script: |
+      iotedgedev --version 
 
-# container: mcr.microsoft.com/iotedge/iotedgedev:latest
+# resources:
+#   containers:
+#   - container: iotedgedevc
+#     image: mcr.microsoft.com/iotedge/iotedgedev:latest
+#     options: --user 0:0
 
-# steps:
-#   - script: |
-#       iotedgedev --version 
-
-resources:
-  containers:
-  - container: iotedgedevc
-    image: mcr.microsoft.com/iotedge/iotedgedev:latest
-    options: --user 0:0
-
-jobs:
-- job: Build
-  pool:
-    vmImage: 'ubuntu-18.04'
-  container: iotedgedevc
-  steps:
-  - bash: iotedgedev --version 
+# jobs:
+# - job: Build
+#   pool:
+#     vmImage: 'ubuntu-18.04'
+#   container: iotedgedevc
+#   steps:
+#   - bash: iotedgedev --version 
