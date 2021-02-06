@@ -29,8 +29,8 @@ steps:
     displayName: "Install Yeoman and Azure IoT Edge Node.js module generator packages"
 
   - script: |
-      pip install --upgrade pip
-      pip install --upgrade tox
+      pip install --no-cache-dir --upgrade pip
+      pip install --no-cache-dir --upgrade tox
     displayName: "Update and install required tools"
 
   - script: |

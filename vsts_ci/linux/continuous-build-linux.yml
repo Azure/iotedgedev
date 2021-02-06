@@ -15,8 +15,8 @@ steps:
     displayName: "Install Yeoman and Azure IoT Edge Node.js module generator packages"
 
   - powershell: |
-      pip install --upgrade pip
-      pip install --upgrade tox
+      pip install --no-cache-dir --upgrade pip
+      pip install --no-cache-dir --upgrade tox
       sudo npm i -g iothub-explorer
       az --version
     displayName: "Update and install required tools"
