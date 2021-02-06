@@ -25,3 +25,10 @@ steps:
       mvn -v
       sudo -E `which tox` -e "$(TOXENV)"
     displayName: "Run test"
+
+  - task: ComponentGovernanceComponentDetection@0
+  inputs:
+    scanType: 'LogOnly'
+    verbosity: 'Verbose'
+    alertWarningLevel: 'High'
+    failOnAlert: false
