@@ -8,6 +8,13 @@ steps:
       versionSpec: "$(python.version)"
       addToPath: true
       architecture: "x64"
+  
+  - task: ComponentGovernanceComponentDetection@0
+    inputs:
+      scanType: 'LogOnly'
+      verbosity: 'Verbose'
+      alertWarningLevel: 'High'
+      failOnAlert: false
 
   - pwsh: |
       npm i -g iothub-explorer yo generator-azure-iot-edge-module
@@ -22,10 +29,3 @@ steps:
       pip install tox
       tox -e "$(TOXENV)"
     displayName: "Run tests against iotedgedev source code"
-
-  - task: ComponentGovernanceComponentDetection@0
-  inputs:
-    scanType: 'LogOnly'
-    verbosity: 'Verbose'
-    alertWarningLevel: 'High'
-    failOnAlert: false
