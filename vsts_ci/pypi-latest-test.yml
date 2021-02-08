@@ -1,6 +1,6 @@
 container:
   image: iotedgetoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev:latest
-  endpoint: iotedgetools_dockercr_sc
+  endpoint: 'iotedgetools_dockercr_sc'
 
 steps:
   - script: |
