@@ -10,7 +10,7 @@ steps:
       architecture: "x64"
   
   - task: ComponentGovernanceComponentDetection@0
-    condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/main'))
+    condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
     inputs:
       scanType: 'LogOnly'
       verbosity: 'Verbose'
