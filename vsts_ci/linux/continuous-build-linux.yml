@@ -8,14 +8,6 @@ steps:
       versionSpec: "$(python.version)"
       addToPath: true
       architecture: "x64"
-  
-  - task: ComponentGovernanceComponentDetection@0
-    condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
-    inputs:
-      scanType: 'LogOnly'
-      verbosity: 'Verbose'
-      alertWarningLevel: 'High'
-      failOnAlert: false
 
   - powershell: |
       sudo npm install -g yo
