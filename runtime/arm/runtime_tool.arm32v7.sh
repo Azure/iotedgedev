@@ -4,7 +4,7 @@ export OS_ID=$(grep '^ID=' /etc/os-release | cut -c 4-)
 export OS_VERSION_ID=$(grep '^VERSION_ID=' /etc/os-release | cut -c 12-)
 export OS_VERSION_CODENAME=$(grep '^VERSION_CODENAME=' /etc/os-release | cut -c 18-)
 
-printenv "$OS_NAME"
+echo $(printenv OS_NAME)
 printenv "$OS_ID"
 printenv "$OS_VERSION_ID"
 printenv "$OS_VERSION_CODENAME"
