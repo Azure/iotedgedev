@@ -10,6 +10,3 @@ apt-get install moby-engine moby-cli
 apt-get install iotedge
 
 cp ../../docker/runtime/arm/rund.arm32v7.sh rund.sh
-
-sed -i 's/\r//' ./rund.sh && \
-chmod u+x rund.sh
