@@ -32,7 +32,7 @@ apt-get update && apt-get install -f
 
 apt-get install iotedge
 
-cp rund.arm32v7.sh rund.sh
+cp ../../docker/runtime/arm/rund.arm32v7.sh rund.sh
 
 sed -i 's/\r//' ./rund.sh && \
 chmod u+x rund.sh
