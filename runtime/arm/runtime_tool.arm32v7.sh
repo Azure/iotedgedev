@@ -10,5 +10,3 @@ apt-get install moby-engine moby-cli
 sudo apt-get update
 
 apt-get install iotedge
-
-cp ../../docker/runtime/arm/rund.arm32v7.sh rund.sh
