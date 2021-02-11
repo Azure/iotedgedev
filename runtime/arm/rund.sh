@@ -27,5 +27,6 @@ EOF
 cat /etc/iotedge/config.yaml
 
 echo '=> running iotedge daemon'
-exec iotedged -c /etc/iotedge/config.yaml
-
+# exec iotedged -c /etc/iotedge/config.yaml
+sudo systemctl restart iotedge
+sudo sytemctl status iotedge
