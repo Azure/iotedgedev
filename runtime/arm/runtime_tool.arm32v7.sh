@@ -4,16 +4,35 @@ export OS_ID=$(grep '^ID=' /etc/os-release | cut -c 4-)
 export OS_VERSION_ID=$(grep '^VERSION_ID=' /etc/os-release | cut -c 12-)
 export OS_VERSION_CODENAME=$(grep '^VERSION_CODENAME=' /etc/os-release | cut -c 18-)
 
-echo $(printenv OS_NAME)
-printenv "$OS_ID"
-printenv "$OS_VERSION_ID"
-printenv "$OS_VERSION_CODENAME"
+echo "OS_NAME = $(printenv OS_NAME)"
+echo "OS_ID = $(printenv OS_ID)"
+echo "OS_VERSION_ID = $(printenv OS_VERSION_ID)"
+echo "OS_VERSION_CODENAME = $(printenv OS_VERSION_CODENAME)"
 
-# if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    if [[ "OS_ID" == "ubuntu"]]
+        if [[ "OS_VERSION_ID" == "\"16.04\""]]; then
+            curl https://packages.microsoft.com/config/ubuntu/16.04/multiarch/prod.list > ./microsoft-prod.list
+        fi
+        elif [[ "OS_VERSION_ID" == "\"18.04\""]]; then
+            curl https://packages.microsoft.com/config/ubuntu/18.04/multiarch/prod.list > ./microsoft-prod.list
+        fi
+        elif [[ "OS_VERSION_ID" == "\"20.04\""]]; then
+            curl https://packages.microsoft.com/config/ubuntu/20.04/multiarch/prod.list > ./microsoft-prod.list
+        fi
 
-# elif [[ "$OSTYPE" == "linux-gnueabihf"* ]]; then
-# else
-# fi
+    elif [[ "OS_ID" == "debian"]]
+        elif [[ "OS_VERSION_ID" == "\"10\""]]; then
+            curl https://packages.microsoft.com/config/debian/10/multiarch/prod.list > ./microsoft-prod.list
+        fi
+    fi
+elif [[ "$OSTYPE" == "linux-gnueabihf"* ]]; then
+    if [[ "OS_ID" == "raspbian"]]
+        curl https://packages.microsoft.com/config/debian/stretch/multiarch/prod.list > ./microsoft-prod.list
+    fi
+else
+fi
+
 curl https://packages.microsoft.com/config/debian/stretch/multiarch/prod.list > ./microsoft-prod.list
 # cat ./microsoft-prod.list >> /etc/apt/sources.list
 sudo cp ./microsoft-prod.list /etc/apt/sources.list.d/
