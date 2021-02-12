@@ -11,20 +11,20 @@ echo "OS_VERSION_CODENAME = $(printenv OS_VERSION_CODENAME)"
 
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
     if [[ "OS_ID" == "ubuntu" ]]; then
-        if [[ "OS_VERSION_ID" == "\"16.04\"" ]]; then    
+        if [[ "OS_VERSION_ID" == "16.04" ]]; then    
             curl https://packages.microsoft.com/config/ubuntu/16.04/multiarch/prod.list > ./microsoft-prod.list
-        elif [[ "OS_VERSION_ID" == "\"18.04\"" ]]; then
+        elif [[ "OS_VERSION_ID" == "18.04" ]]; then
             curl https://packages.microsoft.com/config/ubuntu/18.04/multiarch/prod.list > ./microsoft-prod.list
-        elif [[ "OS_VERSION_ID" == "\"20.04\"" ]]; then
+        elif [[ "OS_VERSION_ID" == "20.04" ]]; then
             curl https://packages.microsoft.com/config/ubuntu/20.04/multiarch/prod.list > ./microsoft-prod.list
         fi
     elif [[ "OS_ID" == "debian" ]]; then
-        if [[ "OS_VERSION_ID" == "\"10\"" ]]; then
+        if [[ "OS_VERSION_ID" == "10" ]]; then
             curl https://packages.microsoft.com/config/debian/10/multiarch/prod.list > ./microsoft-prod.list
         fi
     fi
 elif [[ "$OSTYPE" == "linux-gnueabihf" ]]; then
-    if [[ "OS_ID" == "raspbian" ]]
+    if [[ "OS_ID" == "raspbian" ]]; then
         curl https://packages.microsoft.com/config/debian/stretch/multiarch/prod.list > ./microsoft-prod.list
     fi
 else
