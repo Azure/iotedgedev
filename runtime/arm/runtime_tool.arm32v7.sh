@@ -31,8 +31,6 @@ else
     echo "Microsoft has no packages for this operating system."
 fi
 
-curl https://packages.microsoft.com/config/debian/stretch/multiarch/prod.list > ./microsoft-prod.list
-# cat ./microsoft-prod.list >> /etc/apt/sources.list
 sudo cp ./microsoft-prod.list /etc/apt/sources.list.d/
 
 curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
