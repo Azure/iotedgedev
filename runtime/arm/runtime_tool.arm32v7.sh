@@ -20,7 +20,7 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
         fi
     elif [[ "$OS_ID" == "debian" ]]; then
         if [[ "$OS_VERSION_ID" == "\"10\"" ]]; then
-            curl https://packages.microsoft.com/config/debian/10/multiarch/prod.list > ./microsoft-prod.list
+            curl https://packages.microsoft.com/config/debian/10/prod.list > ./microsoft-prod.list
         fi
     fi
 elif [[ "$OSTYPE" == "linux-gnueabihf" ]]; then
