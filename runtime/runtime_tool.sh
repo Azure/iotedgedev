@@ -1,5 +1,5 @@
 apt-get update && apt-get install curl
-export OS_NAME=$(grep '^NAME=' /etc/os-release | cut -c 6-)
+# export OS_NAME=$(grep '^NAME=' /etc/os-release | cut -c 6-)
 export OS_ID=$(grep '^ID=' /etc/os-release | cut -c 4-)
 export OS_VERSION_ID=$(grep '^VERSION_ID=' /etc/os-release | cut -c 12-)
 export OS_VERSION_CODENAME=$(grep '^VERSION_CODENAME=' /etc/os-release | cut -c 18-)

@@ -4,7 +4,7 @@ echo '=> creating config.yaml'
 cat <<EOF > /etc/iotedge/config.yaml
 provisioning:
   source: "manual"
-  device_connection_string: "$IOT_DEVICE_CONNSTR"
+  device_connection_string: $1
 agent:
   name: "edgeAgent"
   type: "docker"
@@ -27,6 +27,6 @@ EOF
 cat /etc/iotedge/config.yaml
 
 echo '=> running iotedge daemon'
-# exec iotedged -c /etc/iotedge/config.yaml
-sudo systemctl restart iotedge
-sudo systemctl status iotedge
+exec iotedged -c /etc/iotedge/config.yaml
+# sudo systemctl restart iotedge
+# sudo systemctl status iotedge
