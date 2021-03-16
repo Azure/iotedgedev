@@ -15,7 +15,7 @@ RUN apt-get install git gnupg gnupg2 gnupg1 -y && \
 RUN apt-get install -y wget && \
     wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.asc.gpg && \
     mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/ && \
-    wget -q https://packages.microsoft.com/config/ubuntu/18.04/prod.list && \
+    wget -q https://packages.microsoft.com/config/ubuntu/18.04/multiarch/prod.list && \
     mv prod.list /etc/apt/sources.list.d/microsoft-prod.list && \
     apt-get install -y apt-transport-https && \
     apt-get update && \
