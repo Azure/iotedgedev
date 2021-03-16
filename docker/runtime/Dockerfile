@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     iproute2 \
     iputils-ping \
+    gnupg2 \
     systemd  && \
     rm -rf /var/lib/apt/lists/*
 RUN curl https://packages.microsoft.com/config/ubuntu/18.04/multiarch/prod.list > ./microsoft-prod.list && \
