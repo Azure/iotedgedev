@@ -71,8 +71,10 @@ def test_get_all_modules(deployment_manifest):
 def test_add_module_template(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_1)
     deployment_manifest.add_module_template("csharpmodule2")
-    with open(test_file_3, "r") as expected:
-        assert deployment_manifest.json == json.load(expected)
+    expected = json.loads(Utility.get_file_contents(test_file_3, expandvars=True))
+    assert deployment_manifest.json == expected
+    #with open(test_file_3, "r") as expected:
+     #   assert deployment_manifest.json == json.load(expected)
 
 
 def test_convert_create_options(deployment_manifest):

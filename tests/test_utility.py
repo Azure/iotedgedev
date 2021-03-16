@@ -66,8 +66,10 @@ def test_copy_template_expandvars(utility, tmpdir):
     }
     os.environ["CONTAINER_REGISTRY_SERVER"] = "localhost:5000"
     dest = tmpdir.join("deployment_template_2.dest.json").strpath
+    dest2 = tmpdir.join("deployment_template_2.dest2.json").strpath
     utility.copy_template(test_file_1, dest, replacements=replacements, expandvars=True)
-    assert_json_file_equal(test_file_2, dest)
+    utility.copy_template(test_file_2, dest2, expandvars=True)
+    assert_json_file_equal(dest, dest2)
 
 
 def test_in_asterisk_list(utility):
