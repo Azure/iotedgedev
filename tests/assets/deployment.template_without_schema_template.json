@@ -15,7 +15,7 @@
           "edgeAgent": {
             "type": "docker",
             "settings": {
-              "image": "mcr.microsoft.com/azureiotedge-agent:${RUNTIME_TAG}",
+              "image": "mcr.microsoft.com/azureiotedge-agent:${EDGE_RUNTIME_VERSION}",
               "createOptions": {}
             }
           },
@@ -24,7 +24,7 @@
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "mcr.microsoft.com/azureiotedge-hub:${RUNTIME_TAG}",
+              "image": "mcr.microsoft.com/azureiotedge-hub:${EDGE_RUNTIME_VERSION}",
               "createOptions": {
                 "HostConfig": {
                   "PortBindings": {

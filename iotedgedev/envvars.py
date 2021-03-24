@@ -98,7 +98,7 @@ class EnvVars:
 
                 self.BYPASS_MODULES = self.get_envvar("BYPASS_MODULES", default="")
                 self.CONTAINER_TAG = self.get_envvar("CONTAINER_TAG", default="")
-                self.RUNTIME_TAG = self.get_envvar("RUNTIME_TAG", default="")
+                self.EDGE_RUNTIME_VERSION = self.get_envvar("EDGE_RUNTIME_VERSION", default="")
                 self.CONFIG_OUTPUT_DIR = self.get_envvar("CONFIG_OUTPUT_DIR", default=Constants.default_config_folder)
                 self.DEPLOYMENT_CONFIG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", default=Constants.default_deployment_template_file)
                 self.DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE", default=Constants.default_deployment_debug_template_file)

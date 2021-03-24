@@ -67,18 +67,18 @@ def docker():
                        "Use \".\" as NAME to create in the current folder.")
 @click.argument("name",
                 required=True)
-@click.option("--runtime_tag",
-              "-rt",
+@click.option("--edge-runtime-version",
+              "-er",
               default="1.0",
               show_default=True,
               required=False,
               help="Specify the IoT Edge Runtime Version. Currently available 1.0 and 1.1")
 @add_module_options(envvars, init=True)
 @with_telemetry
-def new(name, module, template, runtime_tag, group_id):
+def new(name, module, template, edge-runtime-version, group_id):
     utility = Utility(envvars, output)
     sol = Solution(output, utility)
-    sol.create(name, module, template, runtime_tag, group_id)
+    sol.create(name, module, template, edge-runtime-version, group_id)
 
 
 main.add_command(new)
@@ -88,21 +88,21 @@ main.add_command(new)
                   help="Create a new IoT Edge solution and provision Azure resources",
                   # hack to prevent Click truncating help messages
                   short_help="Create a new IoT Edge solution and provision Azure resources")
-@click.option("--runtime-tag",
-              "-rt",
+@click.option("--edge-runtime-version",
+              "-er",
               default="1.0",
               show_default=True,
               required=False,
               help="Specify the IoT Edge Runtime Version. Currently available 1.0 and 1.1")
 @add_module_options(envvars, init=True)
 @with_telemetry
-def init(module, template, group_id, runtime_tag):
+def init(module, template, group_id, edge-runtime-version):
     utility = Utility(envvars, output)
 
     if template == "java":
-        solcmd = "iotedgedev new . --module {0} --template {1} --runtime_tag {2} --group-id {3}".format(module, template, runtime_tag, group_id)
+        solcmd = "iotedgedev new . --module {0} --template {1} --edge-runtime-version {2} --group-id {3}".format(module, template, edge-runtime-version, group_id)
     else:
-        solcmd = "iotedgedev new . --module {0} --template {1} --runtime_tag {2}".format(module, template, runtime_tag)
+        solcmd = "iotedgedev new . --module {0} --template {1} --edge-runtime-version {2}".format(module, template, edge-runtime-version)
     output.header(solcmd)
     ret = utility.call_proc(solcmd.split())
 

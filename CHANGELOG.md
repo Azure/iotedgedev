@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [3.1.0] - 2021-3-24
+- Added support for IoT Edge Runtime version 1.1
+- Enabled dynamic Edge runtime selection in CLI with -er flag
+
 ## [3.0.0] - 2021-01-27
 - Remove support for Python2. Only Python 3.6 and 3.7 are currently supported.
 

@@ -25,7 +25,7 @@ class Solution:
         self.utility.copy_from_template_dir(Constants.default_deployment_template_file, dir_path,
                                             dest_file=Constants.default_deployment_debug_template_file, replacements={"%MODULE%": module})
         self.utility.copy_from_template_dir(".gitignore", dir_path)
-        self.utility.copy_from_template_dir(".env.tmp", dir_path, dest_file=".env", replacements={"%RUNTIME_TAG%": runtime_tag})
+        self.utility.copy_from_template_dir(".env.tmp", dir_path, dest_file=".env", replacements={"%EDGE_RUNTIME_VERSION%": runtime_tag})
 
         if template == "java":
             mod_cmd = "iotedgedev solution add {0} --template {1} --group-id {2}".format(module, template, group_id)

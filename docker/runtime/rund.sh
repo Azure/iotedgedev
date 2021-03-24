@@ -18,7 +18,7 @@ agent:
   type: "docker"
   env: {}
   config:
-    image: "mcr.microsoft.com/azureiotedge-agent:1.1"
+    image: "mcr.microsoft.com/azureiotedge-agent:1.0"
     auth: {}
 hostname: "edgehub"
 connect:
