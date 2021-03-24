@@ -3,7 +3,7 @@
 echo '=> detecting IP'
 export IP=$(ip addr show eth0 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1)
 export IOT_DEVICE_HOSTNAME="$IP"
-export AGENT_IMAGE="mcr.microsoft.com/azureiotedge-agent:1.1@sha256:84d81e0527799e903fca9602c56efcbc43ce6f90eaeb7316fddc7d663d40d1b1"
+export AGENT_IMAGE="mcr.microsoft.com/azureiotedge-agent:1.0@sha256:3fdb80a6dfe1fbcbf11cfcea56dda79d1d779490c66d394a2b3f388d74ab0c26"
 #export IOTEDGE_LOG=edgelet=debug
 
 echo '=> creating config.yaml'

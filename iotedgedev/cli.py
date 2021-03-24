@@ -75,10 +75,10 @@ def docker():
               help="Specify the IoT Edge Runtime Version. Currently available 1.0 and 1.1")
 @add_module_options(envvars, init=True)
 @with_telemetry
-def new(name, module, template, edge-runtime-version, group_id):
+def new(name, module, template, edge_runtime_version, group_id):
     utility = Utility(envvars, output)
     sol = Solution(output, utility)
-    sol.create(name, module, template, edge-runtime-version, group_id)
+    sol.create(name, module, template, edge_runtime_version, group_id)
 
 
 main.add_command(new)
@@ -96,13 +96,13 @@ main.add_command(new)
               help="Specify the IoT Edge Runtime Version. Currently available 1.0 and 1.1")
 @add_module_options(envvars, init=True)
 @with_telemetry
-def init(module, template, group_id, edge-runtime-version):
+def init(module, template, group_id, edge_runtime_version):
     utility = Utility(envvars, output)
 
     if template == "java":
-        solcmd = "iotedgedev new . --module {0} --template {1} --edge-runtime-version {2} --group-id {3}".format(module, template, edge-runtime-version, group_id)
+        solcmd = "iotedgedev new . --module {0} --template {1} --edge-runtime-version {2} --group-id {3}".format(module, template, edge_runtime_version, group_id)
     else:
-        solcmd = "iotedgedev new . --module {0} --template {1} --edge-runtime-version {2}".format(module, template, edge-runtime-version)
+        solcmd = "iotedgedev new . --module {0} --template {1} --edge-runtime-version {2}".format(module, template, edge_runtime_version)
     output.header(solcmd)
     ret = utility.call_proc(solcmd.split())
 
