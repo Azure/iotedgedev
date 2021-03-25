@@ -99,7 +99,7 @@ main.add_command(new)
 def init(module, template, group_id, edge_runtime_version):
     if edge_runtime_version is not None:
         if (edge_runtime_version != "1.0" or edge_runtime_version != "1.1"):
-            output.info('-edge-runtime-version `{0}` is not valid. Currently support versions 1.0 and 1.1 only'.format(edge_runtime_version))
+            output.info('-edge-runtime-version `{0}` is not valid. Currently supported versions are 1.1 and 1.0'.format(edge_runtime_version))
             sys.exit()
     utility = Utility(envvars, output)
 
