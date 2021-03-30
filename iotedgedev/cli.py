@@ -69,7 +69,7 @@ def docker():
                 required=True)
 @click.option("--edge-runtime-version",
               "-er",
-              default="1.0",
+              default="1.1",
               show_default=True,
               required=False,
               help="Specify the IoT Edge Runtime Version. Currently available 1.0 and 1.1")
@@ -90,7 +90,7 @@ main.add_command(new)
                   short_help="Create a new IoT Edge solution and provision Azure resources")
 @click.option("--edge-runtime-version",
               "-er",
-              default="1.0",
+              default="1.1",
               show_default=True,
               required=False,
               help="Specify the IoT Edge Runtime Version. Currently available 1.0 and 1.1")
