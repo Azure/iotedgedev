@@ -169,7 +169,7 @@ def test_solution_create_valid_runtime_tag():
     dirname = "empty_dir"
     os.makedirs(dirname)
 
-    result = runner_invoke(['solution', 'new', dirname], '-er', '1.1')
+    result = runner_invoke(['solution', 'new', dirname, '-er', '1.1'])
 
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
 
@@ -177,7 +177,7 @@ def test_solution_create_invalid_runtime_tag():
     dirname = "empty_dir"
     os.makedirs(dirname)
 
-    result = runner_invoke(['solution', 'new', dirname], '-er', '6')
+    result = runner_invoke(['solution', 'new', dirname, '-er', '6'])
 
     assert '-edge-runtime-version `6` is not valid' in result.output
 
