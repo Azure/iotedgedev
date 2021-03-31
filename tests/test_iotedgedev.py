@@ -174,7 +174,7 @@ def test_solution_create_valid_runtime_tag():
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
 
 def test_solution_create_invalid_runtime_tag():
-    dirname = "empty_dir"
+    dirname = "empty_invalid_dir"
     os.makedirs(dirname)
 
     result = runner_invoke(['solution', 'new', dirname, '-er', '6'])
