@@ -76,6 +76,10 @@ def docker():
 @add_module_options(envvars, init=True)
 @with_telemetry
 def new(name, module, template, edge_runtime_version, group_id):
+    if edge_runtime_version is not None:
+        if (str(edge_runtime_version) != "1.0" and str(edge_runtime_version) != "1.1"):
+            output.info('-edge-runtime-version `{0}` is not valid. Currently supported versions are 1.1 and 1.0'.format(edge_runtime_version))
+            sys.exit()
     utility = Utility(envvars, output)
     sol = Solution(output, utility)
     sol.create(name, module, template, edge_runtime_version, group_id)
