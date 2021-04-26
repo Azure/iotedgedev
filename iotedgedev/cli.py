@@ -67,12 +67,22 @@ def docker():
                        "Use \".\" as NAME to create in the current folder.")
 @click.argument("name",
                 required=True)
+@click.option("--edge-runtime-version",
+              "-er",
+              default="1.1",
+              show_default=True,
+              required=False,
+              help="Specify the IoT Edge Runtime Version. Currently available 1.0 and 1.1")
 @add_module_options(envvars, init=True)
 @with_telemetry
-def new(name, module, template, group_id):
+def new(name, module, template, edge_runtime_version, group_id):
+    if edge_runtime_version is not None:
+        if (str(edge_runtime_version) != "1.0" and str(edge_runtime_version) != "1.1"):
+            output.info('-edge-runtime-version `{0}` is not valid. Currently supported versions are 1.1 and 1.0'.format(edge_runtime_version))
+            sys.exit()
     utility = Utility(envvars, output)
     sol = Solution(output, utility)
-    sol.create(name, module, template, group_id)
+    sol.create(name, module, template, edge_runtime_version, group_id)
 
 
 main.add_command(new)
@@ -82,15 +92,25 @@ main.add_command(new)
                   help="Create a new IoT Edge solution and provision Azure resources",
                   # hack to prevent Click truncating help messages
                   short_help="Create a new IoT Edge solution and provision Azure resources")
+@click.option("--edge-runtime-version",
+              "-er",
+              default="1.1",
+              show_default=True,
+              required=False,
+              help="Specify the IoT Edge Runtime Version. Currently available 1.0 and 1.1")
 @add_module_options(envvars, init=True)
 @with_telemetry
-def init(module, template, group_id):
+def init(module, template, group_id, edge_runtime_version):
+    if edge_runtime_version is not None:
+        if (str(edge_runtime_version) != "1.0" and str(edge_runtime_version) != "1.1"):
+            output.info('-edge-runtime-version `{0}` is not valid. Currently supported versions are 1.1 and 1.0'.format(edge_runtime_version))
+            sys.exit()
     utility = Utility(envvars, output)
 
     if template == "java":
-        solcmd = "iotedgedev new . --module {0} --template {1} --group-id {2}".format(module, template, group_id)
+        solcmd = "iotedgedev new . --module {0} --template {1} --edge-runtime-version {2} --group-id {3}".format(module, template, edge_runtime_version, group_id)
     else:
-        solcmd = "iotedgedev new . --module {0} --template {1}".format(module, template)
+        solcmd = "iotedgedev new . --module {0} --template {1} --edge-runtime-version {2}".format(module, template, edge_runtime_version)
     output.header(solcmd)
     ret = utility.call_proc(solcmd.split())
 

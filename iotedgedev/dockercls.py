@@ -74,10 +74,10 @@ class Docker:
         for image_name in image_names:
 
             microsoft_image_name = "mcr.microsoft.com/{0}:{1}".format(
-                image_name, self.envvars.RUNTIME_TAG)
+                image_name, self.envvars.EDGE_RUNTIME_VERSION)
 
             container_registry_image_name = "{0}/{1}:{2}".format(
-                default_cr.server, image_name, self.envvars.RUNTIME_TAG)
+                default_cr.server, image_name, self.envvars.EDGE_RUNTIME_VERSION)
 
             # Pull image from MCR
             try:
@@ -107,7 +107,7 @@ class Docker:
                 self.output.info("PUSHING IMAGE: '{0}'".format(
                     container_registry_image_name))
 
-                response = self.docker_client.images.push(repository=container_registry_image_name, tag=self.envvars.RUNTIME_TAG, stream=True, auth_config={
+                response = self.docker_client.images.push(repository=container_registry_image_name, tag=self.envvars.EDGE_RUNTIME_VERSION, stream=True, auth_config={
                                                           "username": default_cr.username, "password": default_cr.password})
                 self.process_api_response(response)
                 self.output.info("SUCCESSFULLY PUSHED IMAGE: '{0}'".format(

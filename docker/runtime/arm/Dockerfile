@@ -1,4 +1,4 @@
-FROM arm32v7/ubuntu:16.04
+FROM arm32v7/ubuntu:18.04
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-transport-https \
@@ -8,8 +8,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     iproute2 \
     libcurl3 \
     libffi-dev \
-    libssl1.0.0=1.0.2g-1ubuntu4.13 \
-    libssl-dev=1.0.2g-1ubuntu4.13 \
+    libssl1.0.0=1.0.2g-1ubuntu5.6 \
+    libssl-dev=1.0.2g-1ubuntu5.6 \
     systemd && \
     rm -rf /var/lib/apt/lists/*
 

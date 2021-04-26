@@ -3,6 +3,8 @@ from functools import wraps
 
 import click
 
+PARAMS_WITH_VALUES = {'edge_runtime_version'}
+
 def with_telemetry(func):
     @wraps(func)
     def _wrapped_func(*args, **kwargs):
@@ -53,10 +55,10 @@ def parse_params(*args, **kwargs):
     """Record the parameter keys and whether the values are None"""
     params = []
     for key, value in kwargs.items():
-        is_none = '='
-        if value is not None:
-            is_none = '!='
-        params.append('{0}{1}None'.format(key, is_none))
+        if (value is None) or (key in PARAMS_WITH_VALUES):
+            params.append('{0}={1}'.format(key, value))
+        else:
+            params.append('{0}!=None'.format(key))
     return params
 
 

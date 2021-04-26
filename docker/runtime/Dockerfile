@@ -1,13 +1,14 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-transport-https \
     ca-certificates \
     curl \
     iproute2 \
     iputils-ping \
+    gnupg2 \
     systemd  && \
     rm -rf /var/lib/apt/lists/*
-RUN curl https://packages.microsoft.com/config/ubuntu/16.04/prod.list > ./microsoft-prod.list && \
+RUN curl https://packages.microsoft.com/config/ubuntu/18.04/multiarch/prod.list > ./microsoft-prod.list && \
     cp ./microsoft-prod.list /etc/apt/sources.list.d/ && \
     curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg && \
     cp ./microsoft.gpg /etc/apt/trusted.gpg.d/ 
