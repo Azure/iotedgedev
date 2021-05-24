@@ -164,8 +164,14 @@ The only thing you need to install is Docker. All of the other dev dependencies 
     <summary>More information</summary>
 
     1. You will see your expected messages sending to IoT Hub
+    2. Stopping the monitor doesn't stop the simulator. It will continue running until it is explicitely stopped using `iotedgedev stop` and at that time all containers used by the simulator will be cleaned up.
 
     </details>
+
+1. **Docker containers/images management**
+    1. The containers used by the simulator will be cleaned up when the simulator stops running `iotedgedev stop`
+    2. All remaining containers can be cleaned up using `iotedgedev docker clean -c`
+    3. All remaining images can be cleaned up using `iotedgedev docker clean -i`
 
 ## Resources
 Please refer to the [Wiki](https://github.com/Azure/iotedgedev/wiki) for details on setup, usage, and troubleshooting.
