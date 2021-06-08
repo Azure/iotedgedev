@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
-## [3.1.0rc0] - 2021-3-24
+## [3.1.0] - 2021-6-8
 - Added support for IoT Edge Runtime version 1.1
 - Enabled dynamic Edge runtime selection in CLI with -er flag
 
