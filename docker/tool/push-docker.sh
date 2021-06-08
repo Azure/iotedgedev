@@ -27,6 +27,7 @@ function show_help
 IMAGE_NAME="$1"
 PLATFORM="$2"
 VERSION="$3"
+ACR_LOGIN_SERVER="iotedgetoolscontainerregistry.azurecr.io"
 
 if [ "$IMAGE_NAME" = "--help" ]; then    
     echo "Usage:"
@@ -40,19 +41,19 @@ if [ -z "$VERSION" ]; then
     echo "Detected version $VERSION"
 fi
 
-docker push $IMAGE_NAME:$VERSION-amd64 
-docker push $IMAGE_NAME:latest-amd64 
+docker push $ACR_LOGIN_SERVER/$IMAGE_NAME:$VERSION-amd64 
+docker push $ACR_LOGIN_SERVER/$IMAGE_NAME:latest-amd64 
 
 #TODO add windows container support.  For now we only push linux.
-#docker push $IMAGE_NAME:$VERSION-windows-amd64
-#docker push $IMAGE_NAME:latest-windows-amd64
+#docker push $ACR_LOGIN_SERVER/$IMAGE_NAME:$VERSION-windows-amd64
+#docker push $ACR_LOGIN_SERVER/$IMAGE_NAME:latest-windows-amd64
 
 echo -e "\n===== Creating Multi-Arch Docker image"
 #docker manifest create $IMAGE_NAME:latest $IMAGE_NAME:latest-amd64 $IMAGE_NAME:latest-windows-amd64 
 docker manifest create --insecure $IMAGE_NAME:latest $IMAGE_NAME:latest-amd64 
 
 echo -e "\n===== Pushing Docker Multi-Arch image"
-docker manifest push --purge $IMAGE_NAME:latest
+docker manifest push --purge $ACR_LOGIN_SERVER/$IMAGE_NAME:latest
 
 if [ in_docker_folder = 0 ]; then
     cd original_folder
