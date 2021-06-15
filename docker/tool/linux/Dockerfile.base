@@ -10,12 +10,12 @@ RUN apt-get update && apt-get install -y apt-transport-https ca-certificates cur
     apt-get install -y docker-ce
 RUN apt-get install git gnupg gnupg2 gnupg1 -y && \
     apt-get install -y --no-install-recommends dialog apt-utils curl apt-transport-https python-pip python3-pip libltdl-dev && \ 
-    curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
+    curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
     apt-get install -y nodejs
 RUN apt-get install -y wget && \
     wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.asc.gpg && \
     mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/ && \
-    wget -q https://packages.microsoft.com/config/ubuntu/18.04/multiarch/prod.list && \
+    wget -q https://packages.microsoft.com/config/ubuntu/18.04/prod.list && \
     mv prod.list /etc/apt/sources.list.d/microsoft-prod.list && \
     apt-get install -y apt-transport-https && \
     apt-get update && \
@@ -25,7 +25,7 @@ RUN curl -L https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 RUN apt-get update && \
     npm i npm@latest -g && \
-    npm i -g iothub-explorer yo generator-azure-iot-edge-module && \
+    npm i -g azure-iothub yo generator-azure-iot-edge-module && \
     apt-get install -y --no-install-recommends python-dev build-essential libssl-dev libffi-dev libxml2-dev libxslt1-dev zlib1g-dev sudo
 RUN python3 -m pip install --upgrade pip && \
     pip3 install setuptools && \
