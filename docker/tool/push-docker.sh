@@ -24,7 +24,7 @@ fi
 
 if [ -z "$VERSION" ]; then
     echo -e "\n===== Detecting version"
-    VERSION=$(cat ../../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+    VERSION=$(grep '__version__' ../../iotedgedev/__init__.py | grep -oP "'\K[^']+")
     echo "Detected version $VERSION"
 fi
 
