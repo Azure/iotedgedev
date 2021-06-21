@@ -31,4 +31,4 @@ steps:
       pytest -m unit
     displayName: "Run tests commands as Travis"
     env: 
-      DOTENV_FILE=".env.tmp"
+      DOTENV_FILE: ".env.tmp"
