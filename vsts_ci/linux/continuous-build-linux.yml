@@ -25,3 +25,10 @@ steps:
       mvn -v
       sudo -E `which tox` -e "$(TOXENV)"
     displayName: "Run test"
+
+  - powershell: |
+      pip install -r requirements_travis.txt
+      pytest -m unit
+    displayName: "Run tests commands as Travis"
+    env: 
+      DOTENV_FILE=".env.tmp"
