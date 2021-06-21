@@ -21,10 +21,10 @@ steps:
       az --version
     displayName: "Update and install required tools"
 
-  - script: |
-      mvn -v
-      sudo -E `which tox` -e "$(TOXENV)"
-    displayName: "Run test"
+  # - script: |
+  #     mvn -v
+  #     sudo -E `which tox` -e "$(TOXENV)"
+  #   displayName: "Run test"
 
   - powershell: |
       pip install -r requirements_travis.txt
