@@ -1,8 +1,7 @@
 # Azure IoT Edge Dev Tool
 
 [![PyPI version](https://badge.fury.io/py/iotedgedev.svg)](https://badge.fury.io/py/iotedgedev)
-[![Travis Build Status](https://travis-ci.org/Azure/iotedgedev.svg?branch=master)](https://travis-ci.org/Azure/iotedgedev)
-[![Build Status](https://dev.azure.com/mseng/VSIoT/_apis/build/status/iotedgedev-master-ci?branchName=master)](https://dev.azure.com/mseng/VSIoT/_build/latest?definitionId=7884?branchName=master)
+[![Build Status](https://dev.azure.com/Azure-IoT-DDE-EdgeExperience/IoTEdgeDev/_apis/build/status/Azure.iotedgedev?branchName=master)](https://dev.azure.com/Azure-IoT-DDE-EdgeExperience/IoTEdgeDev/_build/latest?definitionId=35&branchName=master)
 
 The **IoT Edge Dev Tool** greatly simplifies [Azure IoT Edge](https://azure.microsoft.com/en-us/services/iot-edge/) development down to simple commands driven by environment variables.
 
