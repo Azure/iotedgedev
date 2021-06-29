@@ -1,4 +1,0 @@
--r requirements.txt
-pylint
-pytest
-setuptools
