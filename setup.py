@@ -18,13 +18,7 @@ requirements = [
     'python-dotenv',
     'requests >= 2.20.0, <= 2.25.1',
     'fstrings',
-    'azure-cli-core',
-    'azure-cli-iot',
-    'azure-cli-profile',
-    'azure-cli-extension',
-    'azure-cli-configure',
-    'azure-cli-resource',
-    'azure-cli-cloud',
+    'azure-cli-core >= 2.25.0',
     'iotedgehubdev >= 0.14.3',
     'applicationinsights == 0.11.9',
     'commentjson == 0.9.0',
@@ -43,7 +37,7 @@ test_requirements = [
 
 setup(
     name='iotedgedev',
-    version='3.1.0',
+    version='3.1.1',
     description='The Azure IoT Edge Dev Tool greatly simplifies the IoT Edge development process by automating many routine manual tasks, such as building, deploying, pushing modules and configuring the IoT Edge Runtime.',
     long_description='See https://github.com/azure/iotedgedev for usage instructions.',
     author='Microsoft Corporation',
