@@ -3,7 +3,8 @@
 {
     "name": "iotedgedev",
     "build": {
-        "dockerfile": "Dockerfile"
+        "dockerfile": "Dockerfile",
+        "context": "..",
     },
     "runArgs": [
         "--network",
@@ -13,17 +14,17 @@
         // Keep command history 
         "source=ostf-bashhistory,target=/commandhistory,type=volume",
         // Use hosts docker socket
-        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
     ],
     // Set *default* container specific settings.json values on container create.
     "settings": {
-        "#terminal.integrated.defaultProfile.linux#": "/bin/bash"
+        "#terminal.integrated.defaultProfile.linux#": "/bin/bash",
     },
     // Add the IDs of extensions you want installed when the container is created.
     "extensions": [
         "ms-python.python",
         "ms-azuretools.vscode-docker",
         "redhat.vscode-yaml",
-        "mikestead.dotenv"
+        "mikestead.dotenv",
     ]
 }

@@ -9,15 +9,19 @@ ARG COOKIECUTTER_VERSION="1.7.3"
 ARG AZURE_CLI_VERSION="2.24.0-1~buster"
 ARG NODE_VERSION="15.x"
 ARG DOTNET_VERSION="5.0"
-ARG JDK_VERIOSN="2:1.11-71"
-ARG MAVEN_VERIOSN="3.6.0-1"
+ARG JDK_VERSION="2:1.11-71"
+ARG MAVEN_VERSION="3.6.0-1"
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends build-essential && \
-    apt-get install -y python2.7-dev libffi-dev libssl-dev
+    apt-get install -y libffi-dev libssl-dev
 
 # Install python libraries
 RUN pip install cookiecutter==${COOKIECUTTER_VERSION} docker-compose==${DOCKER_COMPOSE_VERSION} 
+
+# Install python development dependencies
+ADD requirements_dev.txt requirements.txt /tmp/
+RUN pip install -r /tmp/requirements_dev.txt
 
 RUN \
     # Install the Azure CLI and IoT extension
@@ -39,7 +43,6 @@ RUN \
     npm install -g yo && \
     npm i -g yo generator-azure-iot-edge-module && \
     cd ~ && \ 
-    rm -rf /tmp/* && \
     # Install dotnet SDK
     wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb -O packages-microsoft-prod.deb && \
     dpkg -i packages-microsoft-prod.deb && \
@@ -47,13 +50,16 @@ RUN \
     apt-get update && apt-get install -y apt-transport-https && \
     apt-get update && apt-get install -y dotnet-sdk-${DOTNET_VERSION} && \
     # Install Java JDK, Maven
-    apt-get install -y default-jdk=${JDK_VERIOSN} && \
-    apt-get install -y maven=${MAVEN_VERIOSN} && \
+    apt-get install -y default-jdk=${JDK_VERSION} && \
+    apt-get install -y maven=${MAVEN_VERSION} && \
     #
     # Clean up
     apt-get autoremove -y && \
     apt-get clean -y && \
+    rm -rf /tmp/* && \
     rm -rf /var/lib/apt/lists/*
+
+
 
 # Customize bash
 RUN \
