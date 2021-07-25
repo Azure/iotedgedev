@@ -1,6 +1,10 @@
+# Contributing
+
+This section describes how to get your developer workspace running for the first time so that you're ready to start making contributions.
+
 Please fork, branch and pull-request any changes you'd like to make.
 
-#### Contributor Dev Machine Setup
+## Workspace Setup
 
 1. Clone this repository
 
@@ -15,7 +19,10 @@ Please fork, branch and pull-request any changes you'd like to make.
         - We've seen some issues with docker.io. If IoT Edge doesn't run for you, then try installing Docker CE directly instead of via docker.io. Use the [CE install steps](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce), or use the [convenience script](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-using-the-convenience-script).
         - By default, you need `sudo` to run `docker` commands. If you want to avoid this, please follow the [post-installation steps for Linux](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user).
 
-1. Install **Python 2.7+**, **Python 3.6+**, and **pip**
+
+### A) Contributor Dev Machine Setup
+
+1. Install **Python 3.6+**, and **pip**
     - Windows: [Install from Python's website](https://www.python.org/downloads/)
     - Linux: `sudo apt-get install python-pip python3-pip`
     - macOS: The OpenSSL used by the system built-in Python is old and vulnerable. Please use Python installed with [Homebrew](https://docs.brew.sh/Homebrew-and-Python).
@@ -40,7 +47,7 @@ Please fork, branch and pull-request any changes you'd like to make.
 1. (Linux only) Install extra system dependencies
 
     ```
-    sudo apt-get install -y python2.7-dev libffi-dev libssl-dev
+    sudo apt-get install -y libffi-dev libssl-dev
     ```
 
 1. Install module dependencies
@@ -70,6 +77,29 @@ Please fork, branch and pull-request any changes you'd like to make.
     ```
     pip install -r requirements_dev.txt
     ```
+ 
+### B) Contributor Docker Devcontainer Setup
+
+#### With VSCode
+
+Developing with docker using VSCode's [remote containers](https://code.visualstudio.com/docs/remote/containers):
+
+- Install [Remote Development Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) in VSCode
+- Open the project in VSCode
+- When prompted by VSCode, select "Reopen in Container"
+
+> To further customize your devcontainer checkout [Personalizing with `dotfile` repositories](https://code.visualstudio.com/docs/remote/containers#_personalizing-with-dotfile-repositories). In the same settings you're also able to add personal extensions for your container.
+
+#### Without VSCode
+
+- Build the development environment: `docker build -f .devcontainer/Dockerfile -t dev .`
+- Mount the root directory into the docker container, and drop into a bash shell in the container:
+  
+  ```bash
+  docker run -it -v ${PWD}:/workspaces/iotedgedev iotedgedev
+  ```
+
+## Developing
 
 1. Run IoT Edge Dev Tool in editable mode
 
@@ -78,13 +108,14 @@ Please fork, branch and pull-request any changes you'd like to make.
     ```
     pip install -e .
     ```
- 
-#### VS Code Debugging
+
+
+## VS Code Debugging
 VS Code Debugging works only with Python 3.6 VS Code Python Environments for now. Make sure that your VS Code Python Environment is [pointing to Python 3.6](https://code.visualstudio.com/docs/python/environments#_how-to-choose-an-environment)
 
 Set your CLI arguments in .vscode/launch.json and hit **F5**
  
-#### Run Tests
+## Run Tests
 
 Run the following command to run tests.
     
