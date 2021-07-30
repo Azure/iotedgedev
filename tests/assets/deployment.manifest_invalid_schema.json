@@ -2,7 +2,7 @@
     "modulesContent": {
       "$edgeAgent": {
         "properties.desired": {
-          "schemaVersion": "1.0",
+          "schemaVersion": "${EDGEAGENT_SCHEMA_VERSION}",
           "runtime": {
             "type": "docker",
             "settings": {
@@ -54,7 +54,7 @@
       },
       "$edgeHub": {
         "properties.desired": {
-          "schemaVersion": "1.0",
+          "schemaVersion": "${EDGEHUB_SCHEMA_VERSION}",
           "routes": {
             "sensorTocsharpmodule": "FROM /messages/modules/tempSensor/outputs/temperatureOutput INTO BrokeredEndpoint(\"/modules/csharpmodule/inputs/input1\")",
             "csharpmoduleToIoTHub": "FROM /messages/modules/csharpmodule/outputs/* INTO $upstream",
