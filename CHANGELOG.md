@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [3.2.0] - 2021-7-30
+- Added support for IoT Edge Runtime version 1.2
+- Enable change of edgehub and edgeagent schema versions
+
 ## [3.1.0] - 2021-6-8
 - Added support for IoT Edge Runtime version 1.1
 - Enabled dynamic Edge runtime selection in CLI with -er flag
