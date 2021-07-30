@@ -35,7 +35,7 @@ def deployment_manifest():
 def test_get_desired_property(deployment_manifest):
     deployment_manifest = deployment_manifest(test_file_1)
     props = deployment_manifest.get_desired_property("$edgeHub", "schemaVersion")
-    assert props == "%EDGE_RUNTIME_VERSION"
+    assert props == "%EDGE_RUNTIME_VERSION%"
 
 
 def test_get_desired_property_nonexistent_module(deployment_manifest):
