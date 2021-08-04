@@ -101,10 +101,6 @@ class EnvVars:
                 self.EDGE_RUNTIME_VERSION = self.get_envvar("EDGE_RUNTIME_VERSION", default="")
                 self.EDGEAGENT_SCHEMA_VERSION = self.get_envvar("EDGEAGENT_SCHEMA_VERSION", default="")
                 self.EDGEHUB_SCHEMA_VERSION = self.get_envvar("EDGEHUB_SCHEMA_VERSION", default="")
-                # exception for runtime version 1.2
-                if(self.EDGE_RUNTIME_VERSION == "1.2"):
-                    self.EDGEAGENT_SCHEMA_VERSION = "1.1"
-                    self.EDGEHUB_SCHEMA_VERSION = "1.2"
                 self.CONFIG_OUTPUT_DIR = self.get_envvar("CONFIG_OUTPUT_DIR", default=Constants.default_config_folder)
                 self.DEPLOYMENT_CONFIG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", default=Constants.default_deployment_template_file)
                 self.DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE", default=Constants.default_deployment_debug_template_file)

@@ -25,8 +25,15 @@ class Solution:
         self.utility.copy_from_template_dir(Constants.default_deployment_template_file, dir_path,
                                             dest_file=Constants.default_deployment_debug_template_file, replacements={"%MODULE%": module})
         self.utility.copy_from_template_dir(".gitignore", dir_path)
-        self.utility.copy_from_template_dir(".env.tmp", dir_path, dest_file=".env", replacements={"%EDGE_RUNTIME_VERSION%": runtime_tag})
-
+        edgeagent_schema_version = runtime_tag
+        edgehub_schema_version = runtime_tag
+        # exception for runtime version 1.2
+        if(runtime_tag == "1.2"):
+            edgeagent_schema_version = "1.1"
+            edgehub_schema_version = "1.2"
+        
+        self.utility.copy_from_template_dir(".env.tmp", dir_path, dest_file=".env", replacements={"%EDGE_RUNTIME_VERSION%": runtime_tag, "%EDGEAGENT_SCHEMA_VERSION%": edgeagent_schema_version, "%EDGEHUB_SCHEMA_VERSION%": edgehub_schema_version})
+        
         if template == "java":
             mod_cmd = "iotedgedev solution add {0} --template {1} --group-id {2}".format(module, template, group_id)
         else:
