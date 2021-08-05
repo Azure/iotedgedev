@@ -448,7 +448,7 @@ class AzureCli:
             f("Retrieving '{value}' connection string..."))
 
         with output_io_cls() as io:
-            result = self.invoke_az_cli_outproc(["iot", "hub", "show-connection-string", "--hub-name", value,
+            result = self.invoke_az_cli_outproc(["iot", "hub", "connection-string", "show", "--hub-name", value,
                                                  "--resource-group", resource_group],
                                                 f("Could not create the IoT Hub {value} in {resource_group}."), stdout_io=io)
             if result:
@@ -495,7 +495,7 @@ class AzureCli:
             f("Retrieving '{value}' connection string..."))
 
         with output_io_cls() as io:
-            result = self.invoke_az_cli_outproc(["iot", "hub", "device-identity", "show-connection-string", "--device-id", value, "--hub-name", iothub,
+            result = self.invoke_az_cli_outproc(["iot", "hub", "device-identity", "connection-string", "show", "--device-id", value, "--hub-name", iothub,
                                                  "--resource-group", resource_group],
                                                 f("Could not locate the {value} device in {iothub} IoT Hub in {resource_group}."), stdout_io=io)
             if result:
