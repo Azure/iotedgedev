@@ -91,7 +91,8 @@ def test_start_solution(capfd):
 
     assert 'BUILD COMPLETE' in result.output
     print(result.output)
-    result = runner_invoke(['cat', 'deployment.template.json'])
+    f = open("deployment.template.json", "r")
+    print(f.read())
     out, err = capfd.readouterr()
     assert 'IoT Edge Simulator has been started in solution mode.' in out
 
