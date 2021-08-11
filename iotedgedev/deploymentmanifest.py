@@ -86,15 +86,23 @@ class DeploymentManifest:
         except KeyError as err:
             raise KeyError("Missing key {0} in file {1}".format(err, self.path))
 
+    def has_system_modules(self):
+        """Check if system modules exist in the deployment manifest"""
+        return self.has_desired_property("$edgeAgent", "systemModules")
+
     def get_all_modules(self):
         all_modules = {}
         all_modules.update(self.get_user_modules())
-        all_modules.update(self.get_system_modules())
+        if self.has_system_modules():
+            all_modules.update(self.get_system_modules())
 
         return all_modules
 
     def get_desired_property(self, module, prop):
         return self._get_module_content()[module]["properties.desired"][prop]
+
+    def has_desired_property(self, module, prop):
+        return prop in self._get_module_content()[module]["properties.desired"]
 
     def get_template_schema_ver(self):
         return self.json.get("$schema-template", "")
@@ -151,7 +159,8 @@ class DeploymentManifest:
     def validate_deployment_manifest(self):
         validation_success = True
         try:
-            validation_success = self._validate_deployment_manifest_schema()
+            if not self.envvars.LAYERED_RUNTIME_TAG:
+                validation_success = self._validate_deployment_manifest_schema()
             validation_success &= self._validate_create_options()
         except Exception as err:
             self.output.info("Unexpected error during deployment manifest validation, skip the validation. Error:%s" % err)
@@ -167,6 +176,8 @@ class DeploymentManifest:
             return self.json["modulesContent"]
         elif "moduleContent" in self.json:
             return self.json["moduleContent"]
+        elif "content" in self.json and "modulesContent" in self.json["content"]:
+            return self.json["content"]["modulesContent"]
         else:
             raise KeyError("modulesContent")
 

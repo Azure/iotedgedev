@@ -4,7 +4,6 @@ import platform
 import pytest
 import shutil
 import time
-import re
 
 from iotedgedev.version import PY35
 from iotedgedev.connectionstring import (DeviceConnectionString,
@@ -17,9 +16,6 @@ from .utility import (assert_json_file_equal,
                       get_file_content,
                       get_all_docker_images,
                       get_all_docker_containers,
-                      prune_docker_images,
-                      prune_docker_containers,
-                      prune_docker_build_cache,
                       remove_docker_container,
                       remove_docker_image,
                       get_docker_os_type,
@@ -165,6 +161,7 @@ def test_solution_create_in_empty_child_dir(prepare_solution_with_env):
 
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
 
+
 def test_solution_create_valid_runtime_tag():
     dirname = "empty_dir"
     os.makedirs(dirname)
@@ -173,6 +170,7 @@ def test_solution_create_valid_runtime_tag():
 
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
 
+
 def test_solution_create_invalid_runtime_tag():
     dirname = "empty_invalid_dir"
     os.makedirs(dirname)
@@ -180,6 +178,7 @@ def test_solution_create_invalid_runtime_tag():
     result = runner_invoke(['solution', 'new', dirname, '-er', '6'])
 
     assert '-edge-runtime-version `6` is not valid' in result.output
+
 
 def test_module_add(prepare_solution_with_env):
     launch_file = launch_json_file
@@ -280,13 +279,15 @@ def test_solution_build_and_push_with_platform():
     result = runner_invoke(['build', '-P', get_platform_type()])
 
     assert 'BUILD COMPLETE' in result.output
+    assert 'PUSH COMPLETE' not in result.output
     assert 'sample_module:0.0.1-RC' in result.output
     assert 'sample_module_2:0.0.1-RC' in result.output
     assert 'ERROR' not in result.output
 
     result = runner_invoke(['push', '--no-build', '-P', get_platform_type()])
 
-    assert 'PUSH COMPLET' in result.output
+    assert 'PUSH COMPLETE' in result.output
+    assert 'BUILD COMPLETE' not in result.output
     assert 'sample_module:0.0.1-RC' in result.output
     assert 'sample_module_2:0.0.1-RC' in result.output
     assert 'ERROR' not in result.output
@@ -307,7 +308,7 @@ def test_solution_build_and_push_with_different_cwd():
 
     result = runner_invoke(['push', '-f', '../deployment.template.json', '--no-build', '-P', get_platform_type()])
 
-    assert 'PUSH COMPLET' in result.output
+    assert 'PUSH COMPLETE' in result.output
     assert 'sample_module:0.0.1-RC' in result.output
     assert 'sample_module_2:0.0.1-RC' in result.output
     assert 'ERROR' not in result.output
@@ -325,7 +326,7 @@ def test_solution_build_and_push_with_escapedpath():
 
     result = runner_invoke(['push', '--no-build', '-P', get_platform_type()])
 
-    assert 'PUSH COMPLET' in result.output
+    assert 'PUSH COMPLETE' in result.output
     assert 'sample_module_2:0.0.1-RC' in result.output
     assert 'ERROR' not in result.output
 

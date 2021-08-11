@@ -5,7 +5,6 @@ FROM python:${PYTHON_VERSION}-buster
 
 # Dependencies versions
 ARG DOCKER_COMPOSE_VERSION="1.29.2"
-ARG COOKIECUTTER_VERSION="1.7.3"
 ARG AZURE_CLI_VERSION="2.24.0-1~buster"
 ARG NODE_VERSION="15.x"
 ARG DOTNET_VERSION="5.0"
@@ -17,7 +16,12 @@ RUN apt-get update && \
     apt-get install -y libffi-dev libssl-dev
 
 # Install python libraries
-RUN pip install cookiecutter==${COOKIECUTTER_VERSION} docker-compose==${DOCKER_COMPOSE_VERSION} 
+RUN pip install \
+    docker-compose==${DOCKER_COMPOSE_VERSION} \
+    cookiecutter==1.7.3 \
+    autopep8==1.5.7 \
+    pycodestyle==2.7.0 \
+    azure-cli-core==2.26.1
 
 # Install python development dependencies
 ADD requirements_dev.txt requirements.txt /tmp/
