@@ -88,10 +88,13 @@ def test_stop(capfd):
 @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_start_solution(capfd):
     result = runner_invoke(['simulator', 'start', '-s', '-b', '-f', 'deployment.template.json'])
+    f = open('/var/lib/iotedgehubdev/data/docker-compose.yml', 'r')
+    print(f.read())
     out, err = capfd.readouterr()
 
     sys.stdout.write(out)
     sys.stderr.write(err)
+
     assert 'BUILD COMPLETE' in result.output
     assert 'IoT Edge Simulator has been started in solution mode.' in out
 
@@ -99,10 +102,13 @@ def test_start_solution(capfd):
 @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_start_solution_with_setup(capfd):
     result = runner_invoke(['simulator', 'start', '--setup', '-s', '-b', '-f', 'deployment.template.json'])
+    f = open('/var/lib/iotedgehubdev/data/docker-compose.yml', 'r')
+    print(f.read())
     out, err = capfd.readouterr()
 
     sys.stdout.write(out)
     sys.stderr.write(err)
+    
     assert 'Setup IoT Edge Simulator successfully.' in result.output
     assert 'BUILD COMPLETE' in result.output
     assert 'IoT Edge Simulator has been started in solution mode.' in out
@@ -134,6 +140,8 @@ def test_start_solution_with_deployment(capfd):
     platform_type = get_platform_type()
     deployment_file_path = os.path.join(test_solution_dir, 'config', 'deployment.' + platform_type + '.json')
     runner_invoke(['simulator', 'start', '-f', deployment_file_path])
+    f = open('/var/lib/iotedgehubdev/data/docker-compose.yml', 'r')
+    print(f.read())
     out, err = capfd.readouterr()
     sys.stdout.write(out)
     sys.stderr.write(err)
