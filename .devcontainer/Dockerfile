@@ -20,8 +20,7 @@ RUN pip install \
     docker-compose==${DOCKER_COMPOSE_VERSION} \
     cookiecutter==1.7.3 \
     autopep8==1.5.7 \
-    pycodestyle==2.7.0 \
-    azure-cli-core==2.26.1
+    pycodestyle==2.7.0
 
 # Install python development dependencies
 ADD requirements_dev.txt requirements.txt /tmp/
