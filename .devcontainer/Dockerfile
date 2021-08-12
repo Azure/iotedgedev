@@ -4,7 +4,6 @@ ARG PYTHON_VERSION="3.7.10"
 FROM python:${PYTHON_VERSION}-buster
 
 # Dependencies versions
-ARG DOCKER_COMPOSE_VERSION="1.29.2"
 ARG AZURE_CLI_VERSION="2.24.0-1~buster"
 ARG NODE_VERSION="15.x"
 ARG DOTNET_VERSION="5.0"
@@ -14,13 +13,6 @@ ARG MAVEN_VERSION="3.6.0-1"
 RUN apt-get update && \
     apt-get install -y --no-install-recommends build-essential && \
     apt-get install -y libffi-dev libssl-dev
-
-# Install python libraries
-RUN pip install \
-    docker-compose==${DOCKER_COMPOSE_VERSION} \
-    cookiecutter==1.7.3 \
-    autopep8==1.5.7 \
-    pycodestyle==2.7.0
 
 # Install python development dependencies
 ADD requirements_dev.txt requirements.txt /tmp/

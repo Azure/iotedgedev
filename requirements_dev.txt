@@ -3,11 +3,14 @@ pip
 bumpversion==0.5.3
 wheel==0.30.0
 watchdog==0.8.3
-flake8==2.6.0
+docker-compose==1.29.2
+flake8==3.9.2
+pycodestyle==2.2.1
+autopep8==1.5.7
 tox
 coverage==4.1
 Sphinx==1.4.8
-cookiecutter
+cookiecutter==1.7.3
 PyYAML
 pylint
 pytest
