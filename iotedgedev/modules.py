@@ -18,6 +18,7 @@ from .module import Module
 from .utility import Utility
 from .constants import Constants
 
+
 class Modules:
     def __init__(self, envvars, output):
         self.envvars = envvars

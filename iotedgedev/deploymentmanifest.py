@@ -95,7 +95,11 @@ class DeploymentManifest:
         return all_modules
 
     def get_desired_property(self, module, prop):
-        return self._get_module_content()[module]["properties.desired"][prop]
+        module_content = self._get_module_content()[module]
+        if len([key for key in module_content.items() if "properties.desired." in key]) == 0:
+            return module_content["properties.desired"][prop]
+
+        return {key.replace(f"properties.desired.{prop}.", ''): value for key, value in module_content.items() if f"properties.desired.{prop}" in key}
 
     def get_template_schema_ver(self):
         return self.json.get("$schema-template", "")
@@ -104,8 +108,12 @@ class DeploymentManifest:
         """Check if system modules exist in the deployment manifest"""
         return self.has_desired_property("$edgeAgent", "systemModules")
 
-    def has_desired_property(self, module, prop):
-        return prop in self._get_module_content()[module]["properties.desired"]
+    def has_desired_property(self, module, prop) -> bool:
+        module_content = self._get_module_content()[module]
+        if [key for key in module_content.items() if "properties.desired." in key]:
+            return prop in module_content["properties.desired"]
+
+        return len([value for key, value in module_content.items() if f"properties.desired.{prop}" in key]) > 0
 
     def convert_create_options(self):
         modules = self.get_all_modules()
@@ -131,9 +139,6 @@ class DeploymentManifest:
         for module_name, module_info in modules.items():
             if module_name in replacements:
                 self.utility.nested_set(module_info, ["settings", "image"], replacements[module_name])
-
-    def expand_environment_variables(self):
-        self.json = json.loads(os.path.expandvars(json.dumps(self.json)))
 
     def del_key(self, keys):
         self.utility.del_key(self.json, keys)
