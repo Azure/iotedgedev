@@ -19,12 +19,6 @@
             },
             "$edgeHub": {
                 "properties.desired.routes.upstream": "FROM /messages/* INTO $upstream"
-            },
-            "LayeredDeploymentTempSensor": {
-                "properties.desired": {
-                    "SendData": true,
-                    "SendInterval": 5
-                }
             }
         }
     }
