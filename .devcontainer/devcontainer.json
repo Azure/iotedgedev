@@ -10,7 +10,7 @@
         "--network",
         "host"
     ],
-    "postCreateCommand": "make install && pip install -e .",
+    "postCreateCommand": "pip install -e .",
     "mounts": [
         // Keep command history 
         "source=ostf-bashhistory,target=/commandhistory,type=volume",
