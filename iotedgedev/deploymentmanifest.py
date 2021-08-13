@@ -7,6 +7,7 @@ import json
 import os
 import re
 import shutil
+import functools
 
 import jsonschema
 from urllib.request import urlopen
@@ -95,11 +96,7 @@ class DeploymentManifest:
         return all_modules
 
     def get_desired_property(self, module, prop):
-        module_content = self._get_module_content()[module]
-        if len([key for key in module_content.items() if "properties.desired." in key]) == 0:
-            return module_content["properties.desired"][prop]
-
-        return {key.replace(f"properties.desired.{prop}.", ''): value for key, value in module_content.items() if f"properties.desired.{prop}" in key}
+        return self._get_module_content_split()[module]["properties"]["desired"][prop]
 
     def get_template_schema_ver(self):
         return self.json.get("$schema-template", "")
@@ -109,11 +106,7 @@ class DeploymentManifest:
         return self.has_desired_property("$edgeAgent", "systemModules")
 
     def has_desired_property(self, module, prop) -> bool:
-        module_content = self._get_module_content()[module]
-        if [key for key in module_content.items() if "properties.desired." in key]:
-            return prop in module_content["properties.desired"]
-
-        return len([value for key, value in module_content.items() if f"properties.desired.{prop}" in key]) > 0
+        return prop in self._get_module_content_split()[module]["properties"]["desired"]
 
     def convert_create_options(self):
         modules = self.get_all_modules()
@@ -179,6 +172,9 @@ class DeploymentManifest:
     def get_image_placeholder(module_name, is_debug=False):
         return "${{MODULES.{0}}}".format(module_name + ".debug" if is_debug else module_name)
 
+    def _get_module_content_split(self):
+        return DeploymentManifest.dot_to_json(self._get_module_content())
+
     def _get_module_content(self):
         if "modulesContent" in self.json:
             return self.json["modulesContent"]
@@ -188,6 +184,18 @@ class DeploymentManifest:
             return self.json["content"]["modulesContent"]
         else:
             raise KeyError("modulesContent")
+
+    @staticmethod
+    def dot_to_json(a):
+        output = {}
+        for key, value in a.items():
+            if '.' not in key:
+                output[key] = DeploymentManifest.dot_to_json(value)
+                continue
+            path = key.split('.')
+            target = functools.reduce(lambda d, k: d.setdefault(k, {}), path[:-1], output)
+            target[path[-1]] = value
+        return output
 
     # Carefully check upper/lower case of the output when using this function
     def _validate_json_schema(self, schema_object, json_object, schema_type):
