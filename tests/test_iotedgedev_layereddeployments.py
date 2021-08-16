@@ -29,14 +29,3 @@ def test_build_and_push(test_file_name):
     assert 'BUILD COMPLETE' in result.output
     assert 'PUSH COMPLETE' in result.output
     assert 'ERROR' not in result.output
-
-
-def test_deploy():
-    os.chdir(test_solution_shared_lib_dir)
-    # TODO: add --deploy
-    runner_invoke(['build', '--push', '-f', '../layered_deployment.template.json', '-P', get_platform_type()])
-
-    result = runner_invoke(['deploy',  '-f', 'config/layered_deployment.json'])
-
-    assert 'DEPLOYMENT COMPLETE' in result.output
-    assert 'ERROR' not in result.output
