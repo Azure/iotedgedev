@@ -5,7 +5,7 @@ wheel==0.30.0
 watchdog==0.8.3
 docker-compose==1.29.2
 flake8==3.9.2
-pycodestyle==2.2.1
+pycodestyle==2.7.0
 autopep8==1.5.7
 tox
 coverage==4.1
