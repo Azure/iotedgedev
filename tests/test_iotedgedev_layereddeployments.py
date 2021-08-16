@@ -1,3 +1,5 @@
+from iotedgedev.envvars import EnvVars
+from iotedgedev.output import Output
 import os
 import pytest
 from .utility import (
@@ -5,12 +7,17 @@ from .utility import (
     runner_invoke,
 )
 
-pytestmark = pytest.mark.unit
+pytestmark = pytest.mark.e2e
 
 tests_dir = os.path.join(os.getcwd(), "tests")
-test_assets_dir = os.path.join(tests_dir, "assets")
-test_file_1 = os.path.join(test_assets_dir, "layered_deployment.template.json")
 test_solution_shared_lib_dir = os.path.join(tests_dir, "assets", "test_solution_shared_lib")
+
+
+@pytest.fixture(scope="module", autouse=True)
+def setup_dotenv():
+    output = Output()
+    envvars = EnvVars(output)
+    envvars.set_envvar("MODULES_PATH", "../test_solution_shared_lib/modules")
 
 
 @pytest.mark.parametrize(

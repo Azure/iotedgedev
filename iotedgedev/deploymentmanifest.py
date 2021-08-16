@@ -157,7 +157,7 @@ class DeploymentManifest:
     def validate_deployment_manifest(self):
         validation_success = True
         try:
-            if self.is_layered_deployment_schema():
+            if not self.is_layered_deployment_schema():
                 validation_success = self._validate_deployment_manifest_schema()
             validation_success &= self._validate_create_options()
         except Exception as err:
