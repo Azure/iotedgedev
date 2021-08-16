@@ -1,18 +1,18 @@
 -r requirements.txt
-pip
+pip==21.2.3
 bumpversion==0.5.3
 wheel==0.30.0
 watchdog==0.8.3
-docker-compose==1.29.2
+docker-compose==1.28.3
 flake8==3.9.2
 pycodestyle==2.7.0
 autopep8==1.5.7
-tox
+tox==3.24.1
 coverage==4.1
 Sphinx==1.4.8
 cookiecutter==1.7.3
-PyYAML
-pylint
-pytest
-setuptools
-twine
+PyYAML==4.2b4
+pylint==2.3.0
+pytest==6.2.4
+setuptools==57.0.0
+twine==3.4.2

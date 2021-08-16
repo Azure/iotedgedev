@@ -1,11 +1,11 @@
-click>=6.0
-docker>=3.4
-python-dotenv
-requests
-fstrings
-msrestazure~=0.4.32
-iotedgehubdev >= 0.14.3
+click==8.0.1
+docker==4.4.1
+python-dotenv==0.19.0
+requests==2.25.1
+fstrings==0.1.0
+msrestazure==0.4.34
+iotedgehubdev==0.14.9
 applicationinsights
-commentjson
+commentjson==0.9.0
 pypiwin32==219; sys_platform == 'win32' and python_version < '3.6'
 pypiwin32==223; sys_platform == 'win32' and python_version >= '3.6'
