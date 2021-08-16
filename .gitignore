@@ -79,6 +79,8 @@ config
 py36
 .pypirc
 tests/test_solution
+tests/test_solution_shared_lib
+empty_dir/
 README
 
 node_modules
