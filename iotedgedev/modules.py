@@ -18,6 +18,7 @@ from .module import Module
 from .utility import Utility
 from .constants import Constants
 
+
 class Modules:
     def __init__(self, envvars, output):
         self.envvars = envvars
@@ -194,6 +195,7 @@ class Modules:
 
                         response = docker.docker_api.build(**build_args)
                         docker.process_api_response(response)
+                        self.output.footer("BUILD COMPLETE")
                     if not no_push:
                         docker.init_registry()
 
@@ -213,8 +215,7 @@ class Modules:
                                 "username": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].username,
                                 "password": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].password})
                         docker.process_api_response(response)
-                self.output.footer("BUILD COMPLETE", suppress=no_build)
-                self.output.footer("PUSH COMPLETE", suppress=no_push)
+                        self.output.footer("PUSH COMPLETE")
 
         self.output.info("Expanding image placeholders")
         deployment_manifest.expand_image_placeholders(replacements)

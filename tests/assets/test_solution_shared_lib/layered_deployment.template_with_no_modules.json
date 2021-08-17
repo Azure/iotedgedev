@@ -1,0 +1,12 @@
+{
+  "content": {
+    "modulesContent": {
+      "$edgeAgent": {},
+      "exampleModule": {
+        "properties.desired": {
+          "foo": "bar-${EDGE_RUNTIME_VERSION}"
+        }
+      }
+    }
+  }
+}
