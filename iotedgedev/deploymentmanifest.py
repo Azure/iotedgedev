@@ -73,9 +73,11 @@ class DeploymentManifest:
         except KeyError as err:
             raise KeyError("Missing key {0} in file {1}".format(err, self.path))
 
-    def get_user_modules(self):
+    def get_user_modules(self) -> dict:
         """Get user modules from deployment manifest"""
         try:
+            if not self.has_user_modules() and self.is_layered_deployment_schema():
+                return {}
             return self.get_desired_property("$edgeAgent", "modules")
         except KeyError as err:
             raise KeyError("Missing key {0} in file {1}".format(err, self.path))
@@ -83,6 +85,8 @@ class DeploymentManifest:
     def get_system_modules(self):
         """Get system modules from deployment manifest"""
         try:
+            if not self.has_system_modules() and self.is_layered_deployment_schema():
+                return {}
             return self.get_desired_property("$edgeAgent", "systemModules")
         except KeyError as err:
             raise KeyError("Missing key {0} in file {1}".format(err, self.path))
@@ -90,8 +94,7 @@ class DeploymentManifest:
     def get_all_modules(self):
         all_modules = {}
         all_modules.update(self.get_user_modules())
-        if self.has_system_modules():
-            all_modules.update(self.get_system_modules())
+        all_modules.update(self.get_system_modules())
 
         return all_modules
 
@@ -105,8 +108,12 @@ class DeploymentManifest:
         """Check if system modules exist in the deployment manifest"""
         return self.has_desired_property("$edgeAgent", "systemModules")
 
+    def has_user_modules(self):
+        """Check if user modules exist in the deployment manifest"""
+        return self.has_desired_property("$edgeAgent", "modules")
+
     def has_desired_property(self, module, prop) -> bool:
-        return prop in self._get_module_content_split()[module]["properties"]["desired"]
+        return prop in self._get_module_content_split().get(module, {}).get('properties', {}).get('desired', {})
 
     def convert_create_options(self):
         modules = self.get_all_modules()
@@ -180,7 +187,7 @@ class DeploymentManifest:
             return self.json["modulesContent"]
         elif "moduleContent" in self.json:
             return self.json["moduleContent"]
-        elif "content" in self.json and "modulesContent" in self.json["content"]:
+        elif self.is_layered_deployment_schema() and "modulesContent" in self.json["content"]:
             return self.json["content"]["modulesContent"]
         else:
             raise KeyError("modulesContent")
