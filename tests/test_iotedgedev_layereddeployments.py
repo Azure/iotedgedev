@@ -8,8 +8,7 @@ from .utility import (
 
 pytestmark = pytest.mark.e2e
 
-tests_dir = os.path.join(os.getcwd(), "tests")
-test_solution_shared_lib_dir = os.path.join(tests_dir, "assets", "test_solution_shared_lib")
+test_solution_shared_lib_dir = os.path.join(os.getcwd(), "tests", "assets", "test_solution_shared_lib")
 
 
 def test_build_and_push():
