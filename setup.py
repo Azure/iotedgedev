@@ -1,11 +1,5 @@
 #!/usr/bin/env python
-
-import atexit
-from subprocess import check_call
-
 from setuptools import find_packages, setup
-from setuptools.command.develop import develop
-from setuptools.command.install import install
 
 
 with open('CHANGELOG.md') as history_file:
@@ -38,7 +32,8 @@ test_requirements = [
 setup(
     name='iotedgedev',
     version='3.1.2',
-    description='The Azure IoT Edge Dev Tool greatly simplifies the IoT Edge development process by automating many routine manual tasks, such as building, deploying, pushing modules and configuring the IoT Edge Runtime.',
+    description=('The Azure IoT Edge Dev Tool greatly simplifies the IoT Edge development process by automating many routine manual tasks, '
+                 'such as building, deploying, pushing modules and configuring the IoT Edge Runtime.'),
     long_description='See https://github.com/azure/iotedgedev for usage instructions.',
     author='Microsoft Corporation',
     author_email='vsciet@microsoft.com',
