@@ -16,7 +16,7 @@ requirements = [
     'iotedgehubdev >= 0.14.3',
     'applicationinsights == 0.11.9',
     'commentjson == 0.9.0',
-    'pyyaml>=4.1,<=4.2b4',
+    'pyyaml>=4.1,<5.5',
     'pypiwin32==219; sys_platform == "win32" and python_version < "3.6"',
     'pypiwin32==223; sys_platform == "win32" and python_version >= "3.6"',
     'more-itertools < 8.1.0'
