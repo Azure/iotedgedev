@@ -1,11 +1,5 @@
 #!/usr/bin/env python
-
-import atexit
-from subprocess import check_call
-
 from setuptools import find_packages, setup
-from setuptools.command.develop import develop
-from setuptools.command.install import install
 
 
 with open('CHANGELOG.md') as history_file:

@@ -41,6 +41,7 @@ def create_solution(request):
         os.chdir(root_dir)
         time.sleep(5)
         shutil.rmtree(test_solution_dir, ignore_errors=True)
+        shutil.rmtree(test_solution_dir+"_shared_lib", ignore_errors=True)
         runner_invoke(['simulator', 'stop'])
 
     request.addfinalizer(clean)
