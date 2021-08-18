@@ -42,4 +42,5 @@ def test_build_and_push_with_no_modules():
     set_property = content["content"]["modulesContent"]["exampleModule"]["properties.desired"]["foo"]
 
     assert 'ERROR' not in result.output
-    assert 'bar-${envvars.EDGE_RUNTIME_VERSION}' == set_property
+    assert 'bar-{}'.format(envvars.EDGE_RUNTIME_VERSION) == set_property
+    assert 'bar-{}'.format(envvars.get_envvar("EDGE_RUNTIME_VERSION")) == set_property
