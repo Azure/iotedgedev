@@ -12,15 +12,15 @@ tests_dir = os.path.join(os.getcwd(), "tests")
 test_solution_shared_lib_dir = os.path.join(tests_dir, "assets", "test_solution_shared_lib")
 
 
-def test_build_and_push():
-    os.chdir(test_solution_shared_lib_dir)
+#def test_build_and_push():
+#    os.chdir(test_solution_shared_lib_dir)
 
-    result = runner_invoke(['build', '--push', '-f', "layered_deployment.template_with_flattened_props.json", '-P', get_platform_type()])
+#    result = runner_invoke(['build', '--push', '-f', "layered_deployment.template_with_flattened_props.json", '-P', get_platform_type()])
     # print(result.output)
     #assert 'sample_module:0.0.1-RC' in result.output
-    assert 'BUILD COMPLETE' in result.output
-    assert 'PUSH COMPLETE' in result.output
-    assert 'ERROR' not in result.output
+#    assert 'BUILD COMPLETE' in result.output
+#    assert 'PUSH COMPLETE' in result.output
+#    assert 'ERROR' not in result.output
 
 
 def test_build_and_push_with_no_modules():
