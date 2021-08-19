@@ -71,7 +71,7 @@ def test_deploy():
         azure_cli = AzureCli(output, envvars)
         envvars.load()
 
-        assert azure_cli.invoke_az_cli_outproc(["iot", "edge", "deployment", "delete", "-d", deployment_name, "-n", envvars.IOTHUB_CONNECTION_INFO.iothub_host.hub_name])
+        assert azure_cli.invoke_az_cli_outproc(["iot", "edge", "deployment", "delete", "-d", deployment_name, "-l", envvars.IOTHUB_CONNECTION_INFO.connection_string])
 
 
 # TODO: Add tests cases:

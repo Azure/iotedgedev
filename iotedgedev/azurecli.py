@@ -390,7 +390,7 @@ class AzureCli:
 
         telemetry.add_extra_props({'iothubhostname': connection_string.iothub_host.name_hash, 'iothubhostnamesuffix': connection_string.iothub_host.name_suffix})
 
-        return self.invoke_az_cli_outproc(["iot", "edge", "deployment", "create", "-d", layered_deployment_name, "-n", connection_string.iothub_host.hub_name, "--content", config,
+        return self.invoke_az_cli_outproc(["iot", "edge", "deployment", "create", "-d", layered_deployment_name, "-l", connection_string.connection_string, "--content", config,
                                            "--target-condition", target_condition, "--priority", priority],
                                           error_message=f"Failed to deploy layered '{config}' to '{connection_string.iothub_host.hub_name}'...")
 
