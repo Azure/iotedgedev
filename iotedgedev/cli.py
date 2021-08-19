@@ -246,6 +246,9 @@ def deploy(manifest_file):
     edge.deploy(manifest_file)
 
 
+main.add_command(deploy)
+
+
 @solution.command(
     name="deploy-layered",
     context_settings=CONTEXT_SETTINGS,

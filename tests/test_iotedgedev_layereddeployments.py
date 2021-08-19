@@ -76,5 +76,8 @@ def test_deploy():
 
 # TODO: Add tests cases:
 # - Verify error message is in the logs
-# - Verify deployment doesn't fail with LAYERED_DEPLOYMENT_TARGET_CONDITION not set
+# - Verify LAYERED_DEPLOYMENT_TARGET_CONDITION cant be not set
+# - Verify required parameters can't be not set
+# - Cover use cases from build/push (test_build_and_push_with_no_modules)
+# - Check if a layered deployment flag works
 # -
