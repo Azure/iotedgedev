@@ -1,4 +1,5 @@
 import hashlib
+from os import name
 import socket
 import sys
 
@@ -245,7 +246,36 @@ def deploy(manifest_file):
     edge.deploy(manifest_file)
 
 
-main.add_command(deploy)
+@solution.command(
+    name="deploy-layered",
+    context_settings=CONTEXT_SETTINGS,
+    help="Create layered deployment in IoT Hub")
+@click.option("--file",
+              "-f",
+              "manifest_file",
+              default=envvars.DEPLOYMENT_CONFIG_FILE_PATH,
+              show_default=True,
+              required=False,
+              help="Specify the deployment manifest file")
+@click.option("--layered-deployment-name",
+              "-n",
+              "layered_deployment_name",
+              show_default=True,
+              required=False,
+              help="Specify the name for a layered deployment")
+@click.option("--priority",
+              "-p",
+              show_default=True,
+              required=False,
+              help="Specify the priority for a layered deployment")
+@with_telemetry
+def deploy_layered(manifest_file, layered_deployment_name, priority):
+    ensure_azure_cli_iot_ext()
+    edge = Edge(envvars, output, azure_cli)
+    edge.deploy_layered(manifest_file, layered_deployment_name, priority)
+
+
+main.add_command(deploy_layered)
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS,
