@@ -99,6 +99,8 @@ class EnvVars:
                 self.BYPASS_MODULES = self.get_envvar("BYPASS_MODULES", default="")
                 self.CONTAINER_TAG = self.get_envvar("CONTAINER_TAG", default="")
                 self.EDGE_RUNTIME_VERSION = self.get_envvar("EDGE_RUNTIME_VERSION", default="")
+                self.EDGEAGENT_SCHEMA_VERSION = self.get_envvar("EDGEAGENT_SCHEMA_VERSION", default="")
+                self.EDGEHUB_SCHEMA_VERSION = self.get_envvar("EDGEHUB_SCHEMA_VERSION", default="")
                 self.CONFIG_OUTPUT_DIR = self.get_envvar("CONFIG_OUTPUT_DIR", default=Constants.default_config_folder)
                 self.DEPLOYMENT_CONFIG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_TEMPLATE_FILE", default=Constants.default_deployment_template_file)
                 self.DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE = self.get_envvar("DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE", default=Constants.default_deployment_debug_template_file)
@@ -115,6 +117,7 @@ class EnvVars:
                 self.EDGE_DEVICE_ID = self.get_envvar("EDGE_DEVICE_ID")
                 self.CREDENTIALS = self.get_envvar("CREDENTIALS")
                 self.UPDATE_DOTENV = self.get_envvar("UPDATE_DOTENV")
+
             except Exception as ex:
                 msg = "Environment variables not configured correctly. Run `iotedgedev new` to create a new solution with sample .env file. "
                 "Please see README for variable configuration options. Tip: You might just need to restart your command prompt to refresh your Environment Variables. "

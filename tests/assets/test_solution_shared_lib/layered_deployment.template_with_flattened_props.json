@@ -8,7 +8,7 @@
                     "status": "running",
                     "restartPolicy": "always",
                     "settings": {
-                        "image": "${MODULES.sample_module.debug}",
+                        "image": "${MODULES.sample_module}",
                         "createOptions": {}
                     }
                 }

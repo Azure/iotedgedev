@@ -2,6 +2,7 @@ import os
 import pytest
 import shutil
 import time
+import sys
 
 from iotedgedev.version import PY35
 from iotedgedev.envvars import EnvVars
@@ -98,7 +99,7 @@ def test_start_solution(capfd):
 def test_start_solution_with_setup(capfd):
     result = runner_invoke(['simulator', 'start', '--setup', '-s', '-b', '-f', 'deployment.template.json'])
     out, err = capfd.readouterr()
-
+    
     assert 'Setup IoT Edge Simulator successfully.' in result.output
     assert 'BUILD COMPLETE' in result.output
     assert 'IoT Edge Simulator has been started in solution mode.' in out
@@ -107,9 +108,8 @@ def test_start_solution_with_setup(capfd):
 @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_monitor(capfd):
     try:
-        result = runner_invoke(['monitor', '--timeout', '20'])
+        result = runner_invoke(['monitor', '--timeout', '30'])
         out, err = capfd.readouterr()
-
         # Assert output from simulator
         sim_match = 'timeCreated'
 
@@ -129,6 +129,6 @@ def test_start_solution_with_deployment(capfd):
     deployment_file_path = os.path.join(test_solution_dir, 'config', 'deployment.' + platform_type + '.json')
     runner_invoke(['simulator', 'start', '-f', deployment_file_path])
     out, err = capfd.readouterr()
-
+    
     assert 'IoT Edge Simulator has been started in solution mode.' in out
     test_monitor(capfd)
