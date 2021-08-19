@@ -10,7 +10,6 @@ pytestmark = pytest.mark.e2e
 
 test_solution_shared_lib_dir = os.path.join(os.getcwd(), "tests", "assets", "test_solution_shared_lib")
 
-
 def test_build_and_push():
     os.chdir(test_solution_shared_lib_dir)
 
@@ -36,4 +35,4 @@ def test_build_and_push_with_no_modules():
     set_property = content["content"]["modulesContent"]["exampleModule"]["properties.desired"]["foo"]
 
     assert 'ERROR' not in result.output
-    assert 'bar-1.0' == set_property
+    assert 'bar-1.2' == set_property
