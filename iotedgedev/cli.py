@@ -277,8 +277,8 @@ main.add_command(deploy)
 @with_telemetry
 def deployment(manifest_file, name, priority, target_condition):
     ensure_azure_cli_iot_ext()
-    edge = Edge(envvars, output, azure_cli)
-    edge.deployment(manifest_file, name, priority, target_condition)
+    iot_hub = IoTHub(envvars, output, None, azure_cli)
+    iot_hub.deployment(manifest_file, name, priority, target_condition)
 
 
 main.add_command(deployment)
@@ -460,7 +460,7 @@ def modulecred(local, output_file):
 def monitor(timeout):
     ensure_azure_cli_iot_ext()
     utility = Utility(envvars, output)
-    ih = IoTHub(envvars, utility, output, azure_cli)
+    ih = IoTHub(envvars, output, utility, azure_cli)
     ih.monitor_events(timeout)
 
 
