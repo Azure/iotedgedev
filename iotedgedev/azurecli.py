@@ -381,7 +381,7 @@ class AzureCli:
 
         telemetry.add_extra_props({'iothubhostname': connection_string.iothub_host.name_hash, 'iothubhostnamesuffix': connection_string.iothub_host.name_suffix})
 
-        return self.invoke_az_cli_outproc(["iot", "hub", "device-twin", "update", "-d", device_id, "-n", connection_string.iothub_host.hub_name, "--tags", tags],
+        return self.invoke_az_cli_outproc(["iot", "hub", "device-twin", "update", "-d", device_id, "-l", connection_string.connection_string, "--tags", tags],
                                           error_message=f"Failed to add tag: '{tags}' to device '{device_id}' ...", suppress_output=True)
 
     def create_deployment(self,
