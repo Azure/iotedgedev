@@ -18,6 +18,6 @@ class Edge:
         self.envvars.verify_envvar_has_val("DEPLOYMENT_CONFIG_FILE", self.envvars.DEPLOYMENT_CONFIG_FILE)
 
         if self.azure_cli.set_modules(config=manifest_file,
-                                      connection_string=self.envvars.DEVICE_CONNECTION_INFO.device_id,
-                                      device_id=self.envvars.IOTHUB_CONNECTION_INFO):
+                                      connection_string=self.envvars.IOTHUB_CONNECTION_INFO,
+                                      device_id=self.envvars.DEVICE_CONNECTION_INFO.device_id):
             self.output.footer("DEPLOYMENT COMPLETE")
