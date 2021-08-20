@@ -375,6 +375,15 @@ class AzureCli:
         return self.invoke_az_cli_outproc(["iot", "edge", "set-modules", "-d", device_id, "-n", connection_string.iothub_host.hub_name, "-k", config, "-l", connection_string.connection_string],
                                           error_message=f("Failed to deploy '{config}' to '{device_id}'..."), suppress_output=True)
 
+    def set_device_tag(self, connection_string: IoTHubConnectionString, device_id: str,  target_tag_name: str):
+        tags = {target_tag_name: True}
+        self.output.status(f"Adding tag '{tags}' to '{device_id}'...")
+
+        telemetry.add_extra_props({'iothubhostname': connection_string.iothub_host.name_hash, 'iothubhostnamesuffix': connection_string.iothub_host.name_suffix})
+
+        return self.invoke_az_cli_outproc(["iot", "hub", "device-twin", "update", "-d", device_id, "-n", connection_string.iothub_host.hub_name, "--tags", tags],
+                                          error_message=f"Failed to add tag: '{tags}' to device '{device_id}' ...", suppress_output=True)
+
     def create_deployment(self,
                           config: str,
                           connection_string: IoTHubConnectionString,
