@@ -561,25 +561,25 @@ def test_validate_create_options_failed():
     assert "Warning: Errors found during createOptions validation" in result.output
 
 
-def test_fail_gen_config_on_validation_error():
+@pytest.mark.parametrize(
+    "deployment_file_name",
+    ["deployment.manifest_invalid.json", "deployment.manifest_invalid_schema.json", "deployment.manifest_invalid_createoptions.json"]
+)
+def test_fail_gen_config_on_validation_error(deployment_file_name):
     os.chdir(tests_assets_dir)
-    test_files = ["deployment.manifest_invalid.json", "deployment.manifest_invalid_schema.json", "deployment.manifest_invalid_createoptions.json"]
-    for deployment_file_name in test_files:
-        try:
-            if get_docker_os_type() == "windows":
-                result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name, '--fail-on-validation-error'])
-            else:
-                result = runner_invoke(['genconfig', '-f', deployment_file_name, '--fail-on-validation-error'])
-            raise Exception("genconfig command should fail in %s" % deployment_file_name)
-        except Exception as err:
-            assert "ERROR: Deployment manifest validation failed. Please see previous logs for more details." in "%s" % err
-            assert "genconfig command should fail" not in "%s" % err
+
+    with pytest.raises(Exception) as context:
+        if get_docker_os_type() == "windows":
+            result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name, '--fail-on-validation-error'])
+        else:
+            result = runner_invoke(['genconfig', '-f', deployment_file_name, '--fail-on-validation-error'])
 
     if get_docker_os_type() == "windows":
         result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name])
     else:
         result = runner_invoke(['genconfig', '-f', deployment_file_name])
 
+    assert "ERROR: Deployment manifest validation failed. Please see previous logs for more details." in str(context.value)
     assert "ERROR" not in result.output
 
 
@@ -608,13 +608,12 @@ def test_push_modules_to_local_registry(prepare_solution_with_env):
         envvars.set_envvar("CONTAINER_REGISTRY_SERVER", local_registry)
 
         result = runner_invoke(['push', '-P', get_platform_type()])
-        if result.exit_code == 0:
-            assert 'BUILD COMPLETE' in result.output
-            assert 'PUSH COMPLETE' in result.output
-            assert 'ERROR' not in result.output
-            assert local_registry + "/" + module_name in get_all_docker_images()
-        else:
-            raise Exception(result.stdout)
+
+        assert 'ERROR' not in result.output
+        assert result.exit_code == 0
+        assert 'BUILD COMPLETE' in result.output
+        assert 'PUSH COMPLETE' in result.output
+        assert local_registry + "/" + module_name in get_all_docker_images()
     finally:
         envvars.set_envvar("CONTAINER_REGISTRY_SERVER", env_container_registry_server)
         if "registry" in get_all_docker_containers():

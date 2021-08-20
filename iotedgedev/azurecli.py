@@ -7,7 +7,7 @@ import sys
 from io import StringIO
 from threading import Thread, Timer
 
-from azure.cli.core import AzCli, get_default_cli
+from azure.cli.core import get_default_cli
 from fstrings import f
 from queue import Empty, Queue
 
@@ -375,12 +375,21 @@ class AzureCli:
         return self.invoke_az_cli_outproc(["iot", "edge", "set-modules", "-d", device_id, "-n", connection_string.iothub_host.hub_name, "-k", config, "-l", connection_string.connection_string],
                                           error_message=f("Failed to deploy '{config}' to '{device_id}'..."), suppress_output=True)
 
-    def create_layered_deployment(self,
-                                  config: str,
-                                  connection_string: IoTHubConnectionString,
-                                  layered_deployment_name: str,
-                                  target_condition: str,
-                                  priority: int) -> bool:
+    def set_device_tag(self, connection_string: IoTHubConnectionString, device_id: str,  target_tag_name: str):
+        tags = {target_tag_name: True}
+        self.output.status(f"Adding tag '{tags}' to '{device_id}'...")
+
+        telemetry.add_extra_props({'iothubhostname': connection_string.iothub_host.name_hash, 'iothubhostnamesuffix': connection_string.iothub_host.name_suffix})
+
+        return self.invoke_az_cli_outproc(["iot", "hub", "device-twin", "update", "-d", device_id, "-n", connection_string.iothub_host.hub_name, "--tags", tags],
+                                          error_message=f"Failed to add tag: '{tags}' to device '{device_id}' ...", suppress_output=True)
+
+    def create_deployment(self,
+                          config: str,
+                          connection_string: IoTHubConnectionString,
+                          layered_deployment_name: str,
+                          target_condition: str,
+                          priority: int) -> bool:
         self.output.status(f"Deploying layered '{config}' to '{connection_string.iothub_host.hub_name}'...")
 
         config = os.path.join(os.getcwd(), config)
@@ -389,10 +398,16 @@ class AzureCli:
             raise FileNotFoundError(f"Deployment manifest file '{config}' not found. Please run `iotedgedev build` first")
 
         telemetry.add_extra_props({'iothubhostname': connection_string.iothub_host.name_hash, 'iothubhostnamesuffix': connection_string.iothub_host.name_suffix})
+        with output_io_cls() as io:
 
-        return self.invoke_az_cli_outproc(["iot", "edge", "deployment", "create", "-d", layered_deployment_name, "-l", connection_string.connection_string, "--content", config,
-                                           "--target-condition", target_condition, "--priority", priority],
-                                          error_message=f"Failed to deploy layered '{config}' to '{connection_string.iothub_host.hub_name}'...")
+            result = self.invoke_az_cli_outproc(["iot", "edge", "deployment", "create", "-d", layered_deployment_name, "-l", connection_string.connection_string, "--content", config,
+                                                 "--target-condition", target_condition, "--priority", priority],
+                                                error_message=f"Failed to deploy layered '{config}' to '{connection_string.iothub_host.hub_name}'...", stderr_io=io)
+            if io.getvalue():
+                self.output.error(io.getvalue())
+                self.output.line()
+
+            return result
 
     def monitor_events(self, device_id, connection_string, hub_name, timeout=300):
         return self.invoke_az_cli_outproc(["iot", "hub", "monitor-events", "-d", device_id, "-n", hub_name, "-l", connection_string, '-t', str(timeout), '-y'],

@@ -1,5 +1,4 @@
 import hashlib
-from os import name
 import socket
 import sys
 
@@ -250,9 +249,8 @@ main.add_command(deploy)
 
 
 @solution.command(
-    name="deploy-layered",
     context_settings=CONTEXT_SETTINGS,
-    help="Create layered deployment in IoT Hub")
+    help="Create a deployment from the solution in IoT Hub")
 @click.option("--file",
               "-f",
               "manifest_file",
@@ -260,25 +258,30 @@ main.add_command(deploy)
               show_default=True,
               required=False,
               help="Specify the deployment manifest file")
-@click.option("--layered-deployment-name",
+@click.option("--name",
               "-n",
-              "layered_deployment_name",
-              show_default=True,
-              required=False,
-              help="Specify the name for a layered deployment")
+              required=True,
+              help="Specify the deployment name")
 @click.option("--priority",
               "-p",
+              required=True,
+              help="Specify the deployment priority")
+@click.option("--target-condition",
+              "--tc",
+              "-t",
+              "target_condition",
+              default=envvars.get_envvar("LAYERED_DEPLOYMENT_TARGET_CONDITION"),
               show_default=True,
               required=False,
-              help="Specify the priority for a layered deployment")
+              help="Specify the deployment target condition")
 @with_telemetry
-def deploy_layered(manifest_file, layered_deployment_name, priority):
+def deployment(manifest_file, name, priority, target_condition):
     ensure_azure_cli_iot_ext()
     edge = Edge(envvars, output, azure_cli)
-    edge.deploy_layered(manifest_file, layered_deployment_name, priority)
+    edge.deployment(manifest_file, name, priority, target_condition)
 
 
-main.add_command(deploy_layered)
+main.add_command(deployment)
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS,
