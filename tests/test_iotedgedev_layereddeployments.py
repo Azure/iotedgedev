@@ -50,7 +50,7 @@ def test_build_and_push_with_no_modules():
     set_property = content["content"]["modulesContent"]["exampleModule"]["properties.desired"]["foo"]
 
     assert 'ERROR' not in result.output
-    assert 'bar-1.0' == set_property
+    assert 'bar-1.2' == set_property
 
 
 @pytest.mark.parametrize(
