@@ -1,4 +1,4 @@
-FROM microsoft/dotnet:2.1-sdk AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:2.1 AS build-env
 
 COPY ./libs /app/libs
 COPY ./sample_module_2/*.csproj /app/sample_module_2/
@@ -8,7 +8,7 @@ WORKDIR /app/sample_module_2
 RUN dotnet restore
 RUN dotnet publish -c Release -o /app/out
 
-FROM microsoft/dotnet:2.1-runtime-nanoserver-1803
+FROM mcr.microsoft.com/dotnet/runtime:2.1-nanoserver-1809
 WORKDIR /app
 COPY --from=build-env /app/out ./
 
