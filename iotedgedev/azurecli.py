@@ -378,10 +378,10 @@ class AzureCli:
     def create_deployment(self,
                           config: str,
                           connection_string: IoTHubConnectionString,
-                          layered_deployment_name: str,
+                          deployment_name: str,
                           target_condition: str,
-                          priority: int) -> bool:
-        self.output.status(f"Deploying layered '{config}' to '{connection_string.iothub_host.hub_name}'...")
+                          priority: str) -> bool:
+        self.output.status(f"Deploying '{config}' to '{connection_string.iothub_host.hub_name}'...")
 
         config = os.path.join(os.getcwd(), config)
 
@@ -390,10 +390,9 @@ class AzureCli:
 
         telemetry.add_extra_props({'iothubhostname': connection_string.iothub_host.name_hash, 'iothubhostnamesuffix': connection_string.iothub_host.name_suffix})
         with output_io_cls() as io:
-
-            result = self.invoke_az_cli_outproc(["iot", "edge", "deployment", "create", "-d", layered_deployment_name, "-l", connection_string.connection_string, "--content", config,
+            result = self.invoke_az_cli_outproc(["iot", "edge", "deployment", "create", "-d", deployment_name, "-l", connection_string.connection_string, "--content", config,
                                                  "--target-condition", target_condition, "--priority", priority],
-                                                error_message=f"Failed to deploy layered '{config}' to '{connection_string.iothub_host.hub_name}'...", stderr_io=io)
+                                                error_message=f"Failed to deploy '{config}' to '{connection_string.iothub_host.hub_name}'...", stderr_io=io)
             if io.getvalue():
                 self.output.error(io.getvalue())
                 self.output.line()

@@ -1,29 +1,29 @@
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
-from azure.cli.core import AzCli
+from iotedgedev.azurecli import AzureCli
 from .utility import Utility
 from .version import PY35
 
 
 class IoTHub:
-    def __init__(self, envvars: EnvVars, output: Output, utility: Utility, azure_cli: AzCli):
+    def __init__(self, envvars: EnvVars, output: Output, utility: Utility, azure_cli: AzureCli):
         self.envvars = envvars
         self.output = output
         self.utility = utility
         self.azure_cli = azure_cli
 
-    def deployment(self, manifest_file: str, layered_deployment_name: str, priority: str, target_condition: str):
+    def deploy(self, manifest_file: str, layered_deployment_name: str, priority: str, target_condition: str):
 
         self.output.header("DEPLOYING CONFIGURATION")
 
         self.envvars.verify_envvar_has_val("IOTHUB_CONNECTION_STRING", self.envvars.IOTHUB_CONNECTION_INFO)
         if not target_condition:
-            self.envvars.get_envvar("LAYERED_DEPLOYMENT_TARGET_CONDITION", True)
+            target_condition = self.envvars.get_envvar("IOTHUB_DEPLOYMENT_TARGET_CONDITION", True)
         self.envvars.verify_envvar_has_val("DEPLOYMENT_CONFIG_FILE", self.envvars.DEPLOYMENT_CONFIG_FILE)
 
         if self.azure_cli.create_deployment(config=manifest_file,
                                             connection_string=self.envvars.IOTHUB_CONNECTION_INFO,
-                                            layered_deployment_name=layered_deployment_name,
+                                            deployment_name=layered_deployment_name,
                                             target_condition=target_condition,
                                             priority=priority):
             self.output.footer("DEPLOYMENT COMPLETE")
