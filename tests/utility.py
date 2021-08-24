@@ -88,9 +88,10 @@ def remove_docker_image(image_name):
 def runner_invoke(args, expect_failure=False):
     runner = CliRunner()
     with runner.isolation(env={"DEFAULT_PLATFORM": get_platform_type()}):
-        cli = __import__("iotedgedev.cli", fromlist=['main'])
+        iotedgedev_import = "iotedgedev.cli"
+        cli = __import__(iotedgedev_import, fromlist=['main'])
         # Remove "iotedgedev.cli" import from cache, to prevent variables being saved across tests
-        del sys.modules["iotedgedev.cli"]
+        del sys.modules[iotedgedev_import]
         result = runner.invoke(cli.main, args)
         if (result.exit_code == 0) or (expect_failure is True):
             return result
