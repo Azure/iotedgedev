@@ -358,12 +358,12 @@ def test_validate_deployment_template_and_manifest_failed():
         os.remove(os.path.join(tests_assets_dir, env_file_name))
 
 
+@mock.patch.dict(os.environ, {"CONTAINER_REGISTRY_PASSWORD": "nonempty"})
 def test_validate_deployment_template_and_manifest_success():
     try:
         deployment_file_name = "deployment.template.json"
         os.chdir(test_solution_shared_lib_dir)
         shutil.copyfile(env_file_path, os.path.join(test_solution_shared_lib_dir, env_file_name))
-        os.environ["CONTAINER_REGISTRY_PASSWORD"] = "nonempty"
 
         if get_docker_os_type() == "windows":
             result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name])
@@ -422,9 +422,9 @@ def test_fail_gen_config_on_validation_error(deployment_file_name):
     assert "ERROR" not in result.output
 
 
+@mock.patch.dict(os.environ, {"TTL": "7200"})
 def test_gen_config_with_non_string_placeholder():
     os.chdir(tests_assets_dir)
-    os.environ["TTL"] = "7200"
     deployment_file_name = "deployment.template.non_str_placeholder.json"
     if get_docker_os_type() == "windows":
         result = runner_invoke(['genconfig', '-P', get_platform_type(), '-f', deployment_file_name, '--fail-on-validation-error'])
