@@ -2,25 +2,28 @@ import os
 import re
 import shutil
 import sys
+from io import BytesIO
+from urllib.request import urlopen
 from zipfile import ZipFile
 
 import commentjson
-from io import BytesIO
-from urllib.request import urlopen
+
+from iotedgedev.envvars import EnvVars
+from iotedgedev.output import Output
 
 from . import telemetry
 from .buildoptionsparser import BuildOptionsParser
 from .buildprofile import BuildProfile
+from .constants import Constants
 from .deploymentmanifest import DeploymentManifest
 from .dockercls import Docker
 from .dotnet import DotNet
 from .module import Module
 from .utility import Utility
-from .constants import Constants
 
 
 class Modules:
-    def __init__(self, envvars, output):
+    def __init__(self, envvars: EnvVars, output: Output):
         self.envvars = envvars
         self.output = output
         self.utility = Utility(self.envvars, self.output)
