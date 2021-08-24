@@ -89,8 +89,8 @@ def test_iothub_deploy_error_from_az_cli_bubbled_up():
 
 
 def test_iothub_deploy_error_missing_name():
+    # Act
     with pytest.raises(Exception) as context:
-        # Act
         runner_invoke(['iothub', 'deploy', '-n', "test"])
 
     # Assert
@@ -98,8 +98,8 @@ def test_iothub_deploy_error_missing_name():
 
 
 def test_iothub_deploy_error_missing_priority():
+    # Act
     with pytest.raises(Exception) as context:
-        # Act
         runner_invoke(['iothub', 'deploy', '-n', "test"])
 
     # Assert
@@ -107,8 +107,8 @@ def test_iothub_deploy_error_missing_priority():
 
 
 def test_iothub_deploy_error_missing_target_condition():
+    # Act
     with pytest.raises(Exception) as context:
-        # Act
         runner_invoke(['iothub', 'deploy', '-n', "test", '-p', '10'])
 
     # Assert

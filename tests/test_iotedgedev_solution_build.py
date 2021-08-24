@@ -3,6 +3,7 @@ import os
 import platform
 import shutil
 import time
+import re
 from unittest import mock
 
 import pytest
@@ -11,7 +12,7 @@ from iotedgedev.output import Output
 
 from .utility import (get_all_docker_images, get_docker_os_type,
                       get_file_content, get_platform_type, runner_invoke,
-                      update_file_content)
+                      update_file_content, prune_docker_images,     prune_docker_containers,    prune_docker_build_cache, remove_docker_image)
 
 pytestmark = pytest.mark.e2e
 
@@ -237,15 +238,15 @@ def test_solution_build_with_debug_template():
     assert module_2_name in all_docker_images
 
 
-# # TODO: The output of docker build logs is not captured by pytest, need to capture this before enable this test
-# def test_docker_build_status_output():
-#     prune_docker_images()
-#     prune_docker_containers()
-#     prune_docker_build_cache()
-#     remove_docker_image("sample_module:0.0.1-RC")
+# TODO: The output of docker build logs is not captured by pytest, need to capture this before enable this test
+@pytest.mark.skip(reason='The output of docker build logs is not captured by pytest, need to capture this before enabling this test')
+def test_docker_build_status_output():
+    prune_docker_images()
+    prune_docker_containers()
+    prune_docker_build_cache()
+    remove_docker_image("sample_module:0.0.1-RC")
 
-#     os.chdir(test_solution_shared_lib_dir)
+    os.chdir(test_solution_shared_lib_dir)
 
-#     result = runner_invoke(['build', '-P', get_platform_type()])
-
-#     assert re.match('\\[=*>\\s*\\]', result.output) is not None
+    result = runner_invoke(['build', '-f' 'deployment.debug.template.json', '-P', get_platform_type()])
+    assert re.match('\\[=*>\\s*\\]', result.output) is not None
