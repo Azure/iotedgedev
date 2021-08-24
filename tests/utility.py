@@ -1,6 +1,7 @@
 import json
 import re
 import subprocess
+import sys
 
 from click.testing import CliRunner
 from iotedgedev.dockercls import Docker
@@ -88,6 +89,8 @@ def runner_invoke(args, expect_failure=False):
     runner = CliRunner()
     with runner.isolation(env={"DEFAULT_PLATFORM": get_platform_type()}):
         cli = __import__("iotedgedev.cli", fromlist=['main'])
+        # Remove "iotedgedev.cli" import from cache, to prevent variables being saved across tests
+        del sys.modules["iotedgedev.cli"]
         result = runner.invoke(cli.main, args)
         if (result.exit_code == 0) or (expect_failure is True):
             return result

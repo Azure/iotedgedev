@@ -271,14 +271,15 @@ main.add_command(deploy)
               "--tc",
               "-t",
               "target_condition",
+              default=envvars.get_envvar("IOTHUB_DEPLOYMENT_TARGET_CONDITION"),
               show_default=True,
               required=False,
               help="Specify the deployment target condition")
 @with_telemetry
 def iothub_deploy(manifest_file, name, priority, target_condition):
     ensure_azure_cli_iot_ext()
-    iot_hub = IoTHub(envvars, output, None, azure_cli)
-    iot_hub.deploy(manifest_file, name, priority, target_condition)
+    iothub = IoTHub(envvars, output, None, azure_cli)
+    iothub.deploy(manifest_file, name, priority, target_condition)
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS,
