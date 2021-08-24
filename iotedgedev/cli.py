@@ -284,6 +284,56 @@ def deployment(manifest_file, name, priority, target_condition):
 main.add_command(deployment)
 
 
+@solution.command(context_settings=CONTEXT_SETTINGS, help="Adds tags to device twin for layered deployments")
+@click.option("--tags",
+              "-t",
+              "tags",
+              default=envvars.get_envvar("DEVICE_TAGS"),
+              show_default=True,
+              required=False,
+              help="Specify the tags to be added to the device twin ")
+@click.option('--deployment',
+              "-d",
+              "do_deployment",  # an alias to prevent conflict with the deploy method
+              default=False,
+              show_default=True,
+              required=False,
+              is_flag=True,
+              help="Deploy modules to Edge device using deployment.json in the config folder")
+@click.option("--file",
+              "-f",
+              "template_file",
+              default=envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE,
+              required=False,
+              help="When `--deployment` flag is set, specify the deployment manifest template file to create a deployment from")
+@click.option("--name",
+              "-n",
+              required=False,
+              help="When `--deployment` flag is set, specify the deployment name")
+@click.option("--priority",
+              "-p",
+              default=10,
+              required=False,
+              help="When `--deployment` flag is set, specify the deployment priority")
+@click.option("--target-condition",
+              "--tc",
+              "-t",
+              "target_condition",
+              default=envvars.get_envvar("LAYERED_DEPLOYMENT_TARGET_CONDITION"),
+              required=False,
+              help="When `--deployment` flag is set, specify the deployment target condition")
+@with_telemetry
+def tag(tags, do_deployment, template_file, name, priority, target_condition):
+    ensure_azure_cli_iot_ext()
+    edge = Edge(envvars, output, azure_cli)
+    if do_deployment:
+        edge.deployment(template_file, name, priority, target_condition)
+    edge.tag(tags)
+
+
+main.add_command(tag)
+
+
 @solution.command(context_settings=CONTEXT_SETTINGS,
                   help="Expand environment variables and placeholders in deployment manifest template file and copy to config folder",
                   # hack to prevent Click truncating help messages

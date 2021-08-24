@@ -37,3 +37,12 @@ class Edge:
                                             target_condition=target_condition,
                                             priority=priority):
             self.output.footer("DEPLOYMENT COMPLETE")
+
+    def tag(self, tags):
+        self.output.header("UPDATE DEVICE TAG")
+
+        self.envvars.verify_envvar_has_val("IOTHUB_CONNECTION_STRING", self.envvars.IOTHUB_CONNECTION_INFO)
+        self.envvars.verify_envvar_has_val("EDGE_DEVICE_ID", self.envvars.EDGE_DEVICE_ID)
+
+        if self.azure_cli.set_device_tag(connection_string=self.envvars.IOTHUB_CONNECTION_INFO, device_id=self.envvars.EDGE_DEVICE_ID, tags=tags):
+            self.output.footer("TAG UPDATE COMPLETE")
