@@ -17,25 +17,25 @@ test_solution_shared_lib_dir = os.path.join(os.getcwd(), "tests", "assets", "tes
 
 
 @pytest.mark.parametrize(
-    "config",
+    "config, manifest",
     [
-        "layered_deployment.flattened_props.template.json",
-        "layered_deployment.no_modules.template.json",
-        "deployment.template.json"
+        ("layered_deployment.flattened_props.template.json", "layered_deployment.flattened_props.json"),
+        ("layered_deployment.no_modules.template.json", "layered_deployment.no_modules.json"),
+        ("deployment.template.json", f"deployment.{get_platform_type()}.json")
     ]
 )
 # Test that cmd line target condition (-t) overrides target condition from .env
-@mock.patch.dict(os.environ, {"IOTHUB_DEPLOYMENT_TARGET_CONDITION": "invalid_target"})
-def test_iothub_deploy(config):
+@ mock.patch.dict(os.environ, {"IOTHUB_DEPLOYMENT_TARGET_CONDITION": "invalid_target"})
+def test_iothub_deploy(config, manifest):
     # Arrange
     deployment_name = f'test-{uuid.uuid4()}'
     os.chdir(test_solution_shared_lib_dir)
 
     # Act
-    result = runner_invoke(['build', '--push', '-f', config, '-P', get_platform_type()])
+    result = runner_invoke(['build', '-f', config, '-P', get_platform_type()])
     result = runner_invoke(['iothub', 'deploy',
-                            '-f', f'config/{config.replace("template.", "")}',
-                            '-n', deployment_name,
+                            '-f', f'config/{manifest}',
+                           '-n', deployment_name,
                             '-p', '10',
                             '-t', "tags.environment='dev'"
                             ])
@@ -48,17 +48,17 @@ def test_iothub_deploy(config):
     assert azure_cli.invoke_az_cli_outproc(["iot", "edge", "deployment", "delete", "-d", deployment_name, "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING")])
 
 
-@mock.patch.dict(os.environ, {"IOTHUB_DEPLOYMENT_TARGET_CONDITION": "tags.environment='dev'"})
+@ mock.patch.dict(os.environ, {"IOTHUB_DEPLOYMENT_TARGET_CONDITION": "tags.environment='dev'"})
 def test_iothub_deploy_with_target_group_set_from_dotenv():
     # Arrange
     deployment_name = f'test-layered{uuid.uuid4()}'
     os.chdir(test_solution_shared_lib_dir)
 
     # Act
-    result = runner_invoke(['build', '--push', '-f', "layered_deployment.flattened_props.template.json", '-P', get_platform_type()])
+    result = runner_invoke(['build', '-f', "layered_deployment.flattened_props.template.json", '-P', get_platform_type()])
     result = runner_invoke(['iothub', 'deploy',
                             '-f', 'config/layered_deployment.flattened_props.json',
-                            '-n', deployment_name,
+                           '-n', deployment_name,
                             '-p', '10',
                             ])
 
@@ -76,10 +76,10 @@ def test_iothub_deploy_error_from_az_cli_bubbled_up():
     os.chdir(test_solution_shared_lib_dir)
 
     # Act
-    result = runner_invoke(['build', '--push', '-f', "layered_deployment.flattened_props.template.json", '-P', get_platform_type()])
+    result = runner_invoke(['build', '-f', "layered_deployment.flattened_props.template.json", '-P', get_platform_type()])
     result = runner_invoke(['iothub', 'deploy',
                             '-f', 'config/layered_deployment.flattened_props.json',
-                            '-n', "test-layered-deployment",
+                           '-n', "test-layered-deployment",
                             '-p', '10',
                             '-t', "invalid_target_group"
                             ])
