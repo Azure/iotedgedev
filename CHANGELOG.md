@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [3.3.0] - 2021-8-24
+- Add support for layered deployment manifests when building, pushing and generating
+- Add support for creating deployments in IoTHub via the new command: `iotedgedev iothub deploy`
+
 ## [3.2.0] - 2021-7-30
 - Added support for IoT Edge Runtime version 1.2
 - Enable change of edgehub and edgeagent schema versions

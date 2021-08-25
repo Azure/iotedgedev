@@ -12,6 +12,7 @@ steps:
   - pwsh: |
       npm i -g iothub-explorer yo generator-azure-iot-edge-module
       az --version
+      az extension add --name azure-iot
       & "C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\python.exe" -m pip install -U setuptools==52.0.0
     displayName: "Install IoT Hub explorer, Yeoman and Azure IoT Edge Node.js module generator packages"
 
@@ -19,7 +20,7 @@ steps:
       mkdir C:\registry
       docker run -d -p 5000:5000 --restart=always --name registry -v C:\registry:C:\registry stefanscherer/registry-windows:2.6.2
     displayName: "Pull and run local registry containers"
-  
+
   - pwsh: |
       pip install tox
       tox -e "$(TOXENV)"

@@ -248,6 +248,40 @@ def deploy(manifest_file):
 main.add_command(deploy)
 
 
+@iothub.command(
+    name="deploy",
+    context_settings=CONTEXT_SETTINGS,
+    help="Create a deployment in IoT Hub")
+@click.option("--file",
+              "-f",
+              "manifest_file",
+              default=envvars.DEPLOYMENT_CONFIG_FILE_PATH,
+              show_default=True,
+              required=False,
+              help="Specify the deployment manifest file")
+@click.option("--name",
+              "-n",
+              required=True,
+              help="Specify the deployment name")
+@click.option("--priority",
+              "-p",
+              required=True,
+              help="Specify the deployment priority")
+@click.option("--target-condition",
+              "--tc",
+              "-t",
+              "target_condition",
+              default=envvars.get_envvar("IOTHUB_DEPLOYMENT_TARGET_CONDITION"),
+              show_default=True,
+              required=False,
+              help="Specify the deployment target condition")
+@with_telemetry
+def iothub_deploy(manifest_file, name, priority, target_condition):
+    ensure_azure_cli_iot_ext()
+    iothub = IoTHub(envvars, output, None, azure_cli)
+    iothub.deploy(manifest_file, name, priority, target_condition)
+
+
 @solution.command(context_settings=CONTEXT_SETTINGS,
                   help="Expand environment variables and placeholders in deployment manifest template file and copy to config folder",
                   # hack to prevent Click truncating help messages
@@ -424,7 +458,7 @@ def modulecred(local, output_file):
 def monitor(timeout):
     ensure_azure_cli_iot_ext()
     utility = Utility(envvars, output)
-    ih = IoTHub(envvars, utility, output, azure_cli)
+    ih = IoTHub(envvars, output, utility, azure_cli)
     ih.monitor_events(timeout)
 
 
