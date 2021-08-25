@@ -68,8 +68,8 @@ def test_deployment_and_add_tags():
     temp = "deployment.template.json"
     result = runner_invoke(['build', '--push', '-f', temp, '-P', get_platform_type()])
     result = runner_invoke(['tag', '--tags', '{"environment":"dev"}',
-                            '-d', 'True',
-                            '-f', f'config/{temp.replace("template.", "")}',
+                            '-d',
+                            '-f', f'config/{temp.replace("template", get_platform_type())}',
                             '-n', deployment_name,
                             '-p', '10',
                             '-t', "tags.environment='dev'"])
