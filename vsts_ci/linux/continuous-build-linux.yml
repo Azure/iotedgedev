@@ -19,6 +19,7 @@ steps:
       pip install --upgrade tox
       sudo npm i -g iothub-explorer
       az --version
+      az extension add --name azure-iot
     displayName: "Update and install required tools"
 
   - script: |

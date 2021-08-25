@@ -248,9 +248,10 @@ def deploy(manifest_file):
 main.add_command(deploy)
 
 
-@solution.command(
+@iothub.command(
+    name="deploy",
     context_settings=CONTEXT_SETTINGS,
-    help="Create a deployment from the solution in IoT Hub")
+    help="Create a deployment in IoT Hub")
 @click.option("--file",
               "-f",
               "manifest_file",
@@ -270,18 +271,15 @@ main.add_command(deploy)
               "--tc",
               "-t",
               "target_condition",
-              default=envvars.get_envvar("LAYERED_DEPLOYMENT_TARGET_CONDITION"),
+              default=envvars.get_envvar("IOTHUB_DEPLOYMENT_TARGET_CONDITION"),
               show_default=True,
               required=False,
               help="Specify the deployment target condition")
 @with_telemetry
-def deployment(manifest_file, name, priority, target_condition):
+def iothub_deploy(manifest_file, name, priority, target_condition):
     ensure_azure_cli_iot_ext()
-    edge = Edge(envvars, output, azure_cli)
-    edge.deployment(manifest_file, name, priority, target_condition)
-
-
-main.add_command(deployment)
+    iothub = IoTHub(envvars, output, None, azure_cli)
+    iothub.deploy(manifest_file, name, priority, target_condition)
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Adds tags to device twin for layered deployments")
@@ -510,7 +508,7 @@ def modulecred(local, output_file):
 def monitor(timeout):
     ensure_azure_cli_iot_ext()
     utility = Utility(envvars, output)
-    ih = IoTHub(envvars, utility, output, azure_cli)
+    ih = IoTHub(envvars, output, utility, azure_cli)
     ih.monitor_events(timeout)
 
 
