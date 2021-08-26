@@ -5,7 +5,6 @@ from .utility import (
     get_platform_type,
     runner_invoke,
 )
-
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 
@@ -26,18 +25,6 @@ def test_add_tags():
     # Assert
     assert 'TAG UPDATE COMPLETE' in result.output
     assert '{"environment":"dev","building":"9"}' in result.output
-    assert 'ERROR' not in result.output
-
-
-def test_add_default_tags():
-    # Arrange
-    os.chdir(test_solution_shared_lib_dir)
-
-    # Act
-    result = runner_invoke(['tag'])
-
-    # Assert
-    assert 'TAG UPDATE COMPLETE' in result.output
     assert 'ERROR' not in result.output
 
 
@@ -78,3 +65,31 @@ def test_deployment_and_add_tags():
     assert 'TAG UPDATE COMPLETE' in result.output
     assert '{"environment":"dev"}' in result.output
     assert 'ERROR' not in result.output
+
+
+def test_error_creating_deployment_and_add_tags():
+    # Arrange
+    os.chdir(test_solution_shared_lib_dir)
+    deployment_name = f'test-{uuid.uuid4()}'
+
+    # Act
+    temp = "deployment.template.json"
+    result = runner_invoke(['build', '--push', '-f', temp, '-P', get_platform_type()])
+    result = runner_invoke(['tag', '--tags', '{"environment":"dev"}',
+                            '-d',
+                            '-f', f'config/{temp.replace("template", get_platform_type())}',
+                            '-n', deployment_name,
+                            '-t', "tags.environment='dev'"])
+    # Assert
+    assert 'DEPLOYMENT COMPLETE' in result.output
+    assert 'TAG UPDATE COMPLETE' not in result.output
+    assert '{"environment":"dev"}' not in result.output
+
+
+def test_tag_error_missing_tag():
+    # Act
+    with pytest.raises(Exception) as context:
+        runner_invoke(['tag', '--tags'])
+
+    # Assert
+    assert "Error: Option '--tags' requires an argument." in str(context)

@@ -286,9 +286,7 @@ def iothub_deploy(manifest_file, name, priority, target_condition):
 @click.option("--tags",
               "-t",
               "tags",
-              default=envvars.get_envvar("DEVICE_TAGS"),
-              show_default=True,
-              required=False,
+              required=True,
               help="Specify the tags to be added to the device twin ")
 @click.option('--deployment',
               "-d",
@@ -300,7 +298,7 @@ def iothub_deploy(manifest_file, name, priority, target_condition):
               help="Deploy modules to Edge device using deployment.json in the config folder")
 @click.option("--file",
               "-f",
-              "template_file",
+              "manifest_file",
               default=envvars.DEPLOYMENT_CONFIG_TEMPLATE_FILE,
               required=False,
               help="When `--deployment` flag is set, specify the deployment manifest template file to create a deployment from")
@@ -310,23 +308,23 @@ def iothub_deploy(manifest_file, name, priority, target_condition):
               help="When `--deployment` flag is set, specify the deployment name")
 @click.option("--priority",
               "-p",
-              default=10,
               required=False,
               help="When `--deployment` flag is set, specify the deployment priority")
 @click.option("--target-condition",
               "--tc",
               "-t",
               "target_condition",
-              default=envvars.get_envvar("LAYERED_DEPLOYMENT_TARGET_CONDITION"),
+              default=envvars.get_envvar("IOTHUB_DEPLOYMENT_TARGET_CONDITION"),
               required=False,
               help="When `--deployment` flag is set, specify the deployment target condition")
 @with_telemetry
-def tag(tags, do_deployment, template_file, name, priority, target_condition):
+def tag(tags, do_deployment, manifest_file, name, priority, target_condition):
     ensure_azure_cli_iot_ext()
     edge = Edge(envvars, output, azure_cli)
-    if do_deployment:
-        edge.deployment(template_file, name, priority, target_condition)
     edge.tag(tags)
+    if do_deployment:
+        iothub = IoTHub(envvars, output, None, azure_cli)
+        iothub.deploy(manifest_file, name, priority, target_condition)
 
 
 main.add_command(tag)
