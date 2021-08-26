@@ -86,10 +86,24 @@ def test_error_creating_deployment_and_add_tags():
     assert '{"environment":"dev"}' not in result.output
 
 
-def test_tag_error_missing_tag():
+def test_error_missing_tag():
+    # Arrange
+    os.chdir(test_solution_shared_lib_dir)
+
     # Act
     with pytest.raises(Exception) as context:
         runner_invoke(['tag', '--tags'])
 
     # Assert
     assert "Error: Option '--tags' requires an argument." in str(context)
+
+
+def test_invalid_tag():
+    # Arrange
+    os.chdir(test_solution_shared_lib_dir)
+
+    # Act
+    result = runner_invoke(['tag', '--tags', "invalid_tag"])
+
+    # Assert
+    assert "ERROR: Failed to add tag: 'invalid_tag' to device" in result.output
