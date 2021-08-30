@@ -237,6 +237,7 @@ def test_solution_build_with_debug_template():
     assert module_2_name in all_docker_images
 
 
+@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='The output of docker build logs is not captured by logs on windows, need to capture this before enabling this test')
 def test_verify_docker_build_status_in_output():
     os.chdir(test_solution_shared_lib_dir)
 
