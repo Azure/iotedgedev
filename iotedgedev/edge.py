@@ -27,7 +27,7 @@ class Edge:
         if not tags:
             tags = self.envvars.get_envvar("DEVICE_TAGS", True)
         self.envvars.verify_envvar_has_val("IOTHUB_CONNECTION_STRING", self.envvars.IOTHUB_CONNECTION_INFO)
-        self.envvars.verify_envvar_has_val("EDGE_DEVICE_ID", self.envvars.EDGE_DEVICE_ID)
+        self.envvars.verify_envvar_has_val("DEVICE_CONNECTION_STRING", self.envvars.DEVICE_CONNECTION_INFO)
 
-        if self.azure_cli.set_device_tag(connection_string=self.envvars.IOTHUB_CONNECTION_INFO, device_id=self.envvars.EDGE_DEVICE_ID, tags=tags):
+        if self.azure_cli.set_device_tag(connection_string=self.envvars.IOTHUB_CONNECTION_INFO, device_id=self.envvars.DEVICE_CONNECTION_INFO.device_id, tags=tags):
             self.output.footer("TAG UPDATE COMPLETE")
