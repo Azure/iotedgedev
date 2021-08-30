@@ -275,7 +275,7 @@ main.add_command(deploy)
               show_default=True,
               required=False,
               help="Specify the deployment target condition")
-@click.option("--device-tag",
+@click.option("--device_tag",
               "-dt",
               default=envvars.get_envvar("DEVICE_TAGS"),
               required=False,
