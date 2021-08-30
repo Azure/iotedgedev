@@ -7,6 +7,7 @@ from .utility import (
 )
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
+from unittest import mock
 
 pytestmark = pytest.mark.e2e
 
@@ -15,6 +16,8 @@ envvars = EnvVars(output)
 test_solution_shared_lib_dir = os.path.join(os.getcwd(), "tests", "assets", "test_solution_shared_lib")
 
 
+# Test that cmd line tags (--tags) overrides DEVICE_TAGS from .env
+@ mock.patch.dict(os.environ, {"DEVICE_TAGS": "invalid_target"})
 def test_add_tags():
     # Arrange
     os.chdir(test_solution_shared_lib_dir)
@@ -56,3 +59,29 @@ def test_error_missing_tag():
 
     # Assert
     assert "Error: Option '--tags' requires an argument." in str(context)
+
+
+@ mock.patch.dict(os.environ, {"DEVICE_TAGS": '{"environment":"dev","building":"9"}'})
+def test_default_tag_from_env():
+    # Arrange
+    os.chdir(test_solution_shared_lib_dir)
+
+    # Act
+    result = runner_invoke(['tag'])
+
+    # Assert
+    assert 'TAG UPDATE COMPLETE' in result.output
+    assert '{"environment":"dev","building":"9"}' in result.output
+    assert 'ERROR' not in result.output
+
+
+def test_missing_default_tag_from_env():
+    # Arrange
+    os.chdir(test_solution_shared_lib_dir)
+
+    # Act
+    with pytest.raises(Exception) as context:
+        runner_invoke(['tag'])
+
+    # Assert
+    assert "ERROR: Environment Variable DEVICE_TAGS not set. Either add to .env file or to your system's Environment Variables" in str(context)

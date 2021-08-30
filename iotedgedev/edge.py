@@ -24,7 +24,8 @@ class Edge:
 
     def tag(self, tags):
         self.output.header("UPDATE DEVICE TAG")
-
+        if not tags:
+            tags = self.envvars.get_envvar("DEVICE_TAGS", True)
         self.envvars.verify_envvar_has_val("IOTHUB_CONNECTION_STRING", self.envvars.IOTHUB_CONNECTION_INFO)
         self.envvars.verify_envvar_has_val("EDGE_DEVICE_ID", self.envvars.EDGE_DEVICE_ID)
 
