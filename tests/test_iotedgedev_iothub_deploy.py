@@ -136,3 +136,40 @@ def test_iothub_deploy_and_add_tags():
     assert 'TAG UPDATE COMPLETE' in result.output
     assert tags in result.output
     assert 'ERROR' not in result.output
+
+
+def test_iothub_deploy_and_add_tags_retry_after_invalid_tag(): 
+    # Arrange
+    tags1 = 'invalid_tag'
+    tags2 = '{"environment":"dev","building":"9"}'
+    deployment_name = f'test-{uuid.uuid4()}'
+    os.chdir(test_solution_shared_lib_dir)
+
+    # Act
+    result = runner_invoke(['build', '-f', "layered_deployment.flattened_props.template.json", '-P', get_platform_type()])
+    result = runner_invoke(['iothub', 'deploy',
+                            '-f', 'config/layered_deployment.flattened_props.json',
+                           '-n', deployment_name,
+                            '-p', '10',
+                            '-t', "tags.environment='dev'",
+                            '-dt', tags1
+                            ])
+
+    result_retry = runner_invoke(['iothub', 'deploy',
+                                  '-f', 'config/layered_deployment.flattened_props.json',
+                                  '-n', deployment_name,
+                                  '-p', '10',
+                                  '-t', "tags.environment='dev'",
+                                  '-dt', tags2
+                                  ])
+    
+    # Assert
+    assert 'DEPLOYMENT COMPLETE' in result.output
+    assert 'TAG UPDATE COMPLETE' not in result.output
+    assert f"ERROR: Failed to add tag: '{tags1}' to device" in result.output
+
+    assert 'DEPLOYMENT COMPLETE' not in result_retry.output
+    assert 'TAG UPDATE COMPLETE' in result_retry.output
+    assert tags2 in result_retry.output
+    assert 'ERROR: Failed to deploy' in result_retry.output
+    assert f'Message\': "ErrorCode:ConfigurationAlreadyExists;Configuration with id \'{deployment_name}\' already exist on IotHub.' in result_retry.output
