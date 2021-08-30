@@ -113,3 +113,26 @@ def test_iothub_deploy_error_missing_target_condition():
 
     # Assert
     assert "ERROR: Environment Variable IOTHUB_DEPLOYMENT_TARGET_CONDITION not set. Either add to .env file or to your system's Environment Variables" in str(context.value)
+
+
+def test_iothub_deploy_and_add_tags():
+    # Arrange
+    tags = '{"environment":"dev","building":"9"}'
+    deployment_name = f'test-{uuid.uuid4()}'
+    os.chdir(test_solution_shared_lib_dir)
+
+    # Act
+    result = runner_invoke(['build', '-f', "layered_deployment.flattened_props.template.json", '-P', get_platform_type()])
+    result = runner_invoke(['iothub', 'deploy',
+                            '-f', 'config/layered_deployment.flattened_props.json',
+                           '-n', deployment_name,
+                            '-p', '10',
+                            '-t', "tags.environment='dev'",
+                            '-dt', tags
+                            ])
+
+    # Assert
+    assert 'DEPLOYMENT COMPLETE' in result.output
+    assert 'TAG UPDATE COMPLETE' in result.output
+    assert tags in result.output
+    assert 'ERROR' not in result.output

@@ -35,7 +35,7 @@ def test_add_tags():
         "dev"
     ]
 )
-def test_add_tags_wrong_format(tags):
+def test_add_invalid_tag(tags):
     # Arrange
     os.chdir(test_solution_shared_lib_dir)
 
@@ -44,46 +44,6 @@ def test_add_tags_wrong_format(tags):
 
     # Assert
     assert f"ERROR: Failed to add tag: '{tags}' to device" in result.output
-
-
-def test_deployment_and_add_tags():
-    # Arrange
-    os.chdir(test_solution_shared_lib_dir)
-    deployment_name = f'test-{uuid.uuid4()}'
-
-    # Act
-    temp = "deployment.template.json"
-    result = runner_invoke(['build', '--push', '-f', temp, '-P', get_platform_type()])
-    result = runner_invoke(['tag', '--tags', '{"environment":"dev"}',
-                            '-d',
-                            '-f', f'config/{temp.replace("template", get_platform_type())}',
-                            '-n', deployment_name,
-                            '-p', '10',
-                            '-t', "tags.environment='dev'"])
-    # Assert
-    assert 'DEPLOYMENT COMPLETE' in result.output
-    assert 'TAG UPDATE COMPLETE' in result.output
-    assert '{"environment":"dev"}' in result.output
-    assert 'ERROR' not in result.output
-
-
-def test_error_creating_deployment_and_add_tags():
-    # Arrange
-    os.chdir(test_solution_shared_lib_dir)
-    deployment_name = f'test-{uuid.uuid4()}'
-
-    # Act
-    temp = "deployment.template.json"
-    result = runner_invoke(['build', '--push', '-f', temp, '-P', get_platform_type()])
-    result = runner_invoke(['tag', '--tags', '{"environment":"dev"}',
-                            '-d',
-                            '-f', f'config/{temp.replace("template", get_platform_type())}',
-                            '-n', deployment_name,
-                            '-t', "tags.environment='dev'"])
-    # Assert
-    assert 'DEPLOYMENT COMPLETE' in result.output
-    assert 'TAG UPDATE COMPLETE' not in result.output
-    assert '{"environment":"dev"}' not in result.output
 
 
 def test_error_missing_tag():
@@ -96,14 +56,3 @@ def test_error_missing_tag():
 
     # Assert
     assert "Error: Option '--tags' requires an argument." in str(context)
-
-
-def test_invalid_tag():
-    # Arrange
-    os.chdir(test_solution_shared_lib_dir)
-
-    # Act
-    result = runner_invoke(['tag', '--tags', "invalid_tag"])
-
-    # Assert
-    assert "ERROR: Failed to add tag: 'invalid_tag' to device" in result.output
