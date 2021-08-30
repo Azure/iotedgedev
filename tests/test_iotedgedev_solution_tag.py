@@ -1,8 +1,6 @@
 import os
 import pytest
-import uuid
 from .utility import (
-    get_platform_type,
     runner_invoke,
 )
 from iotedgedev.envvars import EnvVars

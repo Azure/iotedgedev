@@ -138,7 +138,7 @@ def test_iothub_deploy_and_add_tags():
     assert 'ERROR' not in result.output
 
 
-def test_iothub_deploy_and_add_tags_retry_after_invalid_tag(): 
+def test_iothub_deploy_and_add_tags_retry_after_invalid_tag():
     # Arrange
     tags1 = 'invalid_tag'
     tags2 = '{"environment":"dev","building":"9"}'
@@ -162,7 +162,7 @@ def test_iothub_deploy_and_add_tags_retry_after_invalid_tag():
                                   '-t', "tags.environment='dev'",
                                   '-dt', tags2
                                   ])
-    
+
     # Assert
     assert 'DEPLOYMENT COMPLETE' in result.output
     assert 'TAG UPDATE COMPLETE' not in result.output
