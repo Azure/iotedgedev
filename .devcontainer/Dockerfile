@@ -54,8 +54,6 @@ RUN \
     rm -rf /tmp/* && \
     rm -rf /var/lib/apt/lists/*
 
-
-
 # Customize bash
 RUN \
     # Git command prompt
