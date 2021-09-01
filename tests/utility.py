@@ -3,6 +3,7 @@ import re
 import subprocess
 import sys
 
+import click
 from click.testing import CliRunner
 from iotedgedev.dockercls import Docker
 from iotedgedev.envvars import EnvVars
@@ -123,3 +124,9 @@ def get_file_content(file_path):
         content = f.read()
 
     return content
+
+
+def get_cli_command_structure(obj):
+    if isinstance(obj, click.Group):
+        return {name: get_cli_command_structure(value)
+                for name, value in obj.commands.items()}
