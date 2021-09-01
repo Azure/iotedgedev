@@ -40,6 +40,7 @@ def create_solution(request):
         os.chdir(root_dir)
         time.sleep(5)
         shutil.rmtree(test_solution_dir, ignore_errors=True)
+        shutil.rmtree(test_solution_dir+"_shared_lib", ignore_errors=True)
         runner_invoke(['simulator', 'stop'])
 
     request.addfinalizer(clean)
@@ -106,9 +107,8 @@ def test_start_solution_with_setup(capfd):
 @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
 def test_monitor(capfd):
     try:
-        result = runner_invoke(['monitor', '--timeout', '20'])
+        result = runner_invoke(['monitor', '--timeout', '30'])
         out, err = capfd.readouterr()
-
         # Assert output from simulator
         sim_match = 'timeCreated'
 

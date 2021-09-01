@@ -1,3 +1,4 @@
+from iotedgedev.connectionstring import IoTHubConnectionString
 import json
 import os
 import signal
@@ -20,7 +21,7 @@ def get_query_argument_for_id_and_name(token):
 
 
 class AzureCli:
-    def __init__(self,  output, envvars, cli=get_default_cli()):
+    def __init__(self, output, envvars, cli=get_default_cli()):
         self.output = output
         self.envvars = envvars
         self.az_cli = cli
@@ -37,7 +38,7 @@ class AzureCli:
         if suppress_output:
             args.extend(["--query", "\"[?n]|[0]\""])
 
-        az_args = ["az"]+args
+        az_args = ["az"] + args
         return az_args
 
     def invoke_az_cli_outproc(self, args, error_message=None, stdout_io=None, stderr_io=None, suppress_output=False, timeout=None):
@@ -240,13 +241,13 @@ class AzureCli:
     def login_account(self, username, password):
 
         return self.invoke_az_cli_outproc(["login", "-u", username,
-                                           "-p",  password],
+                                           "-p", password],
                                           "Error while trying to login to Azure. Make sure your account credentials are correct", suppress_output=True)
 
     def login_sp(self, username, password, tenant):
 
         return self.invoke_az_cli_outproc(["login", "--service-principal", "-u", username,
-                                           "-p",  password, "--tenant", tenant],
+                                           "-p", password, "--tenant", tenant],
                                           "Error while trying to login to Azure. Make sure your service principal credentials are correct.", suppress_output=True)
 
     def login_interactive(self):
@@ -361,18 +362,42 @@ class AzureCli:
 
         return result
 
-    def set_modules(self, device_id, connection_string, config):
-        self.output.status(f("Deploying '{config}' to '{device_id}'..."))
+    def set_modules(self, config: str, device_id: str, connection_string: IoTHubConnectionString):
+        self.output.status(f"Deploying '{config}' to '{device_id}'...")
 
         config = os.path.join(os.getcwd(), config)
 
         if not os.path.exists(config):
-            raise FileNotFoundError('Deployment manifest file "{0}" not found. Please run `iotedgedev build` first'.format(config))
+            raise FileNotFoundError(f"Deployment manifest file '{config}' not found. Please run `iotedgedev build` first")
 
         telemetry.add_extra_props({'iothubhostname': connection_string.iothub_host.name_hash, 'iothubhostnamesuffix': connection_string.iothub_host.name_suffix})
 
         return self.invoke_az_cli_outproc(["iot", "edge", "set-modules", "-d", device_id, "-n", connection_string.iothub_host.hub_name, "-k", config, "-l", connection_string.connection_string],
                                           error_message=f("Failed to deploy '{config}' to '{device_id}'..."), suppress_output=True)
+
+    def create_deployment(self,
+                          config: str,
+                          connection_string: IoTHubConnectionString,
+                          deployment_name: str,
+                          target_condition: str,
+                          priority: str) -> bool:
+        self.output.status(f"Deploying '{config}' to '{connection_string.iothub_host.hub_name}'...")
+
+        config = os.path.join(os.getcwd(), config)
+
+        if not os.path.exists(config):
+            raise FileNotFoundError(f"Deployment manifest file '{config}' not found. Please run `iotedgedev build` first")
+
+        telemetry.add_extra_props({'iothubhostname': connection_string.iothub_host.name_hash, 'iothubhostnamesuffix': connection_string.iothub_host.name_suffix})
+        with output_io_cls() as io:
+            result = self.invoke_az_cli_outproc(["iot", "edge", "deployment", "create", "-d", deployment_name, "-l", connection_string.connection_string, "--content", config,
+                                                 "--target-condition", target_condition, "--priority", priority],
+                                                error_message=f"Failed to deploy '{config}' to '{connection_string.iothub_host.hub_name}'...", stderr_io=io)
+            if io.getvalue():
+                self.output.error(io.getvalue())
+                self.output.line()
+
+            return result
 
     def monitor_events(self, device_id, connection_string, hub_name, timeout=300):
         return self.invoke_az_cli_outproc(["iot", "hub", "monitor-events", "-d", device_id, "-n", hub_name, "-l", connection_string, '-t', str(timeout), '-y'],
@@ -448,7 +473,7 @@ class AzureCli:
             f("Retrieving '{value}' connection string..."))
 
         with output_io_cls() as io:
-            result = self.invoke_az_cli_outproc(["iot", "hub", "show-connection-string", "--hub-name", value,
+            result = self.invoke_az_cli_outproc(["iot", "hub", "connection-string", "show", "--hub-name", value,
                                                  "--resource-group", resource_group],
                                                 f("Could not create the IoT Hub {value} in {resource_group}."), stdout_io=io)
             if result:
@@ -495,7 +520,7 @@ class AzureCli:
             f("Retrieving '{value}' connection string..."))
 
         with output_io_cls() as io:
-            result = self.invoke_az_cli_outproc(["iot", "hub", "device-identity", "show-connection-string", "--device-id", value, "--hub-name", iothub,
+            result = self.invoke_az_cli_outproc(["iot", "hub", "device-identity", "connection-string", "show", "--device-id", value, "--hub-name", iothub,
                                                  "--resource-group", resource_group],
                                                 f("Could not locate the {value} device in {iothub} IoT Hub in {resource_group}."), stdout_io=io)
             if result:

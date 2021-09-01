@@ -2,24 +2,28 @@ import os
 import re
 import shutil
 import sys
+from io import BytesIO
+from urllib.request import urlopen
 from zipfile import ZipFile
 
 import commentjson
-from io import BytesIO
-from urllib.request import urlopen
+
+from iotedgedev.envvars import EnvVars
+from iotedgedev.output import Output
 
 from . import telemetry
 from .buildoptionsparser import BuildOptionsParser
 from .buildprofile import BuildProfile
+from .constants import Constants
 from .deploymentmanifest import DeploymentManifest
 from .dockercls import Docker
 from .dotnet import DotNet
 from .module import Module
 from .utility import Utility
-from .constants import Constants
+
 
 class Modules:
-    def __init__(self, envvars, output):
+    def __init__(self, envvars: EnvVars, output: Output):
         self.envvars = envvars
         self.output = output
         self.utility = Utility(self.envvars, self.output)
@@ -194,6 +198,7 @@ class Modules:
 
                         response = docker.docker_api.build(**build_args)
                         docker.process_api_response(response)
+                        self.output.footer("BUILD COMPLETE")
                     if not no_push:
                         docker.init_registry()
 
@@ -213,8 +218,7 @@ class Modules:
                                 "username": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].username,
                                 "password": self.envvars.CONTAINER_REGISTRY_MAP[registry_key].password})
                         docker.process_api_response(response)
-                self.output.footer("BUILD COMPLETE", suppress=no_build)
-                self.output.footer("PUSH COMPLETE", suppress=no_push)
+                        self.output.footer("PUSH COMPLETE")
 
         self.output.info("Expanding image placeholders")
         deployment_manifest.expand_image_placeholders(replacements)
