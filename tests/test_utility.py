@@ -1,12 +1,13 @@
 import os
+from unittest import mock
 
 import pytest
-
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
 from iotedgedev.utility import Utility
 
-from .utility import assert_list_equal, assert_file_equal, assert_json_file_equal
+from .utility import (assert_file_equal, assert_json_file_equal,
+                      assert_list_equal)
 
 pytestmark = pytest.mark.unit
 
@@ -59,12 +60,12 @@ def test_copy_template(utility, tmpdir):
     assert_json_file_equal(test_file_2, dest)
 
 
+@mock.patch.dict(os.environ, {"CONTAINER_REGISTRY_SERVER": "localhost:5000"})
 def test_copy_template_expandvars(utility, tmpdir):
     replacements = {
         "${MODULES.csharpmodule.amd64}": "${CONTAINER_REGISTRY_SERVER}/csharpmodule:0.0.1-amd64",
         "${MODULES.csharpfunction.amd64.debug}": "${CONTAINER_REGISTRY_SERVER}/csharpfunction:0.0.1-amd64.debug"
     }
-    os.environ["CONTAINER_REGISTRY_SERVER"] = "localhost:5000"
     dest = tmpdir.join("deployment_template_2.dest.json").strpath
     dest2 = tmpdir.join("deployment_template_2.dest2.json").strpath
     utility.copy_template(test_file_1, dest, replacements=replacements, expandvars=True)
@@ -116,6 +117,11 @@ def test_get_sha256_hash():
     assert Utility.get_sha256_hash("foo") == "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae"
 
 
+@mock.patch.dict(os.environ, {"DEPLOYMENT_CONFIG_FILE": "foo.json"})
+def test_get_deployment_manifest_name__set_from_envvar():
+    assert Utility.get_deployment_manifest_name("deployment.debug.template.json", "1.0.0", "amd64") == "foo.json"
+
+
 def test_get_deployment_manifest_name():
     assert Utility.get_deployment_manifest_name("config/deployment.template.json", "0.0.1", "amd64") == "deployment.json"
     assert Utility.get_deployment_manifest_name("deployment.template.json", "0.0.1", "amd64") == "deployment.json"
@@ -124,6 +130,3 @@ def test_get_deployment_manifest_name():
     assert Utility.get_deployment_manifest_name("deployment.template.json", "1.0.0", "amd64") == "deployment.amd64.json"
     assert Utility.get_deployment_manifest_name("deployment.debug.template.json", "1.0.0", "amd64") == "deployment.debug.amd64.json"
     assert Utility.get_deployment_manifest_name("", "", "") == "deployment.json"
-
-    os.environ["DEPLOYMENT_CONFIG_FILE"] = "foo.json"
-    assert Utility.get_deployment_manifest_name("deployment.debug.template.json", "1.0.0", "amd64") == "foo.json"
