@@ -275,8 +275,9 @@ main.add_command(deploy)
               show_default=True,
               required=False,
               help="Specify the deployment target condition")
-@click.option("--device_tag",
+@click.option("--device-tag",
               "-dt",
+              "device_tag",
               default=envvars.get_envvar("DEVICE_TAGS"),
               required=False,
               help="Specify the tags to be added to the device twin")
@@ -297,7 +298,7 @@ def iothub_deploy(manifest_file, name, priority, target_condition, device_tag):
               required=False,
               default=envvars.get_envvar("DEVICE_TAGS"),
               show_default=True,
-              help="Specify the tags to be added to the device twin ")
+              help="Specify the tags to be added to the device twin")
 @with_telemetry
 def tag(tags):
     ensure_azure_cli_iot_ext()
