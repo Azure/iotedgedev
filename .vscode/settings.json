@@ -2,7 +2,17 @@
     "python.pythonPath": "${workspaceFolder}\\venv\\Scripts\\python.exe",
     "cSpell.words": [
         "dotenv",
-        "envvar"
+        "envvar",
+        "edgesolution",
+        "gitignore",
+        "iotedge",
+        "iotedgedev",
+        "iothub",
+        "mkdir",
+        "posix",
+        "quickstart",
+        "venv",
+        "virtualenv"
     ],
     "python.linting.enabled": true,
     "python.linting.pylintEnabled": false,

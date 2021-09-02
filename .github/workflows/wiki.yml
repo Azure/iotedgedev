@@ -1,0 +1,50 @@
+name: Update wiki
+
+on:
+  push:
+    branches: [master]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Push documentation changes to wiki
+        env:
+          EMAIL: actions@github.com
+          USER_NAME: Github Actions
+          REPO_DEST: iotedgedev.wiki
+          REPO_DEST_URL: github.com/Azure/iotedgedev.wiki.git
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+
+          # Save iotedgedev repo folder path
+          REPO_SOURCE=$(pwd)
+
+          # Exit iotedgedev repo folder
+          cd ..
+
+          # Clone repositories
+          git clone https://${REPO_DEST_URL}
+
+          # Update wiki repository with documentation folder contents
+          cd ${REPO_DEST}
+          git rm -rf .
+          git clean -fxd
+          yes | cp -rf ${REPO_SOURCE}/docs/* .
+          git reset
+
+          # If changes found, commit and push them
+            if ! git diff-index HEAD || git status -s; then
+              git config user.email ${EMAIL}
+              git config user.name ${USER_NAME}
+              git status
+              git add .
+              git commit -m "Update documentation | From github actions number: ${GITHUB_RUN_ID}"
+              git push "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@${REPO_DEST_URL}"
+            fi
