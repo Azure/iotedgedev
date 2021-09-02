@@ -36,14 +36,18 @@ jobs:
           cd ${REPO_DEST}
           git rm -rf .
           git clean -fxd
-          yes | cp -rf ${REPO_SOURCE}/docs/* .
+          yes 2>/dev/null | cp -rf ${REPO_SOURCE}/docs/* .
           git reset
 
           # If changes found, commit and push them
-            if ! git diff-index HEAD || git status -s; then
+            if git diff-index HEAD && [ ! -n "$(git status -s)" ]; then 
+              git status
+              echo "No changes found in /docs. Exiting..."
+            else
+              git status
+              echo "Changes found in /docs. Committing and pushing..."              
               git config user.email ${EMAIL}
               git config user.name ${USER_NAME}
-              git status
               git add .
               git commit -m "Update documentation | From github actions number: ${GITHUB_RUN_ID}"
               git push "https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@${REPO_DEST_URL}"
