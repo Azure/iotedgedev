@@ -3,8 +3,10 @@ import pytest
 from .utility import (
     runner_invoke,
 )
+from iotedgedev.azurecli import AzureCli
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
+from iotedgedev.connectionstring import DeviceConnectionString
 from unittest import mock
 
 pytestmark = pytest.mark.e2e
@@ -21,12 +23,17 @@ def test_add_tags():
     os.chdir(test_solution_shared_lib_dir)
 
     # Act
-    result = runner_invoke(['tag', '--tags', '{"environment":"dev","building":"9"}'])
+    result = runner_invoke(['solution', 'tag', '--tags', '{"environment":"dev","building":"9"}'])
 
     # Assert
     assert 'TAG UPDATE COMPLETE' in result.output
     assert '{"environment":"dev","building":"9"}' in result.output
     assert 'ERROR' not in result.output
+
+    azure_cli = AzureCli(output, envvars)
+
+    assert azure_cli.invoke_az_cli_outproc(["iot", "hub", "device-twin", "replace", "-d", DeviceConnectionString(envvars.get_envvar("DEVICE_CONNECTION_STRING")).device_id,
+                                            "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING"), "--json", "tag_overwrite.json"])
 
 
 @pytest.mark.parametrize(
@@ -41,7 +48,7 @@ def test_add_invalid_tag(tags):
     os.chdir(test_solution_shared_lib_dir)
 
     # Act
-    result = runner_invoke(['tag', '--tags', tags])
+    result = runner_invoke(['solution', 'tag', '--tags', tags])
 
     # Assert
     assert f"ERROR: Failed to add tag: '{tags}' to device" in result.output
@@ -53,7 +60,7 @@ def test_error_missing_tag():
 
     # Act
     with pytest.raises(Exception) as context:
-        runner_invoke(['tag', '--tags'])
+        runner_invoke(['solution', 'tag', '--tags'])
 
     # Assert
     assert "Error: Option '--tags' requires an argument." in str(context)
@@ -65,12 +72,17 @@ def test_default_tag_from_env():
     os.chdir(test_solution_shared_lib_dir)
 
     # Act
-    result = runner_invoke(['tag'])
+    result = runner_invoke(['solution', 'tag'])
 
     # Assert
     assert 'TAG UPDATE COMPLETE' in result.output
     assert '{"environment":"dev","building":"9"}' in result.output
     assert 'ERROR' not in result.output
+
+    azure_cli = AzureCli(output, envvars)
+
+    assert azure_cli.invoke_az_cli_outproc(["iot", "hub", "device-twin", "replace", "-d", DeviceConnectionString(envvars.get_envvar("DEVICE_CONNECTION_STRING")).device_id,
+                                            "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING"), "--json", "tag_overwrite.json"])
 
 
 def test_missing_default_tag_from_env():
@@ -79,7 +91,7 @@ def test_missing_default_tag_from_env():
 
     # Act
     with pytest.raises(Exception) as context:
-        runner_invoke(['tag'])
+        runner_invoke(['solution', 'tag'])
 
     # Assert
     assert "ERROR: Environment Variable DEVICE_TAGS not set. Either add to .env file or to your system's Environment Variables" in str(context)

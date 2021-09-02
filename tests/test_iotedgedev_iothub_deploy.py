@@ -6,6 +6,7 @@ import pytest
 from iotedgedev.azurecli import AzureCli
 from iotedgedev.envvars import EnvVars
 from iotedgedev.output import Output
+from iotedgedev.connectionstring import DeviceConnectionString
 
 from .utility import get_platform_type, runner_invoke
 
@@ -137,6 +138,12 @@ def test_iothub_deploy_and_add_tags():
     assert tags in result.output
     assert 'ERROR' not in result.output
 
+    azure_cli = AzureCli(output, envvars)
+
+    assert azure_cli.invoke_az_cli_outproc(["iot", "edge", "deployment", "delete", "-d", deployment_name, "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING")])
+    assert azure_cli.invoke_az_cli_outproc(["iot", "hub", "device-twin", "replace", "-d", DeviceConnectionString(envvars.get_envvar("DEVICE_CONNECTION_STRING")).device_id,
+                                            "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING"), "--json", "tag_overwrite.json"])
+
 
 def test_iothub_deploy_and_add_tags_retry_after_invalid_tag():
     # Arrange
@@ -173,3 +180,9 @@ def test_iothub_deploy_and_add_tags_retry_after_invalid_tag():
     assert tags2 in result_retry.output
     assert 'ERROR: Failed to deploy' in result_retry.output
     assert f'Message\': "ErrorCode:ConfigurationAlreadyExists;Configuration with id \'{deployment_name}\' already exist on IotHub.' in result_retry.output
+
+    azure_cli = AzureCli(output, envvars)
+
+    assert azure_cli.invoke_az_cli_outproc(["iot", "edge", "deployment", "delete", "-d", deployment_name, "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING")])
+    assert azure_cli.invoke_az_cli_outproc(["iot", "hub", "device-twin", "replace", "-d", DeviceConnectionString(envvars.get_envvar("DEVICE_CONNECTION_STRING")).device_id,
+                                            "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING"), "--json", "tag_overwrite.json"])
