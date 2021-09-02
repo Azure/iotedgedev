@@ -289,6 +289,7 @@ def iothub_deploy(manifest_file, name, priority, target_condition, device_tag):
         edge = Edge(envvars, output, azure_cli)
         edge.tag(device_tag)
 
+
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Adds tags to device twin for layered deployments")
 @click.option("--tags",
               "-t",
@@ -302,9 +303,6 @@ def tag(tags):
     ensure_azure_cli_iot_ext()
     edge = Edge(envvars, output, azure_cli)
     edge.tag(tags)
-
-
-main.add_command(tag)
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS,
