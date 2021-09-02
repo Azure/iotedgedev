@@ -286,9 +286,7 @@ Usage: iotedgedev iothub deploy [OPTIONS]
 
 Options:
   -f, --file TEXT                 Specify the deployment manifest file  [default: config/deployment.amd64.json]
-  -n, --name TEXT                 Specify the name of the deployment that will be created in the IoT hub. Give your
-                                  deployment a unique name that is up to 128 lowercase letters. Avoid spaces and the
-                                  following invalid characters: & ^ [ ] { } \ | " < > /.  [required]
+  -n, --name TEXT                 Specify the name of the deployment that will be created in the IoT hub.  [required]
   -p, --priority TEXT             Specify the deployment priority as positive integer. In the event that two or more
                                   deployments are targeted at the same device, the deployment with the highest
                                   numerical value for Priority will apply.  [required]

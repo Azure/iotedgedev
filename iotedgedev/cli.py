@@ -262,8 +262,7 @@ main.add_command(deploy)
 @click.option("--name",
               "-n",
               required=True,
-              help=("Specify the name of the deployment that will be created in the IoT hub. "
-                    "Give your deployment a unique name that is up to 128 lowercase letters. Avoid spaces and the following invalid characters: & ^ [ ] { } \\ | \" < > /."))
+              help="Specify the name of the deployment that will be created in the IoT hub.")
 @click.option("--priority",
               "-p",
               required=True,

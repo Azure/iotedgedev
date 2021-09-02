@@ -10,7 +10,9 @@ Note: See the ["Test Coverage"](test-coverage) wiki page to see what the IoT Edg
 
 1. **Initialize IoT Edge solution and setup Azure resources**
 
-    `iotedgedev init`
+    ```sh
+    iotedgedev init
+    ```
 
     `iotedgedev init` will run both `iotedgedev new .` and `iotedgedev iothub setup`, which will create a new solution and setup your Azure resources in a single command.
 
@@ -20,13 +22,17 @@ Note: See the ["Test Coverage"](test-coverage) wiki page to see what the IoT Edg
 
 1. **Add modules to IoT Edge solution**
 
-    `iotedgedev add <module-name--template <template>`
+    ```sh
+    iotedgedev add <module-name--template <template>
+    ```
 
     Currently the available template values are `c`, `csharp`, `java`, `nodejs`, `python`, `csharpfunction`. We are working on supporting more templates.
 
 1. **Build IoT Edge module images**
 
-    `sudo iotedgedev build`
+    ```sh
+    sudo iotedgedev build
+    ```
 
     You can avoid `sudo` if you are running IoT Edge Dev Tool outside Docker container, and:
     * You are on Windows or macOS.
@@ -34,7 +40,9 @@ Note: See the ["Test Coverage"](test-coverage) wiki page to see what the IoT Edg
 
 1. **Setup the [IoT Edge Simulator]((https://pypi.org/project/iotedgehubdev/).)**
 
-    `sudo iotedgedev setup`
+    ```sh
+    sudo iotedgedev setup
+    ```
 
     IoT Edge Simulator does not support running Python and C modules yet. You'll need IoT Edge Runtime to run your Python and C modules.
 
@@ -42,7 +50,9 @@ Note: See the ["Test Coverage"](test-coverage) wiki page to see what the IoT Edg
 
 1. **Start the IoT Edge Simulator to run the solution**
 
-    `sudo iotedgedev start`
+    ```sh
+    sudo iotedgedev start
+    ```
 
     You can also combine setup and start with `sudo iotedgedev start --setup`
 
@@ -52,11 +62,15 @@ Note: See the ["Test Coverage"](test-coverage) wiki page to see what the IoT Edg
 
 1. **Monitor messages sent from IoT Edge Simulator to IoT Hub**
 
-    `iotedgedev monitor`
+    ```sh
+    iotedgedev monitor
+    ```
 
 1. **Stop the IoT Edge Simulator**
 
-    `sudo iotedgedev stop`
+    ```sh
+    sudo iotedgedev stop
+    ```
 
     You can avoid `sudo` if you are running IoT Edge Dev Tool outside Docker container, and:
     * You are on Windows or macOS.
@@ -69,7 +83,9 @@ Note: See the ["Test Coverage"](test-coverage) wiki page to see what the IoT Edg
 
 1. **Push IoT Edge module images**
 
-    `sudo iotedgedev push`
+    ```sh
+    sudo iotedgedev push
+    ```
 
     You can avoid `sudo` if you are running IoT Edge Dev Tool outside Docker container, and:
     * You are on Windows or macOS.
@@ -77,13 +93,22 @@ Note: See the ["Test Coverage"](test-coverage) wiki page to see what the IoT Edg
 
 1. **Deploy modules to IoT Edge device**
 
-    `iotedgedev deploy`
+    ```sh
+    iotedgedev deploy
+    ```
+
     You can also combine push and deploy with `iotedgedev push --deploy`
 
-1. **Create deployments on IoT Hub**
+1. **Deploy modules with automatic deployments to IoT Hub**
 
-    `iotedgedev iothub deploy`
+    ```sh
+    iotedgedev iothub deploy
+    ```
+
+    > More information on how automatic deployments work can be found here: <https://docs.microsoft.com/en-us/azure/iot-edge/module-deployment-monitoring?view=iotedge-2020-11>
 
 1. **Monitor messages sent from IoT Edge Runtime to IoT Hub**
 
-    `iotedgedev monitor`
+    ```sh
+    iotedgedev monitor
+    ```
