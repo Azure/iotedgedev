@@ -146,6 +146,13 @@ def test_iothub_deploy_and_add_tags():
 
 
 def test_iothub_deploy_and_add_tags_retry_after_invalid_tag():
+    # GIVEN: `iothub deploy` run fails
+    # WHEN: Device tag has an invalid format
+    # THAN: Rerunning the command will lead to a failed deploy part,
+    #       as the deployment already exists from the previous run,
+    #       but it will succeed in adding the new and correct device tags.
+    #       Leaving the iothub and device in the initially desired end state again.
+
     # Arrange
     tags1 = 'invalid_tag'
     tags2 = '{"environment":"dev","building":"9"}'
