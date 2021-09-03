@@ -1,6 +1,5 @@
 import os
 import uuid
-import json
 from unittest import mock
 
 import pytest
@@ -146,7 +145,7 @@ def test_iothub_deploy_and_add_tags():
 
     assert azure_cli.invoke_az_cli_outproc(["iot", "edge", "deployment", "delete", "-d", deployment_name, "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING")])
     assert azure_cli.invoke_az_cli_outproc(["iot", "hub", "device-twin", "replace", "-d", DeviceConnectionString(envvars.get_envvar("DEVICE_CONNECTION_STRING")).device_id,
-                                            "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING"), "--json",  json.dumps({})])
+                                            "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING"), "--json", "{}"])
 
 
 def test_iothub_deploy_and_add_tags_retry_after_invalid_tag():
@@ -197,4 +196,4 @@ def test_iothub_deploy_and_add_tags_retry_after_invalid_tag():
 
     assert azure_cli.invoke_az_cli_outproc(["iot", "edge", "deployment", "delete", "-d", deployment_name, "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING")])
     assert azure_cli.invoke_az_cli_outproc(["iot", "hub", "device-twin", "replace", "-d", DeviceConnectionString(envvars.get_envvar("DEVICE_CONNECTION_STRING")).device_id,
-                                            "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING"), "--json",  json.dumps({})])
+                                            "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING"), "--json",  "{}"])
