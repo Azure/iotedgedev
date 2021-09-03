@@ -27,5 +27,8 @@
         "ms-azuretools.vscode-docker",
         "redhat.vscode-yaml",
         "mikestead.dotenv",
+        "streetsidesoftware.code-spell-checker",
+        "yzhang.markdown-all-in-one",
+        "davidanson.vscode-markdownlint"
     ]
 }
