@@ -46,6 +46,7 @@ def test_iothub_deploy(config, manifest):
     assert 'DEPLOYMENT COMPLETE' in result.output
     assert 'ERROR' not in result.output
 
+    # Cleanup
     azure_cli = AzureCli(output, envvars)
     assert azure_cli.invoke_az_cli_outproc(["iot", "edge", "deployment", "delete", "-d", deployment_name, "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING")])
 
@@ -68,6 +69,7 @@ def test_iothub_deploy_with_target_group_set_from_dotenv():
     assert 'DEPLOYMENT COMPLETE' in result.output
     assert 'ERROR' not in result.output
 
+    # Cleanup
     azure_cli = AzureCli(output, envvars)
 
     assert azure_cli.invoke_az_cli_outproc(["iot", "edge", "deployment", "delete", "-d", deployment_name, "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING")])
@@ -139,6 +141,7 @@ def test_iothub_deploy_and_add_tags():
     assert tags in result.output
     assert 'ERROR' not in result.output
 
+    # Cleanup
     azure_cli = AzureCli(output, envvars)
 
     assert azure_cli.invoke_az_cli_outproc(["iot", "edge", "deployment", "delete", "-d", deployment_name, "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING")])
@@ -189,6 +192,7 @@ def test_iothub_deploy_and_add_tags_retry_after_invalid_tag():
     assert 'ERROR: Failed to deploy' in result_retry.output
     assert f'Message\': "ErrorCode:ConfigurationAlreadyExists;Configuration with id \'{deployment_name}\' already exist on IotHub.' in result_retry.output
 
+    # Cleanup
     azure_cli = AzureCli(output, envvars)
 
     assert azure_cli.invoke_az_cli_outproc(["iot", "edge", "deployment", "delete", "-d", deployment_name, "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING")])

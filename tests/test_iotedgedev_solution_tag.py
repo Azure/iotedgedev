@@ -31,6 +31,7 @@ def test_add_tags():
     assert '{"environment":"dev","building":"9"}' in result.output
     assert 'ERROR' not in result.output
 
+    # Cleanup
     azure_cli = AzureCli(output, envvars)
 
     assert azure_cli.invoke_az_cli_outproc(["iot", "hub", "device-twin", "replace", "-d", DeviceConnectionString(envvars.get_envvar("DEVICE_CONNECTION_STRING")).device_id,
@@ -80,6 +81,7 @@ def test_default_tag_from_env():
     assert '{"environment":"dev","building":"9"}' in result.output
     assert 'ERROR' not in result.output
 
+    # Cleanup
     azure_cli = AzureCli(output, envvars)
 
     assert azure_cli.invoke_az_cli_outproc(["iot", "hub", "device-twin", "replace", "-d", DeviceConnectionString(envvars.get_envvar("DEVICE_CONNECTION_STRING")).device_id,
