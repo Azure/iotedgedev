@@ -41,7 +41,6 @@ def test_cli_structure():
         "build": None,
         "push": None,
         "deploy": None,
-        "tag": None,
         "genconfig": None,
         "setup": None,
         "start": None,
