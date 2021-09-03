@@ -271,7 +271,6 @@ main.add_command(deploy)
 @click.option("--target-condition",
               "--tc",
               "-t",
-              "target_condition",
               default=envvars.get_envvar("IOTHUB_DEPLOYMENT_TARGET_CONDITION"),
               show_default=True,
               required=True,
@@ -281,7 +280,6 @@ main.add_command(deploy)
                     "This property can be set via this parameter or in the .env under 'IOTHUB_DEPLOYMENT_TARGET_CONDITION'"))
 @click.option("--device-tag",
               "-dt",
-              "device_tag",
               default=envvars.get_envvar("DEVICE_TAGS"),
               required=False,
               help="Specify the tags to be added to the device twin")
@@ -301,7 +299,7 @@ def iothub_deploy(manifest_file, name, priority, target_condition, device_tag):
 @click.option("--tags",
               "-t",
               "tags",
-              required=False,
+              required=True,
               default=envvars.get_envvar("DEVICE_TAGS"),
               show_default=True,
               help="Specify the tags to be added to the device twin")

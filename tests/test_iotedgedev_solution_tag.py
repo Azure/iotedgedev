@@ -1,5 +1,6 @@
 import os
 import pytest
+import json
 from .utility import (
     runner_invoke,
 )
@@ -33,7 +34,7 @@ def test_add_tags():
     azure_cli = AzureCli(output, envvars)
 
     assert azure_cli.invoke_az_cli_outproc(["iot", "hub", "device-twin", "replace", "-d", DeviceConnectionString(envvars.get_envvar("DEVICE_CONNECTION_STRING")).device_id,
-                                            "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING"), "--json", "tag_overwrite.json"])
+                                            "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING"), "--json", json.dumps({})])
 
 
 @pytest.mark.parametrize(
@@ -82,7 +83,7 @@ def test_default_tag_from_env():
     azure_cli = AzureCli(output, envvars)
 
     assert azure_cli.invoke_az_cli_outproc(["iot", "hub", "device-twin", "replace", "-d", DeviceConnectionString(envvars.get_envvar("DEVICE_CONNECTION_STRING")).device_id,
-                                            "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING"), "--json", "tag_overwrite.json"])
+                                            "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING"), "--json",  json.dumps({})])
 
 
 def test_missing_default_tag_from_env():

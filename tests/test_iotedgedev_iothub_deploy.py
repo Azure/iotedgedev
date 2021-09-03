@@ -1,5 +1,6 @@
 import os
 import uuid
+import json
 from unittest import mock
 
 import pytest
@@ -142,13 +143,13 @@ def test_iothub_deploy_and_add_tags():
 
     assert azure_cli.invoke_az_cli_outproc(["iot", "edge", "deployment", "delete", "-d", deployment_name, "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING")])
     assert azure_cli.invoke_az_cli_outproc(["iot", "hub", "device-twin", "replace", "-d", DeviceConnectionString(envvars.get_envvar("DEVICE_CONNECTION_STRING")).device_id,
-                                            "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING"), "--json", "tag_overwrite.json"])
+                                            "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING"), "--json",  json.dumps({})])
 
 
 def test_iothub_deploy_and_add_tags_retry_after_invalid_tag():
     # GIVEN: `iothub deploy` run fails
     # WHEN: Device tag has an invalid format
-    # THAN: Rerunning the command will lead to a failed deploy part,
+    # THEN: Rerunning the command will lead to a failed deploy part,
     #       as the deployment already exists from the previous run,
     #       but it will succeed in adding the new and correct device tags.
     #       Leaving the iothub and device in the initially desired end state again.
@@ -192,4 +193,4 @@ def test_iothub_deploy_and_add_tags_retry_after_invalid_tag():
 
     assert azure_cli.invoke_az_cli_outproc(["iot", "edge", "deployment", "delete", "-d", deployment_name, "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING")])
     assert azure_cli.invoke_az_cli_outproc(["iot", "hub", "device-twin", "replace", "-d", DeviceConnectionString(envvars.get_envvar("DEVICE_CONNECTION_STRING")).device_id,
-                                            "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING"), "--json", "tag_overwrite.json"])
+                                            "-l", envvars.get_envvar("IOTHUB_CONNECTION_STRING"), "--json",  json.dumps({})])
