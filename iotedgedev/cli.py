@@ -271,7 +271,6 @@ main.add_command(deploy)
 @click.option("--target-condition",
               "--tc",
               "-t",
-              "target_condition",
               default=envvars.get_envvar("IOTHUB_DEPLOYMENT_TARGET_CONDITION"),
               show_default=True,
               required=True,
@@ -279,11 +278,36 @@ main.add_command(deploy)
                     "The condition is based on device twin tags or device twin reported properties and should match the expression format. "
                     "For example, tags.environment='test' and properties.reported.devicemodel='4000x'. "
                     "This property can be set via this parameter or in the .env under 'IOTHUB_DEPLOYMENT_TARGET_CONDITION'"))
+@click.option("--device-tag",
+              "-dt",
+              default=envvars.get_envvar("DEVICE_TAGS"),
+              required=False,
+              help="Specify the tags to be added to the device twin")
+
+
 @with_telemetry
-def iothub_deploy(manifest_file, name, priority, target_condition):
+def iothub_deploy(manifest_file, name, priority, target_condition, device_tag):
     ensure_azure_cli_iot_ext()
     iothub = IoTHub(envvars, output, None, azure_cli)
     iothub.deploy(manifest_file, name, priority, target_condition)
+    if device_tag:
+        edge = Edge(envvars, output, azure_cli)
+        edge.tag(device_tag)
+
+
+@solution.command(context_settings=CONTEXT_SETTINGS, help="Adds tags to device twin for layered deployments")
+@click.option("--tags",
+              "-t",
+              "tags",
+              required=True,
+              default=envvars.get_envvar("DEVICE_TAGS"),
+              show_default=True,
+              help="Specify the tags to be added to the device twin")
+@with_telemetry
+def tag(tags):
+    ensure_azure_cli_iot_ext()
+    edge = Edge(envvars, output, azure_cli)
+    edge.tag(tags)
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS,
