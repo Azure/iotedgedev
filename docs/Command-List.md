@@ -553,7 +553,7 @@ Options:
 ```text
 Usage: iotedgedev solution tag [OPTIONS]
 
-  Adds tags to device twin for layered deployments
+  Adds tags to device twin for automatic deployments
 
 Options:
   -t, --tags TEXT     Specify the tag to be added to the device twin. 
