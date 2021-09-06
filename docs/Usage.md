@@ -102,10 +102,19 @@ Note: See the ["Test Coverage"](test-coverage) wiki page to see what the IoT Edg
 1. **Deploy modules with automatic deployments to IoT Hub**
 
     ```sh
-    iotedgedev iothub deploy
+    iotedgedev iothub deploy --name TEXT --priority TEXT --target-condition TEXT
     ```
+    
+    You can also combine tagging the device and deploy with the `--device-tag TEXT` flag
 
     > More information on how automatic deployments work can be found here: <https://docs.microsoft.com/en-us/azure/iot-edge/module-deployment-monitoring?view=iotedge-2020-11>
+
+1. **Tag IoT Edge Device**
+
+    ```sh
+    iotedgedev solution tag --tags TEXT
+    ```
+
 
 1. **Monitor messages sent from IoT Edge Runtime to IoT Hub**
 
