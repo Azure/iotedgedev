@@ -297,6 +297,10 @@ Options:
                                   tags.environment='test' and properties.reported.devicemodel='4000x'. This property
                                   can be set via this parameter or in the .env under
                                   'IOTHUB_DEPLOYMENT_TARGET_CONDITION'  [default: ;required]
+  -dt, --device-tag TEXT          Specify the tag to be added to the device twin. 
+                                  For example, "{"environment":"dev"}". This property
+                                  can be set via this parameter or in the .env under
+                                  'DEVICE_TAGS'.
   -h, --help                      Show this message and exit.
 ```
 
@@ -541,4 +545,20 @@ Options:
   -f, --file TEXT      Specify the deployment manifest template file  [default: deployment.template.json]
   -P, --platform TEXT  Specify the platform  [default: amd64]
   -h, --help           Show this message and exit.
+```
+
+
+## iotedgedev solution tag
+
+```text
+Usage: iotedgedev solution tag [OPTIONS]
+
+  Adds tags to device twin for automatic deployments
+
+Options:
+  -t, --tags TEXT     Specify the tag to be added to the device twin. 
+                      For example, "{"environment":"dev"}". This property
+                      can be set via this parameter or in the .env under
+                      'DEVICE_TAGS'.  [default: ;required]
+  -h, --help          Show this message and exit.
 ```
