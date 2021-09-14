@@ -82,7 +82,7 @@ class EnvVars:
                     if self.IOTHUB_CONNECTION_STRING:
                         self.IOTHUB_CONNECTION_INFO = IoTHubConnectionString(self.IOTHUB_CONNECTION_STRING)
                         if(not self.IOTHUB_CONNECTION_INFO.connection_string):
-                            self.output.error("iotedgedev currently does not recognize non-SAS connection strings. Will be setting connection string as empty.")
+                            self.output.error("iotedgedev currently only recognizes SAS connection strings. Will be setting connection string as empty.")
 
                 except Exception as ex:
                     raise ValueError("Unable to parse IOTHUB_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set. {0}".format(str(ex)))
@@ -93,7 +93,7 @@ class EnvVars:
                     if self.DEVICE_CONNECTION_STRING:
                         self.DEVICE_CONNECTION_INFO = DeviceConnectionString(self.DEVICE_CONNECTION_STRING)
                         if(not self.DEVICE_CONNECTION_INFO.connection_string):
-                            self.output.error("iotedgedev currently does not recognize non-SAS connection strings. Will be setting connection string as empty.")
+                            self.output.error("iotedgedev currently only recognizes SAS connection strings. Will be setting connection string as empty.")
 
                 except Exception as ex:
                     raise ValueError("Unable to parse DEVICE_CONNECTION_STRING Environment Variable. Please ensure that you have the right connection string set. {0}".format(str(ex)))
