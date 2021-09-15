@@ -14,6 +14,12 @@ invalid_connectionstring = "HostName=azure-devices.net;SharedAccessKey=gibberish
 invalid_iothub_connectionstring = "HostName=testhub.azure-devices.net;SharedAccessKey=moregibberish"
 invalid_device_connectionstring = "HostName=testhub.azure-devices.net;DeviceId=;SharedAccessKey=othergibberish"
 empty_hostname_iothub_connectionstring = "HostName=;SharedAccessKeyName=iothubowner;SharedAccessKey=moregibberish"
+non_sas_connectionstring = "HostName=testhub.azure-devices.net;DeviceId=testdevice;x509=true"
+
+
+def test_non_sas_connectionstring():
+    connStr = ConnectionString(non_sas_connectionstring)
+    assert not connStr.connection_string
 
 
 def test_empty_connectionstring():
