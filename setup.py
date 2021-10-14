@@ -8,7 +8,7 @@ with open('CHANGELOG.md') as history_file:
 requirements = [
     'click>=6.0',
     'bcrypt<=3.1.7',
-    'docker >= 3.7.0, <= 4.4.1',
+    'docker >= 3.7.0, <= 5.0.0',
     'python-dotenv',
     'requests >= 2.20.0, <= 2.25.1',
     'fstrings',
