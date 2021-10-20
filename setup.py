@@ -8,7 +8,7 @@ with open('CHANGELOG.md') as history_file:
 requirements = [
     'click>=6.0',
     'bcrypt<=3.1.7',
-    'docker >= 3.7.0, <= 4.4.1',
+    'docker >= 3.7.0',
     'python-dotenv',
     'requests >= 2.20.0, <= 2.25.1',
     'fstrings',
@@ -31,7 +31,7 @@ test_requirements = [
 
 setup(
     name='iotedgedev',
-    version='3.3.0',
+    version='3.3.1',
     description='The Azure IoT Edge Dev Tool greatly simplifies the IoT Edge development process by automating many routine manual tasks, such as building, deploying, pushing modules and configuring the IoT Edge Runtime.',
     long_description='See https://github.com/azure/iotedgedev for usage instructions.',
     author='Microsoft Corporation',

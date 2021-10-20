@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [3.3.1] - 2021-10-20
+- Updated Python Docker package versions to newest version and enable simulator dependencies
+
 ## [3.3.0] - 2021-8-24
 - Add support for layered deployment manifests when building, pushing and generating
 - Add support for creating deployments in IoTHub via the new command: `iotedgedev iothub deploy`
