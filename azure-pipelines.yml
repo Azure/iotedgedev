@@ -3,6 +3,7 @@ parameters:
   - name: VersionType
     displayName: "Select version type"
     type: string
+    default: minor
     values:
     - none
     - minor
@@ -10,6 +11,7 @@ parameters:
   - name: BuildMode
     displayName: 'Build Mode'
     type: string
+    default: test
     values:
       - test
       - prod
