@@ -83,6 +83,53 @@ steps:
   inputs:
     targetType: 'inline'
     script: 'sed -i "/__AIkey__/c __AIkey__ = ''$(TEST_AIKEY)''" ./iotedgedev/__init__.py'
+
+- task: AzureKeyVault@2
+  displayName: 'Azure Key Vault: azure-iot-edgetools-kv'
+  inputs:
+    azureSubscription: 'Azure IoT DDE team subscription (377c3343-75bb-4244-98a3-0fb84a830c4b)-IoTEdgeDev'
+    KeyVaultName: 'azure-iot-edgetools-kv'
+    SecretsFilter: '*'
+    RunAsPreJob: true
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+      PYPI=$([ "${{ parameters.BuildMode }}" = "prod" ] && echo "pypitest" || echo "pypitest")
+      twine upload -r ${PYPI} --config-file .pypirc dist/iotedgedev-$(get_version)-py3-none-any.whl
+      twine upload -r ${PYPI} "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u "$(pypiusername)" -p "$(aziotedge)" --repository-url "$(pypirepourl)"
+
+- task: GitHubRelease@0
+  inputs:
+    gitHubConnection: 'vikas0212git'
+    repositoryName: '$(Build.Repository.Name)'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'auto'
+    tagPattern: '^v?[0-9]+\.[0-9]+\.[0-9]+-rc[0-9]+$'
+    releaseNotesSource: 'input'
+    isPreRelease: true
+    addChangeLog: false
+
+- task: GitHubRelease@0
+  inputs:
+    gitHubConnection: 'vikas0212git'
+    repositoryName: '$(Build.Repository.Name)'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'auto'
+    tagPattern: '^v?[0-9]+\.[0-9]+\.[0-9]+$'
+    releaseNotesSource: 'input'
+    addChangeLog: false
+
+- task: Bash@3
+  displayName: "Verify wheel"
+  inputs:
+    targetType: 'inline'
+    script: 'pip install --upgrade iotedgedev && iotedgedev --version'
+
 - task: Bash@3
   displayName: "Buld Docker image"
   inputs:
