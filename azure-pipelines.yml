@@ -76,8 +76,7 @@ steps:
 - task: Bash@3
   inputs:
     targetType: 'inline'
-    script: 'git checkout -- ./iotedgedev/__init__.py'
-
+    script: 'sed -i "/__AIkey__/c __AIkey__ = ''$(TEST_AIKEY)''" ./iotedgedev/__init__.py'
 - task: Bash@3
   inputs:
     targetType: 'inline'
