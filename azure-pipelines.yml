@@ -22,12 +22,14 @@ pool:
 
 steps:
 - task: UsePythonVersion@0
+  displayName:  "Install Python"
   inputs:
     versionSpec: '3.8'
     addToPath: true
     architecture: 'x64'
 
 - task: Bash@3
+  displayName: "Install Python packages"
   inputs:
     targetType: 'inline'
     script: |
@@ -39,6 +41,7 @@ steps:
       pip3 install wheel
 
 - task: Bash@3
+  displayName: "Update Version using bumpversion"
   inputs:
     targetType: 'inline'
     script: |
@@ -64,20 +67,24 @@ steps:
 #           tox
 
 - task: Bash@3
+  displayName: "Update AIKey"
   inputs:
     targetType: 'inline'
     script: 'sed -i "/__AIkey__/c __AIkey__ = ''$(AIKEY)''" ./iotedgedev/__init__.py'
 
 - task: Bash@3
+  displayName: "Build wheel"
   inputs:
     targetType: 'inline'
     script: 'python setup.py bdist_wheel'
 
 - task: Bash@3
+  displayName: "Revert AIKey to Original"
   inputs:
     targetType: 'inline'
     script: 'sed -i "/__AIkey__/c __AIkey__ = ''$(TEST_AIKEY)''" ./iotedgedev/__init__.py'
 - task: Bash@3
+  displayName: "Buld Docker image"
   inputs:
     targetType: 'inline'
     script: './build-docker.sh iotedgetoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev linux'
