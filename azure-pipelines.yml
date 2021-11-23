@@ -36,10 +36,10 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      if [ "$(BuildMode)" = "prod" ]; then
-              bumpversion $(VersionType)
+      if [ "${{ parameters.BuildMode }}" = "prod" ]; then
+              bumpversion "${{ parameters.VersionType }}"
           else
-              bumpversion $(VersionType)--no-commit --no-tag --allow-dirty
+              bumpversion "${{ parameters.VersionType }}" --no-commit --no-tag --allow-dirty
           fi
 
 - task: Bash@3
