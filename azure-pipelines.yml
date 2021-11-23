@@ -30,12 +30,15 @@ steps:
 - task: Bash@3
   inputs:
     targetType: 'inline'
-    script: 'pip install bumpversion'
+    script: |
+      pip install bumpversion
+      pip install tox
 
 - task: Bash@3
   inputs:
     targetType: 'inline'
     script: |
+      echo "Build mode: ${{ parameters.BuildMode }}"
       if [ "${{ parameters.BuildMode }}" = "prod" ]; then
               bumpversion "${{ parameters.VersionType }}"
           else
