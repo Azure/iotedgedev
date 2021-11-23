@@ -27,9 +27,9 @@ steps:
     addToPath: true
     architecture: 'x64'
 
-- task: PythonScript@0
+- task: Bash@3
   inputs:
-    scriptSource: 'inline'
+    targetType: 'inline'
     script: 'pip install bumpversion'
 
 - task: Bash@3
