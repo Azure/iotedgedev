@@ -1,0 +1,81 @@
+
+parameters:
+  - name: VersionType
+    displayName: "Select version type"
+    type: string
+    values:
+    - none
+    - minor
+    - major
+  - name: BuildMode
+    displayName: 'Build Mode'
+    type: string
+    values:
+      - test
+      - prod
+
+pool:
+  vmImage: ubuntu-latest
+
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.x'
+    addToPath: true
+    architecture: 'x64'
+
+- task: PythonScript@0
+  inputs:
+    scriptSource: 'inline'
+    script: 'pip install bumpversion'
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      if [ "$(BuildMode)" = "prod" ]; then
+              bumpversion $(VersionType)
+          else
+              bumpversion $(VersionType)--no-commit --no-tag --allow-dirty
+          fi
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      echo -e "\n===== Preventive cleanup"
+          rm __pycache__ -rf
+          rm .pytest_cache -rf
+          rm .tox -rf
+          rm .pytest_cache -rf
+          rm tests/__pycache__ -rf
+      
+          echo -e "\n===== Running Tox"
+          tox
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: 'sed -i "/__AIkey__/c __AIkey__ = ''$(AIKEY)''" ./iotedgedev/__init__.py'
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: 'python setup.py bdist_wheel'
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: 'git checkout -- ./iotedgedev/__init__.py'
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: 'git checkout -- ./iotedgedev/__init__.py'
+
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: './build-docker.sh iotedgetoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev linux'
+    workingDirectory: 'docker/tool'
