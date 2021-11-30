@@ -99,7 +99,6 @@ steps:
     script: |
       VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
       PYPI=$([ "${{ parameters.BuildMode }}" = "prod" ] && echo "pypitest" || echo "pypitest")
-      twine upload -r ${PYPI} --config-file .pypirc dist/iotedgedev-$(get_version)-py3-none-any.whl
       twine upload -r ${PYPI} "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u "$(pypiusername)" -p "$(aziotedge)" --repository-url "$(pypirepourl)"
 
 - task: GitHubRelease@0
@@ -136,4 +135,36 @@ steps:
   inputs:
     targetType: 'inline'
     script: './build-docker.sh iotedgetoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev linux'
+    workingDirectory: 'docker/tool'
+
+- task: Bash@3
+  displayName: "Test local Docker image"
+  inputs:
+    targetType: 'inline'
+    script: |
+       VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+       mkdir /mnt/iotedge
+       docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v /mnt/iotedge:/home/iotedge iotedgetoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev:${VERSION}
+    workingDirectory: 'docker/tool'
+
+- task: Bash@3
+  condition: and(startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+  displayName: "Push docker image to acr"
+  inputs:
+    targetType: 'inline'
+    script: |
+       VERSION=$(cat ../../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+       docker login iotedgetoolscontainerregistry.azurecr.io -u IotEdgeToolsContainerRegistry -p $(acr_password)
+       ./push-docker.sh ${VERSION}
+    workingDirectory: 'docker/tool'
+
+- task: Bash@3
+  condition: and(startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+  displayName: "Test last uploaded Docker image"
+  inputs:
+    targetType: 'inline'
+    script: |
+      docker pull mcr.microsoft.com/iotedge/iotedgedev
+      docker run -ti --rm  mcr.microsoft.com/iotedge/iotedgedev 
+      iotedgedev --version    
     workingDirectory: 'docker/tool'
