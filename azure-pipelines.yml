@@ -148,7 +148,7 @@ steps:
     workingDirectory: 'docker/tool'
 
 - task: Bash@3
-  condition: and(startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
   displayName: "Push docker image to acr"
   inputs:
     targetType: 'inline'
@@ -159,7 +159,7 @@ steps:
     workingDirectory: 'docker/tool'
 
 - task: Bash@3
-  condition: and(startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
   displayName: "Test last uploaded Docker image"
   inputs:
     targetType: 'inline'
