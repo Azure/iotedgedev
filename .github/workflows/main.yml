@@ -68,7 +68,7 @@ jobs:
       uses: Azure/get-keyvault-secrets@v1
       with:
         keyvault: "azure-iot-edgetools-kv"
-        secrets: 'pypiusername,aziotedge,pypirepourl,acr_password'
+        secrets: 'pypiusername,aziotedge,pypirepourl,acr-password'
       id: KeyVaultSecret
     - run: |
         VERSION=${{ env.cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+" }}
@@ -79,7 +79,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: 
+        tag_name: test 
         prerelease: true
     - uses: actions/create-release@v1
       env:
@@ -101,7 +101,7 @@ jobs:
     - name: Push docker image to acr
       run: |
         VERSION=${{ cat ../../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+" }}
-        docker login iotedgetoolscontainerregistry.azurecr.io -u IotEdgeToolsContainerRegistry -p ${{ steps.KeyVaultSecret.outputs.acr_password }}
+        docker login iotedgetoolscontainerregistry.azurecr.io -u IotEdgeToolsContainerRegistry -p ${{ steps.KeyVaultSecret.outputs.acr-password }}
         ./push-docker.sh ${VERSION}
       shell: bash
       if: (success() && startsWith(github.ref, 'refs/tags/'))
