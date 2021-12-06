@@ -85,7 +85,8 @@ steps:
       echo "$(pypiusername)"
       VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
       PYPI=$([ "${{ parameters.BuildMode }}" = "prod" ] && echo "pypitest" || echo "pypitest")
-      twine upload -r ${PYPI} "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u "$(pypiusername)" -p "$(aziotedge)" --repository-url "$(pypirepourl)"
+      echo "py repo: ${PYPI}"
+      twine upload -r ${PYPI} "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u "$(pypiusername)" -p "$(aziotedge)" --repository-url "$(pypirepourl)" --verbose
 
 - task: GitHubRelease@0
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
