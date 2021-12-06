@@ -77,7 +77,11 @@ steps:
     KeyVaultName: 'azure-iot-edgetools-kv'
     SecretsFilter: '*'
     RunAsPreJob: true
-
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/dist'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
 - task: Bash@3
   inputs:
     targetType: 'inline'
