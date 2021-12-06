@@ -1,4 +1,3 @@
-
 parameters:
   - name: VersionType
     displayName: "Select version type"
@@ -53,20 +52,6 @@ steps:
               bumpversion "${{ parameters.VersionType }}" --no-commit --no-tag --allow-dirty
           fi
 
-# - task: Bash@3
-#   inputs:
-#     targetType: 'inline'
-#     script: |
-#       echo -e "\n===== Preventive cleanup"
-#           rm __pycache__ -rf
-#           rm .pytest_cache -rf
-#           rm .tox -rf
-#           rm .pytest_cache -rf
-#           rm tests/__pycache__ -rf
-      
-#           echo -e "\n===== Running Tox"
-#           tox
-
 - task: Bash@3
   displayName: "Update AIKey"
   inputs:
@@ -102,6 +87,7 @@ steps:
       twine upload -r ${PYPI} "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u "$(pypiusername)" -p "$(aziotedge)" --repository-url "$(pypirepourl)"
 
 - task: GitHubRelease@0
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
   inputs:
     gitHubConnection: 'vikas0212git'
     repositoryName: '$(Build.Repository.Name)'
@@ -114,6 +100,7 @@ steps:
     addChangeLog: false
 
 - task: GitHubRelease@0
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
   inputs:
     gitHubConnection: 'vikas0212git'
     repositoryName: '$(Build.Repository.Name)'
