@@ -93,9 +93,9 @@ steps:
       PYPI=$([ "${{ parameters.BuildMode }}" = "prod" ] && echo "pypitest" || echo "pypitest")
       echo "py repo: ${PYPI}"
       if [ "$PYPI" -eq "pypi" ]; then 
-          twine upload -r ${PYPI} "dist/iotedgedevtest-${VERSION}-py3-none-any.whl" -u "$(pypiusername)" -p "$(aziotedge)" --repository-url "$(pypirepourl)" --verbose
+          twine upload -r ${PYPI} "dist/iotedgedevtest1-${VERSION}-py3-none-any.whl" -u "$(pypiusername)" -p "$(aziotedge)" --repository-url "$(pypirepourl)" --verbose
       else
-          twine upload -r ${PYPI} "dist/iotedgedevtest-${VERSION}-py3-none-any.whl" -u "$(pytestusername)" -p "$(pytestuserpassword)" --repository-url "$(pytestrepourl)" --verbose
+          twine upload -r ${PYPI} "dist/iotedgedevtest1-${VERSION}-py3-none-any.whl" -u "$(pytestusername)" -p "$(pytestuserpassword)" --repository-url "$(pytestrepourl)" --verbose
       fi
 - task: GitHubRelease@0
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
