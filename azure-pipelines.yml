@@ -48,9 +48,11 @@ steps:
       echo "Build mode: ${{ parameters.BuildMode }}"
       if [ "${{ parameters.BuildMode }}" = "prod" ]; then
               bumpversion "${{ parameters.VersionType }}"
-          else
-              bumpversion "${{ parameters.VersionType }}" --no-commit --no-tag --allow-dirty
-          fi
+      elif [ "${{ parameters.BuildMode }}" = "test" ]; then
+          bumpversion "${{ parameters.VersionType }}" --no-commit --no-tag --allow-dirty
+      else
+          echo "No version update"
+      fi
 
 - task: Bash@3
   displayName: "Update AIKey"
