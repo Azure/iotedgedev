@@ -87,7 +87,7 @@ steps:
     targetType: 'inline'
     script: |
       echo "$(pypiusername)"
-      VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+      VERSION=$(cat ./iotedgedevtest/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
       PYPI=$([ "${{ parameters.BuildMode }}" = "prod" ] && echo "pypitest" || echo "pypitest")
       echo "py repo: ${PYPI}"
       if [ "$PYPI" -eq "pypi" ]; then 
