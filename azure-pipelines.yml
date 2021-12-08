@@ -41,19 +41,19 @@ steps:
       sudo apt-get install python3-dev python3-pip python3-venv python3-wheel -y
       pip3 install wheel
 
-- task: Bash@3
-  displayName: "Update Version using bumpversion"
-  inputs:
-    targetType: 'inline'
-    script: |
-      echo "Build mode: ${{ parameters.BuildMode }}"
-      if [ "${{ parameters.BuildMode }}" = "prod" ]; then
-              bumpversion "${{ parameters.VersionType }}"
-      elif [ "${{ parameters.BuildMode }}" = "test" ]; then
-          bumpversion "${{ parameters.VersionType }}" --no-commit --no-tag --allow-dirty
-      else
-          echo "No version update"
-      fi
+# - task: Bash@3
+#   displayName: "Update Version using bumpversion"
+#   inputs:
+#     targetType: 'inline'
+#     script: |
+#       echo "Build mode: ${{ parameters.BuildMode }}"
+#       if [ "${{ parameters.BuildMode }}" = "prod" ]; then
+#               bumpversion "${{ parameters.VersionType }}"
+#       elif [ "${{ parameters.BuildMode }}" = "test" ]; then
+#           bumpversion "${{ parameters.VersionType }}" --no-commit --no-tag --allow-dirty
+#       else
+#           echo "No version update"
+#       fi
 
 - task: Bash@3
   displayName: "Update AIKey"
