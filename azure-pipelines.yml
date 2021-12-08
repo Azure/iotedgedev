@@ -91,13 +91,13 @@ steps:
       echo "$(pypiusername)"
       VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
       if [ "${{ parameters.BuildMode }}" = "prod" ]; then 
-      PYPIREPO="pypi"
+      PYPIREPO="pypitest"
         twine upload -r ${PYPIREPO} "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u "$(pypiusername)" -p "$(aziotedge)" --repository-url "$(pypirepourl)" --verbose
       else
         PYPIREPO="pypitest"
         twine upload -r ${PYPIREPO} "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u "$(pytestusername)" -p "$(pytestuserpassword)" --repository-url "$(pytestrepourl)" --verbose
       fi
-      
+
 - task: GitHubRelease@0
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
   inputs:
