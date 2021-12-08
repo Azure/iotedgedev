@@ -144,8 +144,8 @@ steps:
     targetType: 'inline'
     script: |
        VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
-       mkdir /mnt/iotedge
-       docker run -ti -v /var/run/docker.sock:/var/run/docker.sock -v /mnt/iotedge:/home/iotedge iotedgetoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev:${VERSION}
+       mkdir /home/vsts/iotedge
+       docker run -v /var/run/docker.sock:/var/run/docker.sock -v /home/vsts/iotedge:/home/iotedge iotedgetoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev:${VERSION}
     workingDirectory: 'docker/tool'
 
 - task: Bash@3
