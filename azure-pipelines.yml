@@ -94,7 +94,7 @@ steps:
       if [ "${{ parameters.BuildMode }}" = "prod" ]; then 
       PYPIREPO="pypitest"
       echo " twine upload -r ${PYPIREPO} "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u "$(pypiusername)" -p "$(aziotedge)" --repository-url "$(pypirepourl)" --verbose"
-      twine upload -r ${PYPIREPO} "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u "$(pypiusername)" -p "$(aziotedge)" --repository-url "$(pypirepourl)" --verbose
+      twine upload -r ${PYPIREPO} "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u '$(pypiusername)' -p '$(aziotedge)' --repository-url '$(pypirepourl)' --verbose
       else
         PYPIREPO="pypitest"
         twine upload -r ${PYPIREPO} "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u "$(pytestusername)" -p "$(pytestuserpassword)" --repository-url "$(pytestrepourl)" --verbose
