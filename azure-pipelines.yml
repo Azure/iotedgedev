@@ -93,6 +93,7 @@ steps:
       VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
       if [ "${{ parameters.BuildMode }}" = "prod" ]; then 
       PYPIREPO="pypitest"
+      echo " twine upload -r ${PYPIREPO} "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u "$(pypiusername)" -p "$(aziotedge)" --repository-url "$(pypirepourl)" --verbose"
       twine upload -r ${PYPIREPO} "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u "$(pypiusername)" -p "$(aziotedge)" --repository-url "$(pypirepourl)" --verbose
       else
         PYPIREPO="pypitest"
