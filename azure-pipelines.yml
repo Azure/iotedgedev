@@ -90,13 +90,14 @@ steps:
     script: |
       echo "$(pypiusername)"
       VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
-      PYPI=$([ "${{ parameters.BuildMode }}" = "prod" ] && echo "pypi" || echo "pypitest")
-      echo "py repo: ${PYPI}"
-      if [ "$PYPI" -eq "pypi" ]; then 
-          twine upload -r ${PYPI} "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u "$(pypiusername)" -p "$(aziotedge)" --repository-url "$(pypirepourl)" --verbose
+      if [ "${{ parameters.BuildMode }}" = "prod" ]; then 
+      PYPIREPO="pypi"
+        twine upload -r ${PYPIREPO} "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u "$(pypiusername)" -p "$(aziotedge)" --repository-url "$(pypirepourl)" --verbose
       else
-          twine upload -r ${PYPI} "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u "$(pytestusername)" -p "$(pytestuserpassword)" --repository-url "$(pytestrepourl)" --verbose
+        PYPIREPO="pypitest"
+        twine upload -r ${PYPIREPO} "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u "$(pytestusername)" -p "$(pytestuserpassword)" --repository-url "$(pytestrepourl)" --verbose
       fi
+      
 - task: GitHubRelease@0
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
   inputs:
