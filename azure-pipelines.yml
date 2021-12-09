@@ -131,7 +131,7 @@ steps:
     script: 'pip install --upgrade iotedgedev && iotedgedev --version'
 
 - task: Bash@3
-  displayName: "Buld Docker image"
+  displayName: "Build Docker image"
   inputs:
     targetType: 'inline'
     script: './build-docker.sh iotedgetoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev linux'
