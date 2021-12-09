@@ -116,7 +116,9 @@ steps:
   displayName: "Verify wheel"
   inputs:
     targetType: 'inline'
-    script: 'pip install --upgrade iotedgedev && iotedgedev --version'
+    script: |
+      VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")   
+      pip install iotedgedev==${VERSION} && iotedgedev --version
 
 - task: Bash@3
   displayName: "Build Docker image"
