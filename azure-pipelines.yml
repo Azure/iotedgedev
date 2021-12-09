@@ -104,9 +104,8 @@ steps:
   inputs:
     gitHubConnection: 'vikas0212git'
     repositoryName: '$(Build.Repository.Name)'
-    action: 'create'
+    action: 'edit'
     target: '$(Build.SourceVersion)'
-    tagSource: 'manual'
     tag: '$(Build.SourceBranch)'
     releaseNotesSource: 'input'
     isPreRelease: true
