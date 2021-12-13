@@ -116,17 +116,28 @@ steps:
 #        ./push-docker.sh ${VERSION}
 #     workingDirectory: 'docker/tool'
 
-- task: Docker@2
+- task: Bash@3
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
   displayName: "Push docker image to acr"
   inputs:
-    containerRegistry: 'test-acr'
-    repository: 'iotedgedevtest2.azurecr.io'
-    command: 'push'
-    tags: 'refs/tags/'
-    # arguments: |
-    #   'VERSION=$(cat ../../iotedgedev/__init__.py | grep ''__version__'' | grep -oP "''\K[^'']+"),
-    #   docker login iotedgedevtest2.azurecr.io -u iotedgedevtest2 -p $(acr_password2)
+    targetType: 'inline'
+    script: |
+       VERSION=$(cat ../../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+       docker login iotedgedevtest2.azurecr.io -u iotedgedevtest2 -p $(acr_password2)
+       ./push-docker.sh ${VERSION}
+    workingDirectory: 'docker/tool'
+
+# - task: Docker@2
+#   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+#   displayName: "Push docker image to acr"
+#   inputs:
+#     containerRegistry: 'test-acr'
+#     repository: 'iotedgedevtest2.azurecr.io'
+#     command: 'push'
+#     tags: 'refs/tags/'
+#     arguments: |
+#       'VERSION=$(cat ../../iotedgedev/__init__.py | grep ''__version__'' | grep -oP "''\K[^'']+"),
+#       docker login iotedgedevtest2.azurecr.io -u iotedgedevtest2 -p $(acr_password2)
 
 - task: Bash@3
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
