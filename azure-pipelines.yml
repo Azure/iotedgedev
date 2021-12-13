@@ -105,16 +105,16 @@ steps:
        docker run -v /var/run/docker.sock:/var/run/docker.sock -v /home/vsts/iotedge:/home/iotedge iotedgetoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev:${VERSION}
     workingDirectory: 'docker/tool'
 
-- task: Bash@3
-  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-  displayName: "Push docker image to acr"
-  inputs:
-    targetType: 'inline'
-    script: |
-       VERSION=$(cat ../../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
-       docker login iotedgetoolscontainerregistry.azurecr.io -u IotEdgeToolsContainerRegistry -p $(acr_password)
-       ./push-docker.sh ${VERSION}
-    workingDirectory: 'docker/tool'
+# - task: Bash@3
+#   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+#   displayName: "Push docker image to acr"
+#   inputs:
+#     targetType: 'inline'
+#     script: |
+#        VERSION=$(cat ../../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+#        docker login iotedgetoolscontainerregistry.azurecr.io -u IotEdgeToolsContainerRegistry -p $(acr_password)
+#        ./push-docker.sh ${VERSION}
+#     workingDirectory: 'docker/tool'
 
 - task: Bash@3
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
