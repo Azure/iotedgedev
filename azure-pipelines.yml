@@ -1,6 +1,11 @@
 trigger:
-- refs/tags/*
-
+  branches:
+    exclude:
+    - '*'
+  tags:
+    include:
+    - '*'
+ 
 pool:
   vmImage: ubuntu-latest
 
