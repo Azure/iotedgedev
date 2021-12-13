@@ -117,14 +117,16 @@ steps:
 #     workingDirectory: 'docker/tool'
 
 - task: Docker@2
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+  displayName: "Push docker image to acr"
   inputs:
-    containerRegistry: 'IoTEdgeDev-Docker'
+    containerRegistry: 'test-acr'
     repository: 'iotedgedev'
     command: 'push'
     tags: 'refs/tags/'
-    arguments: | 
-          'VERSION=$(cat ../../iotedgedev/__init__.py | grep ''__version__'' | grep -oP "''\K[^'']+"),
-          docker login iotedgetoolscontainerregistry.azurecr.io -u IotEdgeToolsContainerRegistry -p $(acr_password)
+    arguments: |
+      'VERSION=$(cat ../../iotedgedev/__init__.py | grep ''__version__'' | grep -oP "''\K[^'']+"),
+      docker login iotedgetoolscontainerregistry.azurecr.io -u IotEdgeToolsContainerRegistry -p $(acr_password)
 
 - task: Bash@3
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
