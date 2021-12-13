@@ -127,7 +127,7 @@ steps:
     tags: 'refs/tags/'
     arguments: |
       'VERSION=$(cat ../../iotedgedev/__init__.py | grep ''__version__'' | grep -oP "''\K[^'']+"),
-      docker login iotedgetoolscontainerregistry.azurecr.io -u IotEdgeToolsContainerRegistry -p $(acr_password2)
+      docker login iotedgedevtest2.azurecr.io -u iotedgedevtest2 -p $(acr_password2)
 
 - task: Bash@3
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
