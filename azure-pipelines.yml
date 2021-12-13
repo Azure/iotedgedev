@@ -72,7 +72,7 @@ steps:
 - task: GitHubRelease@0
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
   inputs:
-    gitHubConnection: 'github.com_vikas0212git'
+    gitHubConnection: 'IoTEdgeDev'
     repositoryName: '$(Build.Repository.Name)'
     action: 'create'
     target: '$(Build.SourceVersion)'
