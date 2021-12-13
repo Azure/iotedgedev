@@ -1,10 +1,5 @@
 trigger:
-  tags:
-    include:
-      - v3.*
-  branches:
-    exclude:
-      - master   
+- refs/tags/*
 
 pool:
   vmImage: ubuntu-latest
