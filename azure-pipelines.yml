@@ -1,7 +1,7 @@
 trigger:
   tags:
     include:
-      - v*
+      - v3.*
   branches:
     exclude:
       - master   
