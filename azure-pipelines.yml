@@ -2,7 +2,7 @@ trigger:
   branches:
     include:
     - user/vikas*
-    - refs/tags/*
+    - refs/tags/v*
   
  
 pool:
