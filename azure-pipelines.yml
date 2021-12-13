@@ -100,10 +100,10 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-       VERSION=$(cat ../../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
-       echo "##vso[task.setvariable varible=VERSION]$VERSION"
+       PACKAGEVERSION=$(cat ../../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+       echo "##vso[task.setvariable variable=VERSION]$PACKAGEVERSION"
        mkdir /home/vsts/iotedge
-       docker run -v /var/run/docker.sock:/var/run/docker.sock -v /home/vsts/iotedge:/home/iotedge iotedgetoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev:${VERSION}
+       docker run -v /var/run/docker.sock:/var/run/docker.sock -v /home/vsts/iotedge:/home/iotedge iotedgetoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev:${PACKAGEVERSION}
     workingDirectory: 'docker/tool'
 
 # - task: Bash@3
