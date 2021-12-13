@@ -65,12 +65,12 @@ steps:
     targetType: 'inline'
     script: |
         VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
-        twine upload -r pypi "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u '$(pypiusername)' -p '$(aziotedge)' --repository-url '$(pypirepourl)' --verbose
+#        twine upload -r pypi "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u '$(pypiusername)' -p '$(aziotedge)' --repository-url '$(pypirepourl)' --verbose
 
 - task: GitHubRelease@0
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
   inputs:
-    gitHubConnection: 'github.com_vikas0212git'
+    gitHubConnection: 'IoTEdgeDev'
     repositoryName: '$(Build.Repository.Name)'
     action: 'create'
     target: '$(Build.SourceVersion)'
