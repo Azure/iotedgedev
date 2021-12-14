@@ -20,7 +20,6 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      pip install bumpversion
       pip install tox
       pip install twine
       sudo apt-get install gcc libpq-dev -y
@@ -65,7 +64,7 @@ steps:
     targetType: 'inline'
     script: |
         VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
-#        twine upload -r pypi "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u '$(pypiusername)' -p '$(aziotedge)' --repository-url '$(pypirepourl)' --verbose
+        twine upload -r pypi "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u '$(pypiusername)' -p '$(aziotedge)' --repository-url '$(pypirepourl)' --verbose
 
 - task: GitHubRelease@0
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
@@ -104,18 +103,6 @@ steps:
        docker run -v /var/run/docker.sock:/var/run/docker.sock -v /home/vsts/iotedge:/home/iotedge iotedgedevtest2.azurecr.io/public/iotedge/iotedgedev:${PACKAGEVERSION}
     workingDirectory: 'docker/tool'
 
-# - task: Bash@3
-#   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-#   displayName: "Push docker image to acr"
-#   inputs:
-#     targetType: 'inline'
-#     script: |
-#        VERSION=$(cat ../../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
-#        docker login iotedgetoolscontainerregistry.azurecr.io -u IotEdgeToolsContainerRegistry -p $(acr_password)
-#        ./push-docker.sh ${VERSION}
-#     workingDirectory: 'docker/tool'
-
-
 - task: Docker@2
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
   displayName: "Push docker image to acr"
@@ -133,6 +120,6 @@ steps:
     targetType: 'inline'
     script: |
       docker pull mcr.microsoft.com/iotedge/iotedgedev
-      docker run -ti --rm  mcr.microsoft.com/iotedge/iotedgedev 
+      docker run  mcr.microsoft.com/iotedge/iotedgedev 
       iotedgedev --version    
     workingDirectory: 'docker/tool'
