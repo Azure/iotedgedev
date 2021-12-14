@@ -5,13 +5,13 @@ trigger:
   
  
 pool:
-  vmImage: ubuntu-latest
+  vmImage: ubuntu-18.04
 
 steps:
 - task: UsePythonVersion@0
   displayName:  "Install Python"
   inputs:
-    versionSpec: '3.8'
+    versionSpec: '3.7'
     addToPath: true
     architecture: 'x64'
 
