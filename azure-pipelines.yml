@@ -121,7 +121,7 @@ steps:
   displayName: "Push docker image to acr"
   inputs:
     containerRegistry: 'test-acr'
-    repository: 'iotedgedev'
+    repository: 'iotedgetoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev'
     command: 'push'
     tags: |
       $(VERSION)
