@@ -1,8 +1,7 @@
 trigger:
   branches:
     include:
-    - refs/tags/v*
-  
+    - refs/tags/v*  
  
 pool:
   vmImage: ubuntu-18.04
