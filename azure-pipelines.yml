@@ -1,0 +1,124 @@
+trigger:
+  branches:
+    include:
+    - refs/tags/v*  
+ 
+pool:
+  vmImage: ubuntu-18.04
+
+steps:
+- task: UsePythonVersion@0
+  displayName:  "Install Python"
+  inputs:
+    versionSpec: '3.7'
+    addToPath: true
+    architecture: 'x64'
+
+- task: Bash@3
+  displayName: "Install Python packages"
+  inputs:
+    targetType: 'inline'
+    script: |
+      pip install tox
+      pip install twine
+      sudo apt-get install gcc libpq-dev -y
+      sudo apt-get install python-dev  python-pip -y
+      sudo apt-get install python3-dev python3-pip python3-venv python3-wheel -y
+      pip3 install wheel
+
+- task: Bash@3
+  displayName: "Update AIKey"
+  inputs:
+    targetType: 'inline'
+    script: 'sed -i "/__AIkey__/c __AIkey__ = ''$(AIKEY)''" ./iotedgedev/__init__.py'
+
+- task: Bash@3
+  displayName: "Build wheel"
+  inputs:
+    targetType: 'inline'
+    script: 'python setup.py bdist_wheel'
+
+- task: Bash@3
+  displayName: "Revert AIKey to Original"
+  inputs:
+    targetType: 'inline'
+    script: 'sed -i "/__AIkey__/c __AIkey__ = ''$(TEST_AIKEY)''" ./iotedgedev/__init__.py'
+
+- task: AzureKeyVault@2
+  displayName: 'Azure Key Vault: azure-iot-edgetools-kv'
+  inputs:
+    azureSubscription: 'Azure IoT DDE team subscription (377c3343-75bb-4244-98a3-0fb84a830c4b)-IoTEdgeDev'
+    KeyVaultName: 'azure-iot-edgetools-kv'
+    SecretsFilter: '*'
+    RunAsPreJob: true
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/dist'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
+
+- task: Bash@3  
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+  inputs:
+    targetType: 'inline'
+    script: |
+        VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+        twine upload -r pypi "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u '$(pypiusername)' -p '$(aziotedgepwd)' --repository-url '$(pypirepourl)' --verbose
+
+- task: GitHubRelease@0
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+  inputs:
+    gitHubConnection: 'github.com_marianan-IoTEdgeDev'
+    repositoryName: '$(Build.Repository.Name)'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'manual'
+    tag: '$(Build.SourceBranch)'
+    releaseNotesSource: 'input'
+    isPreRelease: true
+    addChangeLog: false
+
+- task: Bash@3
+  displayName: "Verify wheel"
+  inputs:
+    targetType: 'inline'
+    script: pip install --upgrade iotedgedev && iotedgedev --version
+
+- task: Bash@3
+  displayName: "Build Docker image"
+  inputs:
+    targetType: 'inline'
+    script: './build-docker.sh iotedgetoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev linux'
+    workingDirectory: 'docker/tool'
+
+- task: Bash@3
+  displayName: "Test local Docker image"
+  inputs:
+    targetType: 'inline'
+    script: |
+       PACKAGEVERSION=$(cat ../../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+       echo "##vso[task.setvariable variable=VERSION]$PACKAGEVERSION"
+       mkdir /home/vsts/iotedge
+       docker run -v /var/run/docker.sock:/var/run/docker.sock -v /home/vsts/iotedge:/home/iotedge iotedgetoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev:${PACKAGEVERSION}
+    workingDirectory: 'docker/tool'
+
+- task: Docker@2
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+  displayName: "Push docker image to acr"
+  inputs:
+    containerRegistry: 'IoTEdgeDev-Docker'
+    repository: 'public/iotedge/iotedgedev'
+    command: 'push'
+    tags: |
+      $(VERSION)
+      latest
+- task: Bash@3
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+  displayName: "Test last uploaded Docker image"
+  inputs:
+    targetType: 'inline'
+    script: |
+      docker pull mcr.microsoft.com/iotedge/iotedgedev
+      docker run  mcr.microsoft.com/iotedge/iotedgedev 
+      iotedgedev --version    
+    workingDirectory: 'docker/tool'
