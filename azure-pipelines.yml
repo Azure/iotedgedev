@@ -107,7 +107,7 @@ steps:
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
   displayName: "Push docker image to acr"
   inputs:
-    containerRegistry: 'test-acr'
+    containerRegistry: 'IoTEdgeDev-Docker'
     repository: 'public/iotedge/iotedgedev'
     command: 'push'
     tags: |
