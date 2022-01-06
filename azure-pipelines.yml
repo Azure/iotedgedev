@@ -4,7 +4,8 @@ trigger:
     - refs/tags/v*  
  
 pool:
-  vmImage: ubuntu-18.04
+#  vmImage: ubuntu-18.04
+   vmImage: MMSUbuntu18.04
 
 steps:
 - task: UsePythonVersion@0
@@ -57,26 +58,32 @@ steps:
     ArtifactName: 'drop'
     publishLocation: 'Container'
 
+- task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
+  displayName: 'SBOM Generation Task'
+  inputs:
+    BuildDropPath: '$(Build.SourcesDirectory)/dist'
+
 - task: Bash@3  
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
   inputs:
     targetType: 'inline'
-    script: |
-        VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+    script: |        
+        VERSION=3.3.1rc1
         twine upload -r pypi "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u '$(pypiusername)' -p '$(aziotedgepwd)' --repository-url '$(pypirepourl)' --verbose
 
-- task: GitHubRelease@0
-  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-  inputs:
-    gitHubConnection: 'github.com_marianan-IoTEdgeDev'
-    repositoryName: '$(Build.Repository.Name)'
-    action: 'create'
-    target: '$(Build.SourceVersion)'
-    tagSource: 'manual'
-    tag: '$(Build.SourceBranch)'
-    releaseNotesSource: 'input'
-    isPreRelease: true
-    addChangeLog: false
+#VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+#- task: GitHubRelease@0
+#  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+#  inputs:
+#    gitHubConnection: 'github.com_marianan-IoTEdgeDev'
+#    repositoryName: '$(Build.Repository.Name)'
+#    action: 'create'
+#    target: '$(Build.SourceVersion)'
+#    tagSource: 'manual'
+#    tag: '$(Build.SourceBranch)'
+#    releaseNotesSource: 'input'
+#    isPreRelease: true
+#    addChangeLog: false
 
 - task: Bash@3
   displayName: "Verify wheel"
@@ -102,16 +109,16 @@ steps:
        docker run -v /var/run/docker.sock:/var/run/docker.sock -v /home/vsts/iotedge:/home/iotedge iotedgetoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev:${PACKAGEVERSION}
     workingDirectory: 'docker/tool'
 
-- task: Docker@2
-  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-  displayName: "Push docker image to acr"
-  inputs:
-    containerRegistry: 'IoTEdgeDev-Docker'
-    repository: 'public/iotedge/iotedgedev'
-    command: 'push'
-    tags: |
-      $(VERSION)
-      latest
+#- task: Docker@2
+#  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+#  displayName: "Push docker image to acr"
+#  inputs:
+#    containerRegistry: 'IoTEdgeDev-Docker'
+#    repository: 'public/iotedge/iotedgedev'
+#    command: 'push'
+#    tags: |
+#      $(VERSION)
+#      latest
 - task: Bash@3
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
   displayName: "Test last uploaded Docker image"
