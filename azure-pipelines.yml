@@ -6,7 +6,7 @@ trigger:
 pool:
   name: Azure-IoT-EdgeExperience-1ES-Hosted-Linux
   demands:
-    - ImageOverride -equals MMSUbuntu18.04TLS
+    - ImageOverride -equals MMSUbuntu18.04
 
 steps:
 - task: UsePythonVersion@0
