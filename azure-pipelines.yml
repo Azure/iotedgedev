@@ -55,16 +55,17 @@ steps:
     KeyVaultName: 'azure-iot-edgetools-kv'
     SecretsFilter: '*'
     RunAsPreJob: true
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Build.SourcesDirectory)/dist'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
 
 - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
   displayName: 'SBOM Generation Task'
   inputs:
     BuildDropPath: '$(Build.SourcesDirectory)/dist'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.SourcesDirectory)/dist'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
 
 - task: Bash@3  
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
