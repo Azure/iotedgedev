@@ -7,8 +7,6 @@ pool:
   name: Azure-IoT-EdgeExperience-1ES-Hosted-Linux
   demands:
     - ImageOverride -equals MMSUbuntu18.04TLS
-#pool:
-#  vmImage: ubuntu-18.04
 
 steps:
 - task: UsePythonVersion@0
@@ -71,8 +69,7 @@ steps:
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
   inputs:
     targetType: 'inline'
-    script: |        
-        VERSION=3.3.1rc1
+    script: |
         twine upload -r pypi "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u '$(pypiusername)' -p '$(aziotedgepwd)' --repository-url '$(pypirepourl)' --verbose
 
 - task: GitHubRelease@0
@@ -94,12 +91,12 @@ steps:
     targetType: 'inline'
     script: pip install --upgrade iotedgedev && iotedgedev --version
 
-- task: Bash@3
-  displayName: "Build Docker image"
-  inputs:
-    targetType: 'inline'
-    script: './build-docker.sh iotedgetoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev linux'
-    workingDirectory: 'docker/tool'
+#- task: Bash@3
+#  displayName: "Build Docker image"
+#  inputs:
+#    targetType: 'inline'
+#    script: './build-docker.sh iotedgetoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev linux'
+#    workingDirectory: 'docker/tool'
 
 - task: Bash@3
   displayName: "Test local Docker image"
