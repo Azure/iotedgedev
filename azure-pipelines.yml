@@ -4,7 +4,9 @@ trigger:
     - refs/tags/v*  
  
 pool:
-  vmImage: ubuntu-18.04
+  name: Azure-IoT-EdgeExperience-1ES-Hosted-Linux
+  demands:
+    - ImageOverride -equals MMSUbuntu18.04TLS
 
 steps:
 - task: UsePythonVersion@0
@@ -51,6 +53,12 @@ steps:
     KeyVaultName: 'azure-iot-edgetools-kv'
     SecretsFilter: '*'
     RunAsPreJob: true
+
+- task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
+  displayName: 'SBOM Generation Task'
+  inputs:
+    BuildDropPath: '$(Build.SourcesDirectory)/dist'
+
 - task: PublishBuildArtifacts@1
   inputs:
     PathtoPublish: '$(Build.SourcesDirectory)/dist'
@@ -68,7 +76,7 @@ steps:
 - task: GitHubRelease@0
   condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
   inputs:
-    gitHubConnection: 'github.com_marianan-IoTEdgeDev'
+    gitHubConnection: 'github.com_marianan'
     repositoryName: '$(Build.Repository.Name)'
     action: 'create'
     target: '$(Build.SourceVersion)'
