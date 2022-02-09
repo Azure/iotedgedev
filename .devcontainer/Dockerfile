@@ -1,6 +1,7 @@
 # Dependencies versions
-ARG PYTHON_VERSION="3.7.10"
+ARG PYTHON_VERSION="3.9.10"
 
+# see https://hub.docker.com/_/python/?tab=tag
 FROM python:${PYTHON_VERSION}-buster
 
 # Dependencies versions
@@ -11,12 +12,14 @@ ARG JDK_VERSION="2:1.11-71"
 ARG MAVEN_VERSION="3.6.0-1"
 
 RUN apt-get update && \
+    apt-get upgrade -y && \
     apt-get install -y --no-install-recommends build-essential && \
-    apt-get install -y libffi-dev libssl-dev
+    apt-get install -y libffi-dev libssl-dev vim
 
 # Install python development dependencies
 ADD requirements_dev.txt requirements.txt /tmp/
-RUN pip install -r /tmp/requirements_dev.txt
+RUN python -m pip install --upgrade pip
+RUN pip install --extra-index-url https://test.pypi.org/simple/ -r /tmp/requirements_dev.txt
 
 RUN \
     # Install the Azure CLI and IoT extension

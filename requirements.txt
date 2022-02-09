@@ -4,8 +4,9 @@ python-dotenv==0.19.0
 requests==2.25.1
 fstrings==0.1.0
 msrestazure==0.4.34
-iotedgehubdev>=0.14.9
+iotedgehubdev==0.14.11rc3
 applicationinsights==0.11.9
 commentjson==0.9.0
+azure-cli-core==2.25.0
 pypiwin32==219; sys_platform == 'win32' and python_version < '3.6'
 pypiwin32==223; sys_platform == 'win32' and python_version >= '3.6'
