@@ -13,7 +13,7 @@ requirements = [
     'requests >= 2.20.0, <= 2.25.1',
     'fstrings',
     'azure-cli-core >= 2.25.0',
-    'iotedgehubdev >= 0.14.3',
+    'iotedgehubdev == 0.14.11rc3',
     'applicationinsights == 0.11.9',
     'commentjson == 0.9.0',
     'pyyaml>=4.1,<=4.2b4',
@@ -31,7 +31,7 @@ test_requirements = [
 
 setup(
     name='iotedgedev',
-    version='3.3.1',
+    version='3.3.2',
     description='The Azure IoT Edge Dev Tool greatly simplifies the IoT Edge development process by automating many routine manual tasks, such as building, deploying, pushing modules and configuring the IoT Edge Runtime.',
     long_description='See https://github.com/azure/iotedgedev for usage instructions.',
     author='Microsoft Corporation',
@@ -48,7 +48,7 @@ setup(
     license='MIT license',
     zip_safe=False,
     keywords='azure iot edge dev tool',
-    python_requires='>=3.6, <3.8',
+    python_requires='>=3.6, <3.10',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
@@ -56,7 +56,9 @@ setup(
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7'
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9'
     ],
     test_suite='tests',
     tests_require=test_requirements,

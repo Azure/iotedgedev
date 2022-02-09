@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [3.3.2] - 2022-02-15
+- Add support for python 3.8, 3.9
+
 ## [3.3.1] - 2021-10-20
 - Updated Python Docker package versions to newest version and enable simulator dependencies
 
