@@ -8,6 +8,6 @@
 * [Python Virtual Environment Setup](python-virtual-environment-setup)
 * [Test Coverage](test-coverage)
 * [Troubleshooting](troubleshooting)
-* [Contributing](https://github.com/Azure/iotedgedev/blob/master/CONTRIBUTING.md)
+* [Contributing](https://github.com/Azure/iotedgedev/blob/main/CONTRIBUTING.md)
 * Misc
     * [Migration Guides for Public Preview Users](migration-guides)
