@@ -1,10 +1,10 @@
 click==8.0.1
-docker==5.0.0
+docker==5.0.3
 python-dotenv==0.19.0
 requests==2.25.1
 fstrings==0.1.0
 msrestazure==0.4.34
-iotedgehubdev==0.14.11rc3
+iotedgehubdev==0.14.12rc0
 applicationinsights==0.11.9
 commentjson==0.9.0
 azure-cli-core==2.25.0

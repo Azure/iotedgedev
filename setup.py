@@ -13,7 +13,7 @@ requirements = [
     'requests >= 2.20.0, <= 2.25.1',
     'fstrings',
     'azure-cli-core >= 2.25.0',
-    'iotedgehubdev == 0.14.11rc3',
+    'iotedgehubdev == 0.14.12rc0',
     'applicationinsights == 0.11.9',
     'commentjson == 0.9.0',
     'pyyaml>=4.1,<=4.2b4',
