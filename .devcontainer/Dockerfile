@@ -19,7 +19,7 @@ RUN apt-get update && \
 # Install python development dependencies
 ADD requirements_dev.txt requirements.txt /tmp/
 RUN python -m pip install --upgrade pip
-RUN pip install --extra-index-url https://test.pypi.org/simple/ -r /tmp/requirements_dev.txt
+RUN pip install -r /tmp/requirements_dev.txt
 
 RUN \
     # Install the Azure CLI and IoT extension
