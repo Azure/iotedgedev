@@ -13,7 +13,6 @@ steps:
       npm i -g iothub-explorer yo generator-azure-iot-edge-module
       az --version
       az extension add --name azure-iot
-      & "C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\python.exe" -m pip install -U setuptools==57.0.0
     displayName: "Install IoT Hub explorer, Yeoman and Azure IoT Edge Node.js module generator packages"
 
   - pwsh: |
