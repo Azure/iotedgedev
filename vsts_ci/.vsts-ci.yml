@@ -50,7 +50,7 @@ jobs:
   #   steps:
   #     - template: darwin/continuous-build-darwin.yml
 
-  - job: Linux
+  - job: Ubuntu18
     pool:
       vmImage: ubuntu-18.04
     strategy:
@@ -71,7 +71,7 @@ jobs:
     steps:
       - template: linux/continuous-build-linux.yml
 
-  - job: Linux
+  - job: Ubuntu20
     pool:
       vmImage: ubuntu-20.04
     strategy:
