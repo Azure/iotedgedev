@@ -3,6 +3,8 @@ All notable changes to this project since 0.82.0 will be documented in this file
 
 ## [3.3.3] - 2022-03-15
 - Add support for python 3.8, 3.9
+- Lock simulator version at 0.14.12
+- Upgrade docker SDK to version 5.0.3
 
 ## [3.3.2] - 2022-03-02
 - Lock simulator version at 0.14.11

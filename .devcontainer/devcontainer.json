@@ -12,7 +12,7 @@
         "host"
     ],
 
-    "postCreateCommand": "pip install --extra-index-url https://test.pypi.org/simple/ -e .",
+    "postCreateCommand": "pip install -e .",
     "mounts": [
         // Keep command history 
         "source=ostf-bashhistory,target=/commandhistory,type=volume",
