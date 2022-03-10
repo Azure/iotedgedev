@@ -35,6 +35,16 @@ steps:
     script: 'sed -i "/__AIkey__/c __AIkey__ = ''$(AIKEY)''" ./iotedgedev/__init__.py'
 
 - task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      if [[ $(Build.SourceBranch) =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+      echo "##vso[task.setvariable variable=WHEEL_PUBLISH_FLAG;]true"
+      fi
+      VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+      echo "##vso[task.setvariable variable=VERSION;]$VERSION"
+
+- task: Bash@3
   displayName: "Build wheel"
   inputs:
     targetType: 'inline'
@@ -42,8 +52,8 @@ steps:
 
 - task: ArchiveFiles@2
   inputs:
-    rootFolderOrFile: '(Build.SourcesDirectory)'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/iotedgedev-$(VERSION_TAG)-win32-ia32.zip'
+    rootFolderOrFile: '$(Build.SourcesDirectory)'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/iotedgedev-$(VERSION)-win32-ia32.zip'
 
 - task: Bash@3
   displayName: "Revert AIKey to Original"
@@ -70,15 +80,7 @@ steps:
     ArtifactName: 'drop'
     publishLocation: 'Container'
 
-- task: Bash@3
-  inputs:
-    targetType: 'inline'
-    script: |
-      if [[ $(Build.SourceBranch) =~ ^refs/tags/v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-      echo "##vso[task.setvariable variable=WHEEL_PUBLISH_FLAG;]true"
-      fi
-      VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
-      echo "##vso[task.setvariable variable=VERSION;]$VERSION"
+
 
 # - task: Bash@3  
 #   condition: and(succeeded(), eq(variables['WHEEL_PUBLISH_FLAG'], 'true'))
