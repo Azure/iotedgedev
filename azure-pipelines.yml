@@ -80,7 +80,11 @@ steps:
     ArtifactName: 'drop'
     publishLocation: 'Container'
 
-
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)/dist/'
+    Contents: '*'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
 # - task: Bash@3  
 #   condition: and(succeeded(), eq(variables['WHEEL_PUBLISH_FLAG'], 'true'))
@@ -98,7 +102,7 @@ steps:
     script: |
       export AZCOPY_SPA_CLIENT_SECRET=$(TEST-CLIENT-SECRET)
       azcopy login --service-principal --application-id $(TEST_APPID)
-      azcopy copy "$(Build.SourcesDirectory)/dist/*"  "https://sadevicelabsetup.blob.core.windows.net/test/iotedgedev/pypi/$(VERSION)/"
+      azcopy copy "$(Build.ArtifactStagingDirectory)/*"  "https://sadevicelabsetup.blob.core.windows.net/test/iotedgedev/pypi/$(VERSION)/"
 
 - task: GitHubRelease@0
   condition: and(succeeded(), eq(variables['WHEEL_PUBLISH_FLAG'], 'true'))
