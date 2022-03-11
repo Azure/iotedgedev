@@ -104,8 +104,8 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      export AZCOPY_SPA_CLIENT_SECRET=$(AZURESDKPARTNERDROPS-SERVICE-PRINCIPAL-KEY)
-      azcopy login --service-principal --application-id $(APPID)
+      export AZCOPY_SPA_CLIENT_SECRET=$(TEST-CLIENT-SECRET)
+      azcopy login --service-principal --application-id $(TEST_APPID)
       azcopy copy "$(Build.ArtifactStagingDirectory)/*"  "https://sadevicelabsetup.blob.core.windows.net/test//azure-iot-edge-tools-iotedgedev/pypi/$(VERSION)/"
 
 - task: GitHubRelease@0
