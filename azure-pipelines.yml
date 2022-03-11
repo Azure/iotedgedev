@@ -86,23 +86,15 @@ steps:
     Contents: '*'
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-# - task: Bash@3  
-#   condition: and(succeeded(), eq(variables['WHEEL_PUBLISH_FLAG'], 'true'))
-#   inputs:
-#     targetType: 'inline'
-#     script: |
-#         VERSION=$(cat ./iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
-#         twine upload -r pypi "dist/iotedgedev-${VERSION}-py3-none-any.whl" -u '$(pypiusername)' -p '$(aziotedgepwd)' --repository-url '$(pypirepourl)' --verbose
-
 - task: Bash@3
   displayName: 'Uplaod to Blob'
   condition: and(succeeded(), eq(variables['WHEEL_PUBLISH_FLAG'], 'true'))
   inputs:
     targetType: 'inline'
     script: |
-      export AZCOPY_SPA_CLIENT_SECRET=$(TEST-CLIENT-SECRET)
-      azcopy login --service-principal --application-id $(TEST_APPID)
-      azcopy copy "$(Build.ArtifactStagingDirectory)/*"  "https://sadevicelabsetup.blob.core.windows.net/test/iotedgedev/pypi/$(VERSION)/"
+      export AZCOPY_SPA_CLIENT_SECRET=$(AZURESDKPARTNERDROPS-SERVICE-PRINCIPAL-KEY)
+      azcopy login --service-principal --application-id $(APPID)
+      azcopy copy "$(Build.ArtifactStagingDirectory)/*"  "https://azuresdkpartnerdrops.blob.core.windows.net/drops/azure-iot-edge-tools-iotedgedev/pypi/$(VERSION)/"
 
 - task: GitHubRelease@0
   condition: and(succeeded(), eq(variables['WHEEL_PUBLISH_FLAG'], 'true'))
@@ -116,12 +108,6 @@ steps:
     releaseNotesSource: 'input'
     isPreRelease: true
     addChangeLog: false
-
-# - task: Bash@3
-#   displayName: "Verify wheel"
-#   inputs:
-#     targetType: 'inline'
-#     script: pip install --upgrade iotedgedev && iotedgedev --version
 
 - task: Bash@3
   displayName: "Install wheel"
@@ -147,23 +133,23 @@ steps:
        docker run -v /var/run/docker.sock:/var/run/docker.sock -v /home/vsts/iotedge:/home/iotedge iotedgetoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev:${PACKAGEVERSION}
     workingDirectory: 'docker/tool'
 
-# - task: Docker@2
-#   condition: and(succeeded(), eq(variables['WHEEL_PUBLISH_FLAG'], 'true'))
-#   displayName: "Push docker image to acr"
-#   inputs:
-#     containerRegistry: 'IoTEdgeDev-Docker'
-#     repository: 'public/iotedge/iotedgedev'
-#     command: 'push'
-#     tags: |
-#       $(VERSION)
-#       latest
-# - task: Bash@3
-#   condition: and(succeeded(), eq(variables['WHEEL_PUBLISH_FLAG'], 'true'))
-#   displayName: "Test last uploaded Docker image"
-#   inputs:
-#     targetType: 'inline'
-#     script: |
-#       docker pull mcr.microsoft.com/iotedge/iotedgedev
-#       docker run  mcr.microsoft.com/iotedge/iotedgedev 
-#       iotedgedev --version    
-#     workingDirectory: 'docker/tool'
+- task: Docker@2
+  condition: and(succeeded(), eq(variables['WHEEL_PUBLISH_FLAG'], 'true'))
+  displayName: "Push docker image to acr"
+  inputs:
+    containerRegistry: 'IoTEdgeDev-Docker'
+    repository: 'public/iotedge/iotedgedev'
+    command: 'push'
+    tags: |
+      $(VERSION)
+      latest
+- task: Bash@3
+  condition: and(succeeded(), eq(variables['WHEEL_PUBLISH_FLAG'], 'true'))
+  displayName: "Test last uploaded Docker image"
+  inputs:
+    targetType: 'inline'
+    script: |
+      docker pull mcr.microsoft.com/iotedge/iotedgedev
+      docker run  mcr.microsoft.com/iotedge/iotedgedev 
+      iotedgedev --version    
+    workingDirectory: 'docker/tool'
