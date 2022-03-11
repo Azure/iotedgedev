@@ -49,7 +49,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-     'python setup.py bdist_wheel'
+      python setup.py bdist_wheel
       pip install dist/iotedgedev-${VERSION}-py3-none-any.whl && iotedgedev --version
 
 - task: ArchiveFiles@2
