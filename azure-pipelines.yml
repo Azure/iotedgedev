@@ -96,7 +96,7 @@ steps:
     script: |
       export AZCOPY_SPA_CLIENT_SECRET=$(AZURESDKPARTNERDROPS-SERVICE-PRINCIPAL-KEY)
       azcopy login --service-principal --application-id $(APPID)
-      azcopy copy "$(Build.ArtifactStagingDirectory)/*"  "https://azuresdkpartnerdrops.blob.core.windows.net/drops/azure-iot-edge-tools-iotedgedev/pypi/$(VERSION)/"
+      azcopy copy "$(Build.ArtifactStagingDirectory)/*"  "https://azuresdkpartnerdrops.blob.core.windows.net/drops/azure-iot-edge-tools-iotedgedev/python/$(VERSION)/"
 
 - task: GitHubRelease@0
   condition: and(succeeded(), eq(variables['WHEEL_PUBLISH_FLAG'], 'true'))
