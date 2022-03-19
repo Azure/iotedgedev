@@ -13,6 +13,8 @@
     ],
 
     "postCreateCommand": "pip install -e .",
+    // "workspaceFolder": "/home/vscode/",
+
     "mounts": [
         // Keep command history 
         "source=ostf-bashhistory,target=/commandhistory,type=volume",
@@ -34,5 +36,8 @@
         "streetsidesoftware.code-spell-checker",
         "yzhang.markdown-all-in-one",
         "davidanson.vscode-markdownlint"
-    ]
+    ],
+
+    "containerUser": "vscode",
+    "remoteUser": "vscode"
 }
