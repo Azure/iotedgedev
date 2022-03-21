@@ -4,7 +4,7 @@
     "name": "iotedgedev",
     "build": {
         "dockerfile": "Dockerfile",
-        "context": "..",
+        "context": ".."
     },
 
     "runArgs": [
@@ -12,19 +12,17 @@
         "host"
     ],
 
-    "postCreateCommand": "pip install -e .",
-    // "workspaceFolder": "/home/vscode/",
-
+    "postCreateCommand": "chown vscode:users -R /home/vscode/Dev && pip install -e .",
     "mounts": [
         // Keep command history 
         "source=ostf-bashhistory,target=/commandhistory,type=volume",
         // Use hosts docker socket
-        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
+        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
     ],
 
     // Set *default* container specific settings.json values on container create.
     "settings": {
-        "#terminal.integrated.defaultProfile.linux#": "/bin/bash",
+        "#terminal.integrated.defaultProfile.linux#": "/bin/bash"
     },
 
     // Add the IDs of extensions you want installed when the container is created.
@@ -38,6 +36,7 @@
         "davidanson.vscode-markdownlint"
     ],
 
-    "containerUser": "vscode",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/vscode/Dev,type=bind,consistency=cached",
+    "workspaceFolder": "/home/vscode/Dev",
     "remoteUser": "vscode"
 }

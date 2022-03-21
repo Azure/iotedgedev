@@ -65,10 +65,14 @@ RUN \
 # setup and use the user 'vscode'
 RUN \
     useradd -m -s /bin/bash -g users -G sudo -p U6aMy0wojraho vscode && \
-    echo "vscode  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers && \
-    git clone https://github.com/magicmonty/bash-git-prompt.git /home/vscode/.bash-git-prompt --depth=1 && \
-    echo "\n# setup GIT prompt and completion\nif [ -f \"$HOME/.bash-git-prompt/gitprompt.sh\" ]; then\n  GIT_PROMPT_ONLY_IN_REPO=1 && source $HOME/.bash-git-prompt/gitprompt.sh;\nfi" >> /home/vscode/.bashrc && \
-    echo "source /usr/share/bash-completion/bash_completion" >> /home/vscode/.bashrc && \
-    echo "\n# add local python programs to PATH\nexport PATH=$PATH:/home/vscode/.local/bin\n" >> /home/vscode/.bashrc && \
-    sed -i -e "s/#alias/alias/" /home/vscode/.bashrc && \
-	echo "\n# skip sudo for docker commands\nalias docker='sudo docker'" >> /home/vscode/.bashrc
+    echo "vscode  ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+USER vscode
+RUN \
+    git clone https://github.com/magicmonty/bash-git-prompt.git $HOME/.bash-git-prompt --depth=1 && \
+    echo "\n# setup GIT prompt and completion\nif [ -f \"$HOME/.bash-git-prompt/gitprompt.sh\" ]; then\n  GIT_PROMPT_ONLY_IN_REPO=1 && source $HOME/.bash-git-prompt/gitprompt.sh;\nfi" >> $HOME/.bashrc && \
+    echo "source /usr/share/bash-completion/bash_completion" >> $HOME/.bashrc && \
+    echo "\n# add local python programs to PATH\nexport PATH=$PATH:$HOME/.local/bin\n" >> $HOME/.bashrc && \
+    # enable some useful aliases
+    sed -i -e "s/#alias/alias/" $HOME/.bashrc && \
+    echo "\n# skip sudo for docker commands\nalias docker='sudo docker'" >> $HOME/.bashrc
