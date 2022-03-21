@@ -12,7 +12,7 @@
         "host"
     ],
 
-    "postCreateCommand": "chown vscode:users -R /home/vscode/Dev && pip install -e .",
+    "postCreateCommand": "sudo chown vscode:users -R /home/vscode/Dev && pip install -e .",
     "mounts": [
         // Keep command history 
         "source=ostf-bashhistory,target=/commandhistory,type=volume",

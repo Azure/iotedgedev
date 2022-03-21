@@ -14,7 +14,8 @@ ARG MAVEN_VERSION="3.6.0-1"
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y --no-install-recommends build-essential apt-utils && \
-    apt-get install -y libffi-dev libssl-dev vim sudo
+    apt-get install -y libffi-dev libssl-dev vim sudo && \
+    apt-get upgrade -y
 
 # Install python development dependencies
 ADD requirements_dev.txt requirements.txt /tmp/
