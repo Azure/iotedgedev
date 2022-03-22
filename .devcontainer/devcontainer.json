@@ -7,18 +7,16 @@
         "context": ".."
     },
 
-    "runArgs": [
-        "--network",
-        "host"
-    ],
-
-    "postCreateCommand": "sudo chown vscode:users -R /home/vscode/Dev && pip install -e .",
+    "runArgs": ["--init", "--privileged"],
     "mounts": [
         // Keep command history 
         "source=ostf-bashhistory,target=/commandhistory,type=volume",
-        // Use hosts docker socket
-        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+        // Use docker-in-docker socket
+        "source=dind-var-lib-docker,target=/var/lib/docker,type=volume"
     ],
+
+    "overrideCommand": false,
+    "postCreateCommand": "sudo chown vscode:users -R /home/vscode/Dev && pip install -e .",
 
     // Set *default* container specific settings.json values on container create.
     "settings": {
