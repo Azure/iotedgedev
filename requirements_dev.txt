@@ -8,9 +8,9 @@ pycodestyle==2.7.0
 autopep8==1.5.7
 tox==3.24.1
 coverage==4.1
-Sphinx==1.4.8
+Sphinx==4.4.0
 cookiecutter==1.7.3
-PyYAML==4.2b4
+PyYAML==5.4
 pylint==2.3.0
 pytest==6.2.4
 setuptools==57.0.0
