@@ -16,7 +16,7 @@
     ],
 
     "overrideCommand": false,
-    "postCreateCommand": "sudo chown vscode:users -R /home/vscode/Dev && pip install -e .",
+    "postCreateCommand": "docker image prune -a -f && sudo chown vscode:users -R /home/vscode/HubDev && pip install -r requirements_dev.txt && pip install -e .",
 
     // Set *default* container specific settings.json values on container create.
     "settings": {

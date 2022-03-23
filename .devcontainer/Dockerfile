@@ -21,14 +21,9 @@ RUN \
     apt-get install -y libffi-dev libssl-dev vim sudo && \
     apt-get upgrade -y
 
-# Install python development dependencies
-ADD requirements_dev.txt requirements.txt /tmp/
 RUN \
+    # Upgrade to latest pip
     python -m pip install --upgrade pip && \
-    pip install -r /tmp/requirements_dev.txt && \
-    rm /tmp/requirements.txt /tmp/requirements_dev.txt
-
-RUN \
     # Install node, npm
     curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION} | bash - && \
     apt-get install -y nodejs && \
