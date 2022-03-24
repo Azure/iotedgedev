@@ -63,14 +63,6 @@ steps:
     targetType: 'inline'
     script: 'sed -i "/__AIkey__/c __AIkey__ = ''$(TEST_AIKEY)''" ./iotedgedev/__init__.py'
 
-- task: AzureKeyVault@2
-  displayName: 'Azure Key Vault: azure-iot-edgetools-kv'
-  inputs:
-    azureSubscription: 'Azure IoT DDE team subscription (377c3343-75bb-4244-98a3-0fb84a830c4b)-IoTEdgeDev'
-    KeyVaultName: 'azure-iot-edgetools-kv'
-    SecretsFilter: '*'
-    RunAsPreJob: true
-
 - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
   displayName: 'SBOM Generation Task'
   inputs:
