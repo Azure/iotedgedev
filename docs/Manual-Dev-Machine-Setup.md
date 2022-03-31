@@ -20,8 +20,8 @@ If you are using a separate Edge device, like a Raspberry Pi, you do not need to
 
 1. Install **[Azure CLI IoT extension](https://github.com/Azure/azure-iot-cli-extension/)**
 
-    - New Install: `az extension add --name azure-cli-iot-ext`
-    - Update Install: `az extension update --name azure-cli-iot-ext`
+    - New Install: `az extension add --name azure-iot`
+    - Update Install: `az extension update --name azure-iot`
 
 1. (Python < 3.5 only) Install **[Node.js](https://nodejs.org/en/download/)** and the **`iothub-explorer`** package
 

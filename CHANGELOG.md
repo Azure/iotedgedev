@@ -3,6 +3,7 @@ All notable changes to this project since 0.82.0 will be documented in this file
 
 ## [3.3.4] - 2022-03-24
 - Lock simulator version at 0.14.14
+- Update Wiki and dev container to reflect changes about the simulator
 
 ## [3.3.3] - 2022-03-15
 - Add support for python 3.8, 3.9
