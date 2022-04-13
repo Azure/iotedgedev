@@ -27,8 +27,7 @@ RUN apt-get update && \
     npm i npm@latest -g && \
     npm i -g azure-iothub yo generator-azure-iot-edge-module && \
     apt-get install -y --no-install-recommends python-dev build-essential libssl-dev libffi-dev libxml2-dev libxslt1-dev zlib1g-dev sudo
-RUN add-apt-repository ppa:deadsnakes/ppa -y -u && \
-    apt install python3.9 -y && \
+RUN apt install python3.9 -y && \
     rm /usr/bin/python3 && \
     ln -s /usr/bin/python3.9 /usr/bin/python3 && \
     python3 -m pip install --upgrade pip && \
