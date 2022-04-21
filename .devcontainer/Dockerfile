@@ -28,13 +28,6 @@ RUN \
     curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION} | bash - && \
     apt-get install -y nodejs && \
     npm install npm@latest -g && \
-    # Install azure-cli
-    apt-get install -y ca-certificates curl apt-transport-https lsb-release gnupg && \
-    curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null && \
-    echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/azure-cli.list && \
-    apt-get update && apt-get install -y azure-cli=${AZURE_CLI_VERSION} && \
-    az extension add --name azure-iot --system && \
-    az extension update --name azure-iot && \
     # Use Docker script from script library to set things up - enable non-root docker, user vscode, using moby
     /bin/bash /tmp/library-scripts/docker-in-docker-debian.sh "true" "vscode" "true" \
     # Install Yoeman, node.js modules
@@ -57,6 +50,10 @@ RUN \
     apt-get clean -y && \
     rm -rf /tmp/* && \
     rm -rf /var/lib/apt/lists/*
+
+# Install azure-cli
+RUN pip install setuptools==57.0.0 \
+    && pip install azure-cli==2.25.0
 
 # customize vscode environmnet
 USER vscode
