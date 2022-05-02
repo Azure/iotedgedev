@@ -137,7 +137,9 @@ The only thing you need to install is Docker. All of the other dev dependencies 
 
     </details>
 
-### Set up and start modules on a virtual machine
+### Run Edge modules
+
+#### Set up and start modules on a virtual machine
 
 1. [**Set up virtual machine to run Azure IoT Edge**](https://docs.microsoft.com/en-us/azure/iot-edge/how-to-install-iot-edge-ubuntuvm)
 2. **Create and configure an ACR (Azure Container Registry)**
@@ -196,7 +198,7 @@ The only thing you need to install is Docker. All of the other dev dependencies 
     - [Troubleshoot IoT Edge devices from the Azure portal](https://docs.microsoft.com/en-us/azure/iot-edge/troubleshoot-in-portal)
     - SSH into the virtual machine and follow [troubleshoot your IoT Edge device](https://docs.microsoft.com/en-us/azure/iot-edge/troubleshoot)
 
-### Set up and start the IoT Edge Simulator
+#### Set up and start the IoT Edge Simulator
 
 1. **Setup and start the IoT Edge Simulator to run the solution**
 
@@ -210,7 +212,7 @@ The only thing you need to install is Docker. All of the other dev dependencies 
 
     </details>
 
-1. **Monitor messages sent from IoT Edge Simulator to IoT Hub**
+2. **Monitor messages sent from IoT Edge Simulator to IoT Hub**
 
     `iotedgedev monitor`
     <details>
@@ -221,7 +223,7 @@ The only thing you need to install is Docker. All of the other dev dependencies 
 
     </details>
 
-1. **Docker containers/images management**
+3. **Docker containers/images management**
     1. The containers used by the simulator will be cleaned up when the simulator stops running `iotedgedev stop`
     2. All remaining containers can be cleaned up using `iotedgedev docker clean -c`
     3. All remaining images can be cleaned up using `iotedgedev docker clean -i`
