@@ -38,7 +38,7 @@ Note: See the ["Test Coverage"](test-coverage) wiki page to see what the IoT Edg
     * You are on Windows or macOS.
     * You are on Linux, and you have followed the [post-installation steps for Linux](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user) to allow running Docker commands without `sudo`.
 
-4. **Setup the [IoT Edge Simulator]((https://pypi.org/project/iotedgehubdev/).)**
+4. **Setup the [IoT Edge Simulator](https://pypi.org/project/iotedgehubdev/)**
 
     ```sh
     sudo iotedgedev setup
