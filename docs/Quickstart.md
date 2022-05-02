@@ -122,7 +122,7 @@ The only thing you need to install is Docker. All of the other dev dependencies 
 
     </details>
 
-1. **Build IoT Edge module images**
+2. **Build IoT Edge module images**
 
     `sudo iotedgedev build`
 
