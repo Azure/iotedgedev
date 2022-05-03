@@ -5,8 +5,12 @@
 pr:
  branches:
   include:
-   - user/vikas_trigger_new
+  - user/vikas_trigger_new
 
+trigger:
+ branches:
+  include:
+  - user/vikas_trigger_new
 # trigger: none
 
 jobs:
