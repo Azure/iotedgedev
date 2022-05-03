@@ -7,7 +7,7 @@ pr:
 trigger:
   branches:
     include:
-    - master  
+    - main  
 
 # trigger: none
 
