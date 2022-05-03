@@ -1,0 +1,39 @@
+# Python package
+# Create and test a Python package on multiple Python versions.
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# https://docs.microsoft.com/vsts/pipelines/languages/python
+pr:
+  - main
+  
+jobs:
+  - job: Windows
+    pool:
+      vmImage: windows-2019
+    steps:
+    - task: PowerShell@2
+      displayName: 'Build'
+      inputs:
+        targetType: 'inline'
+        script: 'write-host "I am windows here"'
+
+  - job: Ubuntu18
+    pool:
+      vmImage: ubuntu-18.04
+    steps:
+    - task: Bash@3
+      displayName: 'Install'
+      inputs:
+        targetType: 'inline'
+        script: |
+          uname -a
+
+  - job: Ubuntu20
+    pool:
+      vmImage: ubuntu-20.04
+    steps:
+    - task: Bash@3
+      displayName: 'Install'
+      inputs:
+        targetType: 'inline'
+        script: |
+          uname -a
