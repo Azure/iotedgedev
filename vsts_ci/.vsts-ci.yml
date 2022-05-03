@@ -3,12 +3,12 @@
 # Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
 # https://docs.microsoft.com/vsts/pipelines/languages/python
 pr:
-  - master
+  - main
 trigger:
   branches:
     include:
     - master  
-    
+
 # trigger: none
 
 jobs:
