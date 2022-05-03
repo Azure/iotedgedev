@@ -20,7 +20,7 @@ steps:
       npm --version
       npm i -g iothub-explorer
       iothub-explorer --version
-    displayName: "Install IoT Hub Explorer"
+    displayName: "Install IoT Hub Explorer - test"
 
   - powershell: |
       npm install -g yo
