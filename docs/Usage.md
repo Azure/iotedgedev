@@ -6,7 +6,7 @@ To set up development machines manually instead of using the IoT Edge Dev Contai
 
 If you are using a separate Edge device, like a Raspberry Pi, you do not need to run all of these steps on your IoT Edge device, you can install and setup Edge runtime directly on the device. See the [Edge Device Setup](edge-device-setup) wiki page for more information on setting up your Edge device.
 
-Note: See the ["Test Coverage"](test-coverage) wiki page to see what the IoT Edge Dev Tool has been tested with.
+**Note:** See the ["Test Coverage"](test-coverage) wiki page to see what the IoT Edge Dev Tool has been tested with.
 
 1. **Initialize IoT Edge solution and setup Azure resources**
 
