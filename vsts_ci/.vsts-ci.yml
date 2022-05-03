@@ -4,6 +4,8 @@
 # https://docs.microsoft.com/vsts/pipelines/languages/python
 pr:
   - main
+  
+trigger: none
 
 jobs:
   - job: Windows
