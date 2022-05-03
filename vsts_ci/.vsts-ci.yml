@@ -2,10 +2,8 @@
 # Create and test a Python package on multiple Python versions.
 # Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
 # https://docs.microsoft.com/vsts/pipelines/languages/python
-# pr:
-#   branches:
-#     include:
-#     - '*'
+pr:
+ - refs/heads/user/vikas_trigger_new
 
 # trigger: none
 
