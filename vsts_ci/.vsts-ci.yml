@@ -7,7 +7,7 @@ pr:
     include:
     - main 
 
-trigger: none
+# trigger: none
 
 jobs:
   - job: Windows
