@@ -6,6 +6,7 @@ pr:
   branches:
     include:
     - main 
+    - refs/heads/main 
 
 # trigger: none
 
