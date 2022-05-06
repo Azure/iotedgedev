@@ -15,7 +15,7 @@ fi
 
 # read IoTEdgeDev version from python __init__ file
 
-export VERSION=$(cat ../../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+export VERSION=$(cat ../../iotedgedev/__init__.py | grep '__version__' | awk '{print $3}' | sed "s;';;g")
 
 IMAGE_NAME="$1"
 PLATFORM="$2"
@@ -27,7 +27,7 @@ if [ "$IMAGE_NAME" = "--help" ]; then
 fi
 
 PYTHON2="2.7.14" #TODO READ FROM deps.txt
-PYTHON3="3.6.6"
+PYTHON3="3.9.12"
 
 build_linux=1
 build_windows=1
