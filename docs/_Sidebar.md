@@ -1,6 +1,6 @@
 * [Home](home)
 * Dev Machine Setup
-    * [Quickstart with IoT Edge Dev Container](quickstart-with-iot-edge-dev-container)
+    * [Quickstart](quickstart)
     * [Manual Setup](manual-dev-machine-setup)
 * [Azure Setup](azure-setup)
 * [Edge Device Setup](edge-device-setup)
