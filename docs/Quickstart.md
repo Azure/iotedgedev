@@ -8,7 +8,7 @@ At the end of this quickstart, you should have the following:
 - IoT Hub deployed in your Azure subscription.
 - A directory with the [IoT edge deployment manifest](https://docs.microsoft.com/en-us/azure/iot-edge/module-composition?view=iotedge-2020-11), [.env file](.env.tmp) with the environment variables needed for the `iotedgedev` tool, and the source file of a custom IoT edge module (`filtermodule`).
 - The docker image of the `filtermodule`.
-- Starting the IoT Edge simulator, which runs the containers defined in the device manifest.
+- Deploying the IoT edge modules defined in the manifest on a VM or IoT Edge simulator.
 - Monitoring the messages sent to the IoT Hub.
 - Cleaning up the docker containers and images.
 
