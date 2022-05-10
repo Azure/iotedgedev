@@ -128,9 +128,9 @@ At the end of this quickstart, you should have the following:
 
 5. Run IoT Edge modules.
 
-    Edge modules can be started in two different ways using `iotedgeded`:
+    Edge modules can be started in two different ways using `iotedgedev`:
 
-    - Deploying them on a a VM; please find the steps to do so in [Set up and start modules on a virtual machine](Run-Modules-on-VM.md);
+    - Deploying them on a VM; please find the steps to do so in [Set up and start modules on a virtual machine](Run-Modules-on-VM.md);
     - or in your own development machine using the `iotedgedev` simulator; please follow [Set up and start the IoT Edge Simulator](Run-Modules-on-Simulator.md).
 
 6. Monitor messages sent from device to IoT Hub.
