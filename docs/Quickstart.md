@@ -25,7 +25,7 @@ At the end of this quickstart, you should have the following:
     - Setup the development environment manually. Please follow the [Manual Development Machine Setup Wiki](https://github.com/Azure/iotedgedev/wiki/manual-dev-machine-setup).
     - Starting the devcontainer in VS Code (see [Developing inside a Container](https://code.visualstudio.com/docs/remote/containers) for steps on how to do so).
     - Starting the devcontainer with Docker. Please follow the [Run the IoT Edge Dev Container with Docker docs](Run-Devcontainer-Docker.md).
-  
+
 2. Create empty directory for the IoT Edge solution resources.
 
    ```sh
@@ -126,23 +126,14 @@ At the end of this quickstart, you should have the following:
 
     </details>
 
-5. Setup and start the IoT Edge Simulator to run the solution
+5. Run IoT Edge modules.
 
-    ```sh
-    iotedgedev start --setup --file config/deployment.amd64.json
-    ```
+    Edge modules can be started in two different ways using `iotedgeded`:
 
-    > The [IoT Edge Hub Simulator](https://github.com/Azure/iotedgehubdev) starts the containers defined in the IoT edge device manifest in your local machine.
+    - Deploying them on a a VM; please find the steps to do so in [Set up and start modules on a virtual machine](Run-Modules-on-VM.md);
+    - or in your own development machine using the `iotedgedev` simulator; please follow [Set up and start the IoT Edge Simulator](Run-Modules-on-Simulator.md).
 
-    <details>
-    <summary>More information</summary>
-
-    1. You will see an "IoT Edge Simulator has been started in solution mode." message at the end of the terminal output
-    2. Run `sudo docker ps`, you will see your modules running as well as an edgeHubDev container
-
-    </details>
-
-6. Monitor messages sent from IoT Edge Simulator to IoT Hub.
+6. Monitor messages sent from device to IoT Hub.
 
     ```sh
     iotedgedev monitor
