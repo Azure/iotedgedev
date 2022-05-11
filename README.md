@@ -10,7 +10,7 @@ The **IoT Edge Dev Tool** greatly simplifies [Azure IoT Edge](https://azure.micr
 
 ## Overview
 
-For the absolute fastest way to get started with IoT Edge Dev, please see the [Quickstart](https://github.com/Azure/iotedgedev/wiki/quickstart) section below.
+For the absolute fastest way to get started with IoT Edge Dev, please see the [Quickstart](https://github.com/Azure/iotedgedev/wiki/quickstart) section.
 
 For a more detailed overview of IoT Edge Dev Tool including setup, commands and troubleshooting, please see the [Wiki](https://github.com/Azure/iotedgedev/wiki).
 
@@ -39,9 +39,13 @@ or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any addi
 
 The team monitors the issue section on regular basis and will try to assist with troubleshooting or questions related IoT Edge tools on a best effort basis.
 
-A few tips before opening an issue. Try to generalize the problem as much as possible. Examples include
+A few tips before opening an issue. Try to generalize the problem as much as possible. Examples include:
 
 - Removing 3rd party components
 - Reproduce the issue with provided deployment manifest used
 - Specify whether issue is reproducible on physical device or simulated device or both
 Also, Consider consulting on the [docker docs channel](https://github.com/docker/docker.github.io) for general docker questions.
+
+## Additional Resources
+
+Please refer to the [Wiki](https://github.com/Azure/iotedgedev/wiki) for details on setup, usage, and troubleshooting.
