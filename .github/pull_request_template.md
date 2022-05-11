@@ -12,6 +12,11 @@ This checklist is used to make sure that common guidelines for a pull request ar
 - [ ] Pull request includes test coverage for the included changes
 - [ ] Documentation is updated for the included changes
 
+### General guidelines
+
+- [ ] Title of the pull request is clear and informative.
+- [ ] There are a small number of commits, each of which have an informative message. This means that previously merged commits do not appear in the history of the PR.
+
 ## Description
 
 <!--
