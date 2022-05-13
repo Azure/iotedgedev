@@ -4,7 +4,7 @@ This section describes how to get your developer workspace running for the first
 
 Please fork, branch and pull-request any changes you'd like to make. For more information on how to create a fork, see: [Fork a repo - GitHub Docs](https://docs.github.com/en/get-started/quickstart/fork-a-repo)
 
-## Workspace Setup
+## Workspace setup
 
 1. Clone this repository
 
@@ -33,13 +33,17 @@ Please fork, branch and pull-request any changes you'd like to make. For more in
         pip install -e .
         ```
 
-## Run Tests
+## Run and debug tests
 
-You can choose one of these following commands to run the tests:
+To **run** and **debug** the tests **individually** you can use the VSCode Test Runner UI provided by the [Python extension](https://marketplace.visualstudio.com/items?itemName=ms-python.python) (installed by default in the devcontainer).
+
+An alternative way to **debug** is to select `Python: debug test file` in the `Run and debug` tab of vscode, open the test file you'd like to debug and hit `F5`.
+
+You can choose one of these following commands to easily **run all** tests:
 
 ```sh
 # Run all tests with all python interpreters (fails for the ones not installed)
-# This is the command thats run in the pipeline for all python versions
+# This is the command that runs in the pipeline for all python versions
 make test-all
 # Run tests with tox in python version 3.9 (the python version installed in the devcontainer)
 tox -e py39
@@ -47,13 +51,4 @@ tox -e py39
 make test
 ```
 
-In addition this this, you can also run and debug the tests individually using the VSCode test runner UI if the Python extension is installed (installed by default in the devcontainer).
-
-It is recommended to run all tests with `tox -e py39` or `make test-all` at least once before making the PR. The pytest test runner environment is slightly different from tox, so some tests may pass with that and not in tox, resulting in failures in the pipeline.
-
-### VS Code Debugging
-
-You can debug with VSCode in two ways:
-
-- Install the Python extension, navigate to the test in the test file you'd like to run, right click on the VSCode test runner arrow next to the test and select `Debug test`.
-- Select 'Python: debug test file' in the `Run and debug` tab of vscode, open the test file you'd like to debug and hit `F5`
+> It is recommended to run all tests with `tox -e py39` or `make test-all` at least once before making the PR. The pytest test runner environment is slightly different from tox, so some tests may pass with that and not in tox, resulting in failures in the pipeline.
