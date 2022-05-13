@@ -1,4 +1,4 @@
-#### Automated Setup
+## Automated Setup
 
 The following will show you how to setup your Azure Resources via the CLI instead of using the Portal.
 
@@ -16,7 +16,7 @@ Here are all the `iotedgedev iothub setup` command options:
 
 > You can override all of these parameters with environment variables. Please see the .env file in your solution for details.
 
-```
+```sh
 iotedgedev iothub setup
     --credentials USERNAME PASSWORD
     --service-principal USERNAME PASSWORD TENANT
@@ -31,25 +31,23 @@ iotedgedev iothub setup
 
 You can use the following `az cli` command to create a service principal:
 
-```
+```sh
 az ad sp create-for-rbac -n "iotedgedev01"
 ```
 
 > Note: Running `iotedgedev iothub setup` without any other parameters will save you time from looking up the required parameter values. The command will help you choose the parameters in an interactive way.
 
-Alternatively, you can deploy the IoT Hub **and** Container Registry with this **Deploy to Azure** template:
-
-[![Azure Deployment](https://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fazure%2Fiotedgedev%2Fmaster%2Fassets%2Fdeploy%2FARMDeployment%2Fazuredeploy.json)
+Alternatively, you can deploy the IoT Hub **and** Container Registry with this **Deploy to Azure** template: [Azure Deployment](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fazure%2Fiotedgedev%2Fmaster%2Fassets%2Fdeploy%2FARMDeployment%2Fazuredeploy.json)
 
 > Note: If you do not need a Container Registry, or are planning to use a local registry, then you should run the **iotedgedev iothub setup** command instead of running this **Deploy to Azure** template, because the template includes a Container Registry.
 
-#### Manual Setup
-1. [**Create Azure IoT Hub**](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-csharp-csharp-getstarted#create-an-iot-hub)
-1. **Create Edge Device** using the Azure Portal
-    - In your IoT Hub, click "IoT Edge", then click "Add IoT Edge Device"
+## Manual Setup
 
-1.  **Container Registry**
-    When you develop for IoT Edge, you need to host your images in a container registry, which the IoT Edge runtime will fetch the modules images from when it starts. 
+1. [**Create Azure IoT Hub**](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-csharp-csharp-getstarted#create-an-iot-hub)
+2. **Create Edge Device** using the Azure Portal
+   - In your IoT Hub, click "IoT Edge", then click "Add IoT Edge Device"
+3. **Container Registry**
+    When you develop for IoT Edge, you need to host your images in a container registry, which the IoT Edge runtime will fetch the modules images from when it starts.
 
     > By default, the IoT Edge Dev Tool will use the Local Registry.
 
@@ -59,35 +57,36 @@ Alternatively, you can deploy the IoT Hub **and** Container Registry with this *
 
         Set `CONTAINER_REGISTRY_SERVER` to `localhost:5000` and leave `CONTAINER_REGISTRY_USERNAME` and `CONTAINER_REGISTRY_PASSWORD` blank.
 
-        ```
+        ```sh
         CONTAINER_REGISTRY_SERVER="localhost:5000"
         ```
 
-    1. Azure Container Registry
+    2. Azure Container Registry
 
         You can create an [**Azure Container Registry**](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-get-started-portal) and host your images there.
             - Make sure you enable Admin Access when you create the Azure Container Registry
 
         After created, open .env and set the following:
 
-        ```
+        ```sh
         CONTAINER_REGISTRY_SERVER="ACR URI" 
         CONTAINER_REGISTRY_USERNAME="ACR USERNAME"
         CONTAINER_REGISTRY_PASSWORD="ACR PASSWORD"
         ```
 
         Example:
-        ```
+
+        ```sh
         CONTAINER_REGISTRY_SERVER="jong.azurecr.io" 
         CONTAINER_REGISTRY_USERNAME="jong"
         CONTAINER_REGISTRY_PASSWORD="p@$$w0rd"
         ```
 
-    1. Docker Hub
+    3. Docker Hub
 
         You can also host your images on Docker Hub. Create a Docker Hub account and then open .env and enter the following:
 
-        ```
+        ```sh
         CONTAINER_REGISTRY_SERVER="DOCKER HUB USERNAME" 
         CONTAINER_REGISTRY_USERNAME="DOCKER HUB USERNAME"
         CONTAINER_REGISTRY_PASSWORD="DOCKER HUB PASSWORD"
@@ -95,7 +94,7 @@ Alternatively, you can deploy the IoT Hub **and** Container Registry with this *
 
         Example:
 
-        ```
+        ```sh
         CONTAINER_REGISTRY_SERVER="jongallant" 
         CONTAINER_REGISTRY_USERNAME="jongallant"
         CONTAINER_REGISTRY_PASSWORD="p@$$w0rd"

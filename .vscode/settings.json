@@ -1,9 +1,10 @@
 {
     "python.pythonPath": "${workspaceFolder}\\venv\\Scripts\\python.exe",
     "cSpell.words": [
+        "devcontainer",
         "dotenv",
-        "envvar",
         "edgesolution",
+        "envvar",
         "gitignore",
         "iotedge",
         "iotedgedev",

@@ -4,18 +4,17 @@ You can run IoT Edge Dev Tool inside a [Python Virtual Environment](https://docs
 
     `pip install virtualenv`
 
-1. Create a virtual environment
+2. Create a virtual environment
 
     `virtualenv venv`
 
     > `venv` is just a env name that can be anything you want, but we recommend sticking with `venv` if you want to contribute to IoT Edge Dev Tool because the `.gitignore` file excludes it.
 
     > To create a virtual environment with a Python version different with your system default, just use the `--python/-p` option to specify the Python executable path, *e.g.*:
-    > ```
-    > virtualenv --python /usr/bin/python2.7 py27
-    > ```
+    >
+    > `virtualenv --python /usr/bin/python2.7 py27`
 
-1. Activate the virtual environment
+3. Activate the virtual environment
 
     - Windows
         - cmd.exe: `venv\Scripts\activate.bat`
@@ -24,11 +23,11 @@ You can run IoT Edge Dev Tool inside a [Python Virtual Environment](https://docs
     - Posix: `source venv/bin/activate`
     > It will be active until you deactivate it or close the terminal instance.
 
-1. Install dependencies
+4. Install dependencies
 
-    Continue with the instructions above starting with the [Manual Dev Machine Setup](manual-dev-machine-setup) -> Install Dependencies.
+    Continue with the instructions above starting with the [Manual Dev Machine Setup](Environment-Setup/Manual-Dev-Machine-Setup) -> Install Dependencies.
 
-1. Deactivate the virtual environment
+5. Deactivate the virtual environment
 
     When you are done with your virtualenv, you can deactivate it with the follow command:
 
