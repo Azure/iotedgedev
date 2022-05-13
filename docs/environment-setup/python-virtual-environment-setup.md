@@ -25,7 +25,7 @@ You can run IoT Edge Dev Tool inside a [Python Virtual Environment](https://docs
 
 4. Install dependencies
 
-    Continue with the instructions above starting with the [Manual Dev Machine Setup](Environment-Setup/Manual-Dev-Machine-Setup) -> Install Dependencies.
+    Continue with the instructions above starting with the [Manual Dev Machine Setup](Environment-Setup/manual-dev-machine-setup) -> Install Dependencies.
 
 5. Deactivate the virtual environment
 

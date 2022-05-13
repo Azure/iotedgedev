@@ -2,7 +2,7 @@ Here is what you need to do to get Azure IoT Edge Dev Tool (aka `iotedgedev`) ru
 
 If you are using a separate Edge device, like a Raspberry Pi, you do not need to run all of these steps on your IoT Edge device, you can install and setup Edge runtime directly on the device. See the [Edge Device Setup](edge-device-setup) wiki page for more information on setting up your Edge device.
 
-> Note: See the ["Test Coverage"](Test-Coverage) wiki page to see what the IoT Edge Dev Tool has been tested with.
+> Note: See the ["Test Coverage"](test-coverage) wiki page to see what the IoT Edge Dev Tool has been tested with.
 
 1. Install **Python 2.7+ or Python 3.6+** and **pip** (Python 3.6 is recommended)
     - Windows: [Install from Python's website](https://www.python.org/downloads/)
@@ -76,4 +76,4 @@ If you are using a separate Edge device, like a Raspberry Pi, you do not need to
       1. Install **[JDK](https://www.oracle.com/technetwork/java/javase/downloads/index.html)**
       2. Install **[Maven](https://maven.apache.org/)**
 
-9. Follow the [Usage Wiki](Usage) to learn the usage of IoT Edge Dev Tool
+9. Follow the [Usage Wiki](usage) to learn the usage of IoT Edge Dev Tool

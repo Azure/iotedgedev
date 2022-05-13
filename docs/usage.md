@@ -1,12 +1,12 @@
 # Usage
 
-You can use the IoT Edge Dev Tool container to avoid having to install all the dependencies on your local dev machine. The only thing you need to install is Docker. All of the other dev dependencies are included in the container. Please see the [Quickstart](Quickstart) to learn more.
+You can use the IoT Edge Dev Tool container to avoid having to install all the dependencies on your local dev machine. The only thing you need to install is Docker. All of the other dev dependencies are included in the container. Please see the [Quickstart](quickstart) to learn more.
 
-To set up development machines manually instead of using the IoT Edge Dev Container, please see the [Manual Development Machine Setup Wiki](Environment-Setup/Manual-Dev-Machine-Setup).
+To set up development machines manually instead of using the IoT Edge Dev Container, please see the [Manual Development Machine Setup Wiki](environment-setup/manual-dev-machine-setup).
 
-If you are using a separate Edge device, like a Raspberry Pi, you do not need to run all of these steps on your IoT Edge device, you can install and setup Edge runtime directly on the device. See the [Edge Device Setup](Edge-Device-Setup) wiki page for more information on setting up your Edge device.
+If you are using a separate Edge device, like a Raspberry Pi, you do not need to run all of these steps on your IoT Edge device, you can install and setup Edge runtime directly on the device. See the [Edge Device Setup](edge-device-setup) wiki page for more information on setting up your Edge device.
 
-**Note:** See the ["Test Coverage"](Test-Coverage) wiki page to see what the IoT Edge Dev Tool has been tested with.
+**Note:** See the ["Test Coverage"](test-coverage) wiki page to see what the IoT Edge Dev Tool has been tested with.
 
 1. **Initialize IoT Edge solution and setup Azure resources**
 

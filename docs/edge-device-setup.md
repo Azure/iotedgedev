@@ -7,7 +7,7 @@ IoT Edge Dev Tool is intended to help with IoT Edge development and doesn't nece
 
 Having said that, there's nothing stopping you from deploying IoT Edge Dev Tool to your IoT Edge device. It may be helpful if you want to run the `iotedgedev docker clean` command to clean up Docker containers and images. Or if you want to run `iotedgedev docker log --show` to see all the log files on the device or `iotedgedev docker log --save` to output to the LOGS_PATH directory.
 
-> Please note that you will need .NET Core SDK 2.1 to add C# modules and C# Function modules on a Raspberry Pi. Check [Manual Dev Machine Setup](Environment-Setup/Manual-Dev-Machine-Setup) to learn how to install.
+> Please note that you will need .NET Core SDK 2.1 to add C# modules and C# Function modules on a Raspberry Pi. Check [Manual Dev Machine Setup](environment-setup/manual-dev-machine-setup) to learn how to install.
 
 ### Raspberry Pi
 

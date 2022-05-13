@@ -14,7 +14,7 @@ At the end of this quickstart, you should have the following:
 
 ## Pre-requisites
 
-- Docker (see [Install Docker docs](Environment-Setup/Install-Docker) for details) and add user to `docker` Unix group (see [documentation](https://docs.docker.com/engine/install/linux-postinstall/)).
+- Docker (see [Install Docker docs](environment-setup/install-docker) for details) and add user to `docker` Unix group (see [documentation](https://docs.docker.com/engine/install/linux-postinstall/)).
 
 ## Quickstart steps
 
@@ -22,9 +22,9 @@ At the end of this quickstart, you should have the following:
 
     There are three options to setup your environment:
 
-    - Setup the development environment manually. Please follow the [Manual Development Machine Setup Wiki](Environment-Setup/Manual-Dev-Machine-Setup).
+    - Setup the development environment manually. Please follow the [Manual Development Machine Setup Wiki](environment-setup/manual-dev-machine-setup).
     - Starting the devcontainer in VS Code (see [Developing inside a Container](https://code.visualstudio.com/docs/remote/containers) for steps on how to do so).
-    - Starting the devcontainer with Docker. Please follow the [Run the IoT Edge Dev Container with Docker docs](Run-Devcontainer-Docker).
+    - Starting the devcontainer with Docker. Please follow the [Run the IoT Edge Dev Container with Docker docs](environment-setup/run-devcontainer-docker).
 
 2. Create empty directory for the IoT Edge solution resources.
 
@@ -130,8 +130,8 @@ At the end of this quickstart, you should have the following:
 
     Edge modules can be started in two different ways using `iotedgedev`:
 
-    - Deploying them on a VM; please find the steps to do so in [Set up and start modules on a virtual machine](Run-Modules-on-VM);
-    - or in your own development machine using the `iotedgedev` simulator; please follow [Set up and start the IoT Edge Simulator](Run-Modules-on-Simulator).
+    - Deploying them on a VM; please find the steps to do so in [Set up and start modules on a virtual machine](run-modules-on-vm);
+    - or in your own development machine using the `iotedgedev` simulator; please follow [Set up and start the IoT Edge Simulator](run-modules-on-simulator).
 
 6. Monitor messages sent from device to IoT Hub.
 

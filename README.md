@@ -10,7 +10,7 @@ The **IoT Edge Dev Tool** greatly simplifies [Azure IoT Edge](https://azure.micr
 
 ## Overview
 
-For the absolute fastest way to get started with IoT Edge Dev, please see the [Quickstart](docs/Quickstart.md) section.
+For the absolute fastest way to get started with IoT Edge Dev, please see the [quickstart](docs/quickstart.md) section.
 
 For a more detailed overview of IoT Edge Dev Tool including setup, commands and troubleshooting, please see the [Wiki](https://github.com/Azure/iotedgedev/wiki).
 

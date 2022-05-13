@@ -24,7 +24,7 @@ Please fork, branch and pull-request any changes you'd like to make. For more in
     There are two options to setup your development environment:
 
     - Starting the devcontainer in VS Code (see [Developing inside a Container](https://code.visualstudio.com/docs/remote/containers) for steps on how to do so).
-    - Setup the development environment manually. Please follow the [Manual Development Machine Setup Wiki](docs/Environment-Setup/Manual-Dev-Machine-Setup.md).
+    - Setup the development environment manually. Please follow the [Manual Development Machine Setup Wiki](docs/environment-setup/manual-dev-machine-setup.md).
       - Run IoT Edge Dev Tool in editable mode
 
         Run the following command from the root of the repo to see changes to iotedgedev commands as you change code.
