@@ -39,7 +39,7 @@ az ad sp create-for-rbac -n "iotedgedev01"
 
 Alternatively, you can deploy the IoT Hub **and** Container Registry with this **Deploy to Azure** template:
 
-[![Deploy to Azure Button for iotedge-vm-deploy](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fazure%2Fiotedgedev%2Fmain%2Fassets%2Fdeploy%2FARMDeployment%2Fazuredeploy.json)
+[![Deploy to Azure Button](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fazure%2Fiotedgedev%2Fmain%2Fassets%2Fdeploy%2FARMDeployment%2Fazuredeploy.json)
 
 > Note: If you do not need a Container Registry, or are planning to use a local registry, then you should run the **iotedgedev iothub setup** command instead of running this **Deploy to Azure** template, because the template includes a Container Registry.
 
