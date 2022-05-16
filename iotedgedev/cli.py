@@ -1,3 +1,4 @@
+from email.policy import default
 import hashlib
 import socket
 import sys
@@ -92,6 +93,9 @@ main.add_command(new)
                   help="Create a new IoT Edge solution and provision Azure resources",
                   # hack to prevent Click truncating help messages
                   short_help="Create a new IoT Edge solution and provision Azure resources")
+@click.argument("name",
+                required=False,
+                default=".")
 @click.option("--edge-runtime-version",
               "-er",
               default="1.2",
@@ -100,7 +104,7 @@ main.add_command(new)
               help="Specify the IoT Edge Runtime Version. Currently available 1.0, 1.1, 1.2")
 @add_module_options(envvars, init=True)
 @with_telemetry
-def init(module, template, group_id, edge_runtime_version):
+def init(name, module, template, group_id, edge_runtime_version):
     if edge_runtime_version is not None:
         if (str(edge_runtime_version) != "1.0" and str(edge_runtime_version) != "1.1" and str(edge_runtime_version) != "1.2"):
             output.info('-edge-runtime-version `{0}` is not valid. Currently supported versions are 1.0, 1.1, 1.2'.format(edge_runtime_version))
@@ -108,9 +112,9 @@ def init(module, template, group_id, edge_runtime_version):
     utility = Utility(envvars, output)
 
     if template == "java":
-        solcmd = "iotedgedev new . --module {0} --template {1} --edge-runtime-version {2} --group-id {3}".format(module, template, edge_runtime_version, group_id)
+        solcmd = "iotedgedev new {0} --module {1} --template {2} --edge-runtime-version {3} --group-id {4}".format(name, module, template, edge_runtime_version, group_id)
     else:
-        solcmd = "iotedgedev new . --module {0} --template {1} --edge-runtime-version {2}".format(module, template, edge_runtime_version)
+        solcmd = "iotedgedev new {0} --module {1} --template {2} --edge-runtime-version {3}".format(name, module, template, edge_runtime_version)
     output.header(solcmd)
     ret = utility.call_proc(solcmd.split())
 
