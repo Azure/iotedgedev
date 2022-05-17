@@ -116,7 +116,7 @@ def init(name, module, template, group_id, edge_runtime_version):
 
     azsetupcmd = "iotedgedev iothub setup --update-dotenv"
     output.header(azsetupcmd)
-    utility.exe_proc(azsetupcmd.split())
+    utility.call_proc(azsetupcmd.split())
 
 
 main.add_command(init)
