@@ -110,6 +110,29 @@ def test_solution_create_in_empty_child_dir(prepare_solution_with_env):
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
 
 
+def test_solution_init_without_name():
+    result = runner_invoke(['solution', 'init'], True)
+
+    assert "Directory is not empty" in result.output
+
+
+def test_solution_init_with_invalid_name_non_empty_dir():
+    dirname = "testdir/non_empty"
+    os.makedirs(dirname)
+
+    result = runner_invoke(['solution', 'init', "testdir"], True)
+
+    assert "Directory is not empty" in result.output
+
+
+def test_solution_init_with_valid_name():
+    dirname = "testdir"
+    result = runner_invoke(['solution', 'init', dirname], True)
+
+    assert 'iotedgedev new testdir' in result.output
+    shutil.rmtree(dirname, ignore_errors=True)
+
+
 def test_solution_create_valid_runtime_tag():
     dirname = "empty_dir"
     os.makedirs(dirname)
