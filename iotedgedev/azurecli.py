@@ -467,7 +467,7 @@ class AzureCli:
 
                 cmd = ["iot", "hub", "create", "--name", value, "--resource-group", resource_group, "--sku", sku, "--query", "[].{\"IoT Hub\":name}", "--out", "table"]
                 if sku == "F1":
-                    cmd.append("--partition-count", "2")
+                    cmd = cmd + ["--partition-count", "2"]
 
                 result = self.invoke_az_cli_outproc(cmd, f("Could not create the IoT Hub {value} in {resource_group} with sku {sku}."), stdout_io=io, stderr_io=error_io)
                 if not result and error_io.getvalue():
