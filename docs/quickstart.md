@@ -26,20 +26,13 @@ At the end of this quickstart, you should have the following:
     - Starting the devcontainer in VS Code (see [Developing inside a Container](https://code.visualstudio.com/docs/remote/containers) for steps on how to do so).
     - Starting the devcontainer with Docker. Please follow the [Run the IoT Edge Dev Container with Docker docs](environment-setup/run-devcontainer-docker).
 
-2. Create empty directory for the IoT Edge solution resources.
-
-   ```sh
-   mkdir -p iotedge
-   cd iotedge
-   ```
-
-3. Initialize IoT Edge solution and setup Azure resources.
+1. Initialize IoT Edge solution and setup Azure resources.
 
     ```sh
-    iotedgedev init
+    iotedgedev init <foldername>
     ```
 
-    > `iotedgedev init` will create a solution and setup your Azure IoT Hub in a single command. The solution comes with a default C# module named `filtermodule`.
+    > `iotedgedev init` will create a solution in a new folder and setup your Azure IoT Hub in a single command. The solution comes with a default C# module named `filtermodule`.
 
     <details>
     <summary>More information</summary>
@@ -109,7 +102,7 @@ At the end of this quickstart, you should have the following:
 
     </details>
 
-4. Build IoT Edge module images.
+3. Build IoT Edge module images.
 
     ```sh
     iotedgedev build
@@ -126,14 +119,14 @@ At the end of this quickstart, you should have the following:
 
     </details>
 
-5. Run IoT Edge modules.
+4. Run IoT Edge modules.
 
     Edge modules can be started in two different ways using `iotedgedev`:
 
     - Deploying them on a VM; please find the steps to do so in [Set up and start modules on a virtual machine](run-modules-on-vm);
     - or in your own development machine using the `iotedgedev` simulator; please follow [Set up and start the IoT Edge Simulator](run-modules-on-simulator).
 
-6. Monitor messages sent from device to IoT Hub.
+5. Monitor messages sent from device to IoT Hub.
 
     ```sh
     iotedgedev monitor
@@ -147,7 +140,7 @@ At the end of this quickstart, you should have the following:
 
     </details>
 
-7. Stop docker containers and remove images.
+6. Stop docker containers and remove images.
 
     ```sh
     # stop containers started by the simulator
