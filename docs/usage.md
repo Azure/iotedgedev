@@ -11,10 +11,10 @@ If you are using a separate Edge device, like a Raspberry Pi, you do not need to
 1. **Initialize IoT Edge solution and setup Azure resources**
 
     ```sh
-    iotedgedev init
+    iotedgedev init <folder_name>
     ```
 
-    `iotedgedev init` will run both `iotedgedev new .` and `iotedgedev iothub setup`, which will create a new solution and setup your Azure resources in a single command.
+    `iotedgedev init` will run both `iotedgedev new <folder_name>` and `iotedgedev iothub setup`, which will create a new solution and setup your Azure resources in a single command. If `<folder_name>` is not specified, it will default to `.`.
 
     If you want to use your existing IoT Hub and IoT Edge device, you can run `iotedgedev new .`, and update the `.env` file with the IoT Hub connection string and IoT Edge device connection string.
 
