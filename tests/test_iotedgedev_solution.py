@@ -3,6 +3,7 @@ import os
 import platform
 import shutil
 import time
+import uuid
 from unittest import mock
 
 import pytest
@@ -117,8 +118,8 @@ def test_solution_init_without_name():
 
 
 def test_solution_init_with_invalid_name_non_empty_dir():
-    dirname = "testdir/non_empty"
-    os.makedirs(dirname)
+    dirname = f'test-{uuid.uuid4()}'
+    os.makedirs(f'{dirname}/empty_dir')
 
     result = runner_invoke(['solution', 'init', "testdir"], True)
 
@@ -127,11 +128,10 @@ def test_solution_init_with_invalid_name_non_empty_dir():
 
 
 def test_solution_init_with_valid_name():
-    dirname = "testdir"
+    dirname = f'test-{uuid.uuid4()}'
     result = runner_invoke(['solution', 'init', dirname], True)
 
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
-    assert 'Select an Azure Subscription Name or Id:' in result.output
     shutil.rmtree(dirname, ignore_errors=True)
 
 
