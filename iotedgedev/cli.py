@@ -111,18 +111,12 @@ def init(name, module, template, group_id, edge_runtime_version):
             sys.exit()
     utility = Utility(envvars, output)
 
-    if template == "java":
-        solcmd = "iotedgedev new {0} --module {1} --template {2} --edge-runtime-version {3} --group-id {4}".format(name, module, template, edge_runtime_version, group_id)
-    else:
-        solcmd = "iotedgedev new {0} --module {1} --template {2} --edge-runtime-version {3}".format(name, module, template, edge_runtime_version)
-    output.header(solcmd)
-    ret = utility.call_proc(solcmd.split())
+    sol = Solution(output, utility)
+    sol.create(name, module, template, edge_runtime_version, group_id)
 
-    if ret == 0:
-        azsetupcmd = "iotedgedev iothub setup --update-dotenv"
-        output.header(azsetupcmd)
-        # Had to use call_proc, because @click.invoke doesn't honor prompts
-        utility.call_proc(azsetupcmd.split())
+    azsetupcmd = "iotedgedev iothub setup --update-dotenv"
+    output.header(azsetupcmd)
+    utility.exe_proc(azsetupcmd.split())
 
 
 main.add_command(init)

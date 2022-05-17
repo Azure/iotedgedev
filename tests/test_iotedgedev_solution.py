@@ -123,13 +123,15 @@ def test_solution_init_with_invalid_name_non_empty_dir():
     result = runner_invoke(['solution', 'init', "testdir"], True)
 
     assert "Directory is not empty" in result.output
+    shutil.rmtree(dirname, ignore_errors=True)
 
 
 def test_solution_init_with_valid_name():
     dirname = "testdir"
     result = runner_invoke(['solution', 'init', dirname], True)
 
-    assert 'iotedgedev new testdir' in result.output
+    assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
+    assert 'Select an Azure Subscription Name or Id:' in result.output
     shutil.rmtree(dirname, ignore_errors=True)
 
 
