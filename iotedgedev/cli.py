@@ -1,4 +1,3 @@
-from email.policy import default
 import hashlib
 import socket
 import sys
