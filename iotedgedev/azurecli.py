@@ -468,6 +468,10 @@ class AzureCli:
                 cmd = ["iot", "hub", "create", "--name", value, "--resource-group", resource_group, "--sku", sku, "--query", "[].{\"IoT Hub\":name}", "--out", "table"]
                 if sku == "F1":
                     cmd = cmd + ["--partition-count", "2"]
+                    # the default partition-count is 4, but F1 allows only 2
+                    # from `az iot hub create --help`:
+                    #   The partition count is the number of partitions that the IoT Hub uses to distribute messages.
+                    #   The default value is 4.
 
                 result = self.invoke_az_cli_outproc(cmd, f("Could not create the IoT Hub {value} in {resource_group} with sku {sku}."), stdout_io=io, stderr_io=error_io)
                 if not result and error_io.getvalue():
