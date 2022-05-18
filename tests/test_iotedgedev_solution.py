@@ -236,6 +236,32 @@ def test_e2e(prepare_solution_with_env, test_push_modules, test_deploy_modules, 
     print("Testing e2e with env file")
 
 
+@ mock.patch.dict(os.environ, {"DEVICE_CONNECTION_STRING": "HostName=test-iothub.azure-devices.net;DeviceId=test_device;SharedAccessKey=testaccesskey"})
+def test_solution_deploy_with_sas_connection_string():
+    # Arrange
+    os.chdir(test_solution_shared_lib_dir)
+
+    # Act
+    result = runner_invoke(['solution', 'deploy'])
+
+    # Assert
+    assert 'DEPLOYMENT COMPLETE' in result.output
+    assert 'ERROR' not in result.output
+
+
+@ mock.patch.dict(os.environ, {"DEVICE_CONNECTION_STRING": "HostName=test-iothub.azure-devices.net;DeviceId=test_device;x509=true;"})
+def test_solution_deploy_with_x509_connection_string():
+    # Arrange
+    os.chdir(test_solution_shared_lib_dir)
+
+    # Act
+    result = runner_invoke(['solution', 'deploy'])
+
+    # Assert
+    assert 'DEPLOYMENT COMPLETE' in result.output
+    assert 'ERROR' not in result.output
+
+
 def test_valid_env_iothub_connectionstring():
     """Test for loading data of env file"""
 

@@ -17,6 +17,8 @@ class ConnectionString:
             if self.data:
                 self.iothub_host = IoTHubHost(self["hostname"])
                 self.shared_access_key = None
+                if("deviceid" in self.data):
+                    self.device_id = self["deviceid"]
                 if("sharedaccesskey" in self.data):
                     self.shared_access_key = self["sharedaccesskey"]
                 else:
@@ -38,9 +40,6 @@ class IoTHubConnectionString(ConnectionString):
 class DeviceConnectionString(ConnectionString):
     def __init__(self, value):
         ConnectionString.__init__(self, value)
-
-        if self.connection_string:
-            self.device_id = self["deviceid"]
 
 
 class IoTHubHost:
