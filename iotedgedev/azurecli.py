@@ -472,6 +472,7 @@ class AzureCli:
                     # from `az iot hub create --help`:
                     #   The partition count is the number of partitions that the IoT Hub uses to distribute messages.
                     #   The default value is 4.
+                    # In Azure Portal the default and only value is 2.
 
                 result = self.invoke_az_cli_outproc(cmd, f("Could not create the IoT Hub {value} in {resource_group} with sku {sku}."), stdout_io=io, stderr_io=error_io)
                 if not result and error_io.getvalue():
