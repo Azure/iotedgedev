@@ -481,3 +481,17 @@ def test_push_modules_to_local_registry(prepare_solution_with_env):
             remove_docker_container("registry")
         if "registry" in get_all_docker_images():
             remove_docker_image("registry:2")
+
+
+@ mock.patch.dict(os.environ, {"DEVICE_CONNECTION_STRING": "HostName=test-iothub.azure-devices.net;SharedAccessKey=testaccesskey"})
+def test_connection_string_no_device_id_throws_env_error():
+    # Arrange
+    os.chdir(test_solution_shared_lib_dir)
+
+    # Act
+    runner_invoke(['build', '-f', "deployment.template.json", '-P', get_platform_type()])
+    with pytest.raises(Exception) as context:
+        runner_invoke(['solution', 'deploy'])
+
+    # Assert
+    assert "ERROR: Environment Variable EDGE_DEVICE_ID not set." in str(context.value)

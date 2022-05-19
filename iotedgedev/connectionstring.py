@@ -19,12 +19,14 @@ class ConnectionString:
                 self.shared_access_key = None
                 if("deviceid" in self.data):
                     self.device_id = self["deviceid"]
+                else:
+                    self.device_id = None
                 if("sharedaccesskey" in self.data):
                     self.shared_access_key = self["sharedaccesskey"]
                 else:
                     # unexpected input of connection. Set to None and throw error
                     self.connection_string = None
-               
+
     def __getitem__(self, key):
         return self.data[key]
 
