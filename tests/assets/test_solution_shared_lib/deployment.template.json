@@ -13,7 +13,7 @@
               "testacr": {
                 "username": "$USERNAME",
                 "password": "$PASSWORD",
-                "address": "$CONTAINER_REGISTRY_PASSWORD"
+                "address": "$CONTAINER_REGISTRY_SERVER"
               }
             }
           }

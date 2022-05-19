@@ -2,8 +2,8 @@ from .utility import Utility
 
 
 class ConnectionString:
-    def __init__(self, value):
-        self.connection_string = value
+    def __init__(self, connection_string: str):
+        self.connection_string = connection_string
         self.data = dict()
 
         if self.connection_string:
@@ -17,10 +17,6 @@ class ConnectionString:
             if self.data:
                 self.iothub_host = IoTHubHost(self["hostname"])
                 self.shared_access_key = None
-                if("deviceid" in self.data):
-                    self.device_id = self["deviceid"]
-                else:
-                    self.device_id = None
                 if("sharedaccesskey" in self.data):
                     self.shared_access_key = self["sharedaccesskey"]
                 else:
@@ -32,16 +28,20 @@ class ConnectionString:
 
 
 class IoTHubConnectionString(ConnectionString):
-    def __init__(self, value):
-        ConnectionString.__init__(self, value)
+    def __init__(self, connection_string: str):
+        super().__init__(connection_string)
 
         if self.connection_string:
             self.shared_access_key_name = self["sharedaccesskeyname"]
 
 
 class DeviceConnectionString(ConnectionString):
-    def __init__(self, value):
-        ConnectionString.__init__(self, value)
+    def __init__(self, connection_string: str):
+        super().__init__(connection_string)
+        if("deviceid" in self.data):
+            self.device_id = self["deviceid"]
+        else:
+            self.device_id = None
 
 
 class IoTHubHost:

@@ -4,6 +4,7 @@ import platform
 import shutil
 import time
 from unittest import mock
+from webbrowser import get
 
 import pytest
 from iotedgedev.connectionstring import (DeviceConnectionString,
@@ -236,7 +237,19 @@ def test_e2e(prepare_solution_with_env, test_push_modules, test_deploy_modules, 
     print("Testing e2e with env file")
 
 
-@ mock.patch.dict(os.environ, {"DEVICE_CONNECTION_STRING": "HostName=test-iothub.azure-devices.net;DeviceId=test_device;SharedAccessKey=testaccesskey"})
+def get_connection_string_value(key: str) -> str:
+
+    connection_string_values = os.environ["DEVICE_CONNECTION_STRING"].split(';')
+    device_id = None
+
+    for item in connection_string_values:
+        if key in item:
+            device_id = item.split('=')[1]
+
+    return device_id
+
+
+@ mock.patch.dict(os.environ, {"DEVICE_CONNECTION_STRING": f"HostName={get_connection_string_value('HostName')};DeviceId={get_connection_string_value('DeviceId')};=testaccesskey"})
 def test_solution_deploy_with_sas_connection_string():
     # Arrange
     os.chdir(test_solution_shared_lib_dir)
@@ -249,12 +262,13 @@ def test_solution_deploy_with_sas_connection_string():
     assert 'ERROR' not in result.output
 
 
-@ mock.patch.dict(os.environ, {"DEVICE_CONNECTION_STRING": "HostName=test-iothub.azure-devices.net;DeviceId=test_device;x509=true;"})
+@ mock.patch.dict(os.environ, {"DEVICE_CONNECTION_STRING": f"HostName={get_connection_string_value('HostName')};DeviceId={get_connection_string_value('DeviceId')};x509=true;"})
 def test_solution_deploy_with_x509_connection_string():
     # Arrange
     os.chdir(test_solution_shared_lib_dir)
 
     # Act
+    runner_invoke(['build', '-f', "deployment.template.json", '-P', get_platform_type()])
     result = runner_invoke(['solution', 'deploy'])
 
     # Assert
