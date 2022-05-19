@@ -148,10 +148,13 @@ class AzureCli:
                         pass
                 else:
                     err = None
+                    err_list = []
                     try:
-                        err = stderr_queue.get_nowait()
+                        while True:
+                            err_list.append(stderr_queue.get_nowait())
                     except Empty:
                         pass
+                    err = "\n".join(err_list)
                     # Avoid empty sys.excepthook errors from underlying future
                     # There is already a uAMQP issue in work for this
                     # https://github.com/Azure/azure-uamqp-python/issues/30
