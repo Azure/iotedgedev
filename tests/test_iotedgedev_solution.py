@@ -4,7 +4,6 @@ import platform
 import shutil
 import time
 from unittest import mock
-from webbrowser import get
 
 import pytest
 from iotedgedev.connectionstring import (DeviceConnectionString,
