@@ -38,6 +38,7 @@ class IoTHubConnectionString(ConnectionString):
 class DeviceConnectionString(ConnectionString):
     def __init__(self, connection_string: str):
         super().__init__(connection_string)
+
         if("deviceid" in self.data):
             self.device_id = self["deviceid"]
         else:

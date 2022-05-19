@@ -249,33 +249,6 @@ def get_connection_string_value(key: str) -> str:
     return device_id
 
 
-@ mock.patch.dict(os.environ, {"DEVICE_CONNECTION_STRING": f"HostName={get_connection_string_value('HostName')};DeviceId={get_connection_string_value('DeviceId')};=testaccesskey"})
-def test_solution_deploy_with_sas_connection_string():
-    # Arrange
-    os.chdir(test_solution_shared_lib_dir)
-
-    # Act
-    result = runner_invoke(['solution', 'deploy'])
-
-    # Assert
-    assert 'DEPLOYMENT COMPLETE' in result.output
-    assert 'ERROR' not in result.output
-
-
-@ mock.patch.dict(os.environ, {"DEVICE_CONNECTION_STRING": f"HostName={get_connection_string_value('HostName')};DeviceId={get_connection_string_value('DeviceId')};x509=true;"})
-def test_solution_deploy_with_x509_connection_string():
-    # Arrange
-    os.chdir(test_solution_shared_lib_dir)
-
-    # Act
-    runner_invoke(['build', '-f', "deployment.template.json", '-P', get_platform_type()])
-    result = runner_invoke(['solution', 'deploy'])
-
-    # Assert
-    assert 'DEPLOYMENT COMPLETE' in result.output
-    assert 'ERROR' not in result.output
-
-
 def test_valid_env_iothub_connectionstring():
     """Test for loading data of env file"""
 
@@ -495,17 +468,3 @@ def test_push_modules_to_local_registry(prepare_solution_with_env):
             remove_docker_container("registry")
         if "registry" in get_all_docker_images():
             remove_docker_image("registry:2")
-
-
-@ mock.patch.dict(os.environ, {"DEVICE_CONNECTION_STRING": "HostName=test-iothub.azure-devices.net;SharedAccessKey=testaccesskey"})
-def test_connection_string_no_device_id_throws_env_error():
-    # Arrange
-    os.chdir(test_solution_shared_lib_dir)
-
-    # Act
-    runner_invoke(['build', '-f', "deployment.template.json", '-P', get_platform_type()])
-    with pytest.raises(Exception) as context:
-        runner_invoke(['solution', 'deploy'])
-
-    # Assert
-    assert "ERROR: Environment Variable EDGE_DEVICE_ID not set." in str(context.value)
