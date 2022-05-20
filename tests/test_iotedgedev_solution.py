@@ -236,18 +236,6 @@ def test_e2e(prepare_solution_with_env, test_push_modules, test_deploy_modules, 
     print("Testing e2e with env file")
 
 
-def get_connection_string_value(key: str) -> str:
-
-    connection_string_values = os.environ["DEVICE_CONNECTION_STRING"].split(';')
-    device_id = None
-
-    for item in connection_string_values:
-        if key in item:
-            device_id = item.split('=')[1]
-
-    return device_id
-
-
 def test_valid_env_iothub_connectionstring():
     """Test for loading data of env file"""
 
