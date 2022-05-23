@@ -3,6 +3,11 @@ import socket
 import sys
 
 import click
+import copy
+import typing as t
+
+from click import Command
+from click import Group
 from fstrings import f
 
 from .azurecli import AzureCli
@@ -18,6 +23,16 @@ from .output import Output
 from .simulator import Simulator
 from .solution import Solution
 from .utility import Utility
+
+# Extend click.Group#add_command(cmd, name) to take deprecated=bool flag by monkey patching.
+def add_command_with_deprecation(self, cmd: Command, name: t.Optional[str] = None, deprecated = False):
+    # Directly changing the deprecated flag of the cmd has side-effects on the reference source.
+    # To avoid this, copy the cmd object with deepcopy.
+    copied_command = copy.deepcopy(cmd)
+    copied_command.deprecated = deprecated
+    self.add_command(copied_command, name)
+
+Group.add_command_with_deprecation = add_command_with_deprecation
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'], max_content_width=120)
 
@@ -84,8 +99,7 @@ def new(name, module, template, edge_runtime_version, group_id):
     sol = Solution(output, utility)
     sol.create(name, module, template, edge_runtime_version, group_id)
 
-
-main.add_command(new)
+main.add_command_with_deprecation(new, deprecated=True)
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS,
@@ -118,7 +132,7 @@ def init(name, module, template, group_id, edge_runtime_version):
     utility.call_proc(azsetupcmd.split())
 
 
-main.add_command(init)
+main.add_command_with_deprecation(init, deprecated=True)
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Push, deploy, start, monitor")
@@ -141,7 +155,7 @@ def add(name, template, group_id):
     mod.add(name, template, group_id)
 
 
-main.add_command(add)
+main.add_command_with_deprecation(add, deprecated=True)
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Build the solution")
@@ -183,7 +197,7 @@ def build(ctx, push, do_deploy, template_file, platform):
         ctx.invoke(deploy)
 
 
-main.add_command(build)
+main.add_command_with_deprecation(build, deprecated=True)
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Push module images to container registry")
@@ -224,7 +238,7 @@ def push(ctx, do_deploy, no_build, template_file, platform):
         ctx.invoke(deploy)
 
 
-main.add_command(push)
+main.add_command_with_deprecation(push, deprecated=True)
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Deploy solution to IoT Edge device")
@@ -242,7 +256,7 @@ def deploy(manifest_file):
     edge.deploy(manifest_file)
 
 
-main.add_command(deploy)
+main.add_command_with_deprecation(deploy, deprecated=True)
 
 
 @iothub.command(
@@ -337,7 +351,7 @@ def genconfig(template_file, platform, fail_on_validation_error):
     mod.build_push(template_file, platform, no_build=True, no_push=True, fail_on_validation_error=fail_on_validation_error)
 
 
-main.add_command(genconfig)
+main.add_command_with_deprecation(genconfig, deprecated=True)
 
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
@@ -360,7 +374,7 @@ def setup_simulator(gateway_host, iothub_connection_string):
     sim.setup(gateway_host, iothub_connection_string)
 
 
-main.add_command(setup_simulator)
+main.add_command_with_deprecation(setup_simulator, deprecated=True)
 
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
@@ -435,7 +449,7 @@ def start_simulator(setup, solution, build, manifest_file, platform, verbose, in
         sim.start_single(inputs, port)
 
 
-main.add_command(start_simulator)
+main.add_command_with_deprecation(start_simulator, deprecated=True)
 
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
@@ -447,7 +461,7 @@ def stop_simulator():
     sim.stop()
 
 
-main.add_command(stop_simulator)
+main.add_command_with_deprecation(stop_simulator, deprecated=True)
 
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
@@ -487,7 +501,7 @@ def monitor(timeout):
     ih.monitor_events(timeout)
 
 
-main.add_command(monitor)
+main.add_command_with_deprecation(monitor, deprecated=True)
 
 
 def ensure_azure_cli_iot_ext():
@@ -821,7 +835,7 @@ def log(show, save):
     dock.handle_logs_cmd(show, save)
 
 
-main.add_command(log)
+main.add_command_with_deprecation(log, deprecated=True)
 
 if __name__ == "__main__":
     main()
