@@ -14,7 +14,7 @@ class Edge:
         self.output.header("DEPLOYING CONFIGURATION")
 
         self.envvars.verify_envvar_has_val("IOTHUB_CONNECTION_STRING", self.envvars.IOTHUB_CONNECTION_INFO)
-        self.envvars.verify_envvar_has_val("DEVICE_CONNECTION_STRING", self.envvars.DEVICE_CONNECTION_INFO)
+        self.envvars.verify_envvar_has_val("EDGE_DEVICE_ID", self.envvars.DEVICE_CONNECTION_INFO.device_id)
         self.envvars.verify_envvar_has_val("DEPLOYMENT_CONFIG_FILE", self.envvars.DEPLOYMENT_CONFIG_FILE)
 
         if self.azure_cli.set_modules(config=manifest_file,
