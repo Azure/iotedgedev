@@ -12,7 +12,9 @@ requirements = [
     'python-dotenv',
     'requests >= 2.20.0, <= 2.25.1',
     'fstrings',
-    'azure-cli-core >= 2.25.0',
+    # Note >=2.35.0 cannot be used as is not compatible with the docker dependency;
+    # docker requires websocket-client==0.56.0 and azure-cli-core>=2.35.0 requires websocket-client==1.31.1.
+    'azure-cli-core >= 2.34.1, < 2.35.0',
     'iotedgehubdev == 0.14.14',
     'applicationinsights == 0.11.9',
     'commentjson == 0.9.0',

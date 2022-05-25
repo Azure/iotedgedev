@@ -2,19 +2,53 @@
     "content": {
         "modulesContent": {
             "$edgeAgent": {
-                "properties.desired.modules.sample_module": {
-                    "version": "1.0",
-                    "type": "docker",
-                    "status": "running",
-                    "restartPolicy": "always",
-                    "settings": {
-                        "image": "${MODULES.sample_module}",
-                        "createOptions": {}
+                "properties.desired": {
+                    "schemaVersion": "${EDGEAGENT_SCHEMA_VERSION}",
+                    "runtime": {
+                      "type": "docker",
+                      "settings": {
+                        "minDockerVersion": "v1.25",
+                        "loggingOptions": "",
+                        "registryCredentials": {}
+                      }
+                    },
+                    "modules": {
+                        "sample_module": {
+                            "version": "1.0",
+                            "type": "docker",
+                            "status": "running",
+                            "restartPolicy": "always",
+                            "settings": {
+                                "image": "${MODULES.sample_module}",
+                                "createOptions": {}
+                            }
+                        }
+                    },
+                    "systemModules": {
+                        "edgeAgent": {
+                            "type": "docker",
+                            "settings": {
+                                "image": "mcr.microsoft.com/azureiotedge-agent:${EDGE_RUNTIME_VERSION}"
+                            }
+                        },
+                        "edgeHub": {
+                            "type": "docker",
+                            "status": "running",
+                            "settings": {
+                                "image": "mcr.microsoft.com/azureiotedge-hub:${EDGE_RUNTIME_VERSION}"
+                            },
+                            "restartPolicy": "always"
+                        }
                     }
                 }
             },
             "$edgeHub": {
-                "properties.desired.routes.upstream": "FROM /messages/* INTO $upstream"
+                "properties.desired": {
+                    "schemaVersion": "${EDGEHUB_SCHEMA_VERSION}",
+                    "routes": {
+                        "route": "FROM /messages/* INTO $upstream"
+                    }
+                }
             }
         }
     }

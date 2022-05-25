@@ -2,13 +2,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: debug test",
+            "name": "Python: debug test file",
             "type": "python",
             "request": "launch",
             "module": "pytest",
             "args": [
                 "-v",
-                "${workspaceFolder}/tests/test_iotedgedev_iothub_deploy.py::test_iothub_deploy"
+                "${relativeFile}"
             ],
             "cwd": "${workspaceFolder}"
         },
