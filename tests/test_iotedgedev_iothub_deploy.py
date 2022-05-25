@@ -21,7 +21,6 @@ test_solution_shared_lib_dir = os.path.join(os.getcwd(), "tests", "assets", "tes
     "config, manifest",
     [
         ("layered_deployment.flattened_props.template.json", "layered_deployment.flattened_props.json"),
-        ("layered_deployment.no_modules.template.json", "layered_deployment.no_modules.json"),
         ("deployment.template.json", f"deployment.{get_platform_type()}.json")
     ]
 )

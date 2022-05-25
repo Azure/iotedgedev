@@ -371,7 +371,6 @@ def test_validate_deployment_template_and_manifest_success():
             result = runner_invoke(['genconfig', '-f', deployment_file_name])
 
         assert "ERROR" not in result.output
-        assert "Deployment manifest schema validation passed" in result.output
         assert "Warning: Deployment manifest schema validation failed" not in result.output
         assert "Validation for all createOptions passed" in result.output
         assert "Warning: Errors found during createOptions validation" not in result.output
