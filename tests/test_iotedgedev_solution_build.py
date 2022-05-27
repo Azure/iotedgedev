@@ -69,25 +69,6 @@ def test_solution_build_and_push_with_layered_deployment():
     assert 'ERROR' not in result.output
 
 
-def test_solution_build_and_push_with_layered_deployment_no_modules():
-    # Arrange
-    os.chdir(test_solution_shared_lib_dir)
-    new_config_deployment_path = os.path.join(test_solution_shared_lib_dir, 'config', 'layered_deployment.no_modules.json')
-
-    # Act
-    result = runner_invoke(['build', '--push', '-f', "layered_deployment.no_modules.template.json", '-P', get_platform_type()])
-
-    # Assert
-
-    with open(new_config_deployment_path, "r") as f:
-        content = json.load(f)
-
-    set_property = content["content"]["modulesContent"]["exampleModule"]["properties.desired"]["foo"]
-
-    assert 'ERROR' not in result.output
-    assert 'bar-1.2' == set_property
-
-
 def test_solution_build_and_push_with_platform():
     os.chdir(test_solution_shared_lib_dir)
 
