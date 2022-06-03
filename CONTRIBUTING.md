@@ -6,24 +6,22 @@ Please fork, branch and pull-request any changes you'd like to make. For more in
 
 ## Workspace setup
 
-1. Clone this repository
+1. Clone your fork of the repository
 
-    `git clone https://github.com/azure/iotedgedev.git`
+    `git clone https://github.com/<your_id>/iotedgedev.git`
 
-2. Rename `.env.tmp` in the root of the repo to `.env` and set the `IOTHUB_CONNECTION_STRING` and `DEVICE_CONNECTION_STRING` values to settings from your IoT Hub and Edge Device. To set these values you could run `iotedgedev iothub setup` in the root of the repo.
-
-3. Install **[Docker](https://docs.docker.com/engine/installation/)**
+1. Install **[Docker](https://docs.docker.com/engine/installation/)**
     - Windows
         - Be sure to check whether you are running in Linux container mode or Windows container mode.
     - Linux
         - We've seen some issues with docker.io. If IoT Edge doesn't run for you, then try installing Docker CE directly instead of via docker.io. Use the [CE install steps](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce), or use the [convenience script](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/#install-using-the-convenience-script).
         - By default, you need `sudo` to run `docker` commands. If you want to avoid this, please follow the [post-installation steps for Linux](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user).
 
-4. Setup development environment
+1. Setup development environment
 
     There are two options to setup your development environment:
 
-    - Starting the devcontainer in VS Code (see [Developing inside a Container](https://code.visualstudio.com/docs/remote/containers) for steps on how to do so).
+    - **(Recommended)** Starting the devcontainer in VS Code (see [Developing inside a Container](https://code.visualstudio.com/docs/remote/containers) for steps on how to do so).
     - Setup the development environment manually. Please follow the [Manual Development Machine Setup Wiki](docs/environment-setup/manual-dev-machine-setup.md).
       - Run IoT Edge Dev Tool in editable mode
 
@@ -32,6 +30,10 @@ Please fork, branch and pull-request any changes you'd like to make. For more in
         ```sh
         pip install -e .
         ```
+
+1. Rename `.env.tmp` in the root of the repo to `.env` and set the `IOTHUB_CONNECTION_STRING` and `DEVICE_CONNECTION_STRING` values to settings from your existing IoT Hub and Edge Device. If you don't have these, or want to create new ones, you could run `iotedgedev iothub setup` in the root of the repo to setup your resources and fill out the values automatically.
+
+> NOTE: It is also possible to use [GitHub Codespaces](https://github.com/features/codespaces): after creating the Codespaces on your fork, all the above steps apply.
 
 ## Run and debug tests
 
