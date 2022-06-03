@@ -19,21 +19,20 @@ Please fork, branch and pull-request any changes you'd like to make. For more in
 
 3. Setup development environment
 
-    There are two options to setup your development environment:
+    There are three options to setup your development environment:
 
-    - **(Recommended)** Starting the devcontainer in VS Code (see [Developing inside a Container](https://code.visualstudio.com/docs/remote/containers) for steps on how to do so).
-    - Setup the development environment manually. Please follow the [Manual Development Machine Setup Wiki](docs/environment-setup/manual-dev-machine-setup.md).
-      - Run IoT Edge Dev Tool in editable mode
+    - **Devcontainers**: Start the devcontainer from VS Code. See [Developing inside a Container](https://code.visualstudio.com/docs/remote/containers) for steps on how to do so.
+    - **Local**: Setup the development environment manually. Please follow the [Manual Development Machine Setup Wiki](docs/environment-setup/manual-dev-machine-setup.md).
+      - Run IoT Edge Dev Tool in editable mode:  
+        Run ›`pip install -e .` from the root of the repo to see changes to iotedgedev commands as you change code.
 
-        Run the following command from the root of the repo to see changes to iotedgedev commands as you change code.
-
-        ```sh
-        pip install -e .
-        ```
+    - **Codespaces**: Create a [GitHub Codespaces](https://github.com/features/codespaces) directly from your fork via the GitHub UI.
 
 4. Rename `.env.tmp` in the root of the repo to `.env` and set the `IOTHUB_CONNECTION_STRING` and `DEVICE_CONNECTION_STRING` values to settings from your existing IoT Hub and Edge Device. If you don't have these, or want to create new ones, you could run `iotedgedev iothub setup` in the root of the repo to setup your resources and fill out the values automatically.
 
-> NOTE: It is also possible to use [GitHub Codespaces](https://github.com/features/codespaces): after creating the Codespaces, you'll need to go through steps 3 and 4.
+### Known Issues
+
+1. "iotedgedev command not found": Sometimes the `postCreateCommand` from the [container](.devcontainer/devcontainer.json) does not get executed and the environment is not correctly initialized. Run `pip install -e .` in the root of the repo to fix this.
 
 ## Run and debug tests
 
