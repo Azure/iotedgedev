@@ -121,7 +121,7 @@ def test_solution_init_with_invalid_name_non_empty_dir():
     dirname = f'test-{uuid.uuid4()}'
     os.makedirs(f'{dirname}/empty_dir')
 
-    result = runner_invoke(['solution', 'init', "testdir"], True)
+    result = runner_invoke(['solution', 'init', dirname], True)
 
     assert "Directory is not empty" in result.output
     shutil.rmtree(dirname, ignore_errors=True)
