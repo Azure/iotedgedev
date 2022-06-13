@@ -129,9 +129,14 @@ def test_solution_init_with_invalid_name_non_empty_dir():
 
 def test_solution_init_with_valid_name():
     dirname = f'test-{uuid.uuid4()}'
-    result = runner_invoke(['solution', 'init', dirname], True)
+
+    # Mock calls to additional commands, to avoid triggering user prompts
+    with mock.patch('iotedgedev.utility.Utility.call_proc') as mock_call_proc:
+        result = runner_invoke(['solution', 'init', dirname], True)
 
     assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
+    mock_call_proc.assert_called_with(["iotedgedev", "iothub", "setup", "--update-dotenv"])
+    assert mock_call_proc.call_count == 2
     shutil.rmtree(dirname, ignore_errors=True)
 
 
@@ -226,7 +231,7 @@ def test_module_add_invalid_name(prepare_solution_with_env):
     assert "already exists under" in result.output
 
 
-@pytest.fixture
+@ pytest.fixture
 def test_push_modules():
     result = runner_invoke(['push', '-P', get_platform_type()])
 
@@ -235,7 +240,7 @@ def test_push_modules():
     assert 'ERROR' not in result.output
 
 
-@pytest.fixture
+@ pytest.fixture
 def test_deploy_modules():
     if get_docker_os_type() == "windows":
         result = runner_invoke(['deploy', '-f', os.path.join('config', 'deployment.' + get_platform_type() + '.json')])
@@ -246,7 +251,7 @@ def test_deploy_modules():
     assert 'ERROR' not in result.output.replace('ERROR: Error while checking for extension', '')
 
 
-@pytest.fixture
+@ pytest.fixture
 def test_monitor(capfd):
     runner_invoke(['monitor', '--timeout', '5'])
 
