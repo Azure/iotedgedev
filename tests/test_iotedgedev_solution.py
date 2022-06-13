@@ -201,7 +201,7 @@ def test_module_add_invalid_name(prepare_solution_with_env):
     assert "already exists under" in result.output
 
 
-@pytest.fixture
+@ pytest.fixture
 def test_push_modules():
     result = runner_invoke(['push', '-P', get_platform_type()])
 
@@ -210,7 +210,7 @@ def test_push_modules():
     assert 'ERROR' not in result.output
 
 
-@pytest.fixture
+@ pytest.fixture
 def test_deploy_modules():
     if get_docker_os_type() == "windows":
         result = runner_invoke(['deploy', '-f', os.path.join('config', 'deployment.' + get_platform_type() + '.json')])
@@ -221,7 +221,7 @@ def test_deploy_modules():
     assert 'ERROR' not in result.output.replace('ERROR: Error while checking for extension', '')
 
 
-@pytest.fixture
+@ pytest.fixture
 def test_monitor(capfd):
     runner_invoke(['monitor', '--timeout', '5'])
 

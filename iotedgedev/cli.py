@@ -106,6 +106,9 @@ main.add_command_with_deprecation(new, deprecated=True)
                   help="Create a new IoT Edge solution and provision Azure resources",
                   # hack to prevent Click truncating help messages
                   short_help="Create a new IoT Edge solution and provision Azure resources")
+@click.argument("name",
+                required=False,
+                default=".")
 @click.option("--edge-runtime-version",
               "-er",
               default="1.2",
@@ -114,25 +117,19 @@ main.add_command_with_deprecation(new, deprecated=True)
               help="Specify the IoT Edge Runtime Version. Currently available 1.0, 1.1, 1.2")
 @add_module_options(envvars, init=True)
 @with_telemetry
-def init(module, template, group_id, edge_runtime_version):
+def init(name, module, template, group_id, edge_runtime_version):
     if edge_runtime_version is not None:
         if (str(edge_runtime_version) != "1.0" and str(edge_runtime_version) != "1.1" and str(edge_runtime_version) != "1.2"):
             output.info('-edge-runtime-version `{0}` is not valid. Currently supported versions are 1.0, 1.1, 1.2'.format(edge_runtime_version))
             sys.exit()
     utility = Utility(envvars, output)
 
-    if template == "java":
-        solcmd = "iotedgedev new . --module {0} --template {1} --edge-runtime-version {2} --group-id {3}".format(module, template, edge_runtime_version, group_id)
-    else:
-        solcmd = "iotedgedev new . --module {0} --template {1} --edge-runtime-version {2}".format(module, template, edge_runtime_version)
-    output.header(solcmd)
-    ret = utility.call_proc(solcmd.split())
+    sol = Solution(output, utility)
+    sol.create(name, module, template, edge_runtime_version, group_id)
 
-    if ret == 0:
-        azsetupcmd = "iotedgedev iothub setup --update-dotenv"
-        output.header(azsetupcmd)
-        # Had to use call_proc, because @click.invoke doesn't honor prompts
-        utility.call_proc(azsetupcmd.split())
+    azsetupcmd = "iotedgedev iothub setup --update-dotenv"
+    output.header(azsetupcmd)
+    utility.call_proc(azsetupcmd.split())
 
 
 main.add_command_with_deprecation(init, deprecated=True)
