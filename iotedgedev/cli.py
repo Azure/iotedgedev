@@ -657,7 +657,10 @@ def list_subscriptions_and_set_default():
     if not azure_cli.list_subscriptions():
         sys.exit()
     default_subscriptionId = azure_cli.get_default_subscription()
-    return default_subscriptionId
+    output.info(f"Select an Azure Subscription Name or Id [{default_subscriptionId}]:")
+    subscription = input() or default_subscriptionId
+
+    return subscription
 
 
 def header_and_default(header, default, default2=None):
@@ -688,10 +691,9 @@ def header_and_default(header, default, default2=None):
               help="Enter Azure Service Principal Credentials (username password tenant).")
 @click.option('--subscription',
               envvar=envvars.get_envvar_key_if_val("SUBSCRIPTION_ID"),
-              default=lambda: list_subscriptions_and_set_default(),
+              default=list_subscriptions_and_set_default,
               required=True,
               callback=validate_option,
-              prompt="Select an Azure Subscription Name or Id:",
               help="The Azure Subscription Name or Id.")
 @click.option('--resource-group-location',
               envvar=envvars.get_envvar_key_if_val("RESOURCE_GROUP_LOCATION"),
