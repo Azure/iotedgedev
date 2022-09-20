@@ -91,7 +91,7 @@ steps:
       azcopy copy "$(Build.ArtifactStagingDirectory)/*"  "https://azuresdkpartnerdrops.blob.core.windows.net/drops/azure-iot-edge-tools-iotedgedev/python/$(VERSION)/"
 
 - task: GitHubRelease@0
-  # condition: and(succeeded(), eq(variables['WHEEL_PUBLISH_FLAG'], 'true'))
+  condition: and(succeeded(), eq(variables['WHEEL_PUBLISH_FLAG'], 'true'))
   inputs:
     gitHubConnection: 'github.com_marianan'
     repositoryName: '$(Build.Repository.Name)'
