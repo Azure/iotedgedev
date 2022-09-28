@@ -55,3 +55,7 @@ class Output:
 
     def confirm(self, text, default=False, abort=True):
         return click.confirm(text, default=default, abort=abort)
+
+    def prompt_question(self, text, default=""):
+        self.line()
+        return click.prompt(text, default=default)

@@ -119,7 +119,7 @@ class EnvVars:
                 self.IOTHUB_NAME = self.get_envvar("IOTHUB_NAME")
                 self.IOTHUB_SKU = self.get_envvar("IOTHUB_SKU")
                 self.EDGE_DEVICE_ID = self.get_envvar("EDGE_DEVICE_ID")
-                self.EDGE_VM_ID = self.get_envvar("EDGE_VM_ID")
+                self.CREATE_EDGE_VM = self.get_envvar("CREATE_EDGE_VM")
                 self.CREDENTIALS = self.get_envvar("CREDENTIALS")
                 self.UPDATE_DOTENV = self.get_envvar("UPDATE_DOTENV")
 
