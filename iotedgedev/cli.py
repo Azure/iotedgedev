@@ -616,6 +616,14 @@ def validate_option(ctx, param, value):
 
         output.line()
 
+    if param.name == "edge_vm_id":
+        output.param("EDGE VM", value, f("Setting Edge VM to '{value}'..."), azure_cli_processing_complete)
+
+        envvars.EDGE_VM_ID = value
+        if not azure_cli.edge_vm_exists(value, envvars.RESOURCE_GROUP_NAME):
+            if not azure_cli.create_edge_vm(value, envvars.EDGE_DEVICE_ID, envvars.IOTHUB_NAME, envvars.RESOURCE_GROUP_NAME):
+                raise click.BadParameter(f('Could not create Edge VM {value} in {envvars.RESOURCE_GROUP_NAME}'))
+
     return value
 
 
@@ -623,6 +631,12 @@ def list_edge_devices_and_set_default():
     if not azure_cli.list_edge_devices(envvars.IOTHUB_NAME):
         sys.exit()
     return "iotedgedev-edgedevice"
+
+
+def list_edge_vms_and_set_default():
+    if not azure_cli.list_edge_vms(envvars.RESOURCE_GROUP_NAME):
+        sys.exit()
+    return "iotedgedev-edgevm"
 
 
 def list_iot_hubs_and_set_default():
@@ -734,6 +748,14 @@ def header_and_default(header, default, default2=None):
               callback=validate_option,
               prompt='Enter the IoT Edge Device Id (Creates a new Edge Device if not found):',
               help='The IoT Edge Device Id (Creates a new Edge Device if not found).')
+@click.option('--edge-vm-id',
+              envvar=envvars.get_envvar_key_if_val("EDGE_VM_ID"),
+              required=True,
+              default=lambda: list_edge_vms_and_set_default(),
+              type=str,
+              callback=validate_option,
+              prompt='Enter the Virtual Machine Id (Creates a new Edge enabled VM if not found):',
+              help='The Virtual Machine Id (Creates a new Edge enabled VM if not found).')
 @click.option('--update-dotenv',
               "-u",
               envvar=envvars.get_envvar_key_if_val("UPDATE_DOTENV"),
@@ -752,6 +774,7 @@ def setup_iothub(credentials,
                  iothub_sku,
                  iothub_name,
                  edge_device_id,
+                 edge-vm-id,
                  update_dotenv):
     if update_dotenv:
         if envvars.backup_dotenv():

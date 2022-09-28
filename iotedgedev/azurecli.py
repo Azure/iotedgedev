@@ -6,6 +6,7 @@ import subprocess
 import sys
 from io import StringIO
 from threading import Thread, Timer
+from pathlib import Path
 
 from azure.cli.core import get_default_cli
 from fstrings import f
@@ -550,3 +551,53 @@ class AzureCli:
                     return data["connectionString"]
 
         return ''
+
+    def list_edge_vms(self, resource_group):
+        self.output.header("EDGE VM")
+        self.output.status(
+            f("Retrieving virtual machines in '{resource_group}'..."))
+
+        return self.invoke_az_cli_outproc(["vm", "list", "--resource-group", resource_group,
+                                           "--output", "table"],
+                                          f("Could not list the virtual machines in {resource_group}."))
+
+    def edge_vm_exists(self, value, resource_group):
+        self.output.status(
+            f("Checking if '{value}' device exists in '{resource_group}'..."))
+
+        with output_io_cls() as io:
+            result = self.invoke_az_cli_outproc(["vm", "show", "--name", value,
+                                                 "--resource-group", resource_group, "--out", "table"], stderr_io=io)
+        if not result:
+            self.output.prompt(
+                f("Could not locate the {value} device in {resource_group}."))
+        return result
+
+    def create_edge_vm(self, value, edge_device_id, iothub, resource_group):
+        self.output.status(f("Creating '{value}' vm in '{resource_group}'..."))
+
+        connectionString = self.get_device_connection_string(edge_device_id, iothub, resource_group)
+
+        file_path = Path.home().joinpath(".ssh", "id_rsa_iotedgedev.pub")
+        if os.path.exists(file_path):
+            with open(file_path, 'r') as file:
+                ssh_key = file.read()
+        else:
+            self.output.error("No SSH key found at ~/.ssh/id_rsa_iotedgedev.pub")
+            os.system("ssh-keygen -t rsa -b 4096 -C \"iotedgedev\" -f ~/.ssh/id_rsa_iotedgedev -q -N \"\"")
+            return False
+
+        csParam = "deviceConnectionString=" + connectionString
+        key = "adminPasswordOrKey=" + ssh_key
+
+        self.output.status(f("Creating '{value}' vm in '{resource_group}' with a deployment template, this can take some time..."))
+        return self.invoke_az_cli_outproc(["deployment", "group", "create", "--name", value,
+                                           "--resource-group", resource_group,
+                                           "--template-uri", "https://raw.githubusercontent.com/Azure/iotedge-vm-deploy/master/edgeDeploy.json",
+                                           "--parameters", "dnsLabelPrefix=edge-vm1",
+                                           "--parameters", "adminUsername=azureuser",
+                                           "--parameters", "authenticationType=sshPublicKey",
+                                           "--parameters", key,
+                                           "--parameters", csParam,
+                                           "--output", "table"],
+                                          f("Could not create the {value} vm in {resource_group}."))
