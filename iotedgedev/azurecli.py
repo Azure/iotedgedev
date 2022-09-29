@@ -566,7 +566,9 @@ class AzureCli:
         self.output.status(f("\nCreating a new Virtual Machine in '{resource_group}' with ssh key file '{ssh_key_file}'..."))
 
         connectionString = self.get_device_connection_string(edge_device_id, iothub, resource_group)
-        deploymentTemplateName = "edgeVM"
+        # Use IoTHub name for deployment - in this case it will create a new
+        # template if a new IoT Hub is created.
+        deploymentTemplateName = "edgeVM-" + iothub
 
         ssh_key = self.get_ssh_key(ssh_key_file)
 
