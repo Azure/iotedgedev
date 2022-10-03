@@ -25,11 +25,17 @@ from .solution import Solution
 from .utility import Utility
 
 # Extend click.Group#add_command(cmd, name) to take deprecated=bool flag by monkey patching.
-def add_command_with_deprecation(self, cmd: Command, name: t.Optional[str] = None, deprecated = False):
+def add_command_with_deprecation(self, cmd: Command, name: t.Optional[str] = None, deprecated = False, alt:  t.Optional[str] = None):
     # Directly changing the deprecated flag of the cmd has side-effects on the reference source.
     # To avoid this, copy the cmd object with deepcopy.
     copied_command = copy.deepcopy(cmd)
     copied_command.deprecated = deprecated
+    if copied_command.short_help is None:
+        copied_command.short_help = copied_command.help
+    if alt is not None:
+        alt_cmd = "[Use `iotedgedev " + alt + "` instead]"
+        copied_command.short_help += " " + alt_cmd  # use space for formatting short_help in `iotedgedev --help`
+        copied_command.help += "\n\n" + alt_cmd  # use newline for formatting help in `iotedgedev <command> --help`
     self.add_command(copied_command, name)
 
 Group.add_command_with_deprecation = add_command_with_deprecation
@@ -99,7 +105,7 @@ def new(name, module, template, edge_runtime_version, group_id):
     sol = Solution(output, utility)
     sol.create(name, module, template, edge_runtime_version, group_id)
 
-main.add_command_with_deprecation(new, deprecated=True)
+main.add_command_with_deprecation(new, deprecated=True, alt="solution new")
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS,
@@ -132,7 +138,7 @@ def init(name, module, template, group_id, edge_runtime_version):
     utility.call_proc(azsetupcmd.split())
 
 
-main.add_command_with_deprecation(init, deprecated=True)
+main.add_command_with_deprecation(init, deprecated=True, alt="solution init")
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Push, deploy, start, monitor")
@@ -155,7 +161,7 @@ def add(name, template, group_id):
     mod.add(name, template, group_id)
 
 
-main.add_command_with_deprecation(add, deprecated=True)
+main.add_command_with_deprecation(add, deprecated=True, alt="solution add")
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Build the solution")
@@ -197,7 +203,7 @@ def build(ctx, push, do_deploy, template_file, platform):
         ctx.invoke(deploy)
 
 
-main.add_command_with_deprecation(build, deprecated=True)
+main.add_command_with_deprecation(build, deprecated=True, alt="solution build")
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Push module images to container registry")
@@ -238,7 +244,7 @@ def push(ctx, do_deploy, no_build, template_file, platform):
         ctx.invoke(deploy)
 
 
-main.add_command_with_deprecation(push, deprecated=True)
+main.add_command_with_deprecation(push, deprecated=True, alt="solution push")
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Deploy solution to IoT Edge device")
@@ -256,7 +262,7 @@ def deploy(manifest_file):
     edge.deploy(manifest_file)
 
 
-main.add_command_with_deprecation(deploy, deprecated=True)
+main.add_command_with_deprecation(deploy, deprecated=True, alt="solution deploy")
 
 
 @iothub.command(
@@ -351,7 +357,7 @@ def genconfig(template_file, platform, fail_on_validation_error):
     mod.build_push(template_file, platform, no_build=True, no_push=True, fail_on_validation_error=fail_on_validation_error)
 
 
-main.add_command_with_deprecation(genconfig, deprecated=True)
+main.add_command_with_deprecation(genconfig, deprecated=True, alt="solution genconfig")
 
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
@@ -374,7 +380,7 @@ def setup_simulator(gateway_host, iothub_connection_string):
     sim.setup(gateway_host, iothub_connection_string)
 
 
-main.add_command_with_deprecation(setup_simulator, deprecated=True)
+main.add_command_with_deprecation(setup_simulator, deprecated=True, alt="simulator setup")
 
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
@@ -449,7 +455,7 @@ def start_simulator(setup, solution, build, manifest_file, platform, verbose, in
         sim.start_single(inputs, port)
 
 
-main.add_command_with_deprecation(start_simulator, deprecated=True)
+main.add_command_with_deprecation(start_simulator, deprecated=True, alt="simulator start")
 
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
@@ -461,7 +467,7 @@ def stop_simulator():
     sim.stop()
 
 
-main.add_command_with_deprecation(stop_simulator, deprecated=True)
+main.add_command_with_deprecation(stop_simulator, deprecated=True, alt="simulator stop")
 
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
@@ -501,7 +507,7 @@ def monitor(timeout):
     ih.monitor_events(timeout)
 
 
-main.add_command_with_deprecation(monitor, deprecated=True)
+main.add_command_with_deprecation(monitor, deprecated=True, alt="iothub monitor")
 
 
 def ensure_azure_cli_iot_ext():
@@ -835,7 +841,7 @@ def log(show, save):
     dock.handle_logs_cmd(show, save)
 
 
-main.add_command_with_deprecation(log, deprecated=True)
+main.add_command_with_deprecation(log, deprecated=True, alt="docker log")
 
 if __name__ == "__main__":
     main()
