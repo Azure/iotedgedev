@@ -1,4 +1,4 @@
-FROM microsoft/windowsservercore:1709 AS base
+FROM mcr.microsoft.com/windows/servercore:1709 AS base
 SHELL ["powershell", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
 ARG PYTHON2_VERSION
 ARG PYTHON3_VERSION

@@ -25,11 +25,17 @@ from .solution import Solution
 from .utility import Utility
 
 # Extend click.Group#add_command(cmd, name) to take deprecated=bool flag by monkey patching.
-def add_command_with_deprecation(self, cmd: Command, name: t.Optional[str] = None, deprecated = False):
+def add_command_with_deprecation(self, cmd: Command, name: t.Optional[str] = None, deprecated = False, alt:  t.Optional[str] = None):
     # Directly changing the deprecated flag of the cmd has side-effects on the reference source.
     # To avoid this, copy the cmd object with deepcopy.
     copied_command = copy.deepcopy(cmd)
     copied_command.deprecated = deprecated
+    if copied_command.short_help is None:
+        copied_command.short_help = copied_command.help
+    if alt is not None:
+        alt_cmd = "[Use `iotedgedev " + alt + "` instead]"
+        copied_command.short_help += " " + alt_cmd  # use space for formatting short_help in `iotedgedev --help`
+        copied_command.help += "\n\n" + alt_cmd  # use newline for formatting help in `iotedgedev <command> --help`
     self.add_command(copied_command, name)
 
 Group.add_command_with_deprecation = add_command_with_deprecation
@@ -99,7 +105,7 @@ def new(name, module, template, edge_runtime_version, group_id):
     sol = Solution(output, utility)
     sol.create(name, module, template, edge_runtime_version, group_id)
 
-main.add_command_with_deprecation(new, deprecated=True)
+main.add_command_with_deprecation(new, deprecated=True, alt="solution new")
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS,
@@ -132,7 +138,7 @@ def init(name, module, template, group_id, edge_runtime_version):
     utility.call_proc(azsetupcmd.split())
 
 
-main.add_command_with_deprecation(init, deprecated=True)
+main.add_command_with_deprecation(init, deprecated=True, alt="solution init")
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Push, deploy, start, monitor")
@@ -155,7 +161,7 @@ def add(name, template, group_id):
     mod.add(name, template, group_id)
 
 
-main.add_command_with_deprecation(add, deprecated=True)
+main.add_command_with_deprecation(add, deprecated=True, alt="solution add")
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Build the solution")
@@ -197,7 +203,7 @@ def build(ctx, push, do_deploy, template_file, platform):
         ctx.invoke(deploy)
 
 
-main.add_command_with_deprecation(build, deprecated=True)
+main.add_command_with_deprecation(build, deprecated=True, alt="solution build")
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Push module images to container registry")
@@ -238,7 +244,7 @@ def push(ctx, do_deploy, no_build, template_file, platform):
         ctx.invoke(deploy)
 
 
-main.add_command_with_deprecation(push, deprecated=True)
+main.add_command_with_deprecation(push, deprecated=True, alt="solution push")
 
 
 @solution.command(context_settings=CONTEXT_SETTINGS, help="Deploy solution to IoT Edge device")
@@ -256,7 +262,7 @@ def deploy(manifest_file):
     edge.deploy(manifest_file)
 
 
-main.add_command_with_deprecation(deploy, deprecated=True)
+main.add_command_with_deprecation(deploy, deprecated=True, alt="solution deploy")
 
 
 @iothub.command(
@@ -351,7 +357,7 @@ def genconfig(template_file, platform, fail_on_validation_error):
     mod.build_push(template_file, platform, no_build=True, no_push=True, fail_on_validation_error=fail_on_validation_error)
 
 
-main.add_command_with_deprecation(genconfig, deprecated=True)
+main.add_command_with_deprecation(genconfig, deprecated=True, alt="solution genconfig")
 
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
@@ -374,7 +380,7 @@ def setup_simulator(gateway_host, iothub_connection_string):
     sim.setup(gateway_host, iothub_connection_string)
 
 
-main.add_command_with_deprecation(setup_simulator, deprecated=True)
+main.add_command_with_deprecation(setup_simulator, deprecated=True, alt="simulator setup")
 
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
@@ -449,7 +455,7 @@ def start_simulator(setup, solution, build, manifest_file, platform, verbose, in
         sim.start_single(inputs, port)
 
 
-main.add_command_with_deprecation(start_simulator, deprecated=True)
+main.add_command_with_deprecation(start_simulator, deprecated=True, alt="simulator start")
 
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
@@ -461,7 +467,7 @@ def stop_simulator():
     sim.stop()
 
 
-main.add_command_with_deprecation(stop_simulator, deprecated=True)
+main.add_command_with_deprecation(stop_simulator, deprecated=True, alt="simulator stop")
 
 
 @simulator.command(context_settings=CONTEXT_SETTINGS,
@@ -501,7 +507,7 @@ def monitor(timeout):
     ih.monitor_events(timeout)
 
 
-main.add_command_with_deprecation(monitor, deprecated=True)
+main.add_command_with_deprecation(monitor, deprecated=True, alt="iothub monitor")
 
 
 def ensure_azure_cli_iot_ext():
@@ -670,6 +676,21 @@ def header_and_default(header, default, default2=None):
     return default
 
 
+def handle_vm_create():
+    output.header("CREATE VIRTUAL MACHINE")
+    output.info("The virtual machine will be created with the IoT Edge runtime installed.\n"
+                "The deployment template can be found at: https://aka.ms/iotedge-vm-deploy \n"
+                "The name of the virtual machine will be a unique string generated by the template.\n"
+                "Details: os=ubuntu20_04-lts, size=Standard_DS1_v2, username=azureuser, allowSsh=true")
+    ssh_key_file = output.prompt_question("SSH Key file (must be located in ~/.ssh and will be created if it doesn't exist)", "id_rsa_iotedgedev")
+    if not azure_cli.create_edge_vm(ssh_key_file, envvars.EDGE_DEVICE_ID, envvars.IOTHUB_NAME, envvars.RESOURCE_GROUP_NAME):
+        raise click.BadParameter(f('Could not create Virtual Machine in {envvars.RESOURCE_GROUP_NAME}'))
+    else:
+        output.info("Virtual Machine created successfully. Check Azure Portal for details on how to connect.\n"
+                    "WARNING: Check the details of the Network Security Group, it is setup to allow SSH from all addresses.\n"
+                    "You will be able to connect using the SSH Key file: ~/.ssh/" + ssh_key_file)
+
+
 @iothub.command(context_settings=CONTEXT_SETTINGS,
                 help="Retrieve or create required Azure resources",
                 name="setup")
@@ -745,6 +766,14 @@ def header_and_default(header, default, default2=None):
               is_flag=True,
               prompt='Update the .env file with connection strings?',
               help='If True, the current .env will be updated with the IoT Hub and Device connection strings.')
+@click.option('--create-edge-vm',
+              envvar=envvars.get_envvar_key_if_val("CREATE_EDGE_VM"),
+              required=True,
+              default=False,
+              show_default=True,
+              is_flag=True,
+              prompt='Create a new Virtual Machine with IoTEdge?',
+              help='If true, creates a new Virtual Machine with IoTEdge.')
 @with_telemetry
 def setup_iothub(credentials,
                  service_principal,
@@ -754,12 +783,16 @@ def setup_iothub(credentials,
                  iothub_sku,
                  iothub_name,
                  edge_device_id,
-                 update_dotenv):
+                 update_dotenv,
+                 create_edge_vm):
     if update_dotenv:
         if envvars.backup_dotenv():
             envvars.save_envvar("IOTHUB_CONNECTION_STRING", envvars.IOTHUB_CONNECTION_STRING)
             envvars.save_envvar("DEVICE_CONNECTION_STRING", envvars.DEVICE_CONNECTION_STRING)
             output.info("Updated current .env file")
+
+    if create_edge_vm:
+        handle_vm_create()
 
 
 @docker.command(context_settings=CONTEXT_SETTINGS,
@@ -837,7 +870,7 @@ def log(show, save):
     dock.handle_logs_cmd(show, save)
 
 
-main.add_command_with_deprecation(log, deprecated=True)
+main.add_command_with_deprecation(log, deprecated=True, alt="docker log")
 
 if __name__ == "__main__":
     main()
