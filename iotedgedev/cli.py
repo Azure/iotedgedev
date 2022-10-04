@@ -652,8 +652,7 @@ def list_resource_groups_and_set_default():
         sys.exit()
 
     output.info("Enter Resource Group Name (Creates a new Resource Group if not found) [iotedgedev-rg]:")
-    resource_group = input() or "iotedgedev-rg"
-    return resource_group
+    return input() or "iotedgedev-rg"
 
 
 def list_subscriptions_and_set_default():
