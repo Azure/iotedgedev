@@ -335,6 +335,7 @@ Options:
   --iothub-name TEXT              The IoT Hub Name (Creates a new IoT Hub if not found).  [required]
   --edge-device-id TEXT           The IoT Edge Device Id (Creates a new Edge Device if not found).  [required]
   -u, --update-dotenv             If True, the current .env will be updated with the IoT Hub and Device connection strings.  [default: False; required]
+  --create-edge-vm                Create an Edge-enabled Virtual Machine by using <https://aka.ms/iotedge-vm-deploy>.  [default: False; required]
   -h, --help                      Show this message and exit.
 ```
 
