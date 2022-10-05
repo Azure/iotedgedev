@@ -76,4 +76,4 @@ If you are using a separate Edge device, like a Raspberry Pi, you do not need to
       1. Install **[JDK](https://www.oracle.com/technetwork/java/javase/downloads/index.html)**
       2. Install **[Maven](https://maven.apache.org/)**
 
-9. Follow the [Usage Wiki](usage) to learn the usage of IoT Edge Dev Tool
+9. Follow the [Usage Wiki](../usage.md) to learn the usage of IoT Edge Dev Tool
