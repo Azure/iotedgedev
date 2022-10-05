@@ -22,9 +22,9 @@ At the end of this quickstart, you should have the following:
 
     There are three options to setup your environment:
 
-    - Setup the development environment manually. Please follow the [Manual Development Machine Setup Wiki](environment-setup/manual-dev-machine-setup).
+    - Setup the development environment manually. Please follow the [Manual Development Machine Setup Wiki](environment-setup/manual-dev-machine-setup.md).
     - Starting the devcontainer in VS Code (see [Developing inside a Container](https://code.visualstudio.com/docs/remote/containers) for steps on how to do so).
-    - Starting the devcontainer with Docker. Please follow the [Run the IoT Edge Dev Container with Docker docs](environment-setup/run-devcontainer-docker).
+    - Starting the devcontainer with Docker. Please follow the [Run the IoT Edge Dev Container with Docker docs](environment-setup/run-devcontainer-docker.md).
 
 1. Initialize IoT Edge solution and setup Azure resources.
 
