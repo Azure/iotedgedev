@@ -673,11 +673,8 @@ def list_subscriptions_and_set_default():
     return input() or default_subscriptionId
 
 
-def header_and_default(header, prompt, default, default2=None, options=None):
+def header_and_default(header, prompt, default, options=None):
     output.header(header)
-    if default == '' and default2 is not None:
-        return default2
-
     output.info(f"{prompt} [{default}]:")
     output.info(f"Available options: {options}")
     return input() or default
@@ -726,7 +723,7 @@ def handle_vm_create():
 @click.option('--resource-group-location',
               envvar=envvars.get_envvar_key_if_val("RESOURCE_GROUP_LOCATION"),
               required=True,
-              default=lambda: header_and_default('RESOURCE GROUP LOCATION', 'Enter a Resource Group Location', 'westus', envvars.RESOURCE_GROUP_LOCATION,
+              default=lambda: header_and_default('RESOURCE GROUP LOCATION', 'Enter a Resource Group Location', envvars.RESOURCE_GROUP_LOCATION or 'westus',
                                                  ['australiaeast', 'australiasoutheast', 'brazilsouth', 'canadacentral', 'canadaeast', 'centralindia', 'centralus', 'eastasia', 'eastus', 'eastus2',
                                                   'japanwest', 'japaneast', 'northeurope', 'northcentralus', 'southindia', 'uksouth', 'ukwest', 'westus', 'westeurope', 'southcentralus', 'westcentralus', 'westus2']),
               type=str,
@@ -742,7 +739,7 @@ def handle_vm_create():
 @click.option('--iothub-sku',
               envvar=envvars.get_envvar_key_if_val("IOTHUB_SKU"),
               required=True,
-              default=lambda: header_and_default('IOTHUB SKU', 'Enter IoT Hub SKU', 'F1', options=['F1', 'S1', 'S2', 'S3']),
+              default=lambda: header_and_default('IOTHUB SKU', 'Enter IoT Hub SKU', 'F1', ['F1', 'S1', 'S2', 'S3']),
               type=str,
               callback=validate_option,
               help="The IoT Hub SKU.")
