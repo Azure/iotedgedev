@@ -628,25 +628,31 @@ def validate_option(ctx, param, value):
 def list_edge_devices_and_set_default():
     if not azure_cli.list_edge_devices(envvars.IOTHUB_NAME):
         sys.exit()
-    return "iotedgedev-edgedevice"
+    output.info("Enter the IoT Edge Device Id (Creates a new Edge Device if not found) [iotedgedev-edgedevice]:")
+    return input() or "iotedgedev-edgedevice"
 
 
 def list_iot_hubs_and_set_default():
     if not azure_cli.list_iot_hubs(envvars.RESOURCE_GROUP_NAME):
         sys.exit()
 
+    subscription_rg_hash = hashlib.sha1((default_subscriptionId + envvars.RESOURCE_GROUP_NAME).encode('utf-8')).hexdigest()[:6]
+    iothub_name = "iotedgedev-iothub-" + subscription_rg_hash
+
     first_iothub = azure_cli.get_first_iothub(envvars.RESOURCE_GROUP_NAME)
     if first_iothub:
-        return first_iothub
-    else:
-        subscription_rg_hash = hashlib.sha1((default_subscriptionId + envvars.RESOURCE_GROUP_NAME).encode('utf-8')).hexdigest()[:6]
-        return "iotedgedev-iothub-" + subscription_rg_hash
+        iothub_name = first_iothub
+
+    output.info(f"Enter the IoT Hub Name (Creates a new IoT Hub if not found) [{iothub_name}]:")
+    return input() or iothub_name
 
 
 def list_resource_groups_and_set_default():
     if not azure_cli.list_resource_groups():
         sys.exit()
-    return "iotedgedev-rg"
+
+    output.info("Enter Resource Group Name (Creates a new Resource Group if not found) [iotedgedev-rg]:")
+    return input() or "iotedgedev-rg"
 
 
 def list_subscriptions_and_set_default():
@@ -663,14 +669,15 @@ def list_subscriptions_and_set_default():
     if not azure_cli.list_subscriptions():
         sys.exit()
     default_subscriptionId = azure_cli.get_default_subscription()
-    return default_subscriptionId
+    output.info(f"Select an Azure Subscription Name or Id [{default_subscriptionId}]:")
+    return input() or default_subscriptionId
 
 
-def header_and_default(header, default, default2=None):
+def header_and_default(header, prompt, default, options=None):
     output.header(header)
-    if default == '' and default2 is not None:
-        return default2
-    return default
+    output.info(f"{prompt} [{default}]:")
+    output.info(f"Available options: {options}")
+    return input() or default
 
 
 def handle_vm_create():
@@ -709,51 +716,46 @@ def handle_vm_create():
               help="Enter Azure Service Principal Credentials (username password tenant).")
 @click.option('--subscription',
               envvar=envvars.get_envvar_key_if_val("SUBSCRIPTION_ID"),
-              default=lambda: list_subscriptions_and_set_default(),
+              default=list_subscriptions_and_set_default,
               required=True,
               callback=validate_option,
-              prompt="Select an Azure Subscription Name or Id:",
               help="The Azure Subscription Name or Id.")
 @click.option('--resource-group-location',
               envvar=envvars.get_envvar_key_if_val("RESOURCE_GROUP_LOCATION"),
               required=True,
-              default=lambda: header_and_default('RESOURCE GROUP LOCATION', envvars.RESOURCE_GROUP_LOCATION, 'westus'),
-              type=click.Choice(['australiaeast', 'australiasoutheast', 'brazilsouth', 'canadacentral', 'canadaeast', 'centralindia', 'centralus', 'eastasia', 'eastus', 'eastus2',
-                                 'japanwest', 'japaneast', 'northeurope', 'northcentralus', 'southindia', 'uksouth', 'ukwest', 'westus', 'westeurope', 'southcentralus', 'westcentralus', 'westus2']),
+              default=lambda: header_and_default('RESOURCE GROUP LOCATION', 'Enter a Resource Group Location', envvars.RESOURCE_GROUP_LOCATION or 'westus',
+                                                 ['australiaeast', 'australiasoutheast', 'brazilsouth', 'canadacentral', 'canadaeast', 'centralindia', 'centralus', 'eastasia', 'eastus', 'eastus2',
+                                                  'japanwest', 'japaneast', 'northeurope', 'northcentralus', 'southindia', 'uksouth', 'ukwest', 'westus', 'westeurope', 'southcentralus', 'westcentralus', 'westus2']),
+              type=str,
               callback=validate_option,
-              prompt="Enter a Resource Group Location:",
               help="The Resource Group Location.")
 @click.option('--resource-group-name',
               envvar=envvars.get_envvar_key_if_val("RESOURCE_GROUP_NAME"),
               required=True,
-              default=lambda: list_resource_groups_and_set_default(),
+              default=list_resource_groups_and_set_default,
               type=str,
               callback=validate_option,
-              prompt="Enter Resource Group Name (Creates a new Resource Group if not found):",
               help="The Resource Group Name (Creates a new Resource Group if not found).")
 @click.option('--iothub-sku',
               envvar=envvars.get_envvar_key_if_val("IOTHUB_SKU"),
               required=True,
-              default=lambda: header_and_default('IOTHUB SKU', 'F1'),
-              type=click.Choice(['F1', 'S1', 'S2', 'S3']),
+              default=lambda: header_and_default('IOTHUB SKU', 'Enter IoT Hub SKU', 'F1', ['F1', 'S1', 'S2', 'S3']),
+              type=str,
               callback=validate_option,
-              prompt="Enter IoT Hub SKU (F1|S1|S2|S3):",
               help="The IoT Hub SKU.")
 @click.option('--iothub-name',
               envvar=envvars.get_envvar_key_if_val("IOTHUB_NAME"),
               required=True,
-              default=lambda: list_iot_hubs_and_set_default(),
+              default=list_iot_hubs_and_set_default,
               type=str,
               callback=validate_option,
-              prompt='Enter the IoT Hub Name (Creates a new IoT Hub if not found):',
               help='The IoT Hub Name (Creates a new IoT Hub if not found).')
 @click.option('--edge-device-id',
               envvar=envvars.get_envvar_key_if_val("EDGE_DEVICE_ID"),
               required=True,
-              default=lambda: list_edge_devices_and_set_default(),
+              default=list_edge_devices_and_set_default,
               type=str,
               callback=validate_option,
-              prompt='Enter the IoT Edge Device Id (Creates a new Edge Device if not found):',
               help='The IoT Edge Device Id (Creates a new Edge Device if not found).')
 @click.option('--update-dotenv',
               "-u",
