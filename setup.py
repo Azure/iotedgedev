@@ -15,7 +15,7 @@ requirements = [
     # Note >=2.35.0 cannot be used as is not compatible with the docker dependency;
     # docker requires websocket-client==0.56.0 and azure-cli-core>=2.35.0 requires websocket-client==1.31.1.
     'azure-cli-core >= 2.34.1, < 2.35.0',
-    'iotedgehubdev == 0.14.14',
+    'iotedgehubdev == 0.14.16',
     'applicationinsights == 0.11.9',
     'commentjson == 0.9.0',
     'pyyaml>=5.4',
@@ -33,7 +33,7 @@ test_requirements = [
 
 setup(
     name='iotedgedev',
-    version='3.3.5',
+    version='3.3.6',
     description='The Azure IoT Edge Dev Tool greatly simplifies the IoT Edge development process by automating many routine manual tasks, such as building, deploying, pushing modules and configuring the IoT Edge Runtime.',
     long_description='See https://github.com/azure/iotedgedev for usage instructions.',
     author='Microsoft Corporation',

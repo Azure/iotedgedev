@@ -2,6 +2,11 @@
 
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [3.3.6] - 2022-10-10
+
+- Update docker compose 
+- Update simulator version 
+
 ## [3.3.5] - 2022-05-17
 
 - Update azure-cli-core
