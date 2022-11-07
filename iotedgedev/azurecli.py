@@ -35,14 +35,17 @@ class AzureCli:
     def is_posix(self):
         return self.envvars.is_posix()
 
-    def prepare_az_cli_args(self, args, suppress_output=False):
+    def prepare_az_cli_args(self, args, suppress_output=False, ensure_json_output=False):
         if suppress_output:
             args.extend(["--query", "\"[?n]|[0]\""])
+
+        if ensure_json_output:
+            args.extend(["--output", "json"])
 
         az_args = ["az"] + args
         return az_args
 
-    def invoke_az_cli_outproc(self, args, error_message=None, stdout_io=None, stderr_io=None, suppress_output=False, timeout=None):
+    def invoke_az_cli_outproc(self, args, error_message=None, stdout_io=None, stderr_io=None, suppress_output=False, timeout=None, ensure_json_output=False):
         try:
             if timeout:
                 timeout = int(timeout)
@@ -54,19 +57,19 @@ class AzureCli:
 
             # Consider using functools
             if monitor_events:
-                process = subprocess.Popen(self.prepare_az_cli_args(args, suppress_output),
+                process = subprocess.Popen(self.prepare_az_cli_args(args, suppress_output, ensure_json_output),
                                            shell=not self.is_posix(),
                                            stdout=subprocess.PIPE,
                                            stderr=subprocess.PIPE,
                                            preexec_fn=os.setsid if self.is_posix() else None,
                                            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if not self.is_posix() else 0)
             elif stdout_io or stderr_io:
-                process = subprocess.Popen(self.prepare_az_cli_args(args, suppress_output),
+                process = subprocess.Popen(self.prepare_az_cli_args(args, suppress_output, ensure_json_output),
                                            stdout=subprocess.PIPE,
                                            stderr=subprocess.PIPE,
                                            shell=not self.is_posix())
             else:
-                process = subprocess.Popen(self.prepare_az_cli_args(args, suppress_output),
+                process = subprocess.Popen(self.prepare_az_cli_args(args, suppress_output, ensure_json_output),
                                            shell=not self.is_posix())
 
             self.process = process
@@ -227,8 +230,9 @@ class AzureCli:
         self.output.status(f("Retrieving Azure CLI credentials from cache..."))
 
         with output_io_cls() as io:
-            result = self.invoke_az_cli_outproc(
-                ["account", "show"], stdout_io=io)
+            result = self.invoke_az_cli_outproc(["account", "show"],
+                                                stdout_io=io,
+                                                ensure_json_output=True)
 
             if result:
                 try:
@@ -270,7 +274,9 @@ class AzureCli:
 
         with output_io_cls() as io:
             result = self.invoke_az_cli_outproc(["account", "show"],
-                                                "Error while trying to get the default Azure subscription id.", io)
+                                                "Error while trying to get the default Azure subscription id.",
+                                                io,
+                                                ensure_json_output=True)
             if result:
                 out_string = io.getvalue()
                 data = json.loads(out_string)
@@ -281,12 +287,13 @@ class AzureCli:
         with output_io_cls() as io:
             query = get_query_argument_for_id_and_name(token)
             result = self.invoke_az_cli_outproc(["account", "list", "--query", query],
-                                                "Could not find a subscription for which the id starts with or name contains '{0}'".format(token), io)
+                                                "Could not find a subscription for which the id starts with or name contains '{0}'".format(token), 
+                                                io,
+                                                ensure_json_output=True)
 
             if result:
                 out_string = io.getvalue()
                 if out_string:
-
                     data = json.loads(out_string)
                     if len(data) == 1:
                         return data[0]["id"]
@@ -418,7 +425,10 @@ class AzureCli:
     def get_free_iothub(self):
         with output_io_cls() as io:
 
-            result = self.invoke_az_cli_outproc(["iot", "hub", "list"], f("Could not list IoT Hubs in subscription."), stdout_io=io)
+            result = self.invoke_az_cli_outproc(["iot", "hub", "list"],
+                                                f("Could not list IoT Hubs in subscription."),
+                                                stdout_io=io,
+                                                ensure_json_output=True)
             if result:
                 out_string = io.getvalue()
                 data = json.loads(out_string)
@@ -431,7 +441,10 @@ class AzureCli:
 
         with output_io_cls() as io:
             result = self.invoke_az_cli_outproc(
-                ["iot", "hub", "list", "--resource-group", resource_group, "--query", "[0]"], f("Could not get first IoT Hub."), io)
+                ["iot", "hub", "list", "--resource-group", resource_group, "--query", "[0]"],
+                f("Could not get first IoT Hub."),
+                io,
+                ensure_json_output=True)
 
             if result:
                 out_string = io.getvalue()
@@ -492,9 +505,10 @@ class AzureCli:
             f("Retrieving '{value}' connection string..."))
 
         with output_io_cls() as io:
-            result = self.invoke_az_cli_outproc(["iot", "hub", "connection-string", "show", "--hub-name", value,
-                                                 "--resource-group", resource_group],
-                                                f("Could not create the IoT Hub {value} in {resource_group}."), stdout_io=io)
+            result = self.invoke_az_cli_outproc(["iot", "hub", "connection-string", "show", "--hub-name", value, "--resource-group", resource_group],
+                                                f("Could not create the IoT Hub {value} in {resource_group}."),
+                                                stdout_io=io,
+                                                ensure_json_output=True)
             if result:
                 out_string = io.getvalue()
                 data = json.loads(out_string)
@@ -539,9 +553,10 @@ class AzureCli:
             f("Retrieving '{value}' connection string..."))
 
         with output_io_cls() as io:
-            result = self.invoke_az_cli_outproc(["iot", "hub", "device-identity", "connection-string", "show", "--device-id", value, "--hub-name", iothub,
-                                                 "--resource-group", resource_group],
-                                                f("Could not locate the {value} device in {iothub} IoT Hub in {resource_group}."), stdout_io=io)
+            result = self.invoke_az_cli_outproc(["iot", "hub", "device-identity", "connection-string", "show", "--device-id", value, "--hub-name", iothub, "--resource-group", resource_group],
+                                                f("Could not locate the {value} device in {iothub} IoT Hub in {resource_group}."),
+                                                stdout_io=io,
+                                                ensure_json_output=True)
             if result:
                 out_string = io.getvalue()
                 data = json.loads(out_string)
