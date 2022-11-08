@@ -2,6 +2,10 @@
 
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [3.3.7] - 2022-11-7
+
+- Lock simulator version at 0.14.18
+
 ## [3.3.6] - 2022-10-10
 
 - Update docker compose 
