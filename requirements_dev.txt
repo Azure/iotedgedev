@@ -13,5 +13,5 @@ cookiecutter==1.7.3
 PyYAML>=5.4
 pylint==2.3.0
 pytest==6.2.4
-setuptools==57.0.0
+setuptools==65.5.1
 twine==3.4.2
