@@ -10,7 +10,7 @@ requirements = [
     'bcrypt<=3.1.7',
     'docker >= 3.7.0',
     'python-dotenv',
-    'requests >= 2.20.0, <= 2.25.1',
+    'requests >= 2.20.0, <= 2.31.0',
     'fstrings',
     # Note >=2.35.0 cannot be used as is not compatible with the docker dependency;
     # docker requires websocket-client==0.56.0 and azure-cli-core>=2.35.0 requires websocket-client==1.31.1.
