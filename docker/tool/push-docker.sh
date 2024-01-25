@@ -12,9 +12,9 @@ function show_help
     exit 1
 }
 
-# iotedgetoolscontainerregistry.azure.io is the ACR that has a webhook to publish to MCR
+# iotedgedevtoolscontainerregistry.azure.io is the ACR that has a webhook to publish to MCR
 # only this ACR should be used
-ACR_LOGIN_SERVER="iotedgetoolscontainerregistry.azurecr.io"
+ACR_LOGIN_SERVER="iotedgedevtoolscontainerregistry.azurecr.io"
 IMAGE_NAME="iotedgedev"
 VERSION="$1"
 
