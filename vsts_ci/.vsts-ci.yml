@@ -50,27 +50,6 @@ jobs:
   #   steps:
   #     - template: darwin/continuous-build-darwin.yml
 
-  - job: Ubuntu18
-    pool:
-      vmImage: ubuntu-18.04
-    strategy:
-      matrix:
-        Python36:
-          python.version: "3.6"
-          TOXENV: "py36"
-        Python37:
-          python.version: "3.7"
-          TOXENV: "py37"
-        Python38:
-          python.version: "3.8"
-          TOXENV: "py38"
-        Python39:
-          python.version: "3.9"
-          TOXENV: "py39"
-      maxParallel: 1
-    steps:
-      - template: linux/continuous-build-linux.yml
-
   - job: Ubuntu20
     pool:
       vmImage: ubuntu-20.04

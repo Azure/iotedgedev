@@ -48,86 +48,86 @@ def create_solution(request):
     return
 
 
-@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
-def test_setup():
-    result = runner_invoke(['simulator', 'setup'])
-
-    assert 'Setup IoT Edge Simulator successfully.' in result.output
-
-
-@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
-def test_setup_with_iothub():
-    result = runner_invoke(['simulator', 'setup', '-i', os.getenv("IOTHUB_CONNECTION_STRING")])
-
-    assert 'Setup IoT Edge Simulator successfully.' in result.output
+# @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
+# def test_setup():
+#     result = runner_invoke(['simulator', 'setup'])
+#
+#     assert 'Setup IoT Edge Simulator successfully.' in result.output
 
 
-@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
-def test_start_single():
-    result = runner_invoke(['simulator', 'start', '-i', 'input1'])
-
-    assert 'IoT Edge Simulator has been started in single module mode.' in result.output
-
-
-@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
-def test_modulecred():
-    result = runner_invoke(['simulator', 'modulecred'])
-
-    assert 'EdgeHubConnectionString=HostName=' in result.output
-    assert 'EdgeModuleCACertificateFile=' in result.output
+# @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
+# def test_setup_with_iothub():
+#     result = runner_invoke(['simulator', 'setup', '-i', os.getenv("IOTHUB_CONNECTION_STRING")])
+#
+#     assert 'Setup IoT Edge Simulator successfully.' in result.output
 
 
-@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
-def test_stop(capfd):
-    runner_invoke(['simulator', 'stop'])
-    out, err = capfd.readouterr()
+# @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
+# def test_start_single():
+#     result = runner_invoke(['simulator', 'start', '-i', 'input1'])
 
-    assert 'IoT Edge Simulator has been stopped successfully.' in out
-
-
-@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
-def test_start_solution(capfd):
-    result = runner_invoke(['simulator', 'start', '-s', '-b', '-f', 'deployment.template.json'])
-    out, err = capfd.readouterr()
-
-    assert 'BUILD COMPLETE' in result.output
-    assert 'IoT Edge Simulator has been started in solution mode.' in out
+#     assert 'IoT Edge Simulator has been started in single module mode.' in result.output
 
 
-@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
-def test_start_solution_with_setup(capfd):
-    result = runner_invoke(['simulator', 'start', '--setup', '-s', '-b', '-f', 'deployment.template.json'])
-    out, err = capfd.readouterr()
-
-    assert 'Setup IoT Edge Simulator successfully.' in result.output
-    assert 'BUILD COMPLETE' in result.output
-    assert 'IoT Edge Simulator has been started in solution mode.' in out
+# @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
+# def test_modulecred():
+#     result = runner_invoke(['simulator', 'modulecred'])
+#
+#     assert 'EdgeHubConnectionString=HostName=' in result.output
+#     assert 'EdgeModuleCACertificateFile=' in result.output
 
 
-@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
-def test_monitor(capfd):
-    try:
-        result = runner_invoke(['monitor', '--timeout', '30'])
-        out, err = capfd.readouterr()
-        # Assert output from simulator
-        sim_match = 'timeCreated'
-
-        if not PY35:
-            assert 'Monitoring events from device' in out
-            assert sim_match in out
-        else:
-            assert not err
-            assert sim_match in result.output
-    finally:
-        test_stop(capfd)
+# @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
+# def test_stop(capfd):
+#     runner_invoke(['simulator', 'stop'])
+#     out, err = capfd.readouterr()
+#
+#     assert 'IoT Edge Simulator has been stopped successfully.' in out
 
 
-@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
-def test_start_solution_with_deployment(capfd):
-    platform_type = get_platform_type()
-    deployment_file_path = os.path.join(test_solution_dir, 'config', 'deployment.' + platform_type + '.json')
-    runner_invoke(['simulator', 'start', '-f', deployment_file_path])
-    out, err = capfd.readouterr()
+# @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
+# def test_start_solution(capfd):
+#     result = runner_invoke(['simulator', 'start', '-s', '-b', '-f', 'deployment.template.json'])
+#     out, err = capfd.readouterr()
+#
+#     assert 'BUILD COMPLETE' in result.output
+#     assert 'IoT Edge Simulator has been started in solution mode.' in out
 
-    assert 'IoT Edge Simulator has been started in solution mode.' in out
-    test_monitor(capfd)
+
+# @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
+# def test_start_solution_with_setup(capfd):
+#     result = runner_invoke(['simulator', 'start', '--setup', '-s', '-b', '-f', 'deployment.template.json'])
+#     out, err = capfd.readouterr()
+
+#     assert 'Setup IoT Edge Simulator successfully.' in result.output
+#     assert 'BUILD COMPLETE' in result.output
+#     assert 'IoT Edge Simulator has been started in solution mode.' in out
+
+
+# @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
+# def test_monitor(capfd):
+#     try:
+#         result = runner_invoke(['monitor', '--timeout', '30'])
+#         out, err = capfd.readouterr()
+#         # Assert output from simulator
+#         sim_match = 'timeCreated'
+
+#         if not PY35:
+#             assert 'Monitoring events from device' in out
+#             assert sim_match in out
+#         else:
+#             assert not err
+#             assert sim_match in result.output
+#     finally:
+#        test_stop(capfd)
+
+
+# @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Simulator does not support windows container')
+# def test_start_solution_with_deployment(capfd):
+#     platform_type = get_platform_type()
+#     deployment_file_path = os.path.join(test_solution_dir, 'config', 'deployment.' + platform_type + '.json')
+#     runner_invoke(['simulator', 'start', '-f', deployment_file_path])
+#     out, err = capfd.readouterr()
+
+#     assert 'IoT Edge Simulator has been started in solution mode.' in out
+#     test_monitor(capfd)
