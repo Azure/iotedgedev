@@ -178,50 +178,50 @@ def test_solution_build_without_schema_template():
         os.rename('deployment.template.backup.json', 'deployment.template.json')
 
 
-# def test_solution_build_with_default_platform(prepare_solution_with_env):
-#     result = runner_invoke(['build'])
-#
-#     module_name = "filtermodule"
-#     test_solution_config_dir = os.path.join('config', 'deployment.' + get_platform_type() + '.json')
-#     env_container_registry_server = os.getenv("CONTAINER_REGISTRY_SERVER")
-#     with open(test_solution_config_dir) as f:
-#         content = json.load(f)
-#
-#     assert 'BUILD COMPLETE' in result.output
-#     assert 'ERROR' not in result.output
-#     assert env_container_registry_server + "/" + module_name + ":0.0.1-" + get_platform_type() in content[
-#         "modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][module_name]["settings"]["image"]
-#     assert module_name in get_all_docker_images()
+def test_solution_build_with_default_platform(prepare_solution_with_env):
+    result = runner_invoke(['build'])
+
+    module_name = "filtermodule"
+    test_solution_config_dir = os.path.join('config', 'deployment.' + get_platform_type() + '.json')
+    env_container_registry_server = os.getenv("CONTAINER_REGISTRY_SERVER")
+    with open(test_solution_config_dir) as f:
+        content = json.load(f)
+
+    assert 'BUILD COMPLETE' in result.output
+    assert 'ERROR' not in result.output
+    assert env_container_registry_server + "/" + module_name + ":0.0.1-" + get_platform_type() in content[
+        "modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][module_name]["settings"]["image"]
+    assert module_name in get_all_docker_images()
 
 
-# @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Debugger does not support C# in windows container')
-# def test_solution_build_with_debug_template():
-#     os.chdir(test_solution_shared_lib_dir)
-#
-#     result = runner_invoke(['build', '-f', os.environ["DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE"], '-P', get_platform_type()])
-#
-#     module_name = "sample_module"
-#     module_2_name = "sample_module_2"
-#     test_solution_shared_debug_config = os.path.join('config', 'deployment.debug.' + get_platform_type() + '.json')
-#     env_container_registry_server = os.getenv("CONTAINER_REGISTRY_SERVER")
-#     with open(test_solution_shared_debug_config) as f:
-#         content = json.load(f)
-#
-#     assert 'BUILD COMPLETE' in result.output
-#     assert 'ERROR' not in result.output
-#     assert env_container_registry_server + "/" + module_name + ":0.0.1-RC-" + get_platform_type() + ".debug" in content[
-#         "modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][module_name]["settings"]["image"]
-#     assert env_container_registry_server + "/" + module_2_name + ":0.0.1-RC-" + get_platform_type() + ".debug" in content[
-#         "modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][module_2_name]["settings"]["image"]
-#     all_docker_images = get_all_docker_images()
-#     assert module_name in all_docker_images
-#     assert module_2_name in all_docker_images
+@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Debugger does not support C# in windows container')
+def test_solution_build_with_debug_template():
+    os.chdir(test_solution_shared_lib_dir)
+
+    result = runner_invoke(['build', '-f', os.environ["DEPLOYMENT_CONFIG_DEBUG_TEMPLATE_FILE"], '-P', get_platform_type()])
+
+    module_name = "sample_module"
+    module_2_name = "sample_module_2"
+    test_solution_shared_debug_config = os.path.join('config', 'deployment.debug.' + get_platform_type() + '.json')
+    env_container_registry_server = os.getenv("CONTAINER_REGISTRY_SERVER")
+    with open(test_solution_shared_debug_config) as f:
+        content = json.load(f)
+
+    assert 'BUILD COMPLETE' in result.output
+    assert 'ERROR' not in result.output
+    assert env_container_registry_server + "/" + module_name + ":0.0.1-RC-" + get_platform_type() + ".debug" in content[
+        "modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][module_name]["settings"]["image"]
+    assert env_container_registry_server + "/" + module_2_name + ":0.0.1-RC-" + get_platform_type() + ".debug" in content[
+        "modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][module_2_name]["settings"]["image"]
+    all_docker_images = get_all_docker_images()
+    assert module_name in all_docker_images
+    assert module_2_name in all_docker_images
 
 
-# @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='The output of docker build logs is not captured by logs on windows, need to capture this before enabling this test')
-# def test_verify_docker_build_status_in_output():
-#     os.chdir(test_solution_shared_lib_dir)
-#
-#     result = runner_invoke(['build', '-f' 'deployment.debug.template.json', '-P', get_platform_type()])
-#
-#     assert all(x in result.output for x in ["--->", "Step 1/", "Successfully tagged"])
+@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='The output of docker build logs is not captured by logs on windows, need to capture this before enabling this test')
+def test_verify_docker_build_status_in_output():
+    os.chdir(test_solution_shared_lib_dir)
+
+    result = runner_invoke(['build', '-f' 'deployment.debug.template.json', '-P', get_platform_type()])
+
+    assert all(x in result.output for x in ["--->", "Step 1/", "Successfully tagged"])
