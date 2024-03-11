@@ -12,12 +12,12 @@ class DotNet:
 
     def install_module_template(self):
         # Use C# module template version 3.2.0; this is the last version before the upgrdae to .NET 7 which no longer uses dockerfiles
-        cmd = "dotnet new install Microsoft.Azure.IoT.Edge.Module::3.2.0"
+        cmd = "dotnet new -i Microsoft.Azure.IoT.Edge.Module::3.2.0 --force"
         self.output.header(cmd)
         self.utility.exe_proc(cmd.split())
 
     def install_function_template(self):
-        cmd = "dotnet new install Microsoft.Azure.IoT.Edge.Function"
+        cmd = "dotnet new -i Microsoft.Azure.IoT.Edge.Function"
         self.output.header(cmd)
         self.utility.exe_proc(cmd.split())
 
