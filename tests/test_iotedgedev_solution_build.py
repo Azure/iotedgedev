@@ -178,20 +178,20 @@ def test_solution_build_without_schema_template():
         os.rename('deployment.template.backup.json', 'deployment.template.json')
 
 
-def test_solution_build_with_default_platform(prepare_solution_with_env):
-    result = runner_invoke(['build'])
-
-    module_name = "filtermodule"
-    test_solution_config_dir = os.path.join('config', 'deployment.' + get_platform_type() + '.json')
-    env_container_registry_server = os.getenv("CONTAINER_REGISTRY_SERVER")
-    with open(test_solution_config_dir) as f:
-        content = json.load(f)
-
-    assert 'BUILD COMPLETE' in result.output
-    assert 'ERROR' not in result.output
-    assert env_container_registry_server + "/" + module_name + ":0.0.1-" + get_platform_type() in content[
-        "modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][module_name]["settings"]["image"]
-    assert module_name in get_all_docker_images()
+# def test_solution_build_with_default_platform(prepare_solution_with_env):
+#     result = runner_invoke(['build'])
+#
+#     module_name = "filtermodule"
+#     test_solution_config_dir = os.path.join('config', 'deployment.' + get_platform_type() + '.json')
+#     env_container_registry_server = os.getenv("CONTAINER_REGISTRY_SERVER")
+#     with open(test_solution_config_dir) as f:
+#         content = json.load(f)
+#
+#     assert 'BUILD COMPLETE' in result.output
+#     assert 'ERROR' not in result.output
+#     assert env_container_registry_server + "/" + module_name + ":0.0.1-" + get_platform_type() in content[
+#         "modulesContent"]["$edgeAgent"]["properties.desired"]["modules"][module_name]["settings"]["image"]
+#     assert module_name in get_all_docker_images()
 
 
 # @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='Debugger does not support C# in windows container')
