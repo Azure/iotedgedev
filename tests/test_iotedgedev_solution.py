@@ -260,21 +260,21 @@ def test_valid_env_device_connectionstring():
     assert connectionstring.device_id
 
 
-# def test_create_new_solution():
-#     os.chdir(tests_dir)
-#     clean_folder(test_solution_dir)
-#
-#     for template in templates:
-#         # Node.js modules is skipped on non-Windows for below known issue.
-#         # https://github.com/Azure/iotedgedev/issues/312
-#         # https://github.com/Azure/iotedgedev/issues/346
-#         if (template == "nodejs") and (platform.system().lower() != 'windows'):
-#             continue
-#         else:
-#             result = create_solution(template)
-#             assert_solution_folder_structure(template)
-#             assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
-#             clean_folder(test_solution_dir)
+def test_create_new_solution():
+    os.chdir(tests_dir)
+    clean_folder(test_solution_dir)
+
+    for template in templates:
+        # Node.js modules is skipped on non-Windows for below known issue.
+        # https://github.com/Azure/iotedgedev/issues/312
+        # https://github.com/Azure/iotedgedev/issues/346
+        if (template == "nodejs") and (platform.system().lower() != 'windows'):
+            continue
+        else:
+            result = create_solution(template)
+            assert_solution_folder_structure(template)
+            assert 'AZURE IOT EDGE SOLUTION CREATED' in result.output
+            clean_folder(test_solution_dir)
 
 
 # def test_solution_push_with_default_platform(prepare_solution_with_env):
@@ -433,24 +433,24 @@ def test_gen_config_with_non_string_placeholder():
     assert "ERROR" not in result.output
 
 
-# @mock.patch.dict(os.environ, {"CONTAINER_REGISTRY_SERVER": "localhost:5000"})
-# @pytest.mark.skipif(get_docker_os_type() == 'windows', reason='windows container does not support local registry image')
-# def test_push_modules_to_local_registry(prepare_solution_with_env):
-#     try:
-#         module_name = "filtermodule"
-#
-#         if module_name in get_all_docker_images():
-#             remove_docker_image(module_name)
-#
-#         result = runner_invoke(['push', '-P', get_platform_type()])
-#
-#         assert 'ERROR' not in result.output
-#         assert result.exit_code == 0
-#         assert 'BUILD COMPLETE' in result.output
-#         assert 'PUSH COMPLETE' in result.output
-#         assert f"localhost:5000/{module_name in get_all_docker_images()}"
-#     finally:
-#         if "registry" in get_all_docker_containers():
-#             remove_docker_container("registry")
-#         if "registry" in get_all_docker_images():
-#             remove_docker_image("registry:2")
+@mock.patch.dict(os.environ, {"CONTAINER_REGISTRY_SERVER": "localhost:5000"})
+@pytest.mark.skipif(get_docker_os_type() == 'windows', reason='windows container does not support local registry image')
+def test_push_modules_to_local_registry(prepare_solution_with_env):
+    try:
+        module_name = "filtermodule"
+
+        if module_name in get_all_docker_images():
+            remove_docker_image(module_name)
+
+        result = runner_invoke(['push', '-P', get_platform_type()])
+
+        assert 'ERROR' not in result.output
+        assert result.exit_code == 0
+        assert 'BUILD COMPLETE' in result.output
+        assert 'PUSH COMPLETE' in result.output
+        assert f"localhost:5000/{module_name in get_all_docker_images()}"
+    finally:
+        if "registry" in get_all_docker_containers():
+            remove_docker_container("registry")
+        if "registry" in get_all_docker_images():
+            remove_docker_image("registry:2")
