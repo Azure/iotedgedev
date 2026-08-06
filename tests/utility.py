@@ -34,7 +34,10 @@ def get_docker_client():
     envvars.load(force=True)
     utility = Utility(envvars, output)
     docker_client = Docker(envvars, utility, output)
-    docker_client.init_registry()
+    try:
+        docker_client.init_registry()
+    except Exception:
+        pass
     return docker_client
 
 
@@ -97,7 +100,10 @@ def runner_invoke(args, expect_failure=False):
         if (result.exit_code == 0) or (expect_failure is True):
             return result
         else:
-            raise Exception(result.stdout)
+            message = result.output or ""
+            if getattr(result, "stderr_bytes", None):
+                message += result.stderr
+            raise Exception(message)
 
 
 def start_process(command, is_shell):

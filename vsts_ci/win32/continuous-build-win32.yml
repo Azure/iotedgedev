@@ -1,7 +1,16 @@
+parameters:
+  - name: azureServiceConnection
+    type: string
+    default: ""
+
 steps:
   - pwsh: |
       ((Get-Content -path "$(BUILD.REPOSITORY.LOCALPATH)\.env.tmp" -Raw) -replace 'IOTHUB_CONNECTION_STRING=".*"','IOTHUB_CONNECTION_STRING="$(IOTHUB_CONNECTION_STRING)"' -replace 'DEVICE_CONNECTION_STRING=".*"','DEVICE_CONNECTION_STRING="$(DEVICE_CONNECTION_STRING)"' -replace 'CONTAINER_REGISTRY_SERVER=".*"','CONTAINER_REGISTRY_SERVER="$(CONTAINER_REGISTRY_SERVER)"' -replace 'CONTAINER_REGISTRY_USERNAME=".*"','CONTAINER_REGISTRY_USERNAME="$(CONTAINER_REGISTRY_USERNAME)"' -replace 'CONTAINER_REGISTRY_PASSWORD=".*"','CONTAINER_REGISTRY_PASSWORD="$(CONTAINER_REGISTRY_PASSWORD)"') | Set-Content -Path "$(BUILD.REPOSITORY.LOCALPATH)\.env.tmp"
     displayName: "Update .env.tmp file"
+
+  - pwsh: |
+      Copy-Item -Path "$(BUILD.REPOSITORY.LOCALPATH)\.env.tmp" -Destination "$(BUILD.REPOSITORY.LOCALPATH)\.env" -Force
+    displayName: "Create .env from .env.tmp"
 
   - task: UsePythonVersion@0
     inputs:
@@ -16,11 +25,36 @@ steps:
     displayName: "Install IoT Hub explorer, Yeoman and Azure IoT Edge Node.js module generator packages"
 
   - pwsh: |
-      mkdir C:\registry
-      docker run -d -p 5000:5000 --restart=always --name registry -v C:\registry:C:\registry stefanscherer/registry-windows:2.6.2
-    displayName: "Pull and run local registry containers"
-
-  - pwsh: |
       pip install tox
-      tox -e "$(TOXENV)"
-    displayName: "Run tests against iotedgedev source code"
+    displayName: "Install tox"
+
+  - ${{ if eq(parameters.azureServiceConnection, '') }}:
+      - pwsh: |
+          tox -e "$(TOXENV)"
+        displayName: "Run tests against iotedgedev source code"
+        env:
+          IOTHUB_CONNECTION_STRING: $(IOTHUB_CONNECTION_STRING)
+          DEVICE_CONNECTION_STRING: $(DEVICE_CONNECTION_STRING)
+          CONTAINER_REGISTRY_SERVER: $(CONTAINER_REGISTRY_SERVER)
+          CONTAINER_REGISTRY_USERNAME: $(CONTAINER_REGISTRY_USERNAME)
+          CONTAINER_REGISTRY_PASSWORD: $(CONTAINER_REGISTRY_PASSWORD)
+
+  - ${{ else }}:
+      - task: AzureCLI@2
+        displayName: "Run tests against iotedgedev source code (AAD)"
+        inputs:
+          azureSubscription: ${{ parameters.azureServiceConnection }}
+          scriptType: ps
+          scriptLocation: inlineScript
+          inlineScript: |
+            az --version
+            az extension add --name azure-iot --only-show-errors
+            az account show -o table
+            tox -e "$(TOXENV)"
+        env:
+          IOTHUB_AUTH_TYPE: login
+          IOTHUB_CONNECTION_STRING: $(IOTHUB_CONNECTION_STRING)
+          DEVICE_CONNECTION_STRING: $(DEVICE_CONNECTION_STRING)
+          CONTAINER_REGISTRY_SERVER: $(CONTAINER_REGISTRY_SERVER)
+          CONTAINER_REGISTRY_USERNAME: $(CONTAINER_REGISTRY_USERNAME)
+          CONTAINER_REGISTRY_PASSWORD: $(CONTAINER_REGISTRY_PASSWORD)

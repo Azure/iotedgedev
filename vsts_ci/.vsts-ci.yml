@@ -2,6 +2,11 @@
 # Create and test a Python package on multiple Python versions.
 # Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
 # https://docs.microsoft.com/vsts/pipelines/languages/python
+parameters:
+  - name: azureServiceConnection
+    type: string
+    default: 'azurerm-iotedge-test'
+
 pr:
   - main
 
@@ -10,7 +15,7 @@ trigger: none
 jobs:
   - job: Windows
     pool:
-      vmImage: windows-2019
+      vmImage: windows-2022
     strategy:
       matrix:
         Python36:
@@ -27,7 +32,21 @@ jobs:
           TOXENV: "py39"
       maxParallel: 1
     steps:
+      - powershell: |
+          $ErrorActionPreference = 'Continue'
+          $svc = Get-Service docker -ErrorAction SilentlyContinue
+          if ($null -ne $svc -and $svc.Status -ne 'Running') { Start-Service docker }
+          $ok = $false
+          $deadline = (Get-Date).AddMinutes(3)
+          while (-not $ok -and (Get-Date) -lt $deadline) {
+            docker info --format '{{.OSType}}' 2>$null | Out-Null
+            if ($LASTEXITCODE -eq 0) { $ok = $true } else { Start-Sleep -Seconds 5 }
+          }
+          if (-not $ok) { Write-Error 'Docker daemon did not become reachable'; exit 1 }
+        displayName: "GUARD: ensure Docker daemon is running"
       - template: win32/continuous-build-win32.yml
+        parameters:
+          azureServiceConnection: ${{ parameters.azureServiceConnection }}
 
   # - job: MacOS
   #   pool:
@@ -50,14 +69,13 @@ jobs:
   #   steps:
   #     - template: darwin/continuous-build-darwin.yml
 
-  - job: Ubuntu20
+  - job: Linux2204
+    dependsOn: Windows
+    condition: succeededOrFailed()
     pool:
-      vmImage: ubuntu-20.04
+      vmImage: ubuntu-22.04
     strategy:
       matrix:
-        Python36:
-          python.version: "3.6"
-          TOXENV: "py36"
         Python37:
           python.version: "3.7"
           TOXENV: "py37"
@@ -70,3 +88,5 @@ jobs:
       maxParallel: 1
     steps:
       - template: linux/continuous-build-linux.yml
+        parameters:
+          azureServiceConnection: ${{ parameters.azureServiceConnection }}

@@ -15,6 +15,7 @@ requirements = [
     # Note >=2.35.0 cannot be used as is not compatible with the docker dependency;
     # docker requires websocket-client==0.56.0 and azure-cli-core>=2.35.0 requires websocket-client==1.31.1.
     'azure-cli-core >= 2.34.1, < 2.35.0',
+    'jsonschema',
     'iotedgehubdev == 0.14.18',
     'applicationinsights == 0.11.9',
     'commentjson == 0.9.0',
