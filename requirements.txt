@@ -7,6 +7,6 @@ iotedgehubdev==0.14.18
 applicationinsights==0.11.9
 commentjson==0.9.0
 azure-cli-core==2.34.1
-jsonschema
+jsonschema>=3.2.0,<5.0.0
 pypiwin32==219; sys_platform == 'win32' and python_version < '3.6'
 pypiwin32==223; sys_platform == 'win32' and python_version >= '3.6'

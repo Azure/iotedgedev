@@ -21,7 +21,7 @@ steps:
   - pwsh: |
       npm i -g iothub-explorer yo generator-azure-iot-edge-module
       az --version
-      az extension add --name azure-iot
+      az extension add --upgrade --name azure-iot
     displayName: "Install IoT Hub explorer, Yeoman and Azure IoT Edge Node.js module generator packages"
 
   - pwsh: |
@@ -48,7 +48,7 @@ steps:
           scriptLocation: inlineScript
           inlineScript: |
             az --version
-            az extension add --name azure-iot --only-show-errors
+            az extension add --upgrade --name azure-iot --only-show-errors
             az account show -o table
             tox -e "$(TOXENV)"
         env:

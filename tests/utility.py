@@ -34,10 +34,8 @@ def get_docker_client():
     envvars.load(force=True)
     utility = Utility(envvars, output)
     docker_client = Docker(envvars, utility, output)
-    try:
+    if docker_client.get_os_type() != "windows":
         docker_client.init_registry()
-    except Exception:
-        pass
     return docker_client
 
 

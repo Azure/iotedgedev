@@ -28,7 +28,7 @@ steps:
       pip install --upgrade tox
       sudo npm i -g iothub-explorer
       az --version
-      az extension add --name azure-iot
+      az extension add --upgrade --name azure-iot
     displayName: "Update and install required tools"
 
   - script: |
@@ -57,7 +57,7 @@ steps:
           inlineScript: |
             set -e
             az --version
-            az extension add --name azure-iot --only-show-errors
+            az extension add --upgrade --name azure-iot --only-show-errors
             az account show -o table
             mvn -v
             sudo -E env "AZURE_CONFIG_DIR=$AZURE_CONFIG_DIR" "IOTHUB_AUTH_TYPE=login" `which tox` -e "$(TOXENV)"
