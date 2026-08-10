@@ -43,7 +43,7 @@ If you are using a separate Edge device, like a Raspberry Pi, you do not need to
     > There is a known dependency conflict between `iotedgedev` and now-deprecated `azure-iot-edge-runtime-ctl`. Please make sure you have uninstalled `azure-iot-edge-runtime-ctl` before installing `iotedgedev`: `pip uninstall azure-iot-edge-runtime-ctl`, or use a clean virtual environment.
 
     ```sh
-    pip install -U iotedgedev
+    sudo pip install -U iotedgedev
     ```
 
 8. Install module dependencies
