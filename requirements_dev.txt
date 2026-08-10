@@ -1,6 +1,6 @@
 -r requirements.txt
 bumpversion==0.5.3
-wheel==0.30.0
+wheel==0.38.1
 watchdog==0.8.3
 flake8
 pycodestyle==2.7.0
