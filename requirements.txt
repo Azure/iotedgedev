@@ -1,12 +1,11 @@
-click==8.0.1
-docker==5.0.3
-python-dotenv==0.19.0
-requests==2.25.1
+click==8.1.7
+docker==7.1.0
+python-dotenv==1.0.1
+requests==2.32.3
 fstrings==0.1.0
-iotedgehubdev==0.14.18
+iotedgehubdev==0.14.19
 applicationinsights==0.11.9
 commentjson==0.9.0
-azure-cli-core==2.34.1
-jsonschema>=3.2.0,<5.0.0
-pypiwin32==219; sys_platform == 'win32' and python_version < '3.6'
-pypiwin32==223; sys_platform == 'win32' and python_version >= '3.6'
+azure-cli-core==2.87.0
+jsonschema>=4.26.0,<5.0.0
+pywin32==312; sys_platform == 'win32'

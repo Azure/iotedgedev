@@ -18,18 +18,18 @@ jobs:
       vmImage: windows-2022
     strategy:
       matrix:
-        Python36:
-          python.version: "3.6"
-          TOXENV: "py36"
-        Python37:
-          python.version: "3.7"
-          TOXENV: "py37"
-        Python38:
-          python.version: "3.8"
-          TOXENV: "py38"
-        Python39:
-          python.version: "3.9"
-          TOXENV: "py39"
+        Python311:
+          python.version: "3.11"
+          TOXENV: "py311"
+        Python312:
+          python.version: "3.12"
+          TOXENV: "py312"
+        Python313:
+          python.version: "3.13"
+          TOXENV: "py313"
+        Python314:
+          python.version: "3.14"
+          TOXENV: "py314"
       maxParallel: 1
     steps:
       - powershell: |
@@ -50,41 +50,69 @@ jobs:
 
   # - job: MacOS
   #   pool:
-  #     vmImage: macOS-10.13
+  #     vmImage: macOS-latest
   #   strategy:
   #     matrix:
-  #       Python36:
-  #         python.version: "3.6"
-  #         TOXENV: "py36"
-  #       Python37:
-  #         python.version: "3.7"
-  #         TOXENV: "py37"
-  #      Python38:
-  #        python.version: "3.8"
-  #        TOXENV: "py38"
-  #      Python39:
-  #        python.version: "3.9"
-  #        TOXENV: "py39"
+  #       Python311:
+  #         python.version: "3.11"
+  #         TOXENV: "py311"
+  #       Python312:
+  #         python.version: "3.12"
+  #         TOXENV: "py312"
+  #       Python313:
+  #         python.version: "3.13"
+  #         TOXENV: "py313"
+  #       Python314:
+  #         python.version: "3.14"
+  #         TOXENV: "py314"
   #     maxParallel: 1
   #   steps:
   #     - template: darwin/continuous-build-darwin.yml
 
-  - job: Linux2204
+  - job: Linux2404
     dependsOn: Windows
+    condition: succeededOrFailed()
+    pool:
+      vmImage: ubuntu-24.04
+    strategy:
+      matrix:
+        Python311:
+          python.version: "3.11"
+          TOXENV: "py311"
+        Python312:
+          python.version: "3.12"
+          TOXENV: "py312"
+        Python313:
+          python.version: "3.13"
+          TOXENV: "py313"
+        Python314:
+          python.version: "3.14"
+          TOXENV: "py314"
+      maxParallel: 1
+    steps:
+      - template: linux/continuous-build-linux.yml
+        parameters:
+          azureServiceConnection: ${{ parameters.azureServiceConnection }}
+
+  - job: Linux2204
+    dependsOn: Linux2404
     condition: succeededOrFailed()
     pool:
       vmImage: ubuntu-22.04
     strategy:
       matrix:
-        Python37:
-          python.version: "3.7"
-          TOXENV: "py37"
-        Python38:
-          python.version: "3.8"
-          TOXENV: "py38"
-        Python39:
-          python.version: "3.9"
-          TOXENV: "py39"
+        Python311:
+          python.version: "3.11"
+          TOXENV: "py311"
+        Python312:
+          python.version: "3.12"
+          TOXENV: "py312"
+        Python313:
+          python.version: "3.13"
+          TOXENV: "py313"
+        Python314:
+          python.version: "3.14"
+          TOXENV: "py314"
       maxParallel: 1
     steps:
       - template: linux/continuous-build-linux.yml
