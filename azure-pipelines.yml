@@ -6,13 +6,13 @@ trigger:
 pool:
   name: Azure-IoT-EdgeExperience-1ES-Hosted-Linux
   demands:
-    - ImageOverride -equals MMSUbuntu22.04
+    - ImageOverride -equals MMSUbuntu18.04TLS
 
 steps:
 - task: UsePythonVersion@0
   displayName:  "Install Python"
   inputs:
-    versionSpec: '3.14'
+    versionSpec: '3.11'
     addToPath: true
     architecture: 'x64'
 
