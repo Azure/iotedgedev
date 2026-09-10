@@ -10,7 +10,7 @@ requirements = [
     'bcrypt>=4.0.0',
     'docker >= 7.1.0',
     'python-dotenv',
-    'requests >= 2.26.0',
+    'requests >= 2.32.3',
     'fstrings',
     'azure-cli-core >= 2.80.0',
     'jsonschema >= 4.26.0, < 5.0.0',

@@ -4,9 +4,9 @@ If you are using a separate Edge device, like a Raspberry Pi, you do not need to
 
 > Note: See the ["Test Coverage"](test-coverage) wiki page to see what the IoT Edge Dev Tool has been tested with.
 
-1. Install **Python 2.7+ or Python 3.6+** and **pip** (Python 3.6 is recommended)
+1. Install **Python 3.11-3.14** and **pip**
     - Windows: [Install from Python's website](https://www.python.org/downloads/)
-    - Linux: `sudo apt install python-pip` or `sudo apt install python3-pip`
+    - Linux: `sudo apt install python3-pip`
     - macOS: The OpenSSL used by the system built-in Python is old and vulnerable. Please use Python installed with [Homebrew](https://docs.brew.sh/Homebrew-and-Python)
 
 2. Install **[Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)**

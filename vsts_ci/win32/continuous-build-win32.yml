@@ -47,12 +47,14 @@ steps:
           scriptType: ps
           scriptLocation: inlineScript
           inlineScript: |
+            $ErrorActionPreference = 'Stop'
             az --version
             az extension add --upgrade --name azure-iot --only-show-errors
             az account show -o table
             $registry = "$env:CONTAINER_REGISTRY_SERVER".Split('.')[0]
             $token = az acr login --name $registry --expose-token --query accessToken -o tsv --only-show-errors
             if (-not $token) { Write-Error "Could not acquire an ACR token for '$registry'"; exit 1 }
+            Write-Host "##vso[task.setvariable variable=ACR_ACCESS_TOKEN;issecret=true]$token"
             $env:CONTAINER_REGISTRY_USERNAME = "00000000-0000-0000-0000-000000000000"
             $env:CONTAINER_REGISTRY_PASSWORD = $token
             tox -e "$(TOXENV)"
