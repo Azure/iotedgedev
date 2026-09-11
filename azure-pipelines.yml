@@ -112,14 +112,63 @@ steps:
     workingDirectory: 'docker/tool'
 
 - task: Bash@3
-  displayName: "Test local Docker image"
+  displayName: "Test local Docker image: toolchain"
   inputs:
     targetType: 'inline'
     script: |
+       set -euo pipefail
        PACKAGEVERSION=$(cat ../../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
        echo "##vso[task.setvariable variable=VERSION]$PACKAGEVERSION"
-       mkdir /home/vsts/iotedge
-       docker run -v /var/run/docker.sock:/var/run/docker.sock -v /home/vsts/iotedge:/home/iotedge iotedgedevtoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev:${PACKAGEVERSION}
+       IMAGE="iotedgedevtoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev:${PACKAGEVERSION}"
+
+       docker run --rm "$IMAGE" bash -c '
+         set -eux
+         python3 -c "import sys; assert (3, 11) <= sys.version_info < (3, 15), sys.version"
+         iotedgedev --version
+         dotnet --version
+         node --version
+         npm --version
+         mvn --version
+         java -version
+         docker --version
+       '
+    workingDirectory: 'docker/tool'
+
+# Scaffolding fetches templates from Maven Central, NuGet and npm, so this step
+# depends on registry availability at release time and is retried before failing.
+- task: Bash@3
+  displayName: "Test local Docker image: module scaffolding"
+  inputs:
+    targetType: 'inline'
+    script: |
+       set -euo pipefail
+       PACKAGEVERSION=$(cat ../../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+       IMAGE="iotedgedevtoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev:${PACKAGEVERSION}"
+
+       for t in csharp nodejs python java; do
+         attempt=0
+         until [ "$attempt" -ge 3 ]; do
+           if docker run --rm "$IMAGE" bash -c "
+                set -eux
+                d=\$(mktemp -d)
+                cd \"\$d\"
+                iotedgedev solution new sol_$t -t $t
+                test -f sol_$t/deployment.template.json
+              "; then
+             echo "scaffold $t: ok"
+             break
+           fi
+           attempt=$((attempt + 1))
+           echo "scaffold $t: attempt $attempt failed"
+           if [ "$attempt" -lt 3 ]; then
+             sleep $((attempt * 15))
+           fi
+         done
+         if [ "$attempt" -ge 3 ]; then
+           echo "##vso[task.logissue type=error]scaffold $t failed after 3 attempts"
+           exit 1
+         fi
+       done
     workingDirectory: 'docker/tool'
 
 - task: Docker@2
@@ -139,7 +188,15 @@ steps:
   inputs:
     targetType: 'inline'
     script: |
-      docker pull mcr.microsoft.com/iotedge/iotedgedev
-      docker run  mcr.microsoft.com/iotedge/iotedgedev 
-      iotedgedev --version    
+      set -euo pipefail
+      PACKAGEVERSION=$(cat ../../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+      IMAGE="iotedgedevtoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev:${PACKAGEVERSION}"
+
+      docker pull "$IMAGE"
+
+      docker run --rm "$IMAGE" bash -c '
+        set -eux
+        python3 -c "import sys; assert (3, 11) <= sys.version_info < (3, 15), sys.version"
+        iotedgedev --version
+      '
     workingDirectory: 'docker/tool'
