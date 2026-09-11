@@ -134,6 +134,21 @@ steps:
        '
     workingDirectory: 'docker/tool'
 
+# The image runs as a non-root user, so reaching the mounted daemon socket
+# depends on runtime group resolution that only a real socket exercises.
+- task: Bash@3
+  displayName: "Test local Docker image: daemon socket access"
+  inputs:
+    targetType: 'inline'
+    script: |
+       set -euo pipefail
+       PACKAGEVERSION=$(cat ../../iotedgedev/__init__.py | grep '__version__' | grep -oP "'\K[^']+")
+       IMAGE="iotedgedevtoolscontainerregistry.azurecr.io/public/iotedge/iotedgedev:${PACKAGEVERSION}"
+
+       docker run --rm -v /var/run/docker.sock:/var/run/docker.sock "$IMAGE" \
+         python3 -c "import docker; print(docker.from_env(version='auto').info()['OSType'])"
+    workingDirectory: 'docker/tool'
+
 # Scaffolding fetches templates from Maven Central, NuGet and npm, so this step
 # depends on registry availability at release time and is retried before failing.
 - task: Bash@3
