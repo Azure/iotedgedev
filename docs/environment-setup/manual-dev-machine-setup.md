@@ -16,23 +16,19 @@ If you are using a separate Edge device, like a Raspberry Pi, you do not need to
     - New Install: `az extension add --name azure-iot`
     - Update Install: `az extension update --name azure-iot`
 
-4. (Python < 3.5 only) Install **[Node.js](https://nodejs.org/en/download/)** and the **`iothub-explorer`** package
-
-    - uamqp, which is needed by Azure CLI IoT extension for monitoring messages, is not supported in Python < 3.5. For Python < 3.5 users, please install [Node.js](https://nodejs.org/en/download/) and the `iothub-explorer` Node.js package: `npm i -g iothub-explorer`
-
-5. (Raspberry Pi only) Install extra system dependencies
+4. (Raspberry Pi only) Install extra system dependencies
 
     ```sh
-    sudo apt-get install python2.7-dev libffi-dev libssl-dev -y
+    sudo apt-get install python3-dev libffi-dev libssl-dev -y
     ```
 
-6. (Linux only) Install [Docker Compose](https://docs.docker.com/compose/)
+5. (Linux only) Install [Docker Compose](https://docs.docker.com/compose/install/linux/)
 
     ```sh
-    pip install -U docker-compose
+    sudo apt-get install docker-compose-v2
     ```
 
-7. Install **`iotedgedev`**
+6. Install **`iotedgedev`**
 
     > You do not need to do this if you're going to be developing on iotedgedev
 
@@ -46,7 +42,7 @@ If you are using a separate Edge device, like a Raspberry Pi, you do not need to
     pip install -U iotedgedev
     ```
 
-8. Install module dependencies
+7. Install module dependencies
 
     - **C# module and C# Azure Functions module**
 
@@ -76,4 +72,4 @@ If you are using a separate Edge device, like a Raspberry Pi, you do not need to
       1. Install **[JDK](https://www.oracle.com/technetwork/java/javase/downloads/index.html)**
       2. Install **[Maven](https://maven.apache.org/)**
 
-9. Follow the [Usage Wiki](../usage.md) to learn the usage of IoT Edge Dev Tool
+8. Follow the [Usage Wiki](../usage.md) to learn the usage of IoT Edge Dev Tool
