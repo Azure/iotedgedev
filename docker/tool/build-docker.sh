@@ -27,7 +27,7 @@ if [ "$IMAGE_NAME" = "--help" ]; then
 fi
 
 PYTHON2="2.7.14" #TODO READ FROM deps.txt
-PYTHON3="3.9.12"
+PYTHON3="3.11.9"
 
 build_linux=1
 build_windows=1
