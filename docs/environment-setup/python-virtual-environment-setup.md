@@ -12,7 +12,7 @@ You can run IoT Edge Dev Tool inside a [Python Virtual Environment](https://docs
 
     > To create a virtual environment with a Python version different with your system default, just use the `--python/-p` option to specify the Python executable path, *e.g.*:
     >
-    > `virtualenv --python /usr/bin/python2.7 py27`
+    > `virtualenv --python /usr/bin/python3.11 py311`
 
 3. Activate the virtual environment
 
