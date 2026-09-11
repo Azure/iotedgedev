@@ -59,7 +59,9 @@ ENV PATH=$VIRTUAL_ENV/bin:$PATH
 
 WORKDIR /home/iotedge
 COPY install-dev.sh /scripts/install-dev.sh
-RUN sed -i 's/\r//' /scripts/install-dev.sh
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN sed -i 's/\r//' /scripts/install-dev.sh /usr/local/bin/entrypoint.sh && \
+    chmod +x /usr/local/bin/entrypoint.sh
 
 USER iotedgedev
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel cookiecutter
@@ -68,3 +70,5 @@ RUN az extension add --name azure-iot && \
     echo 'alias python=python3' >> ~/.bashrc && \
     echo 'alias pip=pip3' >> ~/.bashrc
 ENV DEBIAN_FRONTEND=teletype
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["/bin/bash"]
