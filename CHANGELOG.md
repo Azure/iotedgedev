@@ -2,7 +2,7 @@
 
 All notable changes to this project since 0.82.0 will be documented in this file.
 
-## [3.3.8] - 2026-09-08
+## [3.3.9] - 2026-09-10
 
 - Require Python 3.11-3.14
 - Require simulator version 0.14.19 or later
