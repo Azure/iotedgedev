@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/mirror/docker/library/ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
-ENV DOTNETCORESDK_VERSION=8.0
+ENV DOTNETCORESDK_VERSION=10.0
 ENV NODE_MAJOR=20
 ENV VIRTUAL_ENV=/opt/iotedgedev
 
