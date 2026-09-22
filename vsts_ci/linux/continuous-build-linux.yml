@@ -60,7 +60,13 @@ steps:
             az extension add --upgrade --name azure-iot --only-show-errors
             az account show -o table
             mvn -v
-            sudo -E env "AZURE_CONFIG_DIR=$AZURE_CONFIG_DIR" "IOTHUB_AUTH_TYPE=login" `which tox` -e "$(TOXENV)"
+            registry=`echo "$CONTAINER_REGISTRY_SERVER" | cut -d. -f1`
+            token=`az acr login --name "$registry" --expose-token --query accessToken -o tsv --only-show-errors`
+            if [ -z "$token" ]; then echo "Could not acquire an ACR token for '$registry'"; exit 1; fi
+            echo "##vso[task.setvariable variable=ACR_ACCESS_TOKEN;issecret=true]$token"
+            export CONTAINER_REGISTRY_USERNAME="00000000-0000-0000-0000-000000000000"
+            export CONTAINER_REGISTRY_PASSWORD="$token"
+            sudo -E `which tox` -e "$(TOXENV)"
         env:
           IOTHUB_AUTH_TYPE: login
           IOTHUB_CONNECTION_STRING: $(IOTHUB_CONNECTION_STRING)

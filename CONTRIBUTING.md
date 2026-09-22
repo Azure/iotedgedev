@@ -46,10 +46,10 @@ You can choose one of these following commands to easily **run all** tests:
 # Run all tests with all python interpreters (fails for the ones not installed)
 # This is the command that runs in the pipeline for all python versions
 make test-all
-# Run tests with tox in python version 3.9 (the python version installed in the devcontainer)
-tox -e py39
-# Run all tests with pytest for python version 3.9 (nicest output, fastest)
+# Run tests with tox in python version 3.11 (the python version installed in the devcontainer)
+tox -e py311
+# Run all tests with pytest for python version 3.11 (nicest output, fastest)
 make test
 ```
 
-> It is recommended to run all tests with `tox -e py39` or `make test-all` at least once before making the PR. The pytest test runner environment is slightly different from tox, so some tests may pass with that and not in tox, resulting in failures in the pipeline.
+> It is recommended to run all tests with `tox -e py311` or `make test-all` at least once before making the PR. The pytest test runner environment is slightly different from tox, so some tests may pass with that and not in tox, resulting in failures in the pipeline.
