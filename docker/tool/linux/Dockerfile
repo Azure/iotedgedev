@@ -1,5 +1,6 @@
 FROM iotedgedev-linux-base
 ARG IOTEDGEDEV_VERSION
+ARG PIP_INDEX_URL
 COPY --chown=iotedgedev:iotedgedev iotedgedev-$IOTEDGEDEV_VERSION-py3-none-any.whl dist/iotedgedev-$IOTEDGEDEV_VERSION-py3-none-any.whl
 RUN pip install --no-cache-dir dist/iotedgedev-$IOTEDGEDEV_VERSION-py3-none-any.whl && \
     rm -rf dist/

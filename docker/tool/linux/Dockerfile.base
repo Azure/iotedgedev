@@ -3,8 +3,17 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV DOTNETCORESDK_VERSION=10.0
 ENV NODE_MAJOR=24
 ENV VIRTUAL_ENV=/opt/iotedgedev
+# Package indexes, read natively by pip and npm.
+ARG PIP_INDEX_URL
+ARG NPM_CONFIG_REGISTRY
 
-RUN apt-get update && \
+# TEMP: endpoint reachability probe for the rehearsal run.
+RUN for h in archive.ubuntu.com azure.archive.ubuntu.com security.ubuntu.com deb.nodesource.com nodejs.org packagefeedproxy.microsoft.io pypi.org files.pythonhosted.org registry.npmjs.org download.docker.com packages.microsoft.com aka.ms azcliextensionsync.blob.core.windows.net github.com objects.githubusercontent.com release-assets.githubusercontent.com codeload.github.com raw.githubusercontent.com api.nuget.org repo.maven.apache.org repo1.maven.org; do \
+      echo "PROBE $h $(getent ahostsv4 $h | awk 'NR==1{print $1}')"; \
+    done || true
+
+RUN sed -i 's|http://archive.ubuntu.com/|http://azure.archive.ubuntu.com/|g' /etc/apt/sources.list.d/ubuntu.sources && \
+    apt-get update && \
     apt-get install -y --no-install-recommends \
         apt-transport-https apt-utils build-essential ca-certificates curl dialog \
         git gnupg libffi-dev libltdl-dev libssl-dev libxml2-dev libxslt1-dev \
