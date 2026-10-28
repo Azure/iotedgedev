@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# requires Docker BuildKit
 # stop on error
 set -e
 
