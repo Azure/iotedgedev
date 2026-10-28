@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# requires Docker BuildKit
 # stop on error
 set -e
 
@@ -67,14 +68,25 @@ function build_linux
     
     cp ../../../dist/iotedgedev-$VERSION-py3-none-any.whl iotedgedev-$VERSION-py3-none-any.whl
 
+    # Optional pip and npm config files, passed as build secrets.
+    secrets=()
+    if [ -n "${PIP_CONFIG_FILE:-}" ]; then
+        secrets+=(--secret "id=pipconf,src=$PIP_CONFIG_FILE")
+    fi
+    if [ -n "${NPM_CONFIG_USERCONFIG:-}" ]; then
+        secrets+=(--secret "id=npmrc,src=$NPM_CONFIG_USERCONFIG")
+    fi
+
     docker build \
         -f Dockerfile.base \
+        "${secrets[@]}" \
         -t iotedgedev-linux-base \
         .
 
     docker build \
         -f Dockerfile \
         --build-arg IOTEDGEDEV_VERSION=$VERSION \
+        "${secrets[@]}" \
         -t $IMAGE_NAME:$VERSION-amd64 \
         -t $IMAGE_NAME:latest-amd64 \
         -t $IMAGE_NAME:$VERSION \

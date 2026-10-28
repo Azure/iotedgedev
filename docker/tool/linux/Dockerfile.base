@@ -4,7 +4,8 @@ ENV DOTNETCORESDK_VERSION=10.0
 ENV NODE_MAJOR=24
 ENV VIRTUAL_ENV=/opt/iotedgedev
 
-RUN apt-get update && \
+RUN sed -i 's|http://archive.ubuntu.com/|http://azure.archive.ubuntu.com/|g' /etc/apt/sources.list.d/ubuntu.sources && \
+    apt-get update && \
     apt-get install -y --no-install-recommends \
         apt-transport-https apt-utils build-essential ca-certificates curl dialog \
         git gnupg libffi-dev libltdl-dev libssl-dev libxml2-dev libxslt1-dev \
@@ -37,7 +38,8 @@ RUN apt-get update && \
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 ENV PATH=$JAVA_HOME/bin:$PATH
 
-RUN npm i -g azure-iothub yo generator-azure-iot-edge-module && \
+RUN --mount=type=secret,id=npmrc,target=/root/.npmrc \
+    npm i -g azure-iothub yo generator-azure-iot-edge-module && \
     npm cache clean --force
 
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash && \
@@ -64,9 +66,11 @@ RUN sed -i 's/\r//' /scripts/install-dev.sh /usr/local/bin/entrypoint.sh && \
     chmod +x /usr/local/bin/entrypoint.sh
 
 USER iotedgedev
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel cookiecutter
+RUN --mount=type=secret,id=pipconf,target=/etc/pip.conf,mode=0444 \
+    pip install --no-cache-dir --upgrade pip setuptools wheel cookiecutter
 
-RUN az extension add --name azure-iot && \
+RUN --mount=type=secret,id=pipconf,target=/etc/pip.conf,mode=0444 \
+    az extension add --name azure-iot && \
     echo 'alias python=python3' >> ~/.bashrc && \
     echo 'alias pip=pip3' >> ~/.bashrc
 ENV DEBIAN_FRONTEND=teletype
