@@ -67,21 +67,25 @@ function build_linux
     
     cp ../../../dist/iotedgedev-$VERSION-py3-none-any.whl iotedgedev-$VERSION-py3-none-any.whl
 
-    # Package indexes used by the image build; override through the environment.
-    PIP_INDEX_URL="${PIP_INDEX_URL:-https://packagefeedproxy.microsoft.io/pypi/simple/}"
-    NPM_CONFIG_REGISTRY="${NPM_CONFIG_REGISTRY:-https://packagefeedproxy.microsoft.io/npm/}"
+    # Optional pip and npm config files, passed as build secrets.
+    secrets=()
+    if [ -n "${PIP_CONFIG_FILE:-}" ]; then
+        secrets+=(--secret "id=pipconf,src=$PIP_CONFIG_FILE")
+    fi
+    if [ -n "${NPM_CONFIG_USERCONFIG:-}" ]; then
+        secrets+=(--secret "id=npmrc,src=$NPM_CONFIG_USERCONFIG")
+    fi
 
     docker build \
         -f Dockerfile.base \
-        --build-arg PIP_INDEX_URL="$PIP_INDEX_URL" \
-        --build-arg NPM_CONFIG_REGISTRY="$NPM_CONFIG_REGISTRY" \
+        "${secrets[@]}" \
         -t iotedgedev-linux-base \
         .
 
     docker build \
         -f Dockerfile \
         --build-arg IOTEDGEDEV_VERSION=$VERSION \
-        --build-arg PIP_INDEX_URL="$PIP_INDEX_URL" \
+        "${secrets[@]}" \
         -t $IMAGE_NAME:$VERSION-amd64 \
         -t $IMAGE_NAME:latest-amd64 \
         -t $IMAGE_NAME:$VERSION \
