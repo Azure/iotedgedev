@@ -5,6 +5,7 @@ ARG PYTHON3_VERSION
 ENV NODEJS_VERSION 8.11.1
 ENV DOTNETCORESDK_VERSION 2.1.402
 ENV DOCKER_VERSION 17.09.0
+ENV COMPOSE_VERSION 2.40.3
 ENV GIT_VERSION 2.18.0
 ENV DESTINATION_FOLDER C:\\tools
 WORKDIR /tmp
@@ -41,6 +42,11 @@ RUN $docker_url = ('https://download.docker.com/win/static/stable/x86_64/docker-
     $install_folder = Join-Path -Path $env:DESTINATION_FOLDER -ChildPath ''; \
     Expand-Archive -Path .\docker.zip -DestinationPath $install_folder; \
     Remove-Item ('{0}\docker\dockerd.exe' -f $env:DESTINATION_FOLDER)
+RUN $compose_url = ('https://github.com/docker/compose/releases/download/v{0}/docker-compose-windows-x86_64.exe' -f $env:COMPOSE_VERSION); \
+    Write-Host ('Downloading {0}...' -f $compose_url); \
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
+    $compose_path = ('{0}\docker\docker-compose.exe' -f $env:DESTINATION_FOLDER); \
+    (New-Object System.Net.WebClient).DownloadFile($compose_url, $compose_path);
 RUN $git_url = ('https://github.com/git-for-windows/git/releases/download/v{0}.windows.1/MinGit-{0}-64-bit.zip' -f $env:GIT_VERSION); \
     Write-Host ('Downloading {0}...' -f $git_url); \
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
@@ -56,7 +62,7 @@ USER ContainerAdministrator
 RUN setx /M PATH "%PATH%;C:\tools\dotnetcoresdk;C:\tools\node\;C:\tools\python3;C:\tools\python3\Scripts;c:\tools\docker\;"
 USER ContainerUser
 RUN python -m pip install --upgrade pip
-RUN pip install azure-cli cookiecutter docker-compose
+RUN pip install azure-cli cookiecutter
 RUN npm i -g iothub-explorer yo generator-azure-iot-edge-module
 RUN az extension add --name azure-iot
 WORKDIR /home/iotedge

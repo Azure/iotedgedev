@@ -2,9 +2,17 @@
 
 All notable changes to this project since 0.82.0 will be documented in this file.
 
-## [3.3.8] - 2024-03-11
+## [3.3.10] - 2026-10-26
 
+- Update Docker image dependencies
+
+## [3.3.9] - 2026-09-10
+
+- Require Python 3.11-3.14
+- Require simulator version 0.14.19 or later
 - Lock .NET Microsoft.Azure.IoT.Edge.Module version at 3.2.0
+- Update azure-cli-core, requests and python-dotenv
+- Update Node.js in the Docker image to 24
 
 ## [3.3.7] - 2022-11-7
 

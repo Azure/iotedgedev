@@ -1,5 +1,5 @@
 # Dependencies versions
-ARG PYTHON_VERSION="3.9"
+ARG PYTHON_VERSION="3.11"
 
 FROM mcr.microsoft.com/vscode/devcontainers/python:0-${PYTHON_VERSION}
 
