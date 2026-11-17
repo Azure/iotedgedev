@@ -38,7 +38,7 @@ steps:
   - ${{ if eq(parameters.azureServiceConnection, '') }}:
       - script: |
           mvn -v
-          sudo -E `which tox` -e "$(TOXENV)"
+          sudo -E env -u XDG_RUNTIME_DIR `which tox` -e "$(TOXENV)"
         displayName: "Run test"
         env:
           IOTHUB_CONNECTION_STRING: $(IOTHUB_CONNECTION_STRING)
@@ -66,7 +66,7 @@ steps:
             echo "##vso[task.setvariable variable=ACR_ACCESS_TOKEN;issecret=true]$token"
             export CONTAINER_REGISTRY_USERNAME="00000000-0000-0000-0000-000000000000"
             export CONTAINER_REGISTRY_PASSWORD="$token"
-            sudo -E `which tox` -e "$(TOXENV)"
+            sudo -E env -u XDG_RUNTIME_DIR `which tox` -e "$(TOXENV)"
         env:
           IOTHUB_AUTH_TYPE: login
           IOTHUB_CONNECTION_STRING: $(IOTHUB_CONNECTION_STRING)
