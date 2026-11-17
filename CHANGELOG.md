@@ -2,6 +2,10 @@
 
 All notable changes to this project since 0.82.0 will be documented in this file.
 
+## [3.3.11] - 2026-11-16
+
+- Deprecate the IoT Edge Dev Tool
+
 ## [3.3.10] - 2026-10-26
 
 - Update Docker image dependencies

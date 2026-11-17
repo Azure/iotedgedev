@@ -1,5 +1,8 @@
 # Azure IoT Edge Dev Tool
 
+> [!WARNING]
+> **DEPRECATED:** The IoT Edge Dev Tool is deprecated and no longer actively developed. No new features or fixes are planned. Existing releases remain available on PyPI.
+
 [![PyPI version](https://badge.fury.io/py/iotedgedev.svg)](https://badge.fury.io/py/iotedgedev)
 [![Build Status](https://dev.azure.com/Azure-IoT-DDE-EdgeExperience/IoTEdgeDev/_apis/build/status/Azure.iotedgedev?branchName=main)](https://dev.azure.com/Azure-IoT-DDE-EdgeExperience/IoTEdgeDev/_build/latest?definitionId=35&branchName=main)
 

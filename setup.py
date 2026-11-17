@@ -31,9 +31,9 @@ test_requirements = [
 
 setup(
     name='iotedgedev',
-    version='3.3.10',
-    description='The Azure IoT Edge Dev Tool greatly simplifies the IoT Edge development process by automating many routine manual tasks, such as building, deploying, pushing modules and configuring the IoT Edge Runtime.',
-    long_description='See https://github.com/azure/iotedgedev for usage instructions.',
+    version='3.3.11',
+    description='[DEPRECATED] The Azure IoT Edge Dev Tool greatly simplifies the IoT Edge development process by automating many routine manual tasks, such as building, deploying, pushing modules and configuring the IoT Edge Runtime.',
+    long_description='DEPRECATED: The Azure IoT Edge Dev Tool is deprecated and no longer actively developed. No new features or fixes are planned. Existing releases remain available. See https://github.com/azure/iotedgedev for usage instructions.',
     author='Microsoft Corporation',
     author_email='vsciet@microsoft.com',
     url='https://github.com/azure/iotedgedev',
@@ -50,7 +50,7 @@ setup(
     keywords='azure iot edge dev tool',
     python_requires='>=3.11, <3.15',
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 7 - Inactive',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
